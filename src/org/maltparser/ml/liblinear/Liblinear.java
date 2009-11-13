@@ -420,6 +420,8 @@ public class Liblinear implements LearningMethod {
 		} else {
 			liblinear_predict_with_kbestlist(model, xarray, decision.getKBestList());
 		}
+		
+		xlist.clear();
 
 		return true;
 	}
