@@ -3,6 +3,7 @@ package org.maltparser.core.helper;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -122,7 +123,7 @@ public class SystemInfo {
 	   try {
             URL codeBase = SystemInfo.class.getProtectionDomain().getCodeSource().getLocation();
             if(codeBase != null && codeBase.getPath().endsWith(".jar")) {
-            	JarFile jarfile = new JarFile(codeBase.getPath());
+            	JarFile jarfile = new JarFile(URLDecoder.decode(codeBase.getPath(),java.nio.charset.Charset.defaultCharset().name()));
                 Manifest manifest = jarfile.getManifest();
                 Attributes manifestAttributes = manifest.getMainAttributes();
                 version = manifestAttributes.getValue("Implementation-Version");
@@ -131,6 +132,7 @@ public class SystemInfo {
         } catch(IOException e) {
         	version = "";
         	buildDate = "Not available";
+        	e.printStackTrace();
         }
 	}
 }
