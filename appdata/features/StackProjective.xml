@@ -9,8 +9,8 @@
 		<feature>InputColumn(POSTAG, Lookahead[2])</feature>
 		<feature>OutputColumn(DEPREL, ldep(Stack[0]))</feature>
 		<feature>OutputColumn(DEPREL, rdep(Stack[0]))</feature>
-		<feature>OutputColumn(DEPREL, ldep(Lookahead[1]))</feature>
-		<feature>OutputColumn(DEPREL, rdep(Lookahead[1]))</feature>
+		<feature>OutputColumn(DEPREL, ldep(Stack[1]))</feature>
+		<feature>OutputColumn(DEPREL, rdep(Stack[1]))</feature>
 		<feature>InputColumn(FORM, Stack[0])</feature>
 		<feature>InputColumn(FORM, Stack[1])</feature>
 		<feature>InputColumn(FORM, Lookahead[0])</feature>

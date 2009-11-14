@@ -1,7 +1,6 @@
 package org.maltparser.core.syntaxgraph.reader;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -142,14 +141,16 @@ public class TabReader implements SyntaxGraphReader {
 								throw new DataFormatException("The input graph is not a dependency graph and therefore it is not possible to add dependncy edges. ");
 							}
 						} else if (column.getCategory() == ColumnDescription.DEPENDENCY_EDGE_LABEL && edge != null) {
-							if (column.getType() != ColumnDescription.IGNORE && !input.toString().equals(IGNORE_COLUMN_SIGN)) { // bugfix
+							//if (column.getType() != ColumnDescription.IGNORE && !input.toString().equals(IGNORE_COLUMN_SIGN)) { // bugfix not working for everybody
 								syntaxGraph.addLabel(edge, column.getName(), input.toString());
-							} // bugfix
+							//} // bugfix
 						}
 					}
 					input.setLength(0);
 					nNewLines = 0;
 					i++;
+				} else if (c == TAB) {
+					throw new MaltChainedException("The input file '"+fileName+"' contains a column where the value is an empty string. Please check your input file. ");
 				}
 				if (c == NEWLINE) {
 					nNewLines++;
