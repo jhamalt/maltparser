@@ -37,7 +37,7 @@ public class InputArcFeature implements FeatureFunction {
 	}
 	
 	public void initialize(Object[] arguments) throws MaltChainedException {
-		if (arguments.length != 1) {
+		if (arguments.length != 3) {
 			throw new FeatureException("Could not initialize InputArcFeature: number of arguments are not correct. ");
 		}
 		// Checks that the two arguments are address functions
@@ -61,7 +61,7 @@ public class InputArcFeature implements FeatureFunction {
 	}
 	
 	public Class<?>[] getParameterTypes() {
-		Class<?>[] paramTypes = { java.lang.String.class };
+	    Class<?>[] paramTypes = { java.lang.String.class, org.maltparser.core.feature.function.AddressFunction.class, org.maltparser.core.feature.function.AddressFunction.class };
 		return paramTypes;
 	}
 	
@@ -88,38 +88,37 @@ public class InputArcFeature implements FeatureFunction {
 		// Retrieve the address value 
 		final AddressValue arg1 = addressFunction1.getAddressValue();
 		final AddressValue arg2 = addressFunction2.getAddressValue();
-		try {
-
-			if (arg1.getAddress() == null || arg2.getAddress() == null) {
-				featureValue.setCode(table.getNullValueCode(NullValueId.NO_NODE));
-				featureValue.setSymbol(table.getNullValueSymbol(NullValueId.NO_NODE));
-				featureValue.setKnown(true);
-				featureValue.setNullValue(true); 
+		if (arg1.getAddress() != null && arg1.getAddressClass() == org.maltparser.core.syntaxgraph.node.DependencyNode.class &&
+		    arg2.getAddress() != null && arg2.getAddressClass() == org.maltparser.core.syntaxgraph.node.DependencyNode.class) {
+		    DependencyNode node1 = (DependencyNode)arg1.getAddress();
+		    DependencyNode node2 = (DependencyNode)arg2.getAddress();
+		    try {
+			int head1 = Integer.parseInt(node1.getLabelSymbol(column.getSymbolTable()));
+			int head2 = Integer.parseInt(node2.getLabelSymbol(column.getSymbolTable()));
+			if (!node1.isRoot() && head1 == node2.getIndex()) {
+			    featureValue.setCode(table.getSymbolStringToCode("LEFT"));
+			    featureValue.setSymbol("LEFT");
+			    featureValue.setKnown(true);
+			    featureValue.setNullValue(false);
+			} else if (!node2.isRoot() && head2 == node1.getIndex()) {
+			    featureValue.setCode(table.getSymbolStringToCode("RIGHT"));
+			    featureValue.setSymbol("RIGHT");
+			    featureValue.setKnown(true);
+			    featureValue.setNullValue(false);			
 			} else {
-				final DependencyNode node1 = (DependencyNode)arg1.getAddress();
-				final DependencyNode node2 = (DependencyNode)arg2.getAddress();
-				
-				int head1 = Integer.parseInt(node1.getLabelSymbol(column.getSymbolTable()));
-				int head2 = Integer.parseInt(node2.getLabelSymbol(column.getSymbolTable()));
-				if (!node1.isRoot() && head1 == node2.getIndex()) {
-					featureValue.setCode(table.getSymbolStringToCode("LEFT"));
-					featureValue.setSymbol("LEFT");
-					featureValue.setKnown(true);
-					featureValue.setNullValue(false);
-				} else if (!node2.isRoot() && head2 == node1.getIndex()) {
-					featureValue.setCode(table.getSymbolStringToCode("RIGHT"));
-					featureValue.setSymbol("RIGHT");
-					featureValue.setKnown(true);
-					featureValue.setNullValue(false);			
-				} else {
-					featureValue.setCode(table.getNullValueCode(NullValueId.NO_NODE));
-					featureValue.setSymbol(table.getNullValueSymbol(NullValueId.NO_NODE));
-					featureValue.setKnown(true);
-					featureValue.setNullValue(true);
-				}
+			    featureValue.setCode(table.getNullValueCode(NullValueId.NO_NODE));
+			    featureValue.setSymbol(table.getNullValueSymbol(NullValueId.NO_NODE));
+			    featureValue.setKnown(true);
+			    featureValue.setNullValue(true);
 			}
-		} catch (NumberFormatException e) {
+		    } catch (NumberFormatException e) {
 			throw new FeatureException("The index of the feature must be an integer value. ", e);
+		    }
+		} else {
+		    featureValue.setCode(table.getNullValueCode(NullValueId.NO_NODE));
+		    featureValue.setSymbol(table.getNullValueSymbol(NullValueId.NO_NODE));
+		    featureValue.setKnown(true);
+		    featureValue.setNullValue(true);
 		}
 	}
 
