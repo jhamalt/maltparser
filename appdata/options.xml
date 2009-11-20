@@ -106,6 +106,7 @@ many single malt configurations. ]]></desc>
 			<legalvalue name="covnonproj" class="org.maltparser.parser.algorithm.covington.CovingtonNonProjFactory">Covington non-projective</legalvalue>
 			<legalvalue name="covproj" class="org.maltparser.parser.algorithm.covington.CovingtonProjFactory">Covington projective</legalvalue>
 			<legalvalue name="stackproj" class="org.maltparser.parser.algorithm.stack.StackProjFactory">Stack projective</legalvalue>
+			<legalvalue name="stackincr" class="org.maltparser.parser.algorithm.stack.StackIncrFactory">Stack projective</legalvalue>
 			<legalvalue name="stackeager" class="org.maltparser.parser.algorithm.stack.StackSwapEagerFactory">Stack eager</legalvalue>	
 			<legalvalue name="stacklazy" class="org.maltparser.parser.algorithm.stack.StackSwapLazyFactory">Stack lazy</legalvalue>
 		</option>
@@ -387,8 +388,9 @@ otherwise all tokens in Left must be inspected before the next token is shifted.
 			<legalvalue name="covnonproj" mapto="/appdata/features/CovingtonNonProjective.xml">Covington non-projective default model</legalvalue>
 			<legalvalue name="covproj" mapto="/appdata/features/CovingtonProjective.xml">Covington projective default model</legalvalue>
 			<legalvalue name="stackproj" mapto="/appdata/features/StackProjective.xml">Stack projective default model</legalvalue>
-			<legalvalue name="stackeager" mapto="/appdata/features/StackSwap.xml">Stack projective default model</legalvalue>
-			<legalvalue name="stacklazy" mapto="/appdata/features/StackSwap.xml">Stack projective default model</legalvalue>
+			<legalvalue name="stackincr" mapto="/appdata/features/StackIncremental.xml">Stack incremental default model</legalvalue>
+			<legalvalue name="stackeager" mapto="/appdata/features/StackSwap.xml">Stack swap eager default model</legalvalue>
+			<legalvalue name="stacklazy" mapto="/appdata/features/StackSwap.xml">Stack swap lazy default model</legalvalue>
 		</option>
 		<option type="string" name="data_split_column" flag="d" default="" usage="save">
 			<desc><![CDATA[ For some learning methods (like LIBSVM) it is impractical to induce a single model based on all training instances. With
