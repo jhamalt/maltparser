@@ -109,6 +109,7 @@ many single malt configurations. ]]></desc>
 			<legalvalue name="stackincr" class="org.maltparser.parser.algorithm.stack.StackIncrFactory">Stack projective</legalvalue>
 			<legalvalue name="stackeager" class="org.maltparser.parser.algorithm.stack.StackSwapEagerFactory">Stack eager</legalvalue>	
 			<legalvalue name="stacklazy" class="org.maltparser.parser.algorithm.stack.StackSwapLazyFactory">Stack lazy</legalvalue>
+			<legalvalue name="stackattardi" class="org.maltparser.parser.algorithm.stack.StackAttardiFactory">Stack Attardi</legalvalue>
 		</option>
 		<option type="class" name="guide_model" flag="gm" default="single" usage="save">
 			<desc><![CDATA[ MaltParser @version@ has one available guide model type: <b>single</b>. Later releases 
@@ -391,6 +392,7 @@ otherwise all tokens in Left must be inspected before the next token is shifted.
 			<legalvalue name="stackincr" mapto="/appdata/features/StackIncremental.xml">Stack incremental default model</legalvalue>
 			<legalvalue name="stackeager" mapto="/appdata/features/StackSwap.xml">Stack swap eager default model</legalvalue>
 			<legalvalue name="stacklazy" mapto="/appdata/features/StackSwap.xml">Stack swap lazy default model</legalvalue>
+			<legalvalue name="stackattardi" mapto="/appdata/features/StackAttardi.xml">Stack projective default model</legalvalue>
 		</option>
 		<option type="string" name="data_split_column" flag="d" default="" usage="save">
 			<desc><![CDATA[ For some learning methods (like LIBSVM) it is impractical to induce a single model based on all training instances. With
