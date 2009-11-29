@@ -110,6 +110,7 @@ many single malt configurations. ]]></desc>
 			<legalvalue name="stackeager" class="org.maltparser.parser.algorithm.stack.StackSwapEagerFactory">Stack eager</legalvalue>	
 			<legalvalue name="stacklazy" class="org.maltparser.parser.algorithm.stack.StackSwapLazyFactory">Stack lazy</legalvalue>
 			<legalvalue name="stackattardi" class="org.maltparser.parser.algorithm.stack.StackAttardiFactory">Stack Attardi</legalvalue>
+			<legalvalue name="planar" class="org.maltparser.parser.algorithm.planar.NivrePlanarArcEagerFactory">Planar eager</legalvalue>
 		</option>
 		<option type="class" name="guide_model" flag="gm" default="single" usage="save">
 			<desc><![CDATA[ MaltParser @version@ has one available guide model type: <b>single</b>. Later releases 
@@ -302,6 +303,24 @@ many single malt configurations. ]]></desc>
 			<shortdesc>Post processing</shortdesc>
 		</option>-->
 	</optiongroup>
+		<optiongroup groupname="planar">
+		<desc><![CDATA[ The <b>planar</b> option group controls the Nivre planar parsing algorithm.  ]]></desc>
+		<option type="enum" name="connectedness" flag="pcon" default="none" usage="save">
+			<desc><![CDATA[ If <b>connectedness=true</b>, the parser only generates connected dependency graphs. ]]></desc>
+			<shortdesc>Enforce connectedness</shortdesc>
+			<legalvalue name="none">Don't enforce connectedness at all, words whose head the parser doesn't know will be linked to the root node. With this option, the parser will work with planar dependency forests. A forest may be seen as a tree by considering all the roots linked to the dummy root node, but it needn't be planar when seen this way.</legalvalue>
+			<legalvalue name="reduceonly">The last node in a connected component cannot be reduced. No restrictions on shift transitions. This option guarantees that the dependency graph obtained counting links to the dummy root node is planar and connected. </legalvalue>
+			<legalvalue name="full">Enforce full connectedness by not only not allowing to reduce the last node in a component, but not allowing to shift the last word if the graph is not connected. The produced graph will be connected and planar even without considering the dummy root node.</legalvalue>
+		</option>
+		<option type="bool" name="acyclicity" flag="pacy" default="true" usage="save">
+			<desc><![CDATA[ If <b>acyclicity=true</b>, the parser only generates acyclic dependency graphs. ]]></desc>
+			<shortdesc>Enforce acyclicity</shortdesc>
+		</option>
+		<option type="bool" name="no_covered_roots" flag="pcov" default="false" usage="save">
+			<desc><![CDATA[ If <b>covered_roots=true</b>, the parser disallows covered roots (i.e. disallows non-projective structures, while with this option set to false, it allows planar structures that are not projective). ]]></desc>
+			<shortdesc>Disallow covered roots</shortdesc>
+		</option>
+	</optiongroup>
 	<optiongroup groupname="covington">
 		<option type="bool" name="allow_root" flag="cr" default="true" usage="save">
 			<desc><![CDATA[ If <b>allow_root=true</b>, the parser treats the special root node as a token during parsing, allowing root dependents to be
@@ -390,9 +409,10 @@ otherwise all tokens in Left must be inspected before the next token is shifted.
 			<legalvalue name="covproj" mapto="/appdata/features/CovingtonProjective.xml">Covington projective default model</legalvalue>
 			<legalvalue name="stackproj" mapto="/appdata/features/StackProjective.xml">Stack projective default model</legalvalue>
 			<legalvalue name="stackincr" mapto="/appdata/features/StackIncremental.xml">Stack incremental default model</legalvalue>
-			<legalvalue name="stackeager" mapto="/appdata/features/StackSwap.xml">Stack swap eager default model</legalvalue>
-			<legalvalue name="stacklazy" mapto="/appdata/features/StackSwap.xml">Stack swap lazy default model</legalvalue>
+			<legalvalue name="stackeager" mapto="/appdata/features/StackSwap.xml">Stack projective default model</legalvalue>
+			<legalvalue name="stacklazy" mapto="/appdata/features/StackSwap.xml">Stack projective default model</legalvalue>
 			<legalvalue name="stackattardi" mapto="/appdata/features/StackAttardi.xml">Stack projective default model</legalvalue>
+			<legalvalue name="planar" mapto="/appdata/features/PlanarEager.xml">Planar arc-eager default model</legalvalue>
 		</option>
 		<option type="string" name="data_split_column" flag="d" default="" usage="save">
 			<desc><![CDATA[ For some learning methods (like LIBSVM) it is impractical to induce a single model based on all training instances. With

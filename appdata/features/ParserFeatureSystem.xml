@@ -26,6 +26,12 @@
 			<subfunction name="Input"></subfunction>
 		</subfunctions>
 	</function>
+	<function class="org.maltparser.parser.algorithm.planar.PlanarFactory" hasSubFunctions="true" hasFactory="true">
+		<subfunctions>
+			<subfunction name="Stack"></subfunction>
+			<subfunction name="Input"></subfunction>
+		</subfunctions>
+	</function>
 	<function class="org.maltparser.parser.algorithm.stack.StackFactory" hasSubFunctions="true" hasFactory="true">
 		<subfunctions>
 			<subfunction name="Stack"></subfunction>
@@ -101,6 +107,13 @@
 	</function>
 	<function name="Merge3" class="org.maltparser.core.feature.map.Merge3Feature" hasSubFunctions="false">
 		<desc><![CDATA[ Merge three feature value into one feature value.  ]]></desc>
+	</function>
+		<function name="OutputArc" class="org.maltparser.core.syntaxgraph.feature.OutputArcFeature" hasSubFunctions="false">
+		<desc><![CDATA[ Takes three arguments, a column name and two address functions, and returns LEFT, RIGHT or NULL depending on whether 
+		the column value defines a left-pointing, right-pointing or no arc between the two nodes identified by the address functions. The column name 
+		must correspond to an <b>output</b> column of integer type in the data format and the address functions must return token nodes in 
+		the input string. (If one of the address functions is undefined, a null-value is returned.) IMPORTANT NOTE: Currently the column name is
+		ignored, it only works for arcs described by the HEAD output column. ]]></desc>
 	</function>
 </featuresystem>
 
