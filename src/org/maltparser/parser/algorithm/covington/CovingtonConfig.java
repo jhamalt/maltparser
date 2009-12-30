@@ -167,6 +167,9 @@ public class CovingtonConfig extends ParserConfiguration {
 				}
 			}
 		}
+		for (SymbolTable table : source.getDefaultRootEdgeLabels().keySet()) {
+			dependencyGraph.setDefaultRootEdgeLabel(table, source.getDefaultRootEdgeLabelSymbol(table));
+		}
 	}
 	
 	public DependencyStructure getDependencyGraph() {

@@ -6,6 +6,7 @@ import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.symbol.SymbolTable;
 import org.maltparser.core.symbol.SymbolTableHandler;
 import org.maltparser.core.symbol.TableHandler;
+import org.maltparser.core.syntaxgraph.DependencyGraph;
 import org.maltparser.core.syntaxgraph.LabelSet;
 import org.maltparser.core.syntaxgraph.edge.Edge;
 import org.maltparser.parser.history.GuideUserHistory;
@@ -63,7 +64,12 @@ public abstract class TransitionSystem {
 	protected void addEdgeLabels(Edge e) throws MaltChainedException {
 		if (e != null) { 
 			for (int i = 0; i < arcLabelActionContainers.length; i++) {
-				e.addLabel((SymbolTable)arcLabelActionContainers[i].getTable(), arcLabelActionContainers[i].getActionCode());
+				if (arcLabelActionContainers[i].getActionCode() != -1) {
+					e.addLabel((SymbolTable)arcLabelActionContainers[i].getTable(), arcLabelActionContainers[i].getActionCode());
+				} else {
+					e.addLabel((SymbolTable)arcLabelActionContainers[i].getTable(), ((DependencyGraph)e.getBelongsToGraph()).getDefaultRootEdgeLabelCode((SymbolTable)arcLabelActionContainers[i].getTable()));
+				}
+				
 			}
 		}
 	}
