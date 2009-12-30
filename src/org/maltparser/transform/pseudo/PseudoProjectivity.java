@@ -440,7 +440,7 @@ public class PseudoProjectivity {
 			}
 		}
 		deattachCoveredRootsForDeprojectivization(pdg);
-		if (markingStrategy == PseudoProjectiveEncoding.HEAD) {
+		if (markingStrategy == PseudoProjectiveEncoding.HEAD && needsDeprojectivizeWithHead(pdg)) {
 			deprojectivizeWithHead(pdg, pdg.getDependencyRoot());
 		} else if (markingStrategy == PseudoProjectiveEncoding.PATH) {
 			deprojectivizeWithPath(pdg, pdg.getDependencyRoot());
@@ -472,6 +472,21 @@ public class PseudoProjectivity {
 				}
 			}
 		}
+	}
+
+	// Check whether there is at least one node in the specified dependency structure that can be lifted.
+	// If this is not the case, there is no need to call deprojectivizeWithHead.
+
+	private boolean needsDeprojectivizeWithHead(DependencyStructure pdg) throws MaltChainedException {
+		for (int index : pdg.getDependencyIndices()) {
+			if (nodeLifted.get(index)) {
+				DependencyNode node = pdg.getDependencyNode(index);
+				if (breadthFirstSearchSortedByDistanceForHead(pdg, node.getHead(), node, synacticHeadDeprel.get(index)) != null) {
+					return true;
+				}
+		    }
+		}
+		return false;
 	}
 
 	private boolean deprojectivizeWithHead(DependencyStructure pdg, DependencyNode node) throws MaltChainedException {
