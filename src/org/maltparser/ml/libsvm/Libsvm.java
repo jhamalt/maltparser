@@ -343,9 +343,13 @@ public class Libsvm implements LearningMethod {
 					out.write('\t');
 					sb.setLength(0);
 				} else if (c == '\n') {
-					out.write(sb.toString());
+					if (sb.length() > 0) { 
+						out.write(sb.toString());
+					}
 					if (divideFeatureIndexVector.contains(j-1)) {
-						out.write('\t');
+						if (sb.length() > 0) { 
+							out.write('\t');
+						}
 						out.write(Integer.toString(((SingleFeatureValue)divideFeature.getFeatureValue()).getCode()));
 					}
 					out.write('\n');
