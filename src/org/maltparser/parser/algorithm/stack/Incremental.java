@@ -79,9 +79,9 @@ public class Incremental extends TransitionSystem {
 		if ((trans == LEFTARC || trans == RIGHTARC) & stack.peek().hasHead()) {
 		    return false;
 		}
-		if (trans == SHIFT && input.isEmpty()) { 
+		/*if (trans == SHIFT && input.isEmpty()) { 
 			return false;
-		}
+			}*/
 		return true;
 	}
 	
@@ -111,7 +111,7 @@ public class Incremental extends TransitionSystem {
 	}
 	
 	public GuideUserAction defaultAction(GuideUserHistory history, ParserConfiguration configuration) throws MaltChainedException {
-		if (((StackConfig)configuration).getInput().isEmpty()) {
+	    /*		if (((StackConfig)configuration).getInput().isEmpty()) {
 		    if (((StackConfig)configuration).getStack().peek().hasHead()) {
 			return updateActionContainers(history, REDUCE, null);
 		    }
@@ -119,7 +119,7 @@ public class Incremental extends TransitionSystem {
 			return updateActionContainers(history, RIGHTARC, ((StackConfig)configuration).getDependencyGraph().getDefaultRootEdgeLabels());
 		    }
 		}
-		
+	    */	
 		return updateActionContainers(history, SHIFT, null);
 	}
 }

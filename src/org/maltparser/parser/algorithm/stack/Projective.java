@@ -71,9 +71,11 @@ public class Projective extends TransitionSystem {
 		if (trans == LEFTARC && stack.get(stack.size()-2).isRoot()) { 
 			return false;
 		}
+		/*
 		if (trans == SHIFT && input.isEmpty()) { 
 			return false;
 		}
+		*/
 		return true;
 	}
 	
@@ -102,10 +104,11 @@ public class Projective extends TransitionSystem {
 	}
 	
 	public GuideUserAction defaultAction(GuideUserHistory history, ParserConfiguration configuration) throws MaltChainedException {
+	    /*
 		if (((StackConfig)configuration).getInput().isEmpty()) {
 			return updateActionContainers(history, RIGHTARC, ((StackConfig)configuration).getDependencyGraph().getDefaultRootEdgeLabels());
 		}
-		
+	    */	
 		return updateActionContainers(history, SHIFT, null);
 	}
 }

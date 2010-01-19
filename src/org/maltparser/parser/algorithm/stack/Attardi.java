@@ -96,9 +96,9 @@ public class Attardi extends TransitionSystem {
 		if (trans == LEFTARC2 && stack.get(stack.size()-3).isRoot()) {
 			return false;
 		}
-		if (trans == SHIFT && input.isEmpty()) { 
+		/*		if (trans == SHIFT && input.isEmpty()) { 
 			return false;
-		}
+			}*/
 		return true;
 	}
 	
@@ -129,9 +129,9 @@ public class Attardi extends TransitionSystem {
 	}
 	
 	public GuideUserAction defaultAction(GuideUserHistory history, ParserConfiguration configuration) throws MaltChainedException {
-		if (((StackConfig)configuration).getInput().isEmpty()) {
+	    /*		if (((StackConfig)configuration).getInput().isEmpty()) {
 			return updateActionContainers(history, RIGHTARC, ((StackConfig)configuration).getDependencyGraph().getDefaultRootEdgeLabels());
-		}
+			}*/
 		
 		return updateActionContainers(history, SHIFT, null);
 	}

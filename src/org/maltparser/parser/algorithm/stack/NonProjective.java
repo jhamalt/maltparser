@@ -81,9 +81,9 @@ public class NonProjective extends TransitionSystem {
 		if ((trans == LEFTARC || trans == SWAP) && stack.get(stack.size()-2).isRoot()) { 
 			return false;
 		}
-		if (trans == SHIFT && input.isEmpty()) { 
+		/*		if (trans == SHIFT && input.isEmpty()) { 
 			return false;
-		}
+			}*/
 		if (trans == SWAP && stack.get(stack.size()-2).getIndex() > stack.get(stack.size()-1).getIndex()) {
 			return false;
 		}
@@ -117,10 +117,11 @@ public class NonProjective extends TransitionSystem {
 	}
 	
 	public GuideUserAction defaultAction(GuideUserHistory history, ParserConfiguration configuration) throws MaltChainedException {
+	    /*
 		if (((StackConfig)configuration).getInput().isEmpty()) {
 			return updateActionContainers(history, RIGHTARC, ((StackConfig)configuration).getDependencyGraph().getDefaultRootEdgeLabels());
 		}
-		
+	    */		
 		return updateActionContainers(history, SHIFT, null);
 	}
 }
