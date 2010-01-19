@@ -27,7 +27,7 @@ public class IncrementalOracle  extends Oracle {
 
 		if (stack.size() < 2) {
 			return updateActionContainers(Incremental.SHIFT, null);
-		} else {
+		} else { // Add 4 (simple else)
 			DependencyNode left = stack.get(stack.size()-2);
 			DependencyNode right = stack.get(stack.size()-1);
 
