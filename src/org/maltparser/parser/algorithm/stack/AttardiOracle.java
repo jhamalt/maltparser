@@ -25,15 +25,6 @@ public class AttardiOracle  extends Oracle {
 			return updateActionContainers(Projective.SHIFT, null);
 		} else {
 			int rightIndex = stack.get(stack.size()-1).getIndex();
-			if (stack.size() >= 3) {
-				DependencyNode left2 = stack.get(stack.size()-3);
-				int left2Index = left2.getIndex();
-				if (!left2.isRoot() && gold.getTokenNode(left2Index).getHead().getIndex() == rightIndex && isComplete(gold, config.getDependencyGraph(), left2Index)) {
-					return updateActionContainers(Attardi.LEFTARC2, gold.getTokenNode(left2Index).getHeadEdge().getLabelSet());
-				} else if (gold.getTokenNode(rightIndex).getHead().getIndex() == left2Index && isComplete(gold, config.getDependencyGraph(), rightIndex)) {
-					return updateActionContainers(Attardi.RIGHTARC2, gold.getTokenNode(rightIndex).getHeadEdge().getLabelSet());
-				}
-			}
 			DependencyNode left = stack.get(stack.size()-2);
 			int leftIndex = left.getIndex();
 			if (!left.isRoot() && gold.getTokenNode(leftIndex).getHead().getIndex() == rightIndex && isComplete(gold, config.getDependencyGraph(), leftIndex)) {
@@ -41,6 +32,15 @@ public class AttardiOracle  extends Oracle {
 			} else if (gold.getTokenNode(rightIndex).getHead().getIndex() == leftIndex && isComplete(gold, config.getDependencyGraph(), rightIndex)) {
 				return updateActionContainers(Projective.RIGHTARC, gold.getTokenNode(rightIndex).getHeadEdge().getLabelSet());
 			} else {
+				if (stack.size() >= 3) {
+					DependencyNode left2 = stack.get(stack.size()-3);
+					int left2Index = left2.getIndex();
+					if (!left2.isRoot() && gold.getTokenNode(left2Index).getHead().getIndex() == rightIndex && isComplete(gold, config.getDependencyGraph(), left2Index)) {
+						return updateActionContainers(Attardi.LEFTARC2, gold.getTokenNode(left2Index).getHeadEdge().getLabelSet());
+					} else if (gold.getTokenNode(rightIndex).getHead().getIndex() == left2Index && isComplete(gold, config.getDependencyGraph(), rightIndex)) {
+						return updateActionContainers(Attardi.RIGHTARC2, gold.getTokenNode(rightIndex).getHeadEdge().getLabelSet());
+					}
+				}
 				return updateActionContainers(Projective.SHIFT, null);
 			} // Solve the problem with non-projective input.
 		}
