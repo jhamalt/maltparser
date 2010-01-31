@@ -29,8 +29,9 @@ public class BatchTrainer extends Trainer {
 		parserState.clear();
 		parserState.initialize(parseDependencyGraph);
 		currentParserConfiguration = parserState.getConfiguration();
+		parseCount++;
 		if (diagnostics == true) {
-			writeToDiaFile("ParseCount: " + ++parseCount + "\n");
+			writeToDiaFile(parseCount + "");
 		}
 		while (!parserState.isTerminalState()) {
 			GuideUserAction action = parserState.getTransitionSystem().getDeterministicAction(parserState.getHistory(), currentParserConfiguration);
@@ -42,11 +43,10 @@ public class BatchTrainer extends Trainer {
 					throw new MaltChainedException("The guide cannot be found. ", e);
 				}
 			} else if (diagnostics == true) {
-				writeToDiaFile("*");
+				writeToDiaFile(" *");
 			}
 			if (diagnostics == true) {
-				writeToDiaFile(parserState.getTransitionSystem().getActionString(action));
-				writeToDiaFile("\n");
+				writeToDiaFile(" " + parserState.getTransitionSystem().getActionString(action));
 			}	
 			parserState.apply(action);
 		}

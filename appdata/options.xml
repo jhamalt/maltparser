@@ -153,7 +153,7 @@ many single malt configurations. ]]></desc>
 			<legalvalue name="rootnode">Distinguish between no node and root node</legalvalue>
 			<legalvalue name="novalue">Distinguish between no node and root node, and no value for output column</legalvalue>
 		</option>
-		<option type="bool" name="diagnostics" flag="di" default="false" usage="save">
+		<option type="bool" name="diagnostics" flag="di" default="false" usage="both">
 			<desc><![CDATA[  ]]></desc>
 			<shortdesc>diagnostics</shortdesc>
 		</option>

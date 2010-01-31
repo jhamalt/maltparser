@@ -155,7 +155,7 @@ public abstract class TransitionSystem {
 		sb.append(ttable.getSymbolCodeToString(transActionContainer.getActionCode()));
 		for (int i = 0; i < arcLabelActionContainers.length; i++) {
 			if (arcLabelActionContainers[i].getActionCode() != -1) {
-				sb.append(' ');
+				sb.append("+");
 				sb.append(arcLabelActionContainers[i].getTable().getSymbolCodeToString(arcLabelActionContainers[i].getActionCode()));
 			}
 		}

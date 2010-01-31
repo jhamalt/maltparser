@@ -27,19 +27,19 @@ public class DeterministicParser extends Parser {
 		parserState.clear();
 		parserState.initialize(parseDependencyGraph);
 		currentParserConfiguration = parserState.getConfiguration();
+		parseCount++;
 		if (diagnostics == true) {
-			writeToDiaFile("ParseCount: " + ++parseCount + "\n");
+			writeToDiaFile(parseCount + "");
 		}
 		while (!parserState.isTerminalState()) {
 			GuideUserAction action = parserState.getTransitionSystem().getDeterministicAction(parserState.getHistory(), currentParserConfiguration);
 			if (action == null) {
 				action = predict();
 			} else if (diagnostics == true) {
-				writeToDiaFile("*");
+				writeToDiaFile(" *");
 			}
 			if (diagnostics == true) {
-				writeToDiaFile(parserState.getTransitionSystem().getActionString(action));
-				writeToDiaFile("\n");
+				writeToDiaFile(" " + parserState.getTransitionSystem().getActionString(action));
 			}
 			parserState.apply(action);
 		} 
