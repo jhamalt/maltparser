@@ -162,6 +162,10 @@ many single malt configurations. ]]></desc>
 			output stream</a>, but it is possible to direct this output stream to a diagnostics file by specifying the <b>diafile</b> option. ]]></desc>
 			<shortdesc>Diagnostics file name (default: standard output)</shortdesc>
 		</option>
+		<option type="bool" name="use_partial_tree" flag="up" default="false" usage="save">
+			<desc><![CDATA[  ]]></desc>
+			<shortdesc>Use partial trees during parsing</shortdesc>
+		</option>
 	</optiongroup>
 	<optiongroup groupname="input">
 		<desc><![CDATA[ The <b>input</b> option group contains options that control the input data. In MaltParser @version@, the values of options in the 

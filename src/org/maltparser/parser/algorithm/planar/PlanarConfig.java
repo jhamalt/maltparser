@@ -131,7 +131,7 @@ public class PlanarConfig extends ParserConfiguration {
 			stack.push(dependencyGraph.getDependencyRoot());
 			for (int i = dependencyGraph.getHighestTokenIndex(); i > 0; i--) {
 				final DependencyNode node = dependencyGraph.getDependencyNode(i);
-				if (node != null) { 
+				if (node != null && !node.hasHead()) { 
 					input.push(node);
 				}
 			}

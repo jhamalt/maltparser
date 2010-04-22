@@ -4,7 +4,10 @@ import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.flow.FlowChartInstance;
 import org.maltparser.core.flow.item.ChartItem;
 import org.maltparser.core.flow.spec.ChartItemSpecification;
+import org.maltparser.core.helper.SystemLogger;
+import org.maltparser.core.options.OptionManager;
 import org.maltparser.core.symbol.SymbolTable;
+import org.maltparser.core.syntaxgraph.edge.Edge;
 import org.maltparser.core.syntaxgraph.node.DependencyNode;
 /**
 *
@@ -15,6 +18,7 @@ public class CopyChartItem extends ChartItem {
 	private String targetName;
 	private String sourceName;
 	private String taskName;
+	private boolean usePartialTree;
 	
 	private TokenStructure cachedSource = null;
 	private TokenStructure cachedTarget = null;
@@ -39,6 +43,7 @@ public class CopyChartItem extends ChartItem {
 		} else if (taskName == null) {
 			taskName = getChartElement("copy").getAttributes().get("task").getDefaultValue();
 		}
+		usePartialTree = OptionManager.instance().getOptionValue(getOptionContainerIndex(), "singlemalt", "use_partial_tree").toString().equals("true");
 	}
 	
 	public int preprocess(int signal) throws MaltChainedException {
@@ -54,6 +59,10 @@ public class CopyChartItem extends ChartItem {
 				cachedTarget = (TokenStructure)flowChartinstance.getFlowChartRegistry(org.maltparser.core.syntaxgraph.TokenStructure.class, targetName);
 			}
 			copyTerminalStructure(cachedSource, cachedTarget);
+//			SystemLogger.logger().info("usePartialTree:" + usePartialTree);
+			if (usePartialTree && cachedSource instanceof DependencyStructure && cachedTarget instanceof DependencyStructure) {
+				copyPartialDependencyStructure((DependencyStructure)cachedSource, (DependencyStructure)cachedTarget);
+			}
 		}
 		return signal;
 	}
@@ -75,6 +84,27 @@ public class CopyChartItem extends ChartItem {
 			DependencyNode pnode = targetGraph.addTokenNode(gnode.getIndex());
 			for (SymbolTable table : gnode.getLabelTypes()) {
 				pnode.addLabel(table, gnode.getLabelSymbol(table));
+			}
+		}
+	}
+	
+	public void copyPartialDependencyStructure(DependencyStructure sourceGraph, DependencyStructure targetGraph) throws MaltChainedException {
+		SymbolTable partHead = cachedSource.getSymbolTables().getSymbolTable("PARTHEAD");
+		SymbolTable partDeprel = cachedSource.getSymbolTables().getSymbolTable("PARTDEPREL");
+		if (partHead == null || partDeprel == null) {
+			return;
+		}
+		SymbolTable deprel = cachedTarget.getSymbolTables().getSymbolTable("DEPREL");
+		for (int index : sourceGraph.getTokenIndices()) {
+			DependencyNode snode = sourceGraph.getTokenNode(index);
+			DependencyNode tnode = targetGraph.getTokenNode(index);
+			if (snode != null && tnode != null) {
+				int spartheadindex = Integer.parseInt(snode.getLabelSymbol(partHead));
+				String spartdeprel = snode.getLabelSymbol(partDeprel);
+				if (spartheadindex > 0) {
+					Edge tedge = targetGraph.addDependencyEdge(spartheadindex, snode.getIndex());
+					tedge.addLabel(deprel, spartdeprel);
+				}
 			}
 		}
 	}
