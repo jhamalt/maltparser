@@ -44,7 +44,13 @@ public abstract class TransitionSystem {
 			}
 		} else {
 			for (int i = 0; i < arcLabelActionContainers.length; i++) {
-				arcLabelActionContainers[i].setAction(arcLabels.get(arcLabelActionContainers[i].getTable()).shortValue());
+				if (arcLabelActionContainers[i] == null) {
+					throw new MaltChainedException("arcLabelActionContainer " + i + " is null when doing transition " + transition);
+				}
+
+				short v = arcLabels.get(arcLabelActionContainers[i].getTable()).shortValue();
+				arcLabelActionContainers[i].setAction(v);
+//				arcLabelActionContainers[i].setAction(arcLabels.get(arcLabelActionContainers[i].getTable()).shortValue());
 			}		
 		}
 		GuideUserAction oracleAction = history.getEmptyGuideUserAction();

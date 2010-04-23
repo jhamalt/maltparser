@@ -39,7 +39,7 @@ import org.maltparser.parser.history.kbest.KBestList;
 import org.maltparser.parser.history.kbest.ScoredKBestList;
 
 /**
-Implements an interface to the LIBSVM learner (currently the LIBSVM 2.86 is used). More information
+Implements an interface to the LIBSVM learner (currently the LIBSVM 2.91 is used). More information
 about LIBSVM can be found at 
 <a href="http://www.csie.ntu.edu.tw/~cjlin/libsvm/" target="_blank">LIBSVM -- A Library for Support Vector Machines</a>.
 
@@ -47,7 +47,7 @@ about LIBSVM can be found at
 @since 1.0
 */
 public class Libsvm implements LearningMethod {
-	public final static String LIBSVM_VERSION = "2.89";
+	public final static String LIBSVM_VERSION = "2.91";
 	public enum Verbostity {
 		SILENT, ERROR, ALL
 	}
@@ -284,7 +284,7 @@ public class Libsvm implements LearningMethod {
 			out.write('\n');
 			out.close();
 		} catch (IOException e) {
-			throw new LibsvmException("", e);
+			throw new LibsvmException("Couldn't save the cardinalities to file. ", e);
 		}
 	}
 	
@@ -302,9 +302,9 @@ public class Libsvm implements LearningMethod {
  			}
 			in.close();
 		} catch (IOException e) {
-			throw new LibsvmException("", e);
+			throw new LibsvmException("The cardinalities cannot be read because wrongly formatted. ", e);
 		} catch (NumberFormatException e) {
-			throw new LibsvmException("", e);
+			throw new LibsvmException("Couldn't load the cardinalities from file. ", e);
 		}
 		return cardinalities;
 	}
@@ -438,12 +438,17 @@ public class Libsvm implements LearningMethod {
 		for (int k = 0; k < j; k++) {
 			xarray[k] = xlist.get(k);
 		}
-		if (decision.getKBestList().getK() == 1 || svm.svm_get_svm_type(model) == svm_parameter.ONE_CLASS ||
-				svm.svm_get_svm_type(model) == svm_parameter.EPSILON_SVR ||
-				svm.svm_get_svm_type(model) == svm_parameter.NU_SVR) {
-			decision.getKBestList().add((int)svm.svm_predict(model, xarray));
-		} else {
-			svm_predict_with_kbestlist(model, xarray, decision.getKBestList());
+		try {
+			if (decision.getKBestList().getK() == 1 || svm.svm_get_svm_type(model) == svm_parameter.ONE_CLASS ||
+					svm.svm_get_svm_type(model) == svm_parameter.EPSILON_SVR ||
+					svm.svm_get_svm_type(model) == svm_parameter.NU_SVR) {
+				decision.getKBestList().add((int)svm.svm_predict(model, xarray));
+			} else {
+				svm_predict_with_kbestlist(model, xarray, decision.getKBestList());
+			}
+
+		} catch (OutOfMemoryError e) {
+				throw new LibsvmException("Out of memory. Please increase the Java heap size (-Xmx<size>). ", e);
 		}
 
 		return true;
