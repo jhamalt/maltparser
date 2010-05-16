@@ -60,7 +60,7 @@
 	
 	<flowchart name="parse">
 		<preprocess>
-			<chartitem item="configdir" id="singlemalt" task="unpack"/>
+			<chartitem item="configdir" id="singlemalt" task="loadsavedoptions"/>
 			<chartitem item="configdir" id="singlemalt" task="loadsymboltables"/>
 			<chartitem item="graph" task="create" structure="gold"/>
 			<chartitem item="graph" task="create" structure="system"/>
@@ -74,14 +74,11 @@
 			<chartitem item="pseudoproj" id="singlemalt" task="deproj" source="system" target="system"/>
 			<chartitem item="write" source="system"/>
 		</process>
-		<postprocess>
-			<chartitem item="configdir" id="singlemalt" task="deletedir"/>
-		</postprocess>
 	</flowchart>
 	
 	<flowchart name="testdata">
 		<preprocess>
-			<chartitem item="configdir" id="singlemalt" task="unpack"/>
+			<chartitem item="configdir" id="singlemalt" task="loadsavedoptions"/>
 			<chartitem item="configdir" id="singlemalt" task="loadsymboltables"/>
 			<chartitem item="graph" task="create" structure="gold"/>
 			<chartitem item="graph" task="create" structure="system"/>
@@ -130,7 +127,7 @@
 	
 	<flowchart name="deproj">
 		<preprocess>
-			<chartitem item="configdir" id="pseudo" task="unpack"/>
+			<chartitem item="configdir" id="pseudo" task="loadsavedoptions"/>
 			<chartitem item="configdir" id="pseudo" task="loadsymboltables"/>
 			<chartitem item="graph" task="create" structure="system"/>
 			<chartitem item="pseudoproj" id="pseudo" task="init"/>
@@ -141,8 +138,5 @@
 			<chartitem item="pseudoproj" id="pseudo" task="deproj" source="system" target="system"/>
 			<chartitem item="write" source="system"/>
 		</process>
-		<postprocess>
-			<chartitem item="configdir" id="pseudo" task="deletedir"/>
-		</postprocess>
 	</flowchart>
 </flowcharts>

@@ -12,6 +12,7 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Set;
+import java.util.jar.JarEntry;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -365,17 +366,16 @@ public class Liblinear implements LearningMethod {
 	 */
 	public boolean predict(FeatureVector featureVector, SingleDecision decision) throws MaltChainedException {
 		if (model == null) {
-			File modelFile = getFile(".mod");
 			try {
-				model = Linear.loadModel(new File(modelFile.getAbsolutePath()));
+				model = Linear.loadModel(new BufferedReader(getInstanceInputStreamReaderFromConfigFile(".mod")));
 			} catch (IOException e) {
-				throw new LiblinearException("The file '"+modelFile.getAbsolutePath()+"' cannot be loaded. ", e);
+				throw new LiblinearException("The model cannot be loaded. ", e);
 			}
 		}
 
 		if (cardinalities == null) {
-			if (getFile(".car").exists()) {
-				cardinalities = loadCardinalities(getInstanceInputStreamReader(".car"));
+			if (getConfigFileEntry(".car") != null) {
+				cardinalities = loadCardinalities(getInstanceInputStreamReaderFromConfigFile(".car"));
 			} else {
 				cardinalities = getCardinalities(featureVector);
 			}
@@ -520,10 +520,17 @@ public class Liblinear implements LearningMethod {
 		return getConfiguration().getConfigurationDir().getInputStreamReader(owner.getModelName()+getLearningMethodName()+suffix);
 	}
 	
+	protected InputStreamReader getInstanceInputStreamReaderFromConfigFile(String suffix) throws MaltChainedException {
+		return getConfiguration().getConfigurationDir().getInputStreamReaderFromConfigFile(owner.getModelName()+getLearningMethodName()+suffix);
+	}
+	
 	protected File getFile(String suffix) throws MaltChainedException {
 		return getConfiguration().getConfigurationDir().getFile(owner.getModelName()+getLearningMethodName()+suffix);
 	}
 	
+	protected JarEntry getConfigFileEntry(String suffix) throws MaltChainedException {
+		return getConfiguration().getConfigurationDir().getConfigFileEntry(owner.getModelName()+getLearningMethodName()+suffix);
+	}
 	/**
 	 * Reads an instance file into a svm_problem object according to the Malt-SVM format, which is column fixed format (tab-separated).
 	 * 

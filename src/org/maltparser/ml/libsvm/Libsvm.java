@@ -13,6 +13,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.jar.JarEntry;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -379,16 +380,15 @@ public class Libsvm implements LearningMethod {
 	 */
 	public boolean predict(FeatureVector featureVector, SingleDecision decision) throws MaltChainedException {
 		if (model == null) {
-			File modelFile = getFile(".mod");
 			try {
-				model = svm.svm_load_model(modelFile.getAbsolutePath());	
+				model = svm.svm_load_model(new BufferedReader(getInstanceInputStreamReaderFromConfigFile(".mod")));
 			} catch (IOException e) {
-				throw new LibsvmException("The file '"+modelFile.getAbsolutePath()+"' cannot be loaded. ", e);
+				throw new LibsvmException("The model cannot be loaded. ", e);
 			}
 		}
 		if (cardinalities == null) {
-			if (getFile(".car").exists()) {
-				cardinalities = loadCardinalities(getInstanceInputStreamReader(".car"));
+			if (getConfigFileEntry(".car") != null) {
+				cardinalities = loadCardinalities(getInstanceInputStreamReaderFromConfigFile(".car"));
 			} else {
 				cardinalities = getCardinalities(featureVector);
 			}
@@ -561,8 +561,16 @@ public class Libsvm implements LearningMethod {
 		return getConfiguration().getConfigurationDir().getInputStreamReader(owner.getModelName()+getLearningMethodName()+suffix);
 	}
 	
+	protected InputStreamReader getInstanceInputStreamReaderFromConfigFile(String suffix) throws MaltChainedException {
+		return getConfiguration().getConfigurationDir().getInputStreamReaderFromConfigFile(owner.getModelName()+getLearningMethodName()+suffix);
+	}
+	
 	protected File getFile(String suffix) throws MaltChainedException {
 		return getConfiguration().getConfigurationDir().getFile(owner.getModelName()+getLearningMethodName()+suffix);
+	}
+	
+	protected JarEntry getConfigFileEntry(String suffix) throws MaltChainedException {
+		return getConfiguration().getConfigurationDir().getConfigFileEntry(owner.getModelName()+getLearningMethodName()+suffix);
 	}
 	
 	/**

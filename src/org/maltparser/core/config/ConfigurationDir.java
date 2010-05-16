@@ -14,12 +14,14 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 
@@ -141,13 +143,39 @@ public class ConfigurationDir  {
 	 * @throws MaltChainedException
 	 */
 	public InputStreamReader getInputStreamReader(String fileName) throws MaltChainedException {
+		return getInputStreamReader(fileName, "UTF-8");
+	}
+	
+	public JarEntry getConfigFileEntry(String fileName) throws MaltChainedException {
+		File mcoPath = new File(workingDirectory.getPath()+File.separator+getName()+".mco");
 		try {
-			return new InputStreamReader(new FileInputStream(configDirectory.getPath()+File.separator+fileName), "UTF-8");
+			JarFile mcoFile = new JarFile(mcoPath.getAbsolutePath());
+			JarEntry entry = mcoFile.getJarEntry(getName()+File.separator+fileName);
+			return entry;
 		} catch (FileNotFoundException e) {
-			throw new ConfigurationException("The file '"+fileName+"' cannot be found. ", e);
-		} catch (UnsupportedEncodingException e) {
-			throw new ConfigurationException("The char set 'UTF-8' is not supported. ", e);
+			throw new ConfigurationException("The file entry '"+fileName+"' in mco-file '"+mcoPath+"' cannot be found. ", e);
+		} catch (IOException e) {
+			throw new ConfigurationException("The file entry '"+fileName+"' in mco-file '"+mcoPath+"' cannot be found. ", e);
 		}
+	}
+	
+	public InputStreamReader getInputStreamReaderFromConfigFileEntry(String fileName, String charSet) throws MaltChainedException {
+		File mcoPath = new File(workingDirectory.getPath()+File.separator+getName()+".mco");
+		try {
+			JarFile mcoFile = new JarFile(mcoPath.getAbsolutePath());
+			JarEntry entry = mcoFile.getJarEntry(getName()+File.separator+fileName);
+			return new InputStreamReader(mcoFile.getInputStream(entry),  charSet);
+		} catch (FileNotFoundException e) {
+			throw new ConfigurationException("The file entry '"+fileName+"' in the mco file '"+mcoPath+"' cannot be found. ", e);
+		} catch (UnsupportedEncodingException e) {
+			throw new ConfigurationException("The char set '"+charSet+"' is not supported. ", e);
+		} catch (IOException e) {
+			throw new ConfigurationException("The file entry '"+fileName+"' in the mco file '"+mcoPath+"' cannot be loaded. ", e);
+		}
+	}
+	
+	public InputStreamReader getInputStreamReaderFromConfigFile(String fileName) throws MaltChainedException {
+		return getInputStreamReaderFromConfigFileEntry(fileName, "UTF-8");
 	}
 	
 	/**
@@ -161,13 +189,26 @@ public class ConfigurationDir  {
 		return new File(configDirectory.getPath()+File.separator+fileName);
 	}
 	
+	public URL getConfigFileEntryURL(String fileName) throws MaltChainedException {
+		File mcoPath = new File(workingDirectory.getPath()+File.separator+getName()+".mco");
+		try {
+			if (!mcoPath.exists()) {
+				throw new ConfigurationException("Couldn't find mco-file '" +mcoPath.getAbsolutePath()+ "'");
+			}
+			new URL("file", null, mcoPath.getAbsolutePath());
+			return new URL("jar:"+new URL("file", null, mcoPath.getAbsolutePath())+"!/"+getName()+File.separator+fileName + "\n");
+		} catch (MalformedURLException e) {
+			throw new ConfigurationException("Couldn't find the URL '" +"jar:"+mcoPath.getAbsolutePath()+"!/"+getName()+File.separator+fileName+ "'", e);
+		}
+	}
+	
     /**
      * Copies a file into the configuration directory.
      * 
      * @param source	a path to file 
      * @throws MaltChainedException
      */
-    public void copyToConfig(File source) throws MaltChainedException {
+    public String copyToConfig(File source) throws MaltChainedException {
     	byte[] readBuffer = new byte[BUFFER];
     	String destination = configDirectory.getPath()+File.separator+source.getName();
     	try {
@@ -186,33 +227,32 @@ public class ConfigurationDir  {
 		} catch (IOException e) {
 			throw new ConfigurationException("The source file '"+source+"' cannot be copied to destination '"+destination+"'. ", e);
 		}
+		return source.getName();
     }
     
-    /**
-     * Copies a file into the configuration directory.
-     * 
-     * @param fileUrl 	an URL to the file
-     * @throws MaltChainedException
-     */
-    public void copyToConfig(String fileUrl) throws MaltChainedException {
+
+    public String copyToConfig(String fileUrl) throws MaltChainedException {
     	URL url = Util.findURL(fileUrl);
     	if (url == null) {
     		throw new ConfigurationException("The file or URL '"+fileUrl+"' could not be found. ");
     	}
-    	byte[] readBuffer = new byte[BUFFER];
-    	String destFileName = url.getFile();
-    	int indexSlash = destFileName.lastIndexOf('/');
-    	int indexQuery = destFileName.lastIndexOf('?');
-    	
-    	if (indexSlash != -1 || indexQuery != -1) {
-    		if (indexSlash == -1) {
-    			indexSlash = 0;
-    		}
-    		if (indexQuery == -1) {
-    			indexQuery = destFileName.length();
-    		}
-    		destFileName = destFileName.substring(indexSlash, indexQuery);
+    	return copyToConfig(url);
+    }
+    
+    public String copyToConfig(URL url) throws MaltChainedException {
+    	if (url == null) {
+    		throw new ConfigurationException("URL could not be found. ");
     	}
+    	byte[] readBuffer = new byte[BUFFER];
+    	String destFileName = url.getPath();
+		int indexSlash = destFileName.lastIndexOf('/');
+		if (indexSlash == -1) {
+			indexSlash = destFileName.lastIndexOf('\\');
+		}
+    	
+		if (indexSlash != -1) {
+			destFileName = destFileName.substring(indexSlash+1);
+		}
     	
     	String destination = configDirectory.getPath()+File.separator+destFileName;
     	try {
@@ -231,6 +271,7 @@ public class ConfigurationDir  {
 		} catch (IOException e) {
 			throw new ConfigurationException("The URL '"+url+"' cannot be copied to destination '"+destination+"'. ", e);
 		}
+		return destFileName;
     }
     
 	/**
@@ -622,24 +663,6 @@ public class ConfigurationDir  {
 	protected void setUrl(URL url) {
 		this.url = url;
 	}
-
-	/**
-	 * Returns a reference to the configuration 
-	 * 
-	 * @return a reference to the configuration 
-	 */
-//	public Configuration getConfiguration() {
-//		return configuration;
-//	}
-
-	/**
-	 * Sets the reference to the configuration
-	 * 
-	 * @param configuration a reference to a configuration
-	 */
-//	public void setConfiguration(Configuration configuration) {
-//		this.configuration = configuration;
-//	}
 	
 	/**
 	 * Returns the option container index

@@ -83,32 +83,40 @@ public class Util {
 				// the input string is an URL string starting with http, file, ftp or jar
 				return new URL(fileString);
 			} else {
-				// search in malt.jar and its plugins
-				if (Thread.currentThread().getClass().getResource(fileString) != null) {
-					// found the input string in the malt.jar file
-					return Thread.currentThread().getClass().getResource(fileString);
-				} else { 
-					 for (Plugin plugin : PluginLoader.instance()) {
-						URL url = null;
-						if (!fileString.startsWith("/")) {
-							url = new URL("jar:"+plugin.getUrl() + "!/" + fileString);
-						} else {
-							url = new URL("jar:"+plugin.getUrl() + "!" + fileString);
-						}
-						
-						try { 
-							InputStream is = url.openStream();
-							is.close();
-						} catch (IOException e) {
-							continue;
-						}
-						// found the input string in one of the plugins
-						return url;
-					} 
-					// could not convert the input string into an URL
-					return null; 
-				}
+				return findURLinJars(fileString);
 			} 
+		} catch (MalformedURLException e) {
+			throw new MaltChainedException("Malformed URL: "+fileString, e);
+		}
+	}
+	
+	public static URL findURLinJars(String fileString) throws MaltChainedException {
+		try {
+			// search in malt.jar and its plugins
+			if (Thread.currentThread().getClass().getResource(fileString) != null) {
+				// found the input string in the malt.jar file
+				return Thread.currentThread().getClass().getResource(fileString);
+			} else { 
+				 for (Plugin plugin : PluginLoader.instance()) {
+					URL url = null;
+					if (!fileString.startsWith("/")) {
+						url = new URL("jar:"+plugin.getUrl() + "!/" + fileString);
+					} else {
+						url = new URL("jar:"+plugin.getUrl() + "!" + fileString);
+					}
+					
+					try { 
+						InputStream is = url.openStream();
+						is.close();
+					} catch (IOException e) {
+						continue;
+					}
+					// found the input string in one of the plugins
+					return url;
+				} 
+				// could not convert the input string into an URL
+				return null; 
+			}
 		} catch (MalformedURLException e) {
 			throw new MaltChainedException("Malformed URL: "+fileString, e);
 		}

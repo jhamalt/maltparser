@@ -69,12 +69,12 @@ public class DistanceFeature implements FeatureFunction {
 			try {
 				v = Integer.parseInt(items[i]);
 			} catch (NumberFormatException e) {
-				throw new SyntaxGraphException("Could not initialize NumOfFeature ("+this+"): the third argument (normalization) must contain a sorted list of integer values separated with |", e);
+				throw new SyntaxGraphException("Could not initialize DistanceFeature ("+this+"): the third argument (normalization) must contain a sorted list of integer values separated with |", e);
 			}
 			normalization.put(v, ">="+v);
 			table.addSymbol(">="+v);
 			if (tmp != -1 && tmp >= v) {
-				throw new SyntaxGraphException("Could not initialize NumOfFeature ("+this+"): the third argument (normalization) must contain a sorted list of integer values separated with |");
+				throw new SyntaxGraphException("Could not initialize DistanceFeature ("+this+"): the third argument (normalization) must contain a sorted list of integer values separated with |");
 			}
 			tmp = v;
 		}

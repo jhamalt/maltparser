@@ -86,17 +86,18 @@ public class ConfigDirChartItem extends ChartItem {
 			
 			flowChartinstance.addFlowChartRegistry(org.maltparser.core.config.ConfigurationDir.class, idName, configDir);
 		}
-		if (taskName.equals("unpack")) {
-			configDir.unpackConfigFile();
-			OptionManager.instance().loadOptions(getOptionContainerIndex(), configDir.getInputStreamReader("savedoptions.sop"));
+		if (taskName.equals("loadsavedoptions")) {
+			OptionManager.instance().loadOptions(getOptionContainerIndex(), configDir.getInputStreamReaderFromConfigFile("savedoptions.sop"));
 		}
 	}
 	
 	public int preprocess(int signal) throws MaltChainedException {
-		if (taskName.equals("info")) {
+		if (taskName.equals("unpack")) {
+			configDir.unpackConfigFile();
+		} else if (taskName.equals("info")) {
 			configDir.echoInfoFile();
 		} else if (taskName.equals("loadsymboltables")) {
-			flowChartinstance.getSymbolTables().load(configDir.getInputStreamReader("symboltables.sym",inCharSet));
+			flowChartinstance.getSymbolTables().load(configDir.getInputStreamReaderFromConfigFileEntry("symboltables.sym",inCharSet));
 		} else if (taskName.equals("createdir")) {
 			configDir.setCreatedByMaltParserVersion(SystemInfo.getVersion());
 			configDir.createConfigDirectory();
