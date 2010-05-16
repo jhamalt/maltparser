@@ -5,12 +5,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
-import org.maltparser.core.config.ConfigurationDir;
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.feature.FeatureException;
 import org.maltparser.core.feature.spec.reader.FeatureSpecReader;
 import org.maltparser.core.feature.spec.reader.ParReader;
-import org.maltparser.core.helper.Util;
 
 /**
 *
@@ -24,17 +22,13 @@ public class SpecificationModels {
 	private LinkedHashMap<URL, ArrayList<SpecificationModel>> specModelKeyMap;
 	private ArrayList<SpecificationModel> currentSpecModelURL;
 	private int counter = 0;
-	private ConfigurationDir configDirectory;
-//	private Configuration configuration;
+
 	
-	public SpecificationModels(ConfigurationDir configDirectory) throws MaltChainedException {
-//	public SpecificationModels(Configuration configuration) throws MaltChainedException {
-		setConfigDirectory(configDirectory);
+	public SpecificationModels() throws MaltChainedException {
 		specReaderMap = new HashMap<URL, FeatureSpecReader>();
 		specModelMap = new HashMap<String, SpecificationModel>();
 		specModelIntMap = new HashMap<Integer, SpecificationModel>();
 		specModelKeyMap = new LinkedHashMap<URL, ArrayList<SpecificationModel>>();
-//		setConfiguration(configuration);
 	}
 	
 	public void add(int index, String featureSpec) throws MaltChainedException {
@@ -67,23 +61,7 @@ public class SpecificationModels {
 		return counter;
 	}
 	
-	public void loadParReader(String specModelFileName, boolean malt04, String markingStrategy, String coveredRoot) throws MaltChainedException {
-		URL url = Util.findURL(specModelFileName);
-		if (url == null) {
-			int indexSlash = specModelFileName.lastIndexOf('/');
-			if (indexSlash == -1) {
-				indexSlash = specModelFileName.lastIndexOf('\\');
-			}
-			if (indexSlash == -1) {
-				url = Util.findURL(configDirectory.getFile(specModelFileName).getAbsolutePath());
-			} else {
-				url = Util.findURL(configDirectory.getFile(specModelFileName.substring(indexSlash+1)).getAbsolutePath());
-			}
-		}
-		loadParReader(url, malt04, markingStrategy, coveredRoot);
-	}
-	
-	public void loadParReader(URL specModelURL, boolean malt04, String markingStrategy, String coveredRoot) throws MaltChainedException {
+	public void loadParReader(URL specModelURL, String markingStrategy, String coveredRoot) throws MaltChainedException {
 		if (specModelURL == null) {
 			throw new FeatureException("The URL to the feature specification model is missing or not well-formed. ");
 		}
@@ -103,10 +81,6 @@ public class SpecificationModels {
 		specReaderMap.put(specModelURL, specReader);
 		
 		if (specReader instanceof ParReader) {
-			if (malt04) {
-				((ParReader)specReader).setMalt04Emulation(true);
-			}
-			
 			if (markingStrategy.equalsIgnoreCase("head") || markingStrategy.equalsIgnoreCase("path") || markingStrategy.equalsIgnoreCase("head+path")) {
 				((ParReader)specReader).setPplifted(true);
 			}
@@ -121,24 +95,6 @@ public class SpecificationModels {
 		specModelKeyMap.put(specModelURL, currentSpecModelURL);
 		specReader.load(specModelURL, this);
 	}
-	
-	public void load(String specModelFileName) throws MaltChainedException {
-		URL url = Util.findURL(specModelFileName);
-		if (url == null) {
-			int indexSlash = specModelFileName.lastIndexOf('/');
-			if (indexSlash == -1) {
-				indexSlash = specModelFileName.lastIndexOf('\\');
-			}
-			if (indexSlash == -1) {
-				url = Util.findURL(configDirectory.getFile(specModelFileName).getAbsolutePath());
-			} else {
-				url = Util.findURL(configDirectory.getFile(specModelFileName.substring(indexSlash+1)).getAbsolutePath());
-			}
-		}
-		load(url);
-	}
-	
-	
 	
 	public void load(URL specModelURL) throws MaltChainedException {
 		if (specModelURL == null) {
@@ -159,63 +115,13 @@ public class SpecificationModels {
 		}
 		specReaderMap.put(specModelURL, specReader);
 		
-//		if (specReader instanceof ParReader) {
-//			if ((Boolean)configuration.getOptionValue("malt0.4", "behavior").equals(true)) {
-//				((ParReader)specReader).setMalt04Emulation(true);
-//			}
-//			if (configuration.getOptionValueString("singlemalt", "parsing_algorithm").equals("covnonproj") ||
-//					configuration.getOptionValueString("singlemalt", "parsing_algorithm").equals("covproj")) {
-//				((ParReader)specReader).setCovington(true);
-//			}
-//			String markingStrategy = configuration.getOptionValue("pproj", "marking_strategy").toString().trim();
-//			String coveredRoot = configuration.getOptionValue("pproj", "covered_root").toString().trim();
-//
-//			if (markingStrategy.equalsIgnoreCase("head") || markingStrategy.equalsIgnoreCase("path") || markingStrategy.equalsIgnoreCase("head+path")) {
-//				((ParReader)specReader).setPplifted(true);
-//			}
-//			if (markingStrategy.equalsIgnoreCase("path") || markingStrategy.equalsIgnoreCase("head+path")) {
-//				((ParReader)specReader).setPppath(true);
-//			}
-//			if (!coveredRoot.equalsIgnoreCase("none")) {
-//				((ParReader)specReader).setPpcoveredRoot(true);
-//			}
-//		}
 		currentSpecModelURL = new ArrayList<SpecificationModel>();
 		specModelKeyMap.put(specModelURL, currentSpecModelURL);
 		specReader.load(specModelURL, this);
 	}
 	
-	public SpecificationModel getSpecificationModel(String specModelURL, int specModelUrlIndex) throws MaltChainedException {
-		URL url = Util.findURL(specModelURL);
-		if (url == null) {
-			int indexSlash = specModelURL.lastIndexOf('/');
-			if (indexSlash == -1) {
-				indexSlash = specModelURL.lastIndexOf('\\');
-			}
-			if (indexSlash == -1) {
-				url = Util.findURL(configDirectory.getFile(specModelURL).getAbsolutePath());
-			} else {
-				url = Util.findURL(configDirectory.getFile(specModelURL.substring(indexSlash+1)).getAbsolutePath());
-			}
-		}
+	public SpecificationModel getSpecificationModel(URL url, int specModelUrlIndex) {
 		return specModelKeyMap.get(url).get(specModelUrlIndex);
-	}
-	
-	
-//	public Configuration getConfiguration() {
-//		return configuration;
-//	}
-//
-//	public void setConfiguration(Configuration configuration) {
-//		this.configuration = configuration;
-//	}
-
-	public ConfigurationDir getConfigDirectory() {
-		return configDirectory;
-	}
-
-	public void setConfigDirectory(ConfigurationDir configDirectory) {
-		this.configDirectory = configDirectory;
 	}
 
 	public String toString() {

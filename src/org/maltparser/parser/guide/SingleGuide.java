@@ -10,6 +10,8 @@ import org.maltparser.core.feature.FeatureModel;
 import org.maltparser.core.feature.FeatureModelManager;
 import org.maltparser.core.feature.FeatureVector;
 import org.maltparser.core.feature.system.FeatureEngine;
+import org.maltparser.core.helper.SystemLogger;
+import org.maltparser.core.helper.Util;
 import org.maltparser.core.plugin.PluginLoader;
 import org.maltparser.core.syntaxgraph.DependencyStructure;
 import org.maltparser.parser.DependencyParserConfig;
@@ -199,17 +201,14 @@ public class SingleGuide implements ClassifierGuide {
 	protected void initFeatureModel() throws MaltChainedException {
 		String featureModelFileName = getConfiguration().getOptionValue("guide", "features").toString().trim();
 		if (featureModelFileName.endsWith(".par")) {
-			featureModelManager.loadSpecification(featureModelFileName);
-		} else {
-//			boolean malt04 = (Boolean)getConfiguration().getOptionValue("malt0.4", "behavior");
-			boolean malt04 = false;
 			String markingStrategy = getConfiguration().getOptionValue("pproj", "marking_strategy").toString().trim();
 			String coveredRoot = getConfiguration().getOptionValue("pproj", "covered_root").toString().trim();
-			featureModelManager.loadParSpecification(featureModelFileName, malt04, markingStrategy, coveredRoot);
+			featureModelManager.loadParSpecification(featureModelFileName, markingStrategy, coveredRoot);
+		} else {
+			featureModelManager.loadSpecification(featureModelFileName);
 		}
-//		getFeatureModelManager().loadSpecification(getConfiguration().getOptionValue("guide", "features").toString());
 		if (getConfiguration().getConfigLogger().isInfoEnabled()) {
-			getConfiguration().getConfigLogger().info("  Feature model        : " + getConfiguration().getOptionValue("guide", "features").toString()+"\n");
+			getConfiguration().getConfigLogger().info("  Feature model        : " + featureModelFileName+"\n");
 			if (getGuideMode() == ClassifierGuide.GuideMode.BATCH) {
 				getConfiguration().getConfigLogger().info("  Learner              : " + getConfiguration().getOptionValueString("guide", "learner").toString()+"\n");
 			} else {

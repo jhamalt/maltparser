@@ -288,7 +288,7 @@ public class FeatureDivideModel implements InstanceModel {
 	 */
 	protected void load() throws MaltChainedException {
 		try {
-			final BufferedReader in = new BufferedReader(getGuide().getConfiguration().getConfigurationDir().getInputStreamReader(getModelName()+".dsm"));
+			final BufferedReader in = new BufferedReader(getGuide().getConfiguration().getConfigurationDir().getInputStreamReaderFromConfigFile(getModelName()+".dsm"));
 			final Pattern tabPattern = Pattern.compile("\t");
 			while(true) {
 				String line = in.readLine();

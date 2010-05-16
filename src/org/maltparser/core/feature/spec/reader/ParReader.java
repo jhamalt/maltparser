@@ -26,7 +26,6 @@ public class ParReader implements FeatureSpecReader {
 	private EnumMap<ColumnNames, String> columnNameMap;
 	private EnumMap<DataStructures, String> dataStructuresMap;
 	private boolean useSplitFeats = true;
-	private boolean malt04Emulation = false;
 	private boolean covington = false;
 	private boolean pppath;
 	private boolean pplifted;
@@ -79,19 +78,11 @@ public class ParReader implements FeatureSpecReader {
 			} catch (IOException e) {
 				throw new FeatureException("Could not close the feature specification file '"+specModelURL.toString()+"'. ", e);
 			}
-			if (malt04Emulation == true) {
-				for (int i = 0; i < ColumnNames.values().length; i++) {
-					for (int j = 0; j < fileLines.size(); j++) {
-						if (fileLines.get(j).startsWith(ColumnNames.values()[i].toString())) {
-							orderFileLines.add(fileLines.get(j));
-						}
-					}
-				}
-			} else {
-				for (int j = 0; j < fileLines.size(); j++) {
-					orderFileLines.add(fileLines.get(j));
-				}
+
+			for (int j = 0; j < fileLines.size(); j++) {
+				orderFileLines.add(fileLines.get(j));
 			}
+
 			boolean deprel = false;
 			for (int j=0; j < orderFileLines.size(); j++) {
 				deprel = false;
@@ -195,11 +186,7 @@ public class ParReader implements FeatureSpecReader {
 					}
 				} else if (depOffset > 0) {
 					for (int i = 0; i < depOffset; i++) {
-						if (malt04Emulation == true) {
-							functionArg = "rdep2("+functionArg+")";
-						} else {
-							functionArg = "rdep("+functionArg+")";
-						}
+						functionArg = "rdep("+functionArg+")";
 					}							
 				}
 				if (sibOffset < 0) {
@@ -359,15 +346,6 @@ public class ParReader implements FeatureSpecReader {
 
 	public void setUseSplitFeats(boolean useSplitFeats) {
 		this.useSplitFeats = useSplitFeats;
-	}
-
-	
-	public boolean isMalt04Emulation() {
-		return malt04Emulation;
-	}
-
-	public void setMalt04Emulation(boolean malt04Emulation) {
-		this.malt04Emulation = malt04Emulation;
 	}
 
 	public boolean isCovington() {

@@ -14,6 +14,7 @@ import org.maltparser.core.config.ConfigurationException;
 import org.maltparser.core.config.ConfigurationRegistry;
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.helper.SystemLogger;
+import org.maltparser.core.helper.Util;
 import org.maltparser.core.io.dataformat.DataFormatInstance;
 import org.maltparser.core.options.OptionManager;
 import org.maltparser.core.symbol.SymbolTableHandler;
@@ -237,39 +238,22 @@ public class SingleMalt implements DependencyParserConfig {
 			if (configDir.getInfoFileWriter() != null) {
 				configDir.getInfoFileWriter().write("\nDEPENDENCIES\n");
 			}
-//			if ((Boolean)getOptionValue("malt0.4", "behavior") == true) {
-//				if (!getOptionValueString("singlemalt", "null_value").equals("rootlabel")) {
-//					OptionManager.instance().overloadOptionValue(optionContainerIndex, "singlemalt", "null_value", "rootlabel");
-//					if (configDir.getInfoFileWriter() != null) {
-//						configDir.getInfoFileWriter().write("--singlemalt-null_value (-nv)     rootlabel\n");
-//					}
-//					configLogger.warn("Option --malt0.4-behavior = true and --singlemalt-null_value != 'rootlabel'. Option --singlemalt-null_value is overloaded with value 'rootlabel'\n");
-//				}
-//				if (getOptionValue("malt0.4", "depset").toString().equals("")) {				
-//					configLogger.warn("Option --malt0.4-behavior = true and option --malt0.4-depset has no value. These combination will probably not reproduce the behavior of MaltParser 0.4 (C-impl)\n");
-//				}
-//				if (getOptionValue("malt0.4", "posset").toString().equals("")) {				
-//					configLogger.warn("Option --malt0.4-behavior = true and option --malt0.4-posset has no value. These combination will probably not reproduce the behavior of MaltParser 0.4 (C-impl)\n");
-//				}
-//				if (getOptionValue("malt0.4", "cposset").toString().equals("")) {				
-//					configLogger.warn("Option --malt0.4-behavior = true and option --malt0.4-cposset has no value. These combination will probably not reproduce the behavior of MaltParser 0.4 (C-impl)\n");
-//				}
-//				if (!getOptionValue("guide", "kbest").toString().equals("1")) {
-//					OptionManager.instance().overloadOptionValue(optionContainerIndex, "guide", "kbest", "1");
-//					if (configDir.getInfoFileWriter() != null) {
-//						configDir.getInfoFileWriter().write("--guide-kbest (  -k)                    1\n");
-//					}
-//					configLogger.warn("Option --malt0.4-behavior = true and --guide-kbest != '1'. Option --guide-kbest is overloaded with value '1'\n");
-//				}
-//			}
-			if (getOptionValue("guide", "features").toString().equals("")) {
+			
+			// Copy the feature model file into the configuration directory
+			String featureModelFileName = getOptionValue("guide", "features").toString().trim();
+			if (featureModelFileName.equals("")) {
+				// use default feature model depending on the selected parser algorithm
 				OptionManager.instance().overloadOptionValue(optionContainerIndex, "guide", "features", getOptionValueString("singlemalt", "parsing_algorithm"));
-				if (configDir.getInfoFileWriter() != null) {
-					configDir.getInfoFileWriter().write("--guide-features (  -F)                 "+getOptionValue("guide", "features").toString()+"\n");
-				}
+				featureModelFileName = getOptionValue("guide", "features").toString().trim();
+				featureModelFileName = configDir.copyToConfig(Util.findURLinJars(featureModelFileName));
 			} else {
-				configDir.copyToConfig(getOptionValue("guide", "features").toString());
+				featureModelFileName = configDir.copyToConfig(featureModelFileName);
 			}
+			OptionManager.instance().overloadOptionValue(optionContainerIndex, "guide", "features", featureModelFileName);
+			if (configDir.getInfoFileWriter() != null) {
+				configDir.getInfoFileWriter().write("--guide-features (  -F)                 "+getOptionValue("guide", "features").toString()+"\n");
+			}
+
 			if (getOptionValue("guide", "data_split_column").toString().equals("") && !getOptionValue("guide", "data_split_structure").toString().equals("")) {
 				configLogger.warn("Option --guide-data_split_column = '' and --guide-data_split_structure != ''. Option --guide-data_split_structure is overloaded with '', this will cause the parser to induce a single model.\n ");
 				OptionManager.instance().overloadOptionValue(optionContainerIndex, "guide", "data_split_structure", "");

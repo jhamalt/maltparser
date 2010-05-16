@@ -1,5 +1,7 @@
 package org.maltparser.core.feature;
 
+import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.maltparser.core.config.ConfigurationDir;
@@ -17,34 +19,45 @@ import org.maltparser.core.feature.system.FeatureEngine;
 public class FeatureModelManager {
 	protected SpecificationModels specModels;
 	protected FeatureEngine featureEngine;
+	protected ConfigurationDir configDirectory;
+
 	
 	public FeatureModelManager(FeatureEngine engine, ConfigurationDir configDirectory) throws MaltChainedException {
-		specModels = new SpecificationModels(configDirectory);
+		specModels = new SpecificationModels();
+		setConfigDirectory(configDirectory);
 		setFeatureEngine(engine);
 	}
 	
+	private URL findURL(String specModelFileName) throws MaltChainedException {
+		URL url = null;
+		File specFile = configDirectory.getFile(specModelFileName);
+		if (specFile.exists()) {
+			try {
+				url = new URL("file:///"+specFile.getAbsolutePath());
+			} catch (MalformedURLException e) {
+				throw new MaltChainedException("Malformed URL: "+specFile, e);
+			}
+		} else {
+			url = configDirectory.getConfigFileEntryURL(specModelFileName);
+		}
+		return url;
+	}
+	
 	public void loadSpecification(String specModelFileName) throws MaltChainedException {
-		specModels.load(specModelFileName);
+		specModels.load(findURL(specModelFileName));
 	}
+
 	
-	public void loadSpecification(URL specModelURL) throws MaltChainedException {
-		specModels.load(specModelURL);
-	}
-	
-	public void loadParSpecification(String specModelFileName, boolean malt04, String markingStrategy, String coveredRoot) throws MaltChainedException {
-		specModels.loadParReader(specModelFileName, malt04, markingStrategy, coveredRoot);
-	}
-	
-	public void loadParSpecification(URL specModelURL, boolean malt04, String markingStrategy, String coveredRoot) throws MaltChainedException {
-		specModels.loadParReader(specModelURL, malt04, markingStrategy, coveredRoot);
+	public void loadParSpecification(String specModelFileName, String markingStrategy, String coveredRoot) throws MaltChainedException {
+		specModels.loadParReader(findURL(specModelFileName), markingStrategy, coveredRoot);
 	}
 	
 	public FeatureModel getFeatureModel(String specModelURL, int specModelUrlIndex, ConfigurationRegistry registry) throws MaltChainedException {
-		return new FeatureModel(specModels.getSpecificationModel(specModelURL, specModelUrlIndex), registry, featureEngine);
+		return new FeatureModel(specModels.getSpecificationModel(findURL(specModelURL), specModelUrlIndex), registry, featureEngine);
 	}
 	
 	public FeatureModel getFeatureModel(String specModelURL, ConfigurationRegistry registry) throws MaltChainedException {
-		return new FeatureModel(specModels.getSpecificationModel(specModelURL, 0), registry, featureEngine);
+		return new FeatureModel(specModels.getSpecificationModel(findURL(specModelURL), 0), registry, featureEngine);
 	}
 	
 	public FeatureModel getFeatureModel(SpecificationModel specModel, ConfigurationRegistry registry) throws MaltChainedException {
@@ -65,6 +78,14 @@ public class FeatureModelManager {
 
 	public void setFeatureEngine(FeatureEngine featureEngine) {
 		this.featureEngine = featureEngine;
+	}
+
+	public ConfigurationDir getConfigDirectory() {
+		return configDirectory;
+	}
+
+	public void setConfigDirectory(ConfigurationDir configDirectory) {
+		this.configDirectory = configDirectory;
 	}
 
 	public String toString() {
