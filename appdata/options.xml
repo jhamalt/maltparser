@@ -111,6 +111,7 @@ many single malt configurations. ]]></desc>
 			<legalvalue name="stacklazy" class="org.maltparser.parser.algorithm.stack.StackSwapLazyFactory">Stack lazy</legalvalue>
 			<legalvalue name="stackattardi" class="org.maltparser.parser.algorithm.stack.StackAttardiFactory">Stack Attardi</legalvalue>
 			<legalvalue name="planar" class="org.maltparser.parser.algorithm.planar.NivrePlanarArcEagerFactory">Planar eager</legalvalue>
+			<legalvalue name="2planar" class="org.maltparser.parser.algorithm.twoplanar.TwoPlanarArcEagerFactory">2-Planar eager</legalvalue>
 		</option>
 		<option type="class" name="guide_model" flag="gm" default="single" usage="save">
 			<desc><![CDATA[ MaltParser @version@ has one available guide model type: <b>single</b>. Later releases 
@@ -307,6 +308,19 @@ many single malt configurations. ]]></desc>
 			<shortdesc>Post processing</shortdesc>
 		</option>-->
 	</optiongroup>
+	<optiongroup groupname="2planar">
+		<desc><![CDATA[ The <b>2-planar</b> option group controls the 2-planar parsing algorithm.  ]]></desc>
+		<option type="bool" name="reduceonswitch" flag="2pr" default="false" usage="save">
+			<desc><![CDATA[ If <b>reduceonswitch=true</b>, the parser reduces the active stack immediately after switching stacks. ]]></desc>
+			<shortdesc>Force reduce after switch</shortdesc>
+		</option>
+		<option type="enum" name="planar_root_handling" flag="prh" default="normal" usage="save">
+			<desc><![CDATA[ The <b>planar_root_handling</b> option specifies how dependents of the special root node are handled in the 2-planar parser. ]]></desc>
+			<shortdesc>Root handling</shortdesc>
+			<legalvalue name="relaxed">Root dependents not attached during parsing (attached with default label afterwards).</legalvalue>
+			<legalvalue name="normal">Root dependents attached by RightArc transition during parsing (unattached tokens attached with default label afterwards).</legalvalue>
+		</option>
+	</optiongroup>
 		<optiongroup groupname="planar">
 		<desc><![CDATA[ The <b>planar</b> option group controls the Nivre planar parsing algorithm.  ]]></desc>
 		<option type="enum" name="connectedness" flag="pcon" default="none" usage="save">
@@ -417,6 +431,7 @@ otherwise all tokens in Left must be inspected before the next token is shifted.
 			<legalvalue name="stacklazy" mapto="/appdata/features/StackSwap.xml">Stack projective default model</legalvalue>
 			<legalvalue name="stackattardi" mapto="/appdata/features/StackAttardi.xml">Stack projective default model</legalvalue>
 			<legalvalue name="planar" mapto="/appdata/features/PlanarEager.xml">Planar arc-eager default model</legalvalue>
+			<legalvalue name="2planar" mapto="/appdata/features/2PlanarEager.xml">2-Planar arc-eager default model</legalvalue>
 		</option>
 		<option type="string" name="data_split_column" flag="d" default="" usage="save">
 			<desc><![CDATA[ For some learning methods (like LIBSVM) it is impractical to induce a single model based on all training instances. With

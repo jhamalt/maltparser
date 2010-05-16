@@ -184,7 +184,7 @@ public class FeatureModel extends HashMap<String, FeatureVector> {
 				}
 			}
 			if (!paramTypes[i].isInstance(objects.peek())) {
-				throw new FeatureException("The function cannot be initialized. ");
+				throw new FeatureException("The function cannot be initialized. " + "(" + paramTypes[i] + ")(" + objects.peek() + ")(" + function + ")(" + objects + ")");
 			}
 			arguments[i] = objects.pop();
 		}

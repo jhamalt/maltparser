@@ -32,6 +32,13 @@
 			<subfunction name="Input"></subfunction>
 		</subfunctions>
 	</function>
+	<function class="org.maltparser.parser.algorithm.twoplanar.TwoPlanarFactory" hasSubFunctions="true" hasFactory="true">
+		<subfunctions>
+			<subfunction name="ActiveStack"></subfunction>
+			<subfunction name="InactiveStack"></subfunction>
+			<subfunction name="Input"></subfunction>
+		</subfunctions>
+	</function>
 	<function class="org.maltparser.parser.algorithm.stack.StackFactory" hasSubFunctions="true" hasFactory="true">
 		<subfunctions>
 			<subfunction name="Stack"></subfunction>
