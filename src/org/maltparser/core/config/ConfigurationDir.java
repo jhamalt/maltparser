@@ -108,7 +108,24 @@ public class ConfigurationDir  {
 	 */
 	public OutputStreamWriter getOutputStreamWriter(String fileName) throws MaltChainedException {
 		try {
-			return new OutputStreamWriter(new FileOutputStream(configDirectory.getPath()+File.separator+fileName), "UTF-8");
+			return new OutputStreamWriter(new FileOutputStream(configDirectory.getPath()+File.separator+fileName, true), "UTF-8");
+		} catch (FileNotFoundException e) {
+			throw new ConfigurationException("The file '"+fileName+"' cannot be created. ", e);
+		} catch (UnsupportedEncodingException e) {
+			throw new ConfigurationException("The char set 'UTF-8' is not supported. ", e);
+		}
+	}
+	/**
+	 * This method acts the same as getOutputStreamWriter with the difference that the writer append in the file
+	 * if it already exists instead of deleting the previous content before starting to write.
+	 * 
+	 * @param fileName	a file name
+	 * @return an output stream writer for writing to a file within the configuration directory
+	 * @throws MaltChainedException
+	 */
+	public OutputStreamWriter getAppendOutputStreamWriter(String fileName) throws MaltChainedException {
+		try {
+			return new OutputStreamWriter(new FileOutputStream(configDirectory.getPath()+File.separator+fileName, true), "UTF-8");
 		} catch (FileNotFoundException e) {
 			throw new ConfigurationException("The file '"+fileName+"' cannot be created. ", e);
 		} catch (UnsupportedEncodingException e) {

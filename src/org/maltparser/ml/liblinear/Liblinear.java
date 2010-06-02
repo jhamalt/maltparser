@@ -10,7 +10,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.regex.Pattern;
@@ -45,7 +47,7 @@ public class Liblinear implements LearningMethod {
 		SILENT, ERROR, ALL
 	}
 	private LinkedHashMap<String, String> liblinearOptions;
-	
+	 
 	protected InstanceModel owner;
 	protected int learnerMode;
 	protected String name;
@@ -176,8 +178,7 @@ public class Liblinear implements LearningMethod {
 				final PrintStream err = System.err;
 				System.setOut(NoPrintStream.NO_PRINTSTREAM);
 				System.setErr(NoPrintStream.NO_PRINTSTREAM);
-		        Linear.saveModel(new File(getFile(".mod").getAbsolutePath()), Linear.train(problem, getLiblinearParameters()));
-				
+				Linear.saveModel(new File(getFile(".mod").getAbsolutePath()), Linear.train(problem, getLiblinearParameters()));
 				System.setOut(err);
 				System.setOut(out);
 				if (!saveInstanceFiles) {
@@ -196,6 +197,61 @@ public class Liblinear implements LearningMethod {
 			trainExternal(featureVector);
 		}
 		saveCardinalities(getInstanceOutputStreamWriter(".car"), cardinalities);
+	}
+	
+	@Override
+	public double crossValidate(FeatureVector featureVector, int nrOfSplits)
+			throws MaltChainedException {
+		if (featureVector == null) {
+			throw new LiblinearException("The feature vector cannot be found. ");
+		} else if (owner == null) {
+			throw new LiblinearException("The parent guide model cannot be found. ");
+		}
+		
+		cardinalities = getCardinalities(featureVector);
+		
+		double crossValidationAccuracy = 0.0;
+		
+		//if (pathExternalLiblinearTrain == null) {
+			try {
+				final Problem problem = readLibLinearProblem(getInstanceInputStreamReader(".ins"), cardinalities);
+				if (owner.getGuide().getConfiguration().getConfigLogger().isInfoEnabled()) {
+					owner.getGuide().getConfiguration().getConfigLogger().info("Doing cross validation for model "+ owner.getModelName() + "\n");
+				}
+				final PrintStream out = System.out;
+				final PrintStream err = System.err;
+				System.setOut(NoPrintStream.NO_PRINTSTREAM);
+				System.setErr(NoPrintStream.NO_PRINTSTREAM);
+
+				int[] target = new int[problem.l];
+				
+				Linear.crossValidation(problem, getLiblinearParameters(), nrOfSplits, target);
+
+				double totalCorrect = 0;
+				for (int i = 0; i < problem.l; i++)
+					if (target[i] == problem.y[i]) ++totalCorrect;
+
+				if(totalCorrect>0)
+					crossValidationAccuracy = 100.0 * totalCorrect / problem.l;
+								
+				System.setOut(err);
+				System.setOut(out);
+				//Don't delete the instance file here
+				//if (!saveInstanceFiles) {
+				//	getFile(".ins").delete();
+				//}
+			} catch (OutOfMemoryError e) {
+				throw new LiblinearException("Out of memory. Please increase the Java heap size (-Xmx<size>). ", e);
+			} catch (IllegalArgumentException e) {
+				throw new LiblinearException("The Liblinear learner was not able to redirect Standard Error stream. ", e);
+			} catch (SecurityException e) {
+				throw new LiblinearException("The Liblinear learner cannot remove the instance file. ", e);
+			}
+		//} else {
+		//	trainExternal(featureVector);
+		//}
+
+		return crossValidationAccuracy;
 	}
 	
 	private void trainExternal(FeatureVector featureVector) throws MaltChainedException {
@@ -308,6 +364,7 @@ public class Liblinear implements LearningMethod {
 		} else if (divideFeature == null) {
 			throw new LiblinearException("The divide feature cannot be found. ");
 		} 
+		
 		try {
 			final BufferedReader in = new BufferedReader(getInstanceInputStreamReader(".ins"));
 			final BufferedWriter out = method.getInstanceWriter();
@@ -321,7 +378,6 @@ public class Liblinear implements LearningMethod {
 					sb.setLength(0);
 					break;
 				}
-				
 				c = (char)l; 
 				l = in.read();
 				if (c == '\t') {
@@ -350,6 +406,7 @@ public class Liblinear implements LearningMethod {
 			}	
 			in.close();
 			getFile(".ins").delete();
+			out.flush();
 		} catch (SecurityException e) {
 			throw new LiblinearException("The Liblinear learner cannot remove the instance file. ", e);
 		} catch (NullPointerException  e) {
@@ -359,12 +416,14 @@ public class Liblinear implements LearningMethod {
 		} catch (IOException e) {
 			throw new LiblinearException("The Liblinear learner read from the instance file. ", e);
 		}
+
 	}
 	
 	/* (non-Javadoc)
 	 * @see org.maltparser.ml.LearningMethod#predict(org.maltparser.parser.guide.feature.FeatureVector, org.maltparser.ml.KBestList)
 	 */
 	public boolean predict(FeatureVector featureVector, SingleDecision decision) throws MaltChainedException {
+		
 		if (model == null) {
 			try {
 				model = Linear.loadModel(new BufferedReader(getInstanceInputStreamReaderFromConfigFile(".mod")));
@@ -380,6 +439,7 @@ public class Liblinear implements LearningMethod {
 				cardinalities = getCardinalities(featureVector);
 			}
 		}
+		//System.out.println("METHOD PREDICT CARDINALITIES SIZE" + cardinalities.length + " FEATURE VECTOR SIZE " +featureVector.size());
 		if (xlist == null) {
 			xlist = new ArrayList<FeatureNode>(featureVector.size()); 
 		}
@@ -490,8 +550,29 @@ public class Liblinear implements LearningMethod {
 		return owner.getGuide().getConfiguration();
 	}
 	
-	public int getNumberOfInstances() {
-		return numberOfInstances;
+	public int getNumberOfInstances() throws MaltChainedException {
+		if(numberOfInstances!=0)
+			return numberOfInstances;
+		else{
+			//Do a line count of the instance file and return that
+			
+			BufferedReader reader = new BufferedReader( getInstanceInputStreamReader(".ins"));
+			try {
+				while(reader.readLine()!=null){
+					numberOfInstances++;
+					owner.increaseFrequency();
+				}
+				
+				reader.close();
+			} catch (IOException e) {
+				throw new MaltChainedException("No instances found in file",e);
+			}
+			
+			
+			
+			return numberOfInstances;
+			
+		}
 	}
 
 	public void increaseNumberOfInstances() {
@@ -513,7 +594,7 @@ public class Liblinear implements LearningMethod {
 	}
 	
 	protected OutputStreamWriter getInstanceOutputStreamWriter(String suffix) throws MaltChainedException {
-		return getConfiguration().getConfigurationDir().getOutputStreamWriter(owner.getModelName()+getLearningMethodName()+suffix);
+		return getConfiguration().getConfigurationDir().getAppendOutputStreamWriter(owner.getModelName()+getLearningMethodName()+suffix);
 	}
 	
 	protected InputStreamReader getInstanceInputStreamReader(String suffix) throws MaltChainedException {
@@ -541,6 +622,8 @@ public class Liblinear implements LearningMethod {
 	public Problem readLibLinearProblem(InputStreamReader isr, int[] cardinalities) throws MaltChainedException {
 		Problem problem = new Problem();
 
+
+		
 		try {
 			final BufferedReader fp = new BufferedReader(isr);
 			int max_index = 0;
@@ -556,6 +639,7 @@ public class Liblinear implements LearningMethod {
 			final Pattern pipePattern = Pattern.compile("\\|");
 			while(true) {
 				String line = fp.readLine();
+
 				if(line == null) break;
 				String[] columns = tabPattern.split(line);
 
@@ -566,7 +650,8 @@ public class Liblinear implements LearningMethod {
 				int offset = 1; 
 				int j = 0;
 				try {
-					problem.y[i] = Integer.parseInt(columns[j]);
+					problem.y[i] = 
+						Integer.parseInt(columns[j]);
 					int p = 0;
 					for(j = 1; j < columns.length; j++) {
 						final String[] items = pipePattern.split(columns[j]);	
@@ -861,4 +946,139 @@ public class Liblinear implements LearningMethod {
 		sb.append(getLibLinearOptions());
 		return sb.toString();
 	}
+
+
+	@Override
+	public void divideByFeatureSet(
+			Set<Integer> featureIdsToCreateSeparateBranchesForSet, ArrayList<Integer> divideFeatureIndexVector, String otherId)  throws MaltChainedException {
+
+		
+		//Create a hash map that maps every feature id to a writer
+		HashMap<Integer, BufferedWriter>   featureIdToWriterMap = new HashMap<Integer, BufferedWriter>();
+		
+		for(int element:featureIdsToCreateSeparateBranchesForSet){
+		 
+
+			BufferedWriter outputWriter = new BufferedWriter(getConfiguration().getConfigurationDir().getOutputStreamWriter(owner.getModelName().replace('.','_') + element + "." + getLearningMethodName()+".ins"));
+			featureIdToWriterMap.put(element, outputWriter);
+		
+		}
+		
+		BufferedWriter otherOutputWriter = new BufferedWriter(getConfiguration().getConfigurationDir().getOutputStreamWriter(owner.getModelName().replace('.','_') + otherId + "." + getLearningMethodName()+".ins"));
+
+		
+		try {
+			final BufferedReader in = new BufferedReader(getInstanceInputStreamReader(".ins"));
+			//every line will be written to a separate file
+			String line = in.readLine();
+			final Pattern tabPattern = Pattern.compile("\t");
+			while(line!=null){
+				
+				//Find out which pot the line shall be put in
+				String[] lineArray = tabPattern.split(line);
+				
+				int id = new Integer(lineArray[divideFeatureIndexVector.get(0)+1]);
+				
+				if(!featureIdToWriterMap.containsKey(id)){
+					otherOutputWriter.write(line + "\n");
+				}else	 
+					featureIdToWriterMap.get(id).write(getLineToWrite(lineArray,divideFeatureIndexVector.get(0)+1));
+				
+				line = in.readLine();
+			}
+			
+			otherOutputWriter.close();
+			
+			in.close();
+			
+			for(BufferedWriter writer: featureIdToWriterMap.values())
+				writer.close();
+
+		} catch (SecurityException e) {
+			throw new LiblinearException("The Liblinear learner cannot remove the instance file. ", e);
+		} catch (NullPointerException  e) {
+			throw new LiblinearException("The instance file cannot be found. ", e);
+		} catch (FileNotFoundException e) {
+			throw new LiblinearException("The instance file cannot be found. ", e);
+		} catch (IOException e) {
+			throw new LiblinearException("The Liblinear learner read from the instance file. ", e);
+		}
+
+		
+
+	}
+
+
+	private String getLineToWrite(String[] lineArray, int excludeIndex) {
+		StringBuffer buf = new StringBuffer();
+		
+		for(int n = 0; n < lineArray.length; n++)
+			if(n != excludeIndex)
+				buf.append(lineArray[n] + "\t");
+		
+		
+		buf.append("\n");		
+
+		
+		return buf.toString();
+	}
+
+
+	@Override
+	public Map<Integer, Integer> createFeatureIdToCountMap(
+			ArrayList<Integer> divideFeatureIndexVector) throws MaltChainedException{
+
+		HashMap<Integer, Integer> featureIdToCountMap = new HashMap<Integer, Integer>();
+		
+		//Go trough the file and count all feature ids in the given column(s)
+		
+		try {
+			final BufferedReader in = new BufferedReader(getInstanceInputStreamReader(".ins"));
+			//every line will be written to a separate file
+			String line = in.readLine();
+			final Pattern tabPattern = Pattern.compile("\t");
+			while(line!=null){
+				
+				//Find out which pot the line shall be put in
+				String[] lineArray = tabPattern.split(line);
+				
+				for(int n = 0; n < divideFeatureIndexVector.size(); n++){
+					int id = new Integer(lineArray[divideFeatureIndexVector.get(n)+1]);
+					
+					
+					if (!featureIdToCountMap.containsKey(id)) {
+
+						featureIdToCountMap.put(id, 0);
+
+					}
+
+					int previousCount = featureIdToCountMap.get(id);
+					
+					featureIdToCountMap.put(id, previousCount + 1);
+					
+				}				
+				
+				line = in.readLine();
+			}
+			
+
+			
+			in.close();
+			
+
+		} catch (SecurityException e) {
+			throw new LiblinearException("The Libsvm learner cannot remove the instance file. ", e);
+		} catch (NullPointerException  e) {
+			throw new LiblinearException("The instance file cannot be found. ", e);
+		} catch (FileNotFoundException e) {
+			throw new LiblinearException("The instance file cannot be found. ", e);
+		} catch (IOException e) {
+			throw new LiblinearException("The Liblinear learner read from the instance file. ", e);
+		}
+		
+		
+		
+		return featureIdToCountMap;
+	}
+
 }

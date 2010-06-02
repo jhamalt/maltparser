@@ -8,9 +8,11 @@ import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.feature.FeatureModel;
 import org.maltparser.core.feature.FeatureVector;
 import org.maltparser.core.syntaxgraph.DependencyStructure;
+import org.maltparser.parser.DependencyParserConfig;
 import org.maltparser.parser.guide.ClassifierGuide;
 import org.maltparser.parser.guide.GuideException;
 import org.maltparser.parser.guide.instance.AtomicModel;
+import org.maltparser.parser.guide.instance.DecisionTreeModel;
 import org.maltparser.parser.guide.instance.FeatureDivideModel;
 import org.maltparser.parser.guide.instance.InstanceModel;
 import org.maltparser.parser.history.action.GuideDecision;
@@ -318,7 +320,15 @@ public class BranchedDecisionModel implements DecisionModel {
 		if (fv == null) {
 			fv = featureModel.getMainFeatureVector();
 		}
-		if (guide.getConfiguration().getOptionValue("guide", "data_split_column").toString().length() == 0) {
+		
+		DependencyParserConfig c = guide.getConfiguration();
+		
+		if ((c.getOptionValue("guide", "tree_split_columns")!=null &&
+			c.getOptionValue("guide", "tree_split_columns").toString().length() > 0) ||
+			(c.getOptionValue("guide", "tree_split_structures")!=null &&
+			c.getOptionValue("guide", "tree_split_structures").toString().length() > 0)) {
+			instanceModel = new DecisionTreeModel(fv, this); 
+		}else if (c.getOptionValue("guide", "data_split_column").toString().length() == 0) {
 			instanceModel = new AtomicModel(-1, fv, this);
 		} else {
 			instanceModel = new FeatureDivideModel(fv, this);

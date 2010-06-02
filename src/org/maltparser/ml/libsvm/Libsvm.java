@@ -12,6 +12,8 @@ import java.io.PrintStream;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.regex.Pattern;
@@ -32,6 +34,7 @@ import org.maltparser.core.feature.value.SingleFeatureValue;
 import org.maltparser.core.helper.NoPrintStream;
 import org.maltparser.core.syntaxgraph.DependencyStructure;
 import org.maltparser.ml.LearningMethod;
+import org.maltparser.ml.liblinear.LiblinearException;
 import org.maltparser.ml.libsvm.LibsvmException;
 import org.maltparser.parser.DependencyParserConfig;
 import org.maltparser.parser.guide.instance.InstanceModel;
@@ -208,6 +211,73 @@ public class Libsvm implements LearningMethod {
 		}
 		saveCardinalities(getInstanceOutputStreamWriter(".car"), cardinalities);
 	}
+	
+	
+	@Override
+	public double crossValidate(FeatureVector featureVector, int nrOfSplits)
+			throws MaltChainedException {
+		if (featureVector == null) {
+			throw new LibsvmException("The feature vector cannot be found. ");
+		} else if (owner == null) {
+			throw new LibsvmException("The parent guide model cannot be found. ");
+		}
+		cardinalities = getCardinalities(featureVector);
+		//TODO Implement support for externial SVM for cross validation  
+		//if (pathExternalSVMTrain == null) {
+		
+		double crossValidationAccuracy = 0.0;
+		
+			try {
+				final svm_problem prob = readProblemMaltSVMFormat(getInstanceInputStreamReader(".ins"), cardinalities, svmParam);
+				if(svm.svm_check_parameter(prob, svmParam) != null) {
+					throw new LibsvmException(svm.svm_check_parameter(prob, svmParam));
+				}
+				owner.getGuide().getConfiguration().getConfigLogger().info("Doing cross validation\n");
+				final PrintStream out = System.out;
+				final PrintStream err = System.err;
+				System.setOut(NoPrintStream.NO_PRINTSTREAM);
+				System.setErr(NoPrintStream.NO_PRINTSTREAM);
+				
+				//svm.svm_save_model(getFile(".mod").getAbsolutePath(), svm.svm_train(prob, svmParam));
+				
+				double[] target = new double[prob.l];
+				
+				svm.svm_cross_validation(prob, svmParam, nrOfSplits, target);				
+				
+				System.setOut(err);
+				System.setOut(out);
+				if (!saveInstanceFiles) {
+					getFile(".ins").delete();
+				}
+				
+				
+				double total_correct = 0.0;
+				
+				for(int i=0;i<prob.l;i++)
+					if(target[i] == prob.y[i])
+						++total_correct;
+				
+				if(total_correct>0)
+					crossValidationAccuracy = 100.0*total_correct/prob.l;
+				
+				
+			} catch (OutOfMemoryError e) {
+				throw new LibsvmException("Out of memory. Please increase the Java heap size (-Xmx<size>). ", e);
+			} catch (IllegalArgumentException e) {
+				throw new LibsvmException("The LIBSVM learner was not able to redirect Standard Error stream. ", e);
+			} catch (SecurityException e) {
+				throw new LibsvmException("The LIBSVM learner cannot remove the instance file. ", e);
+			}
+		//} else {
+		//	trainExternal(featureVector);
+		//}
+		//saveCardinalities(getInstanceOutputStreamWriter(".car"), cardinalities);
+		
+
+			
+		return crossValidationAccuracy;
+	}
+	
 	
 	private void trainExternal(FeatureVector featureVector) throws MaltChainedException {
 		try {		
@@ -531,8 +601,29 @@ public class Libsvm implements LearningMethod {
 		return owner.getGuide().getConfiguration();
 	}
 	
-	public int getNumberOfInstances() {
-		return numberOfInstances;
+	public int getNumberOfInstances() throws MaltChainedException {
+		if(numberOfInstances!=0)
+			return numberOfInstances;
+		else{
+			//Do a line count of the instance file and return that
+			
+			BufferedReader reader = new BufferedReader( getInstanceInputStreamReader(".ins"));
+			try {
+				while(reader.readLine()!=null){
+					numberOfInstances++;
+					owner.increaseFrequency();
+				}
+				
+				reader.close();
+			} catch (IOException e) {
+				throw new MaltChainedException("No instances found in file",e);
+			}
+			
+			
+			
+			return numberOfInstances;
+			
+		}
 	}
 
 	public void increaseNumberOfInstances() {
@@ -554,7 +645,7 @@ public class Libsvm implements LearningMethod {
 	}
 	
 	protected OutputStreamWriter getInstanceOutputStreamWriter(String suffix) throws MaltChainedException {
-		return getConfiguration().getConfigurationDir().getOutputStreamWriter(owner.getModelName()+getLearningMethodName()+suffix);
+		return getConfiguration().getConfigurationDir().getAppendOutputStreamWriter(owner.getModelName()+getLearningMethodName()+suffix);
 	}
 	
 	protected InputStreamReader getInstanceInputStreamReader(String suffix) throws MaltChainedException {
@@ -1057,11 +1148,148 @@ public class Libsvm implements LearningMethod {
 	 */
 	public String toString() {
 		final StringBuffer sb = new StringBuffer();
-		sb.append("\nLIBSVM INTERFACE\n");
+		sb.append("\nLIBSVM INTERFACE\n"); 
 		sb.append("  LIBSVM version: "+LIBSVM_VERSION+"\n");
 		sb.append("  SVM-param string: "+paramString+"\n");
 		
 		sb.append(toStringParameters(svmParam));
 		return sb.toString();
 	}
+
+
+	@Override
+	public void divideByFeatureSet(
+			Set<Integer> featureIdsToCreateSeparateBranchesForSet, ArrayList<Integer> divideFeatureIndexVector, String otherId)  throws MaltChainedException {
+
+		
+		//Create a hash map that maps every feature id to a writer
+		HashMap<Integer, BufferedWriter>   featureIdToWriterMap = new HashMap<Integer, BufferedWriter>();
+		
+		for(int element:featureIdsToCreateSeparateBranchesForSet){
+		 
+
+			BufferedWriter outputWriter = new BufferedWriter(getConfiguration().getConfigurationDir().getOutputStreamWriter(owner.getModelName().replace('.','_') + element + "." + getLearningMethodName()+".ins"));
+			featureIdToWriterMap.put(element, outputWriter);
+		
+		}
+		
+		BufferedWriter otherOutputWriter = new BufferedWriter(getConfiguration().getConfigurationDir().getOutputStreamWriter(owner.getModelName().replace('.','_') + otherId + "." + getLearningMethodName()+".ins"));
+
+		
+		try {
+			final BufferedReader in = new BufferedReader(getInstanceInputStreamReader(".ins"));
+			//every line will be written to a separate file
+			String line = in.readLine();
+			final Pattern tabPattern = Pattern.compile("\t");
+			while(line!=null){
+				
+				//Find out which pot the line shall be put in
+				String[] lineArray = tabPattern.split(line);
+				
+				int id = new Integer(lineArray[divideFeatureIndexVector.get(0)+1]);
+				
+				if(!featureIdToWriterMap.containsKey(id)){
+					otherOutputWriter.write(line + "\n");
+				}else	 
+					featureIdToWriterMap.get(id).write(getLineToWrite(lineArray,divideFeatureIndexVector.get(0)+1));
+				
+				line = in.readLine();
+			}
+			
+			otherOutputWriter.close();
+			
+			in.close();
+			
+			for(BufferedWriter writer: featureIdToWriterMap.values())
+				writer.close();
+
+		} catch (SecurityException e) {
+			throw new LiblinearException("The Liblinear learner cannot remove the instance file. ", e);
+		} catch (NullPointerException  e) {
+			throw new LiblinearException("The instance file cannot be found. ", e);
+		} catch (FileNotFoundException e) {
+			throw new LiblinearException("The instance file cannot be found. ", e);
+		} catch (IOException e) {
+			throw new LiblinearException("The Liblinear learner read from the instance file. ", e);
+		}
+
+		
+
+	}
+
+
+	private String getLineToWrite(String[] lineArray, int excludeIndex) {
+		StringBuffer buf = new StringBuffer();
+		
+		for(int n = 0; n < lineArray.length; n++)
+			if(n != excludeIndex)
+				buf.append(lineArray[n] + "\t");
+		
+		
+		buf.append("\n");		
+
+		
+		return buf.toString();
+	}
+
+
+	@Override
+	public Map<Integer, Integer> createFeatureIdToCountMap(
+			ArrayList<Integer> divideFeatureIndexVector) throws MaltChainedException{
+
+		HashMap<Integer, Integer> featureIdToCountMap = new HashMap<Integer, Integer>();
+		
+		//Go trough the file and count all feature ids in the given column(s)
+		
+		try {
+			final BufferedReader in = new BufferedReader(getInstanceInputStreamReader(".ins"));
+			//every line will be written to a separate file
+			String line = in.readLine();
+			final Pattern tabPattern = Pattern.compile("\t");
+			while(line!=null){
+				
+				//Find out which pot the line shall be put in
+				String[] lineArray = tabPattern.split(line);
+				
+				for(int n = 0; n < divideFeatureIndexVector.size(); n++){
+					int id = new Integer(lineArray[divideFeatureIndexVector.get(n)+1]);
+					
+					
+					if (!featureIdToCountMap.containsKey(id)) {
+
+						featureIdToCountMap.put(id, 0);
+
+					}
+
+					int previousCount = featureIdToCountMap.get(id);
+					
+					featureIdToCountMap.put(id, previousCount + 1);
+					
+				}				
+				
+				line = in.readLine();
+			}
+			
+
+			
+			in.close();
+			
+
+		} catch (SecurityException e) {
+			throw new LiblinearException("The Libsvm learner cannot remove the instance file. ", e);
+		} catch (NullPointerException  e) {
+			throw new LiblinearException("The instance file cannot be found. ", e);
+		} catch (FileNotFoundException e) {
+			throw new LiblinearException("The instance file cannot be found. ", e);
+		} catch (IOException e) {
+			throw new LiblinearException("The Liblinear learner read from the instance file. ", e);
+		}
+		
+		
+		
+		return featureIdToCountMap;
+	}
+
+
+
 }

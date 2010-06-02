@@ -463,6 +463,22 @@ otherwise all tokens in Left must be inspected before the next token is shifted.
 			training sets that contain less than 100 instances will be merged into a default training set. ]]></desc>
 			<shortdesc>Data split threshold</shortdesc>
 		</option>
+		<option type="string" name="tree_split_columns" flag="Z" default="" usage="save">
+			<desc><![CDATA[ TODO: write desc ]]></desc>
+			<shortdesc>Data split input column</shortdesc>
+		</option>
+		<option type="string" name="tree_split_structures" flag="X" default="" usage="save">
+			<desc><![CDATA[ TODO: write desc  ]]></desc>
+			<shortdesc>Data split data structure</shortdesc>
+		</option>
+		<option type="integer" name="tree_split_threshold" flag="Y" default="50" usage="save">
+			<desc><![CDATA[ TODO: write desc ]]></desc>
+			<shortdesc>Data split threshold</shortdesc>
+		</option>
+		<option type="integer" name="tree_number_of_cross_validation_divisions" flag="Y" default="2" usage="save">
+			<desc><![CDATA[ TODO: write desc ]]></desc>
+			<shortdesc>Data split threshold</shortdesc>
+		</option>
 		<option type="integer" name="kbest" flag="k" default="-1" usage="save">
 			<desc><![CDATA[ The classifier can produce a k-best list of predicted parser actions. The <b>kbest</b> option indicates how many 
 			items the k-best list should contain. If <code>-k -1</code>, all possible parser actions are ranked in the k-best list. 
