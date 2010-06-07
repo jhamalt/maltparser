@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
@@ -28,19 +29,23 @@ import org.maltparser.parser.guide.Model;
 import org.maltparser.parser.history.action.SingleDecision;
 
 /**
+ * This class implements a decision tree model. The class is recursive and an instance of the class can be a
+ * root model or belong to an other decision tree model. Every node in the decision tree is represented by an
+ * instance of the class. Node can be in one of the three states branch model, leaf model or not decided. A branch
+ * model has several sub decision tree models and a leaf model owns an atomic model that is used to classify instances.
+ * When a decision tree model is in the not decided state it has both sub decision trees and an atomic model. It can be in
+ * the not decided state during training before it is tested by cross validation if the sub decision tree models provide 
+ * better accuracy than the atomic model. 
+ * 
  * 
  * @author Kjell Winblad
  */
 public class DecisionTreeModel implements InstanceModel {
-
 	
-	private Map<Integer, Integer> divideFeatureIdToCountMap = new HashMap<Integer, Integer>();
 	/*
 	 * The leaf nodes needs a int index that is unique among all leaf nodes because they have an AtomicModel
 	 * which need such an index.
 	 */
-	//private static Map<String, Integer> modelNameToIndexMap = null;
-	//This is increased by one for every sub DecisionTreeModel that is created
 	private static int leafModelIndexConter = 0;
 	
 	
@@ -85,11 +90,12 @@ public class DecisionTreeModel implements InstanceModel {
 	//Used to indicate that the modelIndex field is not set
 	private static final int MODEL_INDEX_NOT_SET = Integer.MIN_VALUE;
 	/*
-	 * Model index is the identifer used to distinguish this model from other models at
+	 * Model index is the identifier used to distinguish this model from other models at
 	 * the same level. This should not be used in the root model and has the value
 	 * MODEL_INDEX_NOT_SET in it.
 	 */
 	private int modelIndex =  MODEL_INDEX_NOT_SET;
+	//Indexes of the column used to divide on
 	private ArrayList<Integer> divideFeatureIndexVector;
 	
 	
@@ -420,23 +426,6 @@ public class DecisionTreeModel implements InstanceModel {
 			divideFeature.update();
 
 			
-
-			int divideFeatureCode = ((SingleFeatureValue) divideFeature
-					.getFeatureValue()).getCode();
-
-			
-			if (!divideFeatureIdToCountMap.containsKey(divideFeatureCode)) {
-
-				divideFeatureIdToCountMap.put(divideFeatureCode, 0);
-
-				
-
-			}
-
-			int previousCount = divideFeatureIdToCountMap.get(divideFeatureCode);
-			
-			divideFeatureIdToCountMap.put(divideFeatureCode, previousCount + 1);
-			
 			leafModel.addInstance(decision);
 
 
@@ -578,15 +567,15 @@ public class DecisionTreeModel implements InstanceModel {
 			//System.out.print("LEAF PREDICT "  + getModelName() + " ");
 			return leafModel.predict(decision);
 		} else {
-			
+			/*
 			for(Entry<Integer, DecisionTreeModel>  b:branches.entrySet()){
 				System.out.print(b.getKey());
-
 				System.out.print( " | ");
 			}
 			
 			System.out.println( getModelName());
 			System.out.println("OTHER BRANCH ID " + OTHER_BRANCH_ID);
+			*/
 			
 			getGuide().getConfiguration().getConfigLogger().info("Could not predict the next parser decision because there is " +
 					"no divide or master model that covers the divide value '"+((SingleFeatureValue)divideFeatures.getFirst().getFeatureValue()).getCode()+"', as default" +
@@ -907,6 +896,8 @@ public class DecisionTreeModel implements InstanceModel {
 		// branches.remove(index);
 		// }
 
+
+		
 		if (leafModel == null)
 			throw new GuideException(
 					"The model in tree node is null in a state where it is not allowed");
@@ -933,23 +924,32 @@ public class DecisionTreeModel implements InstanceModel {
 
 			leafModel.noMoreInstances();
 
-			if (divideFeatureIdToCountMap.size() == 0)
-				divideFeatureIdToCountMap = leafModel.getMethod()
+			
+			Map<Integer, Integer> divideFeatureIdToCountMap = leafModel.getMethod()
 						.createFeatureIdToCountMap(divideFeatureIndexVector);
 
 			int totalInOther = 0;
 
 			Set<Integer> featureIdsToCreateSeparateBranchesForSet = new HashSet<Integer>();
 
+			List<Integer> removeFromDivideFeatureIdToCountMap = new LinkedList<Integer>();
+			
 			for (Entry<Integer, Integer> entry : divideFeatureIdToCountMap
 					.entrySet())
 				if (entry.getValue() >= divideThreshold) {
 					featureIdsToCreateSeparateBranchesForSet
 							.add(entry.getKey());
 				} else {
+					removeFromDivideFeatureIdToCountMap.add(entry.getKey());
 					totalInOther = totalInOther + entry.getValue();
 				}
+			
+			for(int removeIndex:removeFromDivideFeatureIdToCountMap )
+				divideFeatureIdToCountMap.remove(removeIndex);
 
+
+			
+			
 			boolean otherExists = false;
 
 			if (totalInOther > 0)
@@ -974,9 +974,8 @@ public class DecisionTreeModel implements InstanceModel {
 							smallestSoFarId = entry.getKey();
 						}
 					}
-					if (getModelName().equals("odm0"))
-						System.out.println("REMOVE ID " + smallestSoFarId + " otherExists " + otherExists + " divide treachhold " +  divideThreshold);
-
+					
+					
 					featureIdsToCreateSeparateBranchesForSet
 							.remove(smallestSoFarId);
 				}
@@ -1001,8 +1000,7 @@ public class DecisionTreeModel implements InstanceModel {
 							new LinkedList<FeatureFunction>(), divideThreshold);
 					branches.put(OTHER_BRANCH_ID, newBranch);
 
-					if ("odm0".equals(getModelName()))
-						System.out.println("OTHER EXISTS odm0");
+
 				}
 
 				for (DecisionTreeModel b : branches.values())
@@ -1053,6 +1051,12 @@ public class DecisionTreeModel implements InstanceModel {
 	public int getModelIndex() {
 		return modelIndex;
 	}
+	
+	private LinkedList<FeatureFunction> createGainRatioSplitList(){
+		return divideFeatures;
+		
+	}
+	
 	/*
 	private int getLeafModelIndex() throws MaltChainedException{
 		return modelNameToIndexMap.get(getModelName());
