@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -50,7 +52,7 @@ public class DecisionTreeModel implements InstanceModel {
 	 */
 	private static int leafModelIndexConter = 0;
 
-	private final static int OTHER_BRANCH_ID = 999;// Integer.MAX_VALUE;
+	private final static int OTHER_BRANCH_ID = 1000000;// Integer.MAX_VALUE;
 
 	// The number of division used when doing cross validation test
 	private int numberOfCrossValidationSplits = 10;
@@ -97,6 +99,9 @@ public class DecisionTreeModel implements InstanceModel {
 	private int modelIndex = MODEL_INDEX_NOT_SET;
 	// Indexes of the column used to divide on
 	private ArrayList<Integer> divideFeatureIndexVector;
+
+	private boolean automaticSplit = false;
+	private boolean treeForceDivide = false;
 
 	/**
 	 * Constructs a feature divide model.
@@ -278,6 +283,23 @@ public class DecisionTreeModel implements InstanceModel {
 				"guide", "tree_split_columns").toString();
 		String treeSplitStructures = getGuide().getConfiguration()
 				.getOptionValue("guide", "tree_split_structures").toString();
+		
+		automaticSplit  = getGuide().getConfiguration()
+		.getOptionValue("guide", "tree_automatic_split_order").toString().equals("yes");
+		
+		treeForceDivide = getGuide().getConfiguration()
+		.getOptionValue("guide", "tree_force_divide").toString().equals("yes");
+		
+		if(automaticSplit){
+			divideFeatures = new LinkedList<FeatureFunction>();
+			for(FeatureFunction feature:featureVector){
+				if(feature.getFeatureValue() instanceof SingleFeatureValue)
+					divideFeatures.add(feature);
+			}
+			
+			
+		}else{
+		
 		if (treeSplitColumns == null || treeSplitColumns.length() == 0) {
 			throw new GuideException(
 					"The option '--guide-tree_split_columns' cannot be found, when initializing the decision tree model. ");
@@ -343,6 +365,10 @@ public class DecisionTreeModel implements InstanceModel {
 					"Could not match the given divide features to any of the available features.");
 		}
 
+
+
+		}
+
 		try {
 
 			String treeSplitTreshold = getGuide().getConfiguration()
@@ -382,7 +408,7 @@ public class DecisionTreeModel implements InstanceModel {
 					"The --guide-tree_number_of_cross_validation_divisions option is not an integer value. ",
 					e);
 		}
-
+	
 	}
 
 	@Override
@@ -392,23 +418,226 @@ public class DecisionTreeModel implements InstanceModel {
 		if (getGuide().getGuideMode() == ClassifierGuide.GuideMode.CLASSIFY) {
 			throw new GuideException("Can only add instance during learning. ");
 		} else if (divideFeatures.size() > 0) {
-			FeatureFunction divideFeature = divideFeatures.getFirst();
+			//FeatureFunction divideFeature = divideFeatures.getFirst();
 
-			if (!(divideFeature.getFeatureValue() instanceof SingleFeatureValue)) {
-				throw new GuideException(
-						"The divide feature does not have a single value. ");
+			for (FeatureFunction divideFeature : divideFeatures) {
+				if (!(divideFeature.getFeatureValue() instanceof SingleFeatureValue)) {
+					throw new GuideException(
+							"The divide feature does not have a single value. ");
+				}
+				// Is this necessary?
+				divideFeature.update();
 			}
-
-			divideFeature.update();
-
 			leafModel.addInstance(decision);
 
+			//Update statistics data
+			updateStatistics(decision);
+			
+			
 		} else {
 			// Model has already been decided. It is a leaf node
 			if (branches != null)
 				setIsLeafNode();
 
 			leafModel.addInstance(decision);
+			
+			//Update statistics data
+			updateStatistics(decision);
+
+		}
+		
+		
+		
+
+	}
+
+	/*
+	private class StatisticsItem{
+
+		private int columnValue;
+		
+		private int classValue;
+		
+		public StatisticsItem(int columnValue, int classValue) {
+			super();
+			this.columnValue = columnValue;
+			this.classValue = classValue;
+		}
+		
+		public int getColumnValue() {
+			return columnValue;
+		}
+
+		public int getClassValue() {
+			return classValue;
+		}
+		
+		@Override
+		public int hashCode() {
+			return new Integer(columnValue/2).hashCode() + new Integer(classValue/2).hashCode();
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			
+			StatisticsItem compItem = (StatisticsItem)obj;
+			
+			return compItem.getClassValue()==this.getClassValue() && compItem.getColumnValue()==this.getColumnValue();
+		}
+	}
+	*/
+
+	/*
+	 * Helper method used for automatic division by gain ratio
+	 * @param n
+	 * @return
+	 */
+	private double log2(double n){
+		return Math.log(n)/Math.log(2.0);
+	}
+	
+	/*
+	 * This map contains one item per element in the divideFeatures. Mappings exist from every Feature function
+	 * in divideFeatures to a corresponding Statistics Item list that contains statistics for that divide feature.
+	 * In all positions in the list are a list of StatisticsItems one for every unique feature class
+	 * combination in the column. The statistics item also contain a count of that combination.
+	 */
+	//private HashMap<FeatureFunction, HashMap<StatisticsItem, Integer>> statisticsForDivideFatureMap = null;
+	//The keys are class id's and the value is a count of the number of this
+	private HashMap<Integer,Integer> classIdToCountMap = null;
+	
+	private HashMap<FeatureFunction, HashMap<Integer,Integer>> featureIdToCountMap = null;
+	
+	//private HashMap<FeatureFunction, HashMap<Integer,Integer>> classIdToCountMap = new HashMap<FeatureFunction, HashMap<Integer,Integer>>();
+	
+	private HashMap<FeatureFunction, HashMap<Integer,HashMap<Integer,Integer>>> featureIdToClassIdToCountMap = null;
+	
+	private void updateStatistics(SingleDecision decision)
+			throws MaltChainedException {
+
+		// if(statisticsForDivideFatureMap==null){
+		// statisticsForDivideFatureMap = new HashMap<FeatureFunction,
+		// HashMap<StatisticsItem, Integer>>();
+		//			
+		// for(FeatureFunction columnsDivideFeature : divideFeatures)
+		// statisticsForDivideFatureMap.put(columnsDivideFeature, new
+		// HashMap<StatisticsItem, Integer>());
+		// }
+		//		
+		//		
+		// int instanceClass = decision.getDecisionCode();
+		//		
+		// Integer classCount = classCountStatistics.get(instanceClass);
+		//		
+		// if(classCount==null){
+		// classCount=0;
+		// }
+		//		
+		// classCountStatistics.put(instanceClass, classCount+1);
+		//		
+		// for(FeatureFunction columnsDivideFeature : featureVector){
+		//			
+		// int featureCode =
+		// ((SingleFeatureValue)columnsDivideFeature.getFeatureValue()).getCode();
+		// HashMap<StatisticsItem, Integer> statisticsMap =
+		// statisticsForDivideFatureMap.get(columnsDivideFeature);
+		// if(statisticsMap!=null){
+		//				
+		// StatisticsItem item = new StatisticsItem(featureCode, instanceClass);
+		//				
+		// Integer count = statisticsMap.get(item);
+		//				
+		// if(count==null){
+		// //Add the statistic item to the map
+		// count = 0;
+		// }
+		//				
+		// statisticsMap.put(item, count + 1);
+		//				
+		// }
+		//			
+		// }
+
+		// If it is not done initialize the statistics maps
+		if (featureIdToCountMap == null) {
+
+			featureIdToCountMap = new HashMap<FeatureFunction, HashMap<Integer, Integer>>();
+
+			for (FeatureFunction columnsDivideFeature : divideFeatures)
+				featureIdToCountMap.put(columnsDivideFeature,
+						new HashMap<Integer, Integer>());
+
+
+			featureIdToClassIdToCountMap = new HashMap<FeatureFunction, HashMap<Integer, HashMap<Integer, Integer>>>();
+
+			for (FeatureFunction columnsDivideFeature : divideFeatures)
+				featureIdToClassIdToCountMap.put(columnsDivideFeature,
+						new HashMap<Integer, HashMap<Integer, Integer>>());
+
+			classIdToCountMap = new HashMap<Integer, Integer>();
+
+		}
+
+		int instanceClass = decision.getDecisionCode();
+
+		// Increase classCountStatistics
+
+		Integer classCount = classIdToCountMap.get(instanceClass);
+
+		if (classCount == null) {
+			classCount = 0;
+		}
+
+		classIdToCountMap.put(instanceClass, classCount + 1);
+
+		// Increase featureIdToCountMap
+
+		for (FeatureFunction columnsDivideFeature : divideFeatures) {
+
+			int featureCode = ((SingleFeatureValue) columnsDivideFeature
+					.getFeatureValue()).getCode();
+
+			HashMap<Integer, Integer> statisticsMap = featureIdToCountMap
+					.get(columnsDivideFeature);
+
+			Integer count = statisticsMap.get(featureCode);
+
+			if (count == null) {
+				// Add the statistic item to the map
+				count = 0;
+			}
+
+			statisticsMap.put(featureCode, count + 1);
+
+		}
+		
+		// Increase featureIdToClassIdToCountMap
+		
+		for (FeatureFunction columnsDivideFeature : divideFeatures) {
+
+			int featureCode = ((SingleFeatureValue) columnsDivideFeature
+					.getFeatureValue()).getCode();
+			
+			HashMap<Integer, HashMap<Integer, Integer>> featureIdToclassIdToCountMapTmp = featureIdToClassIdToCountMap
+					.get(columnsDivideFeature);
+
+			HashMap<Integer, Integer> classIdToCountMapTmp = featureIdToclassIdToCountMapTmp.get(featureCode);
+
+			if (classIdToCountMapTmp == null) {
+				// Add the statistic item to the map
+				classIdToCountMapTmp = new HashMap<Integer, Integer>();
+				
+				featureIdToclassIdToCountMapTmp.put(featureCode, classIdToCountMapTmp);
+			}
+			
+			Integer count = classIdToCountMapTmp.get(instanceClass);
+
+			if (count == null) {
+				// Add the statistic item to the map
+				count = 0;
+			}
+
+			classIdToCountMapTmp.put(instanceClass, count + 1);
 
 		}
 
@@ -584,7 +813,17 @@ public class DecisionTreeModel implements InstanceModel {
 
 		long start = System.currentTimeMillis();
 
-		double leafModelCrossValidationAccuracy = leafModel.getMethod()
+		double leafModelCrossValidationAccuracy = 0.0;
+		
+		if(treeForceDivide)
+			if (getGuide().getConfiguration().getConfigLogger().isInfoEnabled()) {
+				getGuide().getConfiguration().getConfigLogger().info(
+						"Skipping cross validation of the root node since the flag tree_force_divide is set to yes. " +
+						"The cross validation score for the root node is set to zero.\n");
+			}
+		
+		if(!treeForceDivide)
+			leafModelCrossValidationAccuracy = leafModel.getMethod()
 				.crossValidate(featureVector, numberOfCrossValidationSplits);
 
 		long stop = System.currentTimeMillis();
@@ -814,6 +1053,26 @@ public class DecisionTreeModel implements InstanceModel {
 			setIsLeafNode();
 
 		if (branches != null) {
+			
+			if(automaticSplit){
+				
+				divideFeatures = createGainRatioSplitList(divideFeatures);
+				
+				divideFeatureIndexVector = new ArrayList<Integer>();
+				for (int i = 0; i < featureVector.size(); i++) {
+
+					if (featureVector.get(i).equals(divideFeatures.get(0))) {
+
+						divideFeatureIndexVector.add(i);
+					}
+				}
+
+				if (divideFeatureIndexVector.size() == 0) {
+					throw new GuideException(
+							"Could not match the given divide features to any of the available features.");
+				}
+				
+			}
 
 			FeatureFunction divideFeature = divideFeatures.getFirst();
 
@@ -939,8 +1198,131 @@ public class DecisionTreeModel implements InstanceModel {
 		return modelIndex;
 	}
 
-	private LinkedList<FeatureFunction> createGainRatioSplitList() {
-		return divideFeatures;
+
+	private LinkedList<FeatureFunction> createGainRatioSplitList(LinkedList<FeatureFunction> divideFeatures) {
+		
+		if (getGuide().getConfiguration().getConfigLogger().isInfoEnabled()) {
+			
+			getGuide().getConfiguration().getConfigLogger().info(
+					"Start calculating gain ratio for all posible divide features");
+		}
+		
+		//Calculate the root entropy
+		
+		double total = 0;
+		
+		for(int count: classIdToCountMap.values()){
+			double fraction = ((double)count) / getFrequency();
+			total = total + fraction*log2(fraction);
+		}
+		
+		double rootEntropy = -total;
+		
+		
+		class FeatureFunctionInformationGainPair implements Comparable<FeatureFunctionInformationGainPair>{
+			double informationGain;
+			FeatureFunction featureFunction;
+			double splitInfo;
+			
+			public FeatureFunctionInformationGainPair(
+					FeatureFunction featureFunction) {
+				super();
+				this.featureFunction = featureFunction;
+			}
+			
+			public double getGainRatio(){
+				return informationGain/splitInfo;
+			}
+			
+			@Override
+			public int compareTo(FeatureFunctionInformationGainPair o) {
+				
+				int result = 0;
+				
+				if((this.getGainRatio() - o.getGainRatio()) <0)
+					result = -1;
+				else if ((this.getGainRatio() - o.getGainRatio()) >0)
+					result = 1;
+				
+				return result;
+			}
+		}
+
+		ArrayList<FeatureFunctionInformationGainPair> gainRatioList = new ArrayList<FeatureFunctionInformationGainPair>();
+		
+		for(FeatureFunction f: divideFeatures)
+			gainRatioList.add(new FeatureFunctionInformationGainPair(f));
+		
+		//For all divide features calculate the gain ratio
+		
+		for(FeatureFunctionInformationGainPair p : gainRatioList){
+
+			HashMap<Integer, Integer> featureIdToCountMapTmp = featureIdToCountMap.get(p.featureFunction);
+			
+			HashMap<Integer, HashMap<Integer, Integer>> featureIdToClassIdToCountMapTmp = featureIdToClassIdToCountMap.get(p.featureFunction);
+
+			double sum = 0;
+			
+			for(Entry<Integer, Integer> entry:featureIdToCountMapTmp.entrySet()){
+				int featureId = entry.getKey();
+				int numberOfElementsWithFeatureId = entry.getValue();
+				HashMap<Integer, Integer> classIdToCountMapTmp = featureIdToClassIdToCountMapTmp.get(featureId);
+				
+				double sumImpurityMesure = 0;
+				int totalElementsWithIdAndClass = 0;
+				for(int elementsWithIdAndClass : classIdToCountMapTmp.values()){
+				
+					double fractionOfInstancesBelongingToClass = ((double)elementsWithIdAndClass)/numberOfElementsWithFeatureId;
+				
+					totalElementsWithIdAndClass = totalElementsWithIdAndClass + elementsWithIdAndClass;
+					
+					sumImpurityMesure= sumImpurityMesure+fractionOfInstancesBelongingToClass*log2(fractionOfInstancesBelongingToClass);
+				
+				}
+				
+				double impurityMesure = -sumImpurityMesure;
+				
+				sum = sum + (((double)numberOfElementsWithFeatureId)/getFrequency())*impurityMesure;
+				
+			}
+			p.informationGain = rootEntropy - sum;
+			
+			//Calculate split info
+			
+			double splitInfoTotal = 0;
+			
+			for(int nrOfElementsWithFeatureId:featureIdToCountMapTmp.values()){
+				double fractionOfTotal = ((double)nrOfElementsWithFeatureId)/getFrequency();
+				splitInfoTotal = splitInfoTotal + fractionOfTotal*log2(fractionOfTotal);
+			}
+			p.splitInfo= splitInfoTotal;
+			
+			
+		}
+		Collections.sort(gainRatioList);
+
+
+		
+		//Log the result if info is enabled
+		if (getGuide().getConfiguration().getConfigLogger().isInfoEnabled()) {
+			
+			getGuide().getConfiguration().getConfigLogger().info(
+					"Gain ratio calculation finished the result follows:\n");
+			getGuide().getConfiguration().getConfigLogger().info(
+			"Divide Feature\tGain Ratio\tInformation Gain\tSplit Info\n");
+			
+			for(FeatureFunctionInformationGainPair p :gainRatioList)
+				getGuide().getConfiguration().getConfigLogger().info(
+				 p.featureFunction + "\t" + p.getGainRatio() + "\t" +  p.informationGain + "\t" +  p.splitInfo  +"\n");
+		}
+		
+		LinkedList<FeatureFunction> divideFeaturesNew = new LinkedList<FeatureFunction>();
+		
+		for(FeatureFunctionInformationGainPair p :gainRatioList)
+			divideFeaturesNew.add(p.featureFunction);
+		
+		
+		return divideFeaturesNew;
 
 	}
 

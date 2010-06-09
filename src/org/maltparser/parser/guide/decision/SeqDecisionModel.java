@@ -247,7 +247,8 @@ public class SeqDecisionModel implements DecisionModel {
 		
 		DependencyParserConfig c = guide.getConfiguration();
 		
-		if ((c.getOptionValue("guide", "tree_split_columns")!=null &&
+		if (c.getOptionValue("guide", "tree_automatic_split_order").toString().equals("yes") ||
+				(c.getOptionValue("guide", "tree_split_columns")!=null &&
 			c.getOptionValue("guide", "tree_split_columns").toString().length() > 0) ||
 			(c.getOptionValue("guide", "tree_split_structures")!=null &&
 			c.getOptionValue("guide", "tree_split_structures").toString().length() > 0)) {

@@ -463,6 +463,14 @@ otherwise all tokens in Left must be inspected before the next token is shifted.
 			training sets that contain less than 100 instances will be merged into a default training set. ]]></desc>
 			<shortdesc>Data split threshold</shortdesc>
 		</option>
+		<option type="string" name="tree_force_divide" flag="Z" default="" usage="save">
+			<desc><![CDATA[ TODO: write desc ]]></desc>
+			<shortdesc></shortdesc>
+		</option>
+		<option type="string" name="tree_automatic_split_order" flag="Z" default="" usage="save">
+			<desc><![CDATA[ TODO: write desc ]]></desc>
+			<shortdesc></shortdesc>
+		</option>
 		<option type="string" name="tree_split_columns" flag="Z" default="" usage="save">
 			<desc><![CDATA[ TODO: write desc ]]></desc>
 			<shortdesc>Data split input column</shortdesc>
