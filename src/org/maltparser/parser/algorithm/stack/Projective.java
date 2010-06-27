@@ -3,6 +3,7 @@ package org.maltparser.parser.algorithm.stack;
 import java.util.Stack;
 
 import org.maltparser.core.exception.MaltChainedException;
+import org.maltparser.core.syntaxgraph.LabelSet;
 import org.maltparser.core.syntaxgraph.edge.Edge;
 import org.maltparser.core.syntaxgraph.node.DependencyNode;
 import org.maltparser.parser.ParserConfiguration;
@@ -71,11 +72,10 @@ public class Projective extends TransitionSystem {
 		if (trans == LEFTARC && stack.get(stack.size()-2).isRoot()) { 
 			return false;
 		}
-		/*
 		if (trans == SHIFT && input.isEmpty()) { 
 			return false;
 		}
-		*/
+		
 		return true;
 	}
 	
@@ -104,11 +104,10 @@ public class Projective extends TransitionSystem {
 	}
 	
 	public GuideUserAction defaultAction(GuideUserHistory history, ParserConfiguration configuration) throws MaltChainedException {
-	    /*
 		if (((StackConfig)configuration).getInput().isEmpty()) {
-			return updateActionContainers(history, RIGHTARC, ((StackConfig)configuration).getDependencyGraph().getDefaultRootEdgeLabels());
-		}
-	    */	
+			LabelSet labelSet = ((StackConfig)configuration).getDependencyGraph().getDefaultRootEdgeLabels();
+			return updateActionContainers(history, RIGHTARC, labelSet);
+		}	
 		return updateActionContainers(history, SHIFT, null);
 	}
 }

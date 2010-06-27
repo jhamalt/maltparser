@@ -51,6 +51,7 @@ public class TigerXMLWriter implements SyntaxGraphWriter {
 	private boolean useVROOT = false;
 //	private String fileName = null;
 //	private String charsetName = null;
+	private boolean closeStream = true;
 	
 	public TigerXMLWriter() { 
 		sentenceID = new StringBuilder();
@@ -73,13 +74,16 @@ public class TigerXMLWriter implements SyntaxGraphWriter {
 	
 	public void open(OutputStream os, String charsetName) throws MaltChainedException {
 		try {
+			if (os == System.out || os == System.err) {
+				closeStream = false;
+			}
 			open(new OutputStreamWriter(os, charsetName));
 		} catch (UnsupportedEncodingException e) {
 			throw new DataFormatException("The character encoding set '"+charsetName+"' isn't supported.", e);
 		}
 	}
 	
-	public void open(OutputStreamWriter osw) throws MaltChainedException {
+	private void open(OutputStreamWriter osw) throws MaltChainedException {
 		setWriter(new BufferedWriter(osw));
 		setSentenceCount(0);
 	}
@@ -178,7 +182,9 @@ public class TigerXMLWriter implements SyntaxGraphWriter {
 		try {
 			if (writer != null) {
 				writer.flush();
-				writer.close();
+				if (closeStream) {
+					writer.close();
+				}
 				writer = null;
 			}
 		}   catch (IOException e) {

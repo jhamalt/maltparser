@@ -52,7 +52,7 @@ public class TigerXMLReader implements SyntaxGraphReader {
 	private int nIterations;
 	private int cIterations;
 	private int START_ID_OF_NONTERMINALS = 500;
-	
+	private boolean closeStream = true;
 	
 	public TigerXMLReader() {
 		this.ntid = new StringBuffer();
@@ -96,13 +96,16 @@ public class TigerXMLReader implements SyntaxGraphReader {
 	
 	public void open(InputStream is, String charsetName) throws MaltChainedException {
 		try {
+			if (is == System.in) {
+				closeStream = false;
+			}
 			open(new InputStreamReader(is, charsetName));
 		} catch (UnsupportedEncodingException e) {
 			throw new DataFormatException("The character encoding set '"+charsetName+"' isn't supported. ", e);
 		}
 	}
 	
-	public void open(InputStreamReader isr) throws MaltChainedException {
+	private void open(InputStreamReader isr) throws MaltChainedException {
 		try {
 			XMLInputFactory factory = XMLInputFactory.newInstance();
 			setReader(factory.createXMLStreamReader(new BufferedReader(isr)));
@@ -417,7 +420,9 @@ public class TigerXMLReader implements SyntaxGraphReader {
 	public void close() throws MaltChainedException {
 		try {
 			if (reader != null) {
-				reader.close();
+				if (closeStream) {
+					reader.close();
+				}
 				reader = null;
 			}
 		} catch (XMLStreamException e) {

@@ -18,7 +18,9 @@ public class CovingtonProjFactory  extends CovingtonFactory {
 		if (manager.getConfigLogger().isInfoEnabled()) {
 			manager.getConfigLogger().info("  Transition system    : Projective\n");
 		}
-		return new Projective();
+		TransitionSystem ts = new Projective();
+		ts.setPropagationManager(manager.getPropagationManager());
+		return ts;
 	}
 	
 	public OracleGuide makeOracleGuide(GuideUserHistory history) throws MaltChainedException {

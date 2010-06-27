@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<experiment>
-	<optioncontainer>
-		<optiongroup groupname="config">
-			<option name="name" value="test"/>
-		</optiongroup>
-	</optioncontainer>
-</experiment>

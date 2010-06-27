@@ -61,7 +61,7 @@ public class DataFormatSpecification {
 		return dependencies;
 	}
 	
-	private void parseDataFormatXMLfile(URL url) throws MaltChainedException {
+	public void parseDataFormatXMLfile(URL url) throws MaltChainedException {
 		if (url == null) {
 			throw new DataFormatException("The data format specifcation file cannot be found. ");
 		}

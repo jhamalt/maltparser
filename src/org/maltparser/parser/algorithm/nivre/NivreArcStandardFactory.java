@@ -18,7 +18,9 @@ public class NivreArcStandardFactory extends NivreFactory {
 		if (manager.getConfigLogger().isInfoEnabled()) {
 			manager.getConfigLogger().info("  Transition system    : Arc-Standard\n");
 		}
-		return new ArcStandard();
+		TransitionSystem ts = new ArcStandard();
+		ts.setPropagationManager(manager.getPropagationManager());
+		return ts;
 	}
 	
 	public OracleGuide makeOracleGuide(GuideUserHistory history) throws MaltChainedException {

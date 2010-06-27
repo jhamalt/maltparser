@@ -1,22 +1,26 @@
 <flowchartsystem>
 	<chartelements>
 		<chartelement item="configdir" class="org.maltparser.core.config.ConfigDirChartItem">
-			<attribute name="task" default="info"/>
 			<attribute name="id" default="main"/>
+			<attribute name="task" default="info"/>
 		</chartelement>
 		<chartelement item="graph" class="org.maltparser.core.syntaxgraph.SyntaxGraphChartItem">
+			<attribute name="id" default="main"/>
 			<attribute name="task" default="create"/>
 			<attribute name="structure" default="gold"/>
 		</chartelement>
 		<chartelement item="read" class="org.maltparser.core.syntaxgraph.reader.ReadChartItem">
+			<attribute name="id" default="main"/>
 			<attribute name="target" default="gold"/>
 			<attribute name="optiongroup" default="input"/>
 		</chartelement>
 		<chartelement item="write" class="org.maltparser.core.syntaxgraph.writer.WriteChartItem">
+			<attribute name="id" default="main"/>
 			<attribute name="source"  default="gold"/>
 			<attribute name="optiongroup" default="output"/>
 		</chartelement>
 		<chartelement item="copy" class="org.maltparser.core.syntaxgraph.CopyChartItem">
+			<attribute name="id" default="main"/>
 			<attribute name="task" default="terminals"/>
 			<attribute name="source" default="gold"/>
 			<attribute name="target" default="system"/>

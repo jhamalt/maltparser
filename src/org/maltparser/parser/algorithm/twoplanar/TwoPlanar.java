@@ -8,8 +8,6 @@ import org.maltparser.core.syntaxgraph.edge.Edge;
 import org.maltparser.core.syntaxgraph.node.DependencyNode;
 import org.maltparser.parser.ParserConfiguration;
 import org.maltparser.parser.TransitionSystem;
-import org.maltparser.parser.algorithm.nivre.ArcEager;
-import org.maltparser.parser.algorithm.nivre.NivreConfig;
 import org.maltparser.parser.history.GuideUserHistory;
 import org.maltparser.parser.history.History;
 import org.maltparser.parser.history.action.ComplexDecisionAction;

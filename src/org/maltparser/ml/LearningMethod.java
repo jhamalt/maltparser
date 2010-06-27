@@ -28,7 +28,7 @@ public interface LearningMethod {
 	 * 
 	 * @param featureVector
 	 * @param nrOfSplits
-	 * @return
+	 * @return a double
 	 * @throws MaltChainedException
 	 */
 	public double crossValidate(FeatureVector featureVector, int nrOfSplits) throws MaltChainedException;

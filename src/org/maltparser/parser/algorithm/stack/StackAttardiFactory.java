@@ -18,7 +18,9 @@ public class StackAttardiFactory extends StackFactory {
 		if (manager.getConfigLogger().isInfoEnabled()) {
 			manager.getConfigLogger().info("  Transition system    : Attardi\n");
 		}
-		return new Attardi();
+		TransitionSystem ts = new Attardi();
+		ts.setPropagationManager(manager.getPropagationManager());
+		return ts;
 	}
 	
 	public OracleGuide makeOracleGuide(GuideUserHistory history) throws MaltChainedException {

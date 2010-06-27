@@ -43,6 +43,7 @@ public class BracketWriter implements SyntaxGraphWriter {
 	private char EDGELABEL_SEPARATOR = '-';
 	private char SENTENCE_SEPARATOR = '\n';
 	private String optionString;
+	private boolean closeStream = true;
 	
 	public BracketWriter() { 
 	}
@@ -59,13 +60,16 @@ public class BracketWriter implements SyntaxGraphWriter {
 	
 	public void open(OutputStream os, String charsetName) throws MaltChainedException {
 		try {
+			if (os == System.out || os == System.err) {
+				closeStream = false;
+			}
 			open(new OutputStreamWriter(os, charsetName));
 		} catch (UnsupportedEncodingException e) {
 			throw new DataFormatException("The character encoding set '"+charsetName+"' isn't supported.", e);
 		}
 	}
 	
-	public void open(OutputStreamWriter osw) throws MaltChainedException {
+	private void open(OutputStreamWriter osw) throws MaltChainedException {
 		setWriter(new BufferedWriter(osw));
 	}
 
@@ -287,7 +291,9 @@ public class BracketWriter implements SyntaxGraphWriter {
 		try {
 			if (writer != null) {
 				writer.flush();
-				writer.close();
+				if (closeStream) {
+					writer.close();
+				}
 				writer = null;
 			}
 		}   catch (IOException e) {

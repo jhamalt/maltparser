@@ -19,7 +19,9 @@ public class NivrePlanarArcEagerFactory extends PlanarFactory {
 		if (manager.getConfigLogger().isInfoEnabled()) {
 			manager.getConfigLogger().info("  Transition system    : Planar Arc-Eager\n");
 		}
-		return new Planar();
+		TransitionSystem ts = new Planar();
+		ts.setPropagationManager(manager.getPropagationManager());
+		return ts;
 	}
 	
 	public OracleGuide makeOracleGuide(GuideUserHistory history) throws MaltChainedException {

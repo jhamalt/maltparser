@@ -1,6 +1,5 @@
 package org.maltparser.parser.algorithm.twoplanar;
 
-import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedList;

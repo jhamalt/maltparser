@@ -1,7 +1,9 @@
 package org.maltparser.core.syntaxgraph.reader;
 
 import java.io.File;
+import java.util.HashMap;
 
+import org.maltparser.core.config.ConfigurationDir;
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.flow.FlowChartInstance;
 import org.maltparser.core.flow.item.ChartItem;
@@ -9,10 +11,13 @@ import org.maltparser.core.flow.spec.ChartItemSpecification;
 import org.maltparser.core.helper.Util;
 import org.maltparser.core.io.dataformat.DataFormatException;
 import org.maltparser.core.io.dataformat.DataFormatInstance;
+import org.maltparser.core.io.dataformat.DataFormatManager;
 import org.maltparser.core.options.OptionManager;
+import org.maltparser.core.symbol.SymbolTableHandler;
 import org.maltparser.core.syntaxgraph.TokenStructure;
 
 public class ReadChartItem extends ChartItem {
+	private String idName;
 	private String inputFormatName;
 	private String inputFileName;
 	private String inputCharSet;
@@ -35,14 +40,18 @@ public class ReadChartItem extends ChartItem {
 		super.initialize(flowChartinstance, chartItemSpecification);
 		
 		for (String key : chartItemSpecification.getChartItemAttributes().keySet()) {
-			if (key.equals("target")) {
+			if (key.equals("id")) {
+				idName = chartItemSpecification.getChartItemAttributes().get(key);
+			} else if (key.equals("target")) {
 				targetName = chartItemSpecification.getChartItemAttributes().get(key);
 			} else if (key.equals("optiongroup")) {
 				optiongroupName = chartItemSpecification.getChartItemAttributes().get(key);
 			}
 		}
 		
-		if (targetName == null) {
+		if (idName == null) {
+			idName = getChartElement("read").getAttributes().get("id").getDefaultValue();
+		} else if (targetName == null) {
 			targetName = getChartElement("read").getAttributes().get("target").getDefaultValue();
 		} else if (optiongroupName == null) {
 			optiongroupName = getChartElement("read").getAttributes().get("optiongroup").getDefaultValue();
@@ -208,9 +217,17 @@ public class ReadChartItem extends ChartItem {
 	}
 
 	public void initInput(String nullValueStategy, String rootLabels) throws MaltChainedException {
-		inputDataFormatInstance = flowChartinstance.getDataFormatManager().getInputDataFormatSpec().createDataFormatInstance(flowChartinstance.getSymbolTables(), nullValueStategy, rootLabels);
-		if (!flowChartinstance.getDataFormatInstances().containsKey(flowChartinstance.getDataFormatManager().getInputDataFormatSpec().getDataFormatName())) {
-			flowChartinstance.getDataFormatInstances().put(flowChartinstance.getDataFormatManager().getInputDataFormatSpec().getDataFormatName(), inputDataFormatInstance);
+		ConfigurationDir configDir = (ConfigurationDir)flowChartinstance.getFlowChartRegistry(org.maltparser.core.config.ConfigurationDir.class, idName);
+		DataFormatManager dataFormatManager = configDir.getDataFormatManager();
+//		DataFormatManager dataFormatManager = flowChartinstance.getDataFormatManager();
+		SymbolTableHandler symbolTables = configDir.getSymbolTables();
+//		SymbolTableHandler symbolTables = flowChartinstance.getSymbolTables();
+		HashMap<String, DataFormatInstance> dataFormatInstances = configDir.getDataFormatInstances();
+//		HashMap<String, DataFormatInstance> dataFormatInstances = flowChartinstance.getDataFormatInstances();
+		
+		inputDataFormatInstance = dataFormatManager.getInputDataFormatSpec().createDataFormatInstance(symbolTables, nullValueStategy, rootLabels);
+		if (!dataFormatInstances.containsKey(dataFormatManager.getInputDataFormatSpec().getDataFormatName())) {
+			dataFormatInstances.put(dataFormatManager.getInputDataFormatSpec().getDataFormatName(), inputDataFormatInstance);
 		}
 	}
 	
@@ -252,6 +269,8 @@ public class ReadChartItem extends ChartItem {
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
 		sb.append("    read ");
+		sb.append("id:");sb.append(idName);
+		sb.append(' ');
 		sb.append("target:");
 		sb.append(targetName);
 		sb.append(' ');

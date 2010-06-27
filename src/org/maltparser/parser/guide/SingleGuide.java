@@ -200,6 +200,7 @@ public class SingleGuide implements ClassifierGuide {
 	
 	protected void initFeatureModel() throws MaltChainedException {
 		String featureModelFileName = getConfiguration().getOptionValue("guide", "features").toString().trim();
+
 		if (featureModelFileName.endsWith(".par")) {
 			String markingStrategy = getConfiguration().getOptionValue("pproj", "marking_strategy").toString().trim();
 			String coveredRoot = getConfiguration().getOptionValue("pproj", "covered_root").toString().trim();

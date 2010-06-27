@@ -18,7 +18,9 @@ public class CovingtonNonProjFactory extends CovingtonFactory {
 		if (manager.getConfigLogger().isInfoEnabled()) {
 			manager.getConfigLogger().info("  Transition system    : Non-Projective\n");
 		}
-		return new NonProjective();
+		TransitionSystem ts = new NonProjective();
+		ts.setPropagationManager(manager.getPropagationManager());
+		return ts;
 	}
 	
 	public OracleGuide makeOracleGuide(GuideUserHistory history) throws MaltChainedException {

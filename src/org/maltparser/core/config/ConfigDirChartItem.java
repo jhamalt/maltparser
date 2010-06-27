@@ -88,6 +88,14 @@ public class ConfigDirChartItem extends ChartItem {
 		}
 		if (taskName.equals("loadsavedoptions")) {
 			OptionManager.instance().loadOptions(getOptionContainerIndex(), configDir.getInputStreamReaderFromConfigFile("savedoptions.sop"));
+			configDir.initDataFormat();
+		} else if (taskName.equals("createdir")) {
+			configDir.setCreatedByMaltParserVersion(SystemInfo.getVersion());
+			configDir.createConfigDirectory();
+			if (optionFileName != null && optionFileName.length() > 0) {
+				configDir.copyToConfig(new File(optionFileName));
+			}
+			configDir.initDataFormat();
 		}
 	}
 	
@@ -97,13 +105,14 @@ public class ConfigDirChartItem extends ChartItem {
 		} else if (taskName.equals("info")) {
 			configDir.echoInfoFile();
 		} else if (taskName.equals("loadsymboltables")) {
-			flowChartinstance.getSymbolTables().load(configDir.getInputStreamReaderFromConfigFileEntry("symboltables.sym",inCharSet));
-		} else if (taskName.equals("createdir")) {
-			configDir.setCreatedByMaltParserVersion(SystemInfo.getVersion());
-			configDir.createConfigDirectory();
-			if (optionFileName != null && optionFileName.length() > 0) {
-				configDir.copyToConfig(new File(optionFileName));
-			}
+			configDir.getSymbolTables().load(configDir.getInputStreamReaderFromConfigFileEntry("symboltables.sym",inCharSet));
+//			flowChartinstance.getSymbolTables().load(configDir.getInputStreamReaderFromConfigFileEntry("symboltables.sym",inCharSet));
+//		} else if (taskName.equals("createdir")) {
+//			configDir.setCreatedByMaltParserVersion(SystemInfo.getVersion());
+//			configDir.createConfigDirectory();
+//			if (optionFileName != null && optionFileName.length() > 0) {
+//				configDir.copyToConfig(new File(optionFileName));
+//			}
 		}
 		return signal;
 	}
@@ -121,7 +130,8 @@ public class ConfigDirChartItem extends ChartItem {
 			configDir.terminate();
 			configDir.deleteConfigDirectory();
 		} else if (taskName.equals("savesymboltables")) {
-			flowChartinstance.getSymbolTables().save(configDir.getOutputStreamWriter("symboltables.sym", outCharSet));
+			configDir.getSymbolTables().save(configDir.getOutputStreamWriter("symboltables.sym", outCharSet));
+//			flowChartinstance.getSymbolTables().save(configDir.getOutputStreamWriter("symboltables.sym", outCharSet));
 		}
 		return signal;
 	}

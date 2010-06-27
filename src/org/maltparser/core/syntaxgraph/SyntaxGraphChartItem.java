@@ -1,16 +1,20 @@
 package org.maltparser.core.syntaxgraph;
 
+import java.util.HashMap;
 import java.util.HashSet;
 
+import org.maltparser.core.config.ConfigurationDir;
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.flow.FlowChartInstance;
 import org.maltparser.core.flow.FlowException;
 import org.maltparser.core.flow.item.ChartItem;
 import org.maltparser.core.flow.spec.ChartItemSpecification;
 import org.maltparser.core.io.dataformat.DataFormatInstance;
+import org.maltparser.core.io.dataformat.DataFormatManager;
 import org.maltparser.core.io.dataformat.DataFormatSpecification.DataStructure;
 import org.maltparser.core.io.dataformat.DataFormatSpecification.Dependency;
 import org.maltparser.core.options.OptionManager;
+import org.maltparser.core.symbol.SymbolTableHandler;
 import org.maltparser.core.syntaxgraph.ds2ps.LosslessMapping;
 /**
 *
@@ -18,6 +22,7 @@ import org.maltparser.core.syntaxgraph.ds2ps.LosslessMapping;
 * @author Johan Hall
 */
 public class SyntaxGraphChartItem extends ChartItem {
+	private String idName;
 	private String structureName;
 	private String taskName;
 	private TokenStructure graph;
@@ -28,13 +33,17 @@ public class SyntaxGraphChartItem extends ChartItem {
 		super.initialize(flowChartinstance, chartItemSpecification);
 		
 		for (String key : chartItemSpecification.getChartItemAttributes().keySet()) {
-			if (key.equals("structure")) {
+			if (key.equals("id")) {
+				idName = chartItemSpecification.getChartItemAttributes().get(key);
+			} else if (key.equals("structure")) {
 				structureName = chartItemSpecification.getChartItemAttributes().get(key);
 			} else if (key.equals("task")) {
 				taskName = chartItemSpecification.getChartItemAttributes().get(key);
 			}
 		}
-		if (structureName == null) {
+		if (idName == null) {
+			idName = getChartElement("graph").getAttributes().get("id").getDefaultValue();
+		} else if (structureName == null) {
 			structureName = getChartElement("graph").getAttributes().get("structure").getDefaultValue();
 		} else if (taskName == null) {
 			taskName = getChartElement("graph").getAttributes().get("task").getDefaultValue();
@@ -45,35 +54,43 @@ public class SyntaxGraphChartItem extends ChartItem {
 		if (taskName.equals("create")) {
 			boolean phrase = false;
 			boolean dependency = false;
+			ConfigurationDir configDir = (ConfigurationDir)flowChartinstance.getFlowChartRegistry(org.maltparser.core.config.ConfigurationDir.class, idName);
 			DataFormatInstance dataFormatInstance = null;
-			for (String key : flowChartinstance.getDataFormatInstances().keySet()) {
-				if (flowChartinstance.getDataFormatInstances().get(key).getDataFormarSpec().getDataStructure() == DataStructure.PHRASE) {
+			DataFormatManager dataFormatManager = configDir.getDataFormatManager();
+//			DataFormatManager dataFormatManager = flowChartinstance.getDataFormatManager();
+			SymbolTableHandler symbolTables = configDir.getSymbolTables();
+//			SymbolTableHandler symbolTables = flowChartinstance.getSymbolTables();
+			
+			HashMap<String, DataFormatInstance> dataFormatInstances = configDir.getDataFormatInstances();
+//			HashMap<String, DataFormatInstance> dataFormatInstances = flowChartinstance.getDataFormatInstances();
+			for (String key : dataFormatInstances.keySet()) {
+				if (dataFormatInstances.get(key).getDataFormarSpec().getDataStructure() == DataStructure.PHRASE) {
 					phrase = true;
 				}
-				if (flowChartinstance.getDataFormatInstances().get(key).getDataFormarSpec().getDataStructure() == DataStructure.DEPENDENCY) {
+				if (dataFormatInstances.get(key).getDataFormarSpec().getDataStructure() == DataStructure.DEPENDENCY) {
 					dependency = true;
-					dataFormatInstance = flowChartinstance.getDataFormatInstances().get(key);
+					dataFormatInstance = dataFormatInstances.get(key);
 				}
 			}
 			
 			if (dependency == false && OptionManager.instance().getOptionValue(getOptionContainerIndex(), "config", "flowchart").toString().equals("learn")) {
 				dependency = true;
-				HashSet<Dependency> deps = flowChartinstance.getDataFormatManager().getInputDataFormatSpec().getDependencies();
+				HashSet<Dependency> deps = dataFormatManager.getInputDataFormatSpec().getDependencies();
 				String nullValueStategy = OptionManager.instance().getOptionValue(getOptionContainerIndex(), "singlemalt", "null_value").toString();
 				String rootLabels = OptionManager.instance().getOptionValue(getOptionContainerIndex(), "graph", "root_label").toString();
 				for (Dependency dep : deps) {
-					dataFormatInstance = flowChartinstance.getDataFormatManager().getDataFormatSpec(dep.getDependentOn()).createDataFormatInstance(flowChartinstance.getSymbolTables(), nullValueStategy, rootLabels);
-					flowChartinstance.getDataFormatInstances().put(flowChartinstance.getDataFormatManager().getOutputDataFormatSpec().getDataFormatName(), dataFormatInstance);
+					dataFormatInstance = dataFormatManager.getDataFormatSpec(dep.getDependentOn()).createDataFormatInstance(symbolTables, nullValueStategy, rootLabels);
+					dataFormatInstances.put(dataFormatManager.getOutputDataFormatSpec().getDataFormatName(), dataFormatInstance);
 				}
 			}
 
 			if (dependency == true && phrase == false) {
-				graph = new DependencyGraph(flowChartinstance.getSymbolTables());
+				graph = new DependencyGraph(symbolTables);
 				flowChartinstance.addFlowChartRegistry(org.maltparser.core.syntaxgraph.DependencyStructure.class, structureName, graph);
 			} else if (dependency == true && phrase == true) {
-				graph = new MappablePhraseStructureGraph(flowChartinstance.getSymbolTables());
-				final DataFormatInstance inFormat = flowChartinstance.getDataFormatInstances().get(flowChartinstance.getDataFormatManager().getInputDataFormatSpec().getDataFormatName());
-				final DataFormatInstance outFormat = flowChartinstance.getDataFormatInstances().get(flowChartinstance.getDataFormatManager().getOutputDataFormatSpec().getDataFormatName());
+				graph = new MappablePhraseStructureGraph(symbolTables);
+				final DataFormatInstance inFormat = dataFormatInstances.get(dataFormatManager.getInputDataFormatSpec().getDataFormatName());
+				final DataFormatInstance outFormat = dataFormatInstances.get(dataFormatManager.getOutputDataFormatSpec().getDataFormatName());
 
 				if (inFormat != null && outFormat != null) {
 					LosslessMapping mapping = null;
@@ -92,10 +109,10 @@ public class SyntaxGraphChartItem extends ChartItem {
 				flowChartinstance.addFlowChartRegistry(org.maltparser.core.syntaxgraph.DependencyStructure.class, structureName, graph);
 				flowChartinstance.addFlowChartRegistry(org.maltparser.core.syntaxgraph.PhraseStructure.class, structureName, graph);
 			} else if (dependency == false && phrase == true) {
-				graph = new PhraseStructureGraph(flowChartinstance.getSymbolTables());
+				graph = new PhraseStructureGraph(symbolTables);
 				flowChartinstance.addFlowChartRegistry(org.maltparser.core.syntaxgraph.PhraseStructure.class, structureName, graph);
 			} else {
-				graph = new Sentence(flowChartinstance.getSymbolTables());
+				graph = new Sentence(symbolTables);
 			}
 			
 			if (dataFormatInstance != null) {
@@ -140,6 +157,8 @@ public class SyntaxGraphChartItem extends ChartItem {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("    graph ");
+		sb.append("id:");sb.append(idName);
+		sb.append(' ');
 		sb.append("task:");
 		sb.append(taskName);
 		sb.append(' ');

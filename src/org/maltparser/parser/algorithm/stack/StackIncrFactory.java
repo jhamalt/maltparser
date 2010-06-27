@@ -18,7 +18,9 @@ public class StackIncrFactory extends StackFactory {
 		if (manager.getConfigLogger().isInfoEnabled()) {
 			manager.getConfigLogger().info("  Transition system    : Incremental\n");
 		}
-		return new Incremental();
+		TransitionSystem ts = new Incremental();
+		ts.setPropagationManager(manager.getPropagationManager());
+		return ts;
 	}
 	
 	public OracleGuide makeOracleGuide(GuideUserHistory history) throws MaltChainedException {

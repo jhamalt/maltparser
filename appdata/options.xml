@@ -106,10 +106,10 @@ many single malt configurations. ]]></desc>
 			<legalvalue name="covnonproj" class="org.maltparser.parser.algorithm.covington.CovingtonNonProjFactory">Covington non-projective</legalvalue>
 			<legalvalue name="covproj" class="org.maltparser.parser.algorithm.covington.CovingtonProjFactory">Covington projective</legalvalue>
 			<legalvalue name="stackproj" class="org.maltparser.parser.algorithm.stack.StackProjFactory">Stack projective</legalvalue>
-			<legalvalue name="stackincr" class="org.maltparser.parser.algorithm.stack.StackIncrFactory">Stack projective</legalvalue>
+			<!--  <legalvalue name="stackincr" class="org.maltparser.parser.algorithm.stack.StackIncrFactory">Stack projective</legalvalue> -->
 			<legalvalue name="stackeager" class="org.maltparser.parser.algorithm.stack.StackSwapEagerFactory">Stack eager</legalvalue>	
 			<legalvalue name="stacklazy" class="org.maltparser.parser.algorithm.stack.StackSwapLazyFactory">Stack lazy</legalvalue>
-			<legalvalue name="stackattardi" class="org.maltparser.parser.algorithm.stack.StackAttardiFactory">Stack Attardi</legalvalue>
+			<!--  <legalvalue name="stackattardi" class="org.maltparser.parser.algorithm.stack.StackAttardiFactory">Stack Attardi</legalvalue> -->
 			<legalvalue name="planar" class="org.maltparser.parser.algorithm.planar.NivrePlanarArcEagerFactory">Planar eager</legalvalue>
 			<legalvalue name="2planar" class="org.maltparser.parser.algorithm.twoplanar.TwoPlanarArcEagerFactory">2-Planar eager</legalvalue>
 		</option>
@@ -155,7 +155,7 @@ many single malt configurations. ]]></desc>
 			<legalvalue name="novalue">Distinguish between no node and root node, and no value for output column</legalvalue>
 		</option>
 		<option type="bool" name="diagnostics" flag="di" default="false" usage="both">
-			<desc><![CDATA[  ]]></desc>
+			<desc><![CDATA[ If <i>true</i> ,then diagnostics is written to standard out or the file specified by option diafile. By default this option is false.  ]]></desc>
 			<shortdesc>diagnostics</shortdesc>
 		</option>
 		<option type="string" name="diafile" flag="dif" default="stdout" usage="both">
@@ -164,8 +164,14 @@ many single malt configurations. ]]></desc>
 			<shortdesc>Diagnostics file name (default: standard output)</shortdesc>
 		</option>
 		<option type="bool" name="use_partial_tree" flag="up" default="false" usage="save">
-			<desc><![CDATA[  ]]></desc>
+			<desc><![CDATA[ If <i>true</i>, then partial trees is allowed as input and the parser will construct these partial trees before parsing. By default 
+			this option is false. Please see the user guide: <a href="userguide.html#partial_trees">Partial trees</a> ]]></desc>
 			<shortdesc>Use partial trees during parsing</shortdesc>
+		</option>
+		<option type="string" name="propagation" flag="fp" default="" usage="save">
+			<desc><![CDATA[ The <b>propagation</b> option is used for specifying the propagation specification file, which is an XML file 
+			(see user guide: <a href="userguide.html#propagation">Propagation</a>) ]]></desc>
+			<shortdesc>Propagation specification file</shortdesc>
 		</option>
 	</optiongroup>
 	<optiongroup groupname="input">
@@ -221,7 +227,7 @@ many single malt configurations. ]]></desc>
 			<shortdesc>Specific reader options</shortdesc>
 		</option>
 		<option type="integer" name="iterations" flag="it" default="1" usage="both">
-			<desc><![CDATA[   ]]></desc>
+			<desc><![CDATA[ Number of iterations over the input file.  ]]></desc>
 			<shortdesc>Number of iterations.</shortdesc>
 		</option>
 	</optiongroup>
@@ -233,7 +239,7 @@ many single malt configurations. ]]></desc>
 			<desc><![CDATA[ The output data file is specified by the <b>outfile</b> option.  ]]></desc>
 			<shortdesc>Path to output file</shortdesc>
 		</option>
-		<option type="stringenum" name="format" flag="of" default="conllx" usage="both">
+		<option type="stringenum" name="format" flag="of" default="" usage="both">
 			<desc><![CDATA[ This option tells the parser which format is used for the output data file. The format is defined in an XML file. 
 			For more information see the user guide: <a href="userguide.html#define_inout">Define your own input/output format</a>. 
 			There are already two data format specification files in the MaltParser distribution (included in malt.jar):
@@ -280,7 +286,7 @@ many single malt configurations. ]]></desc>
 		<desc><![CDATA[ The <b>graph</b> option group controls internal data structures, such as the sentence and the dependency graph.  ]]></desc>
 		<option type="integer" name="max_sentence_length" flag="gsl" default="256" usage="both">
 			<desc><![CDATA[ By default, the maximum sentence length is 256 tokens. If the input data file has sentences that are longer 
-			than 256 tokens, this option may be used to adjust the internal data structures, so that longer sentences can be loaded. ]]></desc>
+			than 256 tokens, this option may be used to adjust the internal data structures, so that longer sentences can be loaded. This option is deprecated, there is no upper limit of the sentence length. ]]></desc>
 			<shortdesc>Max sentence length</shortdesc>
 		</option>
 		<option type="string" name="root_label" flag="grl" default="ROOT" usage="save">
@@ -378,18 +384,18 @@ otherwise all tokens in Left must be inspected before the next token is shifted.
 		<option type="enum" name="verbosity" flag="lsv" default="silent" usage="train">
 			<desc><![CDATA[ ]]></desc>
 			<shortdesc>Verbosity of LIBSVM</shortdesc>
-			<legalvalue name="silent">No output from LIBSVM (and splitSVM) is logged</legalvalue>
-			<legalvalue name="error">Only the error stream of LIBSVM (and splitSVM) is logged</legalvalue>
-			<legalvalue name="all">All output of LIBSVM (and splitSVM) is logged</legalvalue>
+			<legalvalue name="silent">No output from LIBSVM is logged</legalvalue>
+			<legalvalue name="error">Only the error stream of LIBSVM is logged</legalvalue>
+			<legalvalue name="all">All output of LIBSVM is logged</legalvalue>
 		</option>
 	</optiongroup>
 	<optiongroup groupname="liblinear">
 		<desc><![CDATA[ This group contains options that are specific for the LIBLINEAR learner. ]]></desc>
-		<option type="string" name="liblinear_options" flag="llo" default="-s_1_-c_1_-e_0.1_-B_1" usage="save">
+		<option type="string" name="liblinear_options" flag="llo" default="-s_4_-c_0.1" usage="save">
 			<desc><![CDATA[ Liblinear have several options (see <a href="http://www.csie.ntu.edu.tw/~cjlin/liblinear/" target="_blank">liblinear Documentation</a>) that 
 			you can specify with this options. 
 			Note that all whitespace is replaced by underscore if this option is specified in the command-line prompt. 
-			For example, it could look like this: <code>-llo -s_1_-c_1_-e_0.1_-B_1</code> ]]></desc>
+			For example, it could look like this: <code>-llo -s_4_-c_0.1</code> ]]></desc>
 			<shortdesc>LIBLINEAR options (see liblinear Documentation)</shortdesc>
 		</option>
 		<option type="string" name="liblinear_external" flag="llx" default="" usage="train">
@@ -426,10 +432,10 @@ otherwise all tokens in Left must be inspected before the next token is shifted.
 			<legalvalue name="covnonproj" mapto="/appdata/features/CovingtonNonProjective.xml">Covington non-projective default model</legalvalue>
 			<legalvalue name="covproj" mapto="/appdata/features/CovingtonProjective.xml">Covington projective default model</legalvalue>
 			<legalvalue name="stackproj" mapto="/appdata/features/StackProjective.xml">Stack projective default model</legalvalue>
-			<legalvalue name="stackincr" mapto="/appdata/features/StackIncremental.xml">Stack incremental default model</legalvalue>
+			<!--  <legalvalue name="stackincr" mapto="/appdata/features/StackIncremental.xml">Stack incremental default model</legalvalue> -->
 			<legalvalue name="stackeager" mapto="/appdata/features/StackSwap.xml">Stack projective default model</legalvalue>
 			<legalvalue name="stacklazy" mapto="/appdata/features/StackSwap.xml">Stack projective default model</legalvalue>
-			<legalvalue name="stackattardi" mapto="/appdata/features/StackAttardi.xml">Stack projective default model</legalvalue>
+			<!--  <legalvalue name="stackattardi" mapto="/appdata/features/StackAttardi.xml">Stack projective default model</legalvalue> -->
 			<legalvalue name="planar" mapto="/appdata/features/PlanarEager.xml">Planar arc-eager default model</legalvalue>
 			<legalvalue name="2planar" mapto="/appdata/features/2PlanarEager.xml">2-Planar arc-eager default model</legalvalue>
 		</option>
@@ -463,7 +469,7 @@ otherwise all tokens in Left must be inspected before the next token is shifted.
 			training sets that contain less than 100 instances will be merged into a default training set. ]]></desc>
 			<shortdesc>Data split threshold</shortdesc>
 		</option>
-		<option type="string" name="tree_force_divide" flag="Z" default="" usage="save">
+		<!-- <option type="string" name="tree_force_divide" flag="Z" default="" usage="save">
 			<desc><![CDATA[ TODO: write desc ]]></desc>
 			<shortdesc></shortdesc>
 		</option>
@@ -486,7 +492,7 @@ otherwise all tokens in Left must be inspected before the next token is shifted.
 		<option type="integer" name="tree_number_of_cross_validation_divisions" flag="Y" default="2" usage="save">
 			<desc><![CDATA[ TODO: write desc ]]></desc>
 			<shortdesc>Data split threshold</shortdesc>
-		</option>
+		</option>   -->
 		<option type="integer" name="kbest" flag="k" default="-1" usage="save">
 			<desc><![CDATA[ The classifier can produce a k-best list of predicted parser actions. The <b>kbest</b> option indicates how many 
 			items the k-best list should contain. If <code>-k -1</code>, all possible parser actions are ranked in the k-best list. 

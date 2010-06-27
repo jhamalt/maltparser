@@ -25,6 +25,8 @@ import liblinear.Parameter;
 import liblinear.Problem;
 import liblinear.SolverType;
 
+
+
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.feature.FeatureVector;
 import org.maltparser.core.feature.function.FeatureFunction;
@@ -42,7 +44,7 @@ import org.maltparser.parser.history.kbest.ScoredKBestList;
 
 
 public class Liblinear implements LearningMethod {
-	public final static String LIBLINEAR_VERSION = "1.33";
+	public final static String LIBLINEAR_VERSION = "1.51";
 	public enum Verbostity {
 		SILENT, ERROR, ALL
 	}
@@ -774,18 +776,23 @@ public class Liblinear implements LearningMethod {
 	}
 
 	public Parameter getLiblinearParameters() throws MaltChainedException {
-		Parameter param = new Parameter(SolverType.L2LOSS_SVM_DUAL, 1, 0.1);
+		Parameter param = new Parameter(SolverType.MCSVM_CS, 0.1, 0.1);
 		String type = liblinearOptions.get("s");
+		
 		if (type.equals("0")) {
-			param.setSolverType(SolverType.L2_LR);
+			param.setSolverType(SolverType.L2R_LR);
 		} else if (type.equals("1")) {
-			param.setSolverType(SolverType.L2LOSS_SVM_DUAL);
+			param.setSolverType(SolverType.L2R_L2LOSS_SVC_DUAL);
 		} else if (type.equals("2")) {
-			param.setSolverType(SolverType.L2LOSS_SVM);
+			param.setSolverType(SolverType.L2R_L2LOSS_SVC);
 		} else if (type.equals("3")) {
-			param.setSolverType(SolverType.L1LOSS_SVM_DUAL);
+			param.setSolverType(SolverType.L2R_L1LOSS_SVC_DUAL);
 		} else if (type.equals("4")) {
 			param.setSolverType(SolverType.MCSVM_CS);
+		} else if (type.equals("5")) {
+			param.setSolverType(SolverType.L1R_L2LOSS_SVC);	
+		} else if (type.equals("6")) {
+			param.setSolverType(SolverType.L1R_LR);	
 		} else {
 			throw new LiblinearException("The liblinear type (-s) is not an integer value between 0 and 4. ");
 		}
@@ -803,8 +810,8 @@ public class Liblinear implements LearningMethod {
 	}
 
 	public void initLiblinearOptions() {
-		liblinearOptions.put("s", "1"); // type = SolverType.L2LOSS_SVM_DUAL (default)
-		liblinearOptions.put("c", "1"); // cost = 1 (default)
+		liblinearOptions.put("s", "4"); // type = SolverType.L2LOSS_SVM_DUAL (default)
+		liblinearOptions.put("c", "0.1"); // cost = 1 (default)
 		liblinearOptions.put("e", "0.1"); // epsilon = 0.1 (default)
 		liblinearOptions.put("B", "1"); // bias = 1 (default)
 	}
@@ -1015,11 +1022,7 @@ public class Liblinear implements LearningMethod {
 		for(int n = 0; n < lineArray.length; n++)
 			if(n != excludeIndex)
 				buf.append(lineArray[n] + "\t");
-		
-		
 		buf.append("\n");		
-
-		
 		return buf.toString();
 	}
 
@@ -1060,12 +1063,7 @@ public class Liblinear implements LearningMethod {
 				
 				line = in.readLine();
 			}
-			
-
-			
 			in.close();
-			
-
 		} catch (SecurityException e) {
 			throw new LiblinearException("The Libsvm learner cannot remove the instance file. ", e);
 		} catch (NullPointerException  e) {
@@ -1075,8 +1073,6 @@ public class Liblinear implements LearningMethod {
 		} catch (IOException e) {
 			throw new LiblinearException("The Liblinear learner read from the instance file. ", e);
 		}
-		
-		
 		
 		return featureIdToCountMap;
 	}

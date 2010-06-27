@@ -29,13 +29,6 @@ public interface SyntaxGraphWriter {
 	 */
 	public void open(OutputStream os, String charsetName) throws MaltChainedException;
 	/**
-	 * Opens an output stream reader
-	 * 
-	 * @param osw an output stream reader
-	 * @throws MaltChainedException
-	 */
-	public void open(OutputStreamWriter osw) throws MaltChainedException;
-	/**
 	 * Cause the syntax graph writer to write the beginning of the file (such as header information)
 	 * 
 	 * @throws MaltChainedException

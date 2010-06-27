@@ -11,12 +11,14 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -29,7 +31,12 @@ import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.helper.SystemInfo;
 import org.maltparser.core.helper.SystemLogger;
 import org.maltparser.core.helper.Util;
+import org.maltparser.core.io.dataformat.DataFormatInstance;
+import org.maltparser.core.io.dataformat.DataFormatManager;
 import org.maltparser.core.options.OptionManager;
+import org.maltparser.core.symbol.SymbolTableHandler;
+import org.maltparser.core.symbol.trie.TrieSymbolTableHandler;
+
 
 /**
 * This class contains methods for handle the configuration directory.
@@ -47,6 +54,10 @@ public class ConfigurationDir  {
 	protected BufferedWriter infoFile = null;
 	protected String createdByMaltParserVersion;
 
+	private SymbolTableHandler symbolTables;
+	private DataFormatManager dataFormatManager;
+	private HashMap<String,DataFormatInstance> dataFormatInstances;
+	
 	
 	/**
 	 * Creates a configuration directory from a mco-file specified by an URL.
@@ -58,6 +69,7 @@ public class ConfigurationDir  {
 		initWorkingDirectory();
 		setUrl(url);
 		initNameNTypeFromInfoFile(url);
+//		initData();
 	}
 	
 	/**
@@ -70,6 +82,7 @@ public class ConfigurationDir  {
 	 */
 	public ConfigurationDir(String name, String type, int containerIndex) throws MaltChainedException {
 		setContainerIndex(containerIndex);
+
 		initWorkingDirectory();
 		if (name != null && name.length() > 0 && type != null && type.length() > 0) {
 			setName(name);
@@ -78,6 +91,80 @@ public class ConfigurationDir  {
 			throw new ConfigurationException("The configuration name is not specified. ");
 		}
 		setConfigDirectory(new File(workingDirectory.getPath()+File.separator+getName()));
+		
+		
+	}
+	
+	public void initDataFormat() throws MaltChainedException {
+		String inputFormatName = OptionManager.instance().getOptionValue(containerIndex, "input", "format").toString().trim();
+		String outputFormatName = OptionManager.instance().getOptionValue(containerIndex, "output", "format").toString().trim();
+//		SystemLogger.logger().info(inputFormatName + "\n");
+//		SystemLogger.logger().info(outputFormatName + "\n");
+		if (configDirectory != null && configDirectory.exists()) {
+			if (outputFormatName.length() == 0 || inputFormatName.equals(outputFormatName)) {
+				URL inputFormatURL = Util.findURLinJars(inputFormatName);
+				if (inputFormatURL != null) {
+					outputFormatName = inputFormatName = this.copyToConfig(inputFormatURL);
+				} else {
+					outputFormatName = inputFormatName = this.copyToConfig(inputFormatName);
+				}
+			} else {
+				URL inputFormatURL = Util.findURLinJars(inputFormatName);
+				if (inputFormatURL != null) {
+					inputFormatName = this.copyToConfig(inputFormatURL);
+				} else {
+					inputFormatName = this.copyToConfig(inputFormatName);
+				}
+				URL outputFormatURL = Util.findURLinJars(outputFormatName);
+				if (inputFormatURL != null) {
+					outputFormatName = this.copyToConfig(outputFormatURL);
+				} else {
+					outputFormatName = this.copyToConfig(outputFormatName);
+				}
+			}
+			OptionManager.instance().overloadOptionValue(containerIndex, "input", "format", inputFormatName);
+		} else {
+			if (outputFormatName.length() == 0) {
+				outputFormatName = inputFormatName;
+			}
+		}
+		dataFormatInstances = new HashMap<String, DataFormatInstance>(3);
+
+		URL inURL = findURL(inputFormatName);
+		URL outURL = findURL(outputFormatName);
+//		SystemLogger.logger().info(inputFormatName + "\n");
+//		SystemLogger.logger().info(outputFormatName + "\n");
+//		SystemLogger.logger().info(inURL + "\n");
+//		SystemLogger.logger().info(outURL + "\n");
+		
+		if (outURL != null) {
+			try {
+				InputStream is = outURL.openStream();
+			} catch (FileNotFoundException e) {
+				outURL = Util.findURL(outputFormatName);
+			} catch (IOException e) {
+				outURL = Util.findURL(outputFormatName);
+			}
+		} else {
+			outURL = Util.findURL(outputFormatName);
+		}
+		dataFormatManager = new DataFormatManager(inURL, outURL);
+		symbolTables = new TrieSymbolTableHandler();
+	}
+	
+	private URL findURL(String specModelFileName) throws MaltChainedException {
+		URL url = null;
+		File specFile = this.getFile(specModelFileName);
+		if (specFile.exists()) {
+			try {
+				url = new URL("file:///"+specFile.getAbsolutePath());
+			} catch (MalformedURLException e) {
+				throw new MaltChainedException("Malformed URL: "+specFile, e);
+			}
+		} else {
+			url = this.getConfigFileEntryURL(specModelFileName);
+		}
+		return url;
 	}
 	
 	/**
@@ -879,6 +966,7 @@ public class ConfigurationDir  {
 				throw new ConfigurationException("Could not close configuration information file. ", e);
 			}
 		}
+		symbolTables = null;
 //		configuration = null;
 	}
 	
@@ -894,5 +982,25 @@ public class ConfigurationDir  {
 		} finally {
 			super.finalize();
 		}
+	}
+	
+	public SymbolTableHandler getSymbolTables() {
+		return symbolTables;
+	}
+
+	public void setSymbolTables(SymbolTableHandler symbolTables) {
+		this.symbolTables = symbolTables;
+	}
+
+	public DataFormatManager getDataFormatManager() {
+		return dataFormatManager;
+	}
+
+	public void setDataFormatManager(DataFormatManager dataFormatManager) {
+		this.dataFormatManager = dataFormatManager;
+	}
+	
+	public HashMap<String, DataFormatInstance> getDataFormatInstances() {
+		return dataFormatInstances;
 	}
 }

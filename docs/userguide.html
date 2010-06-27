@@ -32,7 +32,10 @@ Modified: @today@
 <tr><td><a href="#featurespec">Feature model</a></td></tr>
 <tr><td><a href="#learner">Learner</a></td></tr>
 <tr><td><a href="#predstrate">Prediction strategy</a></td></tr>
+<tr><td><a href="#partial_trees">Parsing with partial trees</a></td></tr>
+<tr><td><a href="#propagation">Propagation</a></td></tr>
 <tr><td><a href="#phrase">Parsing phrase structure</a></td></tr>
+<tr><td><a href="#api">MaltParser API</a></td></tr>
 <tr><td><a href="#ref">References</a></td></tr>
 </table>
 
@@ -97,25 +100,26 @@ learning method (LIBSVM).
 <p>MaltParser outputs the following information:
 <pre>
 -----------------------------------------------------------------------------
-                          MaltParser 1.3.1
+                          MaltParser 1.3.2                             
 -----------------------------------------------------------------------------
-         MALT (Models and Algorithms for Language Technology) Group
-             Vaxjo University and Uppsala University
-                             Sweden
+         MALT (Models and Algorithms for Language Technology) Group          
+             Vaxjo University and Uppsala University                         
+                             Sweden                                          
 -----------------------------------------------------------------------------
 
-Started: Sun Sep 27 00:33:05 CEST 2009
+Started: Sun Jun 27 15:58:46 CEST 2010
+  Data Format          : file:////home/jha/dev/eclipse/malt/MaltParser/test2/conllx.xml
   Transition system    : Arc-Eager
   Parser configuration : Nivre with NORMAL root handling
-  Feature model        : /appdata/features/NivreEager.xml
+  Feature model        : NivreEager.xml
   Learner              : libsvm
   Oracle               : Arc-Eager
-.                     1       0s              1MB
-.                    10       0s              1MB
-                     32       0s              2MB
+.          	      1	      0s	      3MB
+.          	     10	      1s	      2MB
+           	     32	      1s	      3MB
 Creating LIBSVM model odm0.libsvm.mod
-Learning time: 00:00:00 (906 ms)
-Finished: Sun Sep 27 00:33:06 CEST 2009
+Learning time: 00:00:03 (3500 ms)
+Finished: Sun Jun 27 15:58:50 CEST 2010
 </pre>
 Most of the logging information is self-explaining: it tells you that the parser is started at a certain time and date and that it reads sentences 
 from a specified file containing 32 sentences. It continues with information about the learning models that are created, in this case only
@@ -273,19 +277,22 @@ This will output a lot of information about the configuration:
 CONFIGURATION
 Configuration name:   test
 Configuration type:   singlemalt
-Created:              Sun Sep 27 00:33:05 CEST 2009
+Created:              Sun Jun 27 15:59:37 CEST 2010
 
 SYSTEM
-Operating system architecture: x86
-Operating system name:         Windows XP
+Operating system architecture: amd64
+Operating system name:         Linux
 JRE vendor name:               Sun Microsystems Inc.
-JRE version number:            1.6.0_14
+JRE version number:            1.6.0_18
 
 MALTPARSER
-Version:                       1.3.1
-Build date:                    November 14 2009
+Version:                       1.3.2
+Build date:                    June 27 2010
 
 SETTINGS
+2planar
+  reduceonswitch (-2pr)                 false
+  planar_root_handling (-prh)           normal
 config
   workingdir (  -w)                     user.dir
   name (  -c)                           test
@@ -293,50 +300,53 @@ config
   flowchart (  -m)                      learn
   type (  -t)                           singlemalt
   logfile (-lfi)                        stdout
-  url (  -u)
+  url (  -u)                            
 covington
   allow_root ( -cr)                     true
   allow_shift ( -cs)                    false
 graph
   max_sentence_length (-gsl)            256
-  head_rules (-ghr)
+  head_rules (-ghr)                     
   root_label (-grl)                     ROOT
 guide
   decision_settings (-gds)              T.TRANS+A.DEPREL
   kbest_type ( -kt)                     rank
-  data_split_structure (  -s)
+  data_split_structure (  -s)           
   learner (  -l)                        libsvm
   kbest (  -k)                          -1
-  features (  -F)
+  features (  -F)                       
   classitem_separator (-gcs)            ~
-  data_split_column (  -d)
+  data_split_column (  -d)              
   data_split_threshold (  -T)           50
 input
   infile (  -i)                         examples/data/talbanken05_train.conll
   reader ( -ir)                         tab
   iterations ( -it)                     1
   charset ( -ic)                        UTF-8
-  reader_options (-iro)
+  reader_options (-iro)                 
   format ( -if)                         /appdata/dataformat/conllx.xml
 liblinear
   save_instance_files (-lli)            false
-  liblinear_external (-llx)
-  liblinear_options (-llo)
+  liblinear_external (-llx)             
+  liblinear_options (-llo)              -s_4_-c_0.1
   verbosity (-llv)                      silent
 libsvm
-  libsvm_external (-lsx)
+  libsvm_external (-lsx)                
   save_instance_files (-lsi)            false
-  libsvm_options (-lso)
+  libsvm_options (-lso)                 -s_0_-t_1_-d_2_-g_0.2_-c_1_-r_0_-e_1.0
   verbosity (-lsv)                      silent
 nivre
   root_handling (  -r)                  normal
-  post_processing (-npp)                false
 output
   charset ( -oc)                        UTF-8
-  writer_options (-owo)
-  format ( -of)                         /appdata/dataformat/conllx.xml
+  writer_options (-owo)                 
+  format ( -of)                         
   writer ( -ow)                         tab
-  outfile (  -o)
+  outfile (  -o)                        
+planar
+  no_covered_roots (-pcov)               false
+  connectedness (-pcon)                  none
+  acyclicity (-pacy)                     true
 pproj
   covered_root (-pcr)                   none
   marking_strategy ( -pp)               none
@@ -345,31 +355,35 @@ singlemalt
   parsing_algorithm (  -a)              nivreeager
   null_value ( -nv)                     one
   guide_model ( -gm)                    single
+  propagation ( -fp)                    
+  diagnostics ( -di)                    false
+  use_partial_tree ( -up)               false
+  diafile (-dif)                        stdout
   mode ( -sm)                           parse
 
 DEPENDENCIES
---guide-features (  -F)                 /appdata/features/NivreEager.xml
+--guide-features (  -F)                 NivreEager.xml
 
 FEATURE MODEL
 MAIN
-0       InputColumn(POSTAG, Stack[0])
-1       InputColumn(POSTAG, Input[0])
-2       InputColumn(POSTAG, Input[1])
-3       InputColumn(POSTAG, Input[2])
-4       InputColumn(POSTAG, Input[3])
-5       InputColumn(POSTAG, Stack[1])
-6       OutputColumn(DEPREL, Stack[0])
-7       OutputColumn(DEPREL, ldep(Stack[0]))
-8       OutputColumn(DEPREL, rdep(Stack[0]))
-9       OutputColumn(DEPREL, ldep(Input[0]))
-10      InputColumn(FORM, Stack[0])
-11      InputColumn(FORM, Input[0])
-12      InputColumn(FORM, Input[1])
-13      InputColumn(FORM, head(Stack[0]))
+0	InputColumn(POSTAG, Stack[0])
+1	InputColumn(POSTAG, Input[0])
+2	InputColumn(POSTAG, Input[1])
+3	InputColumn(POSTAG, Input[2])
+4	InputColumn(POSTAG, Input[3])
+5	InputColumn(POSTAG, Stack[1])
+6	OutputColumn(DEPREL, Stack[0])
+7	OutputColumn(DEPREL, ldep(Stack[0]))
+8	OutputColumn(DEPREL, rdep(Stack[0]))
+9	OutputColumn(DEPREL, ldep(Input[0]))
+10	InputColumn(FORM, Stack[0])
+11	InputColumn(FORM, Input[0])
+12	InputColumn(FORM, Input[1])
+13	InputColumn(FORM, head(Stack[0]))
 
 LIBSVM INTERFACE
-  LIBSVM version: 2.89
-  SVM-param string:
+  LIBSVM version: 2.91
+  SVM-param string: -s_0_-t_1_-d_2_-g_0.2_-c_1_-r_0_-e_1.0
 LIBSVM SETTINGS
   SVM type      : C_SVC (0)
   Kernel        : POLY (1)
@@ -579,7 +593,14 @@ Nivre (2009) and Nivre, Kuhlmann and Hall (2009).</p>
 </ul>
 Note that it is only the swap transition that can move nodes from <b>Stack</b> back to the buffer, which means that for the Projective Stack algorithm <b>Input</b> will always be empty and <b>Lookahead</b> will always contain all the nodes in the buffer.
 
-</ul>
+<a name="planar"></a>
+<h4>Planar</h4>
+<p></p>
+
+<a name="2planar"></a>
+<h4>2Planar</h4>
+<p></p>
+
 <a name="featurespec"></a>
 <h3>Feature model</h3>
 <p>MaltParser uses history-based feature models for predicting the next action in the deterministic derivation of a dependency 
@@ -822,13 +843,63 @@ LA the left arc model:
 			&lt;feature&gt;InputColumn(POSTAG, Input[0])&lt;/feature&gt;
 			&lt;feature&gt;InputColumn(POSTAG, Input[1])&lt;/feature&gt;
 			...
-			&lt;feature&gtInputColumn(FORM,ldep(Input[0]))&lt;/feature&gt
-            &lt;feature&gtInputColumn(FORM,rdep(Stack[0]))&lt;/feature&gt
+			&lt;feature&gtInputColumn(FORM,ldep(Input[0]))&lt;/feature&gt;
+            &lt;feature&gtInputColumn(FORM,rdep(Stack[0]))&lt;/feature&gt;
 		&lt;/submodels&gt;
 	&lt;/featuremodel&gt;
 &lt;/featuremodels&gt;
 </pre>
 If the feature specification file does not contain any submodels then the parser uses the same feature model for all submodels. 
+
+<a name="partial_trees"></a>
+<h3>Partial trees</h3>
+<p>Since MaltParser 1.3.2 it is possible to parse with partial trees, i.e., the input file have sentences with partial dependency structure. To parse with partial trees you need the following: </p>
+
+<ul>
+<li>Add two input data columns to your data format file: <i>PARTHEAD</i> defines the unlabeled structure of a partial dependency graph and <i>PARTDEPREL</i> defines a dependency label of a partial dependency graph.
+<li>Add the partial dependency structure to the columns <i>PARTHEAD</i> and <i>PARTDEPREL</i> in your input file.
+<li>The option <i>--singlemalt-use_partial_tree</i> need to be set to <i>true</i> by using the command line flag <i>-up true</i>
+</ul>
+
+<p>The two data columns should look like these:</p>
+<pre>
+	&lt;column name="PARTHEAD" category="INPUT" type="INTEGER"/&gt;
+	&lt;column name="PARTDEPREL" category="INPUT" type="STRING"/&gt;
+</pre>
+<p>Note: To benefit from the partial trees, the parser model should also be trained on partial trees.</p>
+ 
+<a name="propagation"></a>	
+<h3>Propagation</h3>
+<p>Since MaltParser 1.3.2 it is possible to propagate column values towards the root of the dependency graph when a labeled transition is performed. The propagation is managed by
+a propagation specification file formatted in XML with the following attributes:  </p>
+
+<table class="bodyTable">
+<tr class="a"><th>Attribute</th><th>Name</th><th>Description</th></tr>
+<tr class="b"><td align="left">FROM</td><td>The data column from where the values are copied. </td></tr> 
+<tr class="b"><td align="left">TO</td><td>The data column to where the values are copied. The data column should not exist in the data format and the values are interpreted as sets. When a new value is copied to this column, a union of the new value and the old value is made. The atomic values are separated with the sign |.</td></tr>
+<tr class="b"><td align="left">FOR</td><td>A set of values that can be copied. If empty then all values can be copied.</td></tr> 
+<tr class="b"><td align="left">OVER</td><td>A set of dependency labels that allow propagation when a labeled transition is performed. If empty then all dependency labels allow propagation.</td></tr> 
+</table>
+
+Below you can see an example of a propagation specification file:</p>
+<pre>
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;propagations&gt;
+   &lt;propagation name="coordination"&gt;
+      &lt;from&gt;POSTAG&lt;/from&gt;
+      &lt;to&gt;CJ-POSTAG&lt;/to&gt;
+      &lt;for&gt;&lt;/for&gt;
+      &lt;over&gt;CJ&lt;/over&gt;
+   &lt;/propagation&gt;
+   &lt;propagation name="valency"&gt;
+      &lt;from&gt;DEPREL&lt;/from&gt;
+      &lt;to&gt;VALENCY&lt;/to&gt;
+      &lt;for&gt;EO|ES|FO|FS|IO|OA|OO|OP|SP|SS|VO|VS&lt;/for&gt;
+      &lt;over&gt;&lt;/over&gt;
+   &lt;/propagation&gt;
+&lt;/propagations&gt;
+</pre>
+
 
 <a name="phrase"></a>
 <h3>Phrase structure parsing</h3>
@@ -952,6 +1023,18 @@ search for the rightmost lexical child. If no lexical child can be found, then t
  in the third column, which indicates that there is no priority list for the nonterminal. The <a href="optiondesc.html#graph-head_rules">--graph-head_rules</a> option (-ghr flag)
  specifies the URL or the path to a file that contains a list of head rules. 
 
+
+<a name="api"></a>
+<h3>MaltParser API</h3>
+<p>Other programs can invoke Maltparser in various ways, but the easiest way is to use the <i>org.maltparser.MaltParserService</i> class.</p>
+
+<p>There are two ways to call the MaltParserService:</p>
+
+<ul>
+<li>By running experiments, which allow other programs to train a parser model or parse with a parser model. IO-handling is done by MaltParser.
+<li>By first initialize a parser model and then call the method parse() for each sentence that should be parsed by MaltParser. IO-handling of the sentence is done by the third-party program.
+</ul>
+<p>How to use MaltParserService, please see the examples provided in the directory <b>examples/apiexamples/srcex</b></p>
 
 <a name="ref"></a>
 <h3>References</h3>

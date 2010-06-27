@@ -25,7 +25,7 @@ public class TabWriter implements SyntaxGraphWriter {
 	private BufferedWriter writer;
 	private DataFormatInstance dataFormatInstance;
 	private final StringBuilder output;
-	
+	private boolean closeStream = true;
 //	private String ID = "ID";
 //	private String IGNORE_COLUMN_SIGN = "_";
 	private final char TAB = '\t';
@@ -48,13 +48,16 @@ public class TabWriter implements SyntaxGraphWriter {
 	
 	public void open(OutputStream os, String charsetName) throws MaltChainedException {
 		try {
+			if (os == System.out || os == System.err) {
+				closeStream = false;
+			}
 			open(new OutputStreamWriter(os, charsetName));
 		} catch (UnsupportedEncodingException e) {
 			throw new DataFormatException("The character encoding set '"+charsetName+"' isn't supported.", e);
 		}
 	}
 	
-	public void open(OutputStreamWriter osw) throws MaltChainedException {
+	private void open(OutputStreamWriter osw) throws MaltChainedException {
 		setWriter(new BufferedWriter(osw));
 	}
 	
@@ -165,7 +168,9 @@ public class TabWriter implements SyntaxGraphWriter {
 		try {
 			if (writer != null) {
 				writer.flush();
-				writer.close();
+				if (closeStream) {
+					writer.close();
+				}
 				writer = null;
 			}
 		}   catch (IOException e) {

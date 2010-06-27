@@ -7,13 +7,7 @@ import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.flow.item.ChartItem;
 import org.maltparser.core.flow.spec.ChartItemSpecification;
 import org.maltparser.core.flow.spec.ChartSpecification;
-import org.maltparser.core.helper.Malt04;
-import org.maltparser.core.helper.SystemLogger;
-import org.maltparser.core.io.dataformat.DataFormatInstance;
-import org.maltparser.core.io.dataformat.DataFormatManager;
-import org.maltparser.core.options.OptionManager;
-import org.maltparser.core.symbol.SymbolTableHandler;
-import org.maltparser.core.symbol.trie.TrieSymbolTableHandler;
+
 /**
 *
 *
@@ -28,9 +22,9 @@ public class FlowChartInstance {
 	private final LinkedHashSet<ChartItem> processChartItems;
 	private final LinkedHashSet<ChartItem> postProcessChartItems;
 	
-	private SymbolTableHandler symbolTables;
-	private DataFormatManager dataFormatManager;
-	private final HashMap<String,DataFormatInstance> dataFormatInstances;
+//	private SymbolTableHandler symbolTables;
+//	private DataFormatManager dataFormatManager;
+//	private final HashMap<String,DataFormatInstance> dataFormatInstances;
 	private final HashMap<String,Object> flowChartRegistry;
 	private final HashMap<String,Object> engineRegistry;
 	private final StringBuilder flowChartRegistryKey;
@@ -44,11 +38,15 @@ public class FlowChartInstance {
 		flowChartRegistry = new HashMap<String,Object>();
 		engineRegistry = new HashMap<String,Object>();
 		flowChartRegistryKey = new StringBuilder();
-		dataFormatInstances = new HashMap<String, DataFormatInstance>(3);
-		
-		dataFormatManager = new DataFormatManager(OptionManager.instance().getOptionValue(0, "input", "format").toString(), OptionManager.instance().getOptionValue(0, "output", "format").toString());
-		symbolTables = new TrieSymbolTableHandler();
-//		Malt04.loadAllMalt04Tagset(OptionManager.instance(),getOptionContainerIndex(),getSymbolTables(),SystemLogger.logger());
+//		dataFormatInstances = new HashMap<String, DataFormatInstance>(3);
+//		
+//		String inputFormatName = OptionManager.instance().getOptionValue(0, "input", "format").toString();
+//		String outputFormatName = OptionManager.instance().getOptionValue(0, "output", "format").toString();
+//		SystemLogger.logger().info(inputFormatName + "\n");
+//		SystemLogger.logger().info(outputFormatName + "\n");
+////		featureModelFileName = configDir.copyToConfig(Util.findURLinJars(featureModelFileName));
+//		dataFormatManager = new DataFormatManager(inputFormatName, outputFormatName);
+//		symbolTables = new TrieSymbolTableHandler();
 
 		preProcessChartItems = new LinkedHashSet<ChartItem>();
 		for (ChartItemSpecification chartItemSpecification : chartSpecification.getPreProcessChartItemSpecifications()) {
@@ -63,6 +61,8 @@ public class FlowChartInstance {
 		for (ChartItemSpecification chartItemSpecification : chartSpecification.getPostProcessChartItemSpecifications()) {
 			postProcessChartItems.add(initChartItem(chartItemSpecification));
 		}
+		
+
 	}
 	
 	protected ChartItem initChartItem(ChartItemSpecification chartItemSpecification) throws MaltChainedException {
@@ -78,21 +78,21 @@ public class FlowChartInstance {
 		return chartItem;
 	}
 	
-	public SymbolTableHandler getSymbolTables() {
-		return symbolTables;
-	}
-
-	public void setSymbolTables(SymbolTableHandler symbolTables) {
-		this.symbolTables = symbolTables;
-	}
-
-	public DataFormatManager getDataFormatManager() {
-		return dataFormatManager;
-	}
-
-	public void setDataFormatManager(DataFormatManager dataFormatManager) {
-		this.dataFormatManager = dataFormatManager;
-	}
+//	public SymbolTableHandler getSymbolTables() {
+//		return symbolTables;
+//	}
+//
+//	public void setSymbolTables(SymbolTableHandler symbolTables) {
+//		this.symbolTables = symbolTables;
+//	}
+//
+//	public DataFormatManager getDataFormatManager() {
+//		return dataFormatManager;
+//	}
+//
+//	public void setDataFormatManager(DataFormatManager dataFormatManager) {
+//		this.dataFormatManager = dataFormatManager;
+//	}
 	
 	private void setFlowChartRegistryKey(Class<?> entryClass, String identifier) {
 		flowChartRegistryKey.setLength(0);
@@ -123,9 +123,9 @@ public class FlowChartInstance {
 		return engineRegistry.get(key);
 	}
 	
-	public HashMap<String, DataFormatInstance> getDataFormatInstances() {
-		return dataFormatInstances;
-	}
+//	public HashMap<String, DataFormatInstance> getDataFormatInstances() {
+//		return dataFormatInstances;
+//	}
 	
 	public FlowChartManager getFlowChartManager() {
 		return flowChartManager;
@@ -236,7 +236,7 @@ public class FlowChartInstance {
 		flowChartRegistry.clear();
 		engineRegistry.clear();
 		flowChartRegistryKey.setLength(0);
-		symbolTables = null;
+//		symbolTables = null;
 		
 	}
 	
@@ -254,13 +254,13 @@ public class FlowChartInstance {
 		result = prime * result + optionContainerIndex;
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + ((chartSpecification == null) ? 0 : chartSpecification.hashCode());
-		result = prime * result + ((dataFormatInstances == null) ? 0 : dataFormatInstances.hashCode());
-		result = prime * result + ((dataFormatManager == null) ? 0 : dataFormatManager.hashCode());
+//		result = prime * result + ((dataFormatInstances == null) ? 0 : dataFormatInstances.hashCode());
+//		result = prime * result + ((dataFormatManager == null) ? 0 : dataFormatManager.hashCode());
 		result = prime * result + ((flowChartRegistry == null) ? 0 : flowChartRegistry.hashCode());
 		result = prime * result + ((postProcessChartItems == null) ? 0 : postProcessChartItems.hashCode());
 		result = prime * result + ((preProcessChartItems == null) ? 0 : preProcessChartItems.hashCode());
 		result = prime * result + ((processChartItems == null) ? 0 : processChartItems.hashCode());
-		result = prime * result + ((symbolTables == null) ? 0 : symbolTables.hashCode());
+//		result = prime * result + ((symbolTables == null) ? 0 : symbolTables.hashCode());
 		return result;
 	}
 
@@ -284,16 +284,16 @@ public class FlowChartInstance {
 				return false;
 		} else if (!chartSpecification.equals(other.chartSpecification))
 			return false;
-		if (dataFormatInstances == null) {
-			if (other.dataFormatInstances != null)
-				return false;
-		} else if (!dataFormatInstances.equals(other.dataFormatInstances))
-			return false;
-		if (dataFormatManager == null) {
-			if (other.dataFormatManager != null)
-				return false;
-		} else if (!dataFormatManager.equals(other.dataFormatManager))
-			return false;
+//		if (dataFormatInstances == null) {
+//			if (other.dataFormatInstances != null)
+//				return false;
+//		} else if (!dataFormatInstances.equals(other.dataFormatInstances))
+//			return false;
+//		if (dataFormatManager == null) {
+//			if (other.dataFormatManager != null)
+//				return false;
+//		} else if (!dataFormatManager.equals(other.dataFormatManager))
+//			return false;
 		if (flowChartRegistry == null) {
 			if (other.flowChartRegistry != null)
 				return false;
@@ -314,11 +314,11 @@ public class FlowChartInstance {
 				return false;
 		} else if (!processChartItems.equals(other.processChartItems))
 			return false;
-		if (symbolTables == null) {
-			if (other.symbolTables != null)
-				return false;
-		} else if (!symbolTables.equals(other.symbolTables))
-			return false;
+//		if (symbolTables == null) {
+//			if (other.symbolTables != null)
+//				return false;
+//		} else if (!symbolTables.equals(other.symbolTables))
+//			return false;
 		return true;
 	}
 

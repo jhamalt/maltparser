@@ -1,5 +1,6 @@
 package org.maltparser.parser;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.regex.Pattern;
 
@@ -9,6 +10,7 @@ import org.maltparser.core.flow.FlowChartInstance;
 import org.maltparser.core.flow.item.ChartItem;
 import org.maltparser.core.flow.spec.ChartItemSpecification;
 import org.maltparser.core.io.dataformat.DataFormatInstance;
+import org.maltparser.core.io.dataformat.DataFormatManager;
 import org.maltparser.core.io.dataformat.DataFormatSpecification.DataStructure;
 import org.maltparser.core.io.dataformat.DataFormatSpecification.Dependency;
 import org.maltparser.core.options.OptionManager;
@@ -73,16 +75,20 @@ public class SingleMaltChartItem extends ChartItem {
 			if (modeName.equals("learn") || modeName.equals("parse")) {
 				OptionManager.instance().overloadOptionValue(getOptionContainerIndex(), "singlemalt", "mode", modeName);
 				ConfigurationDir configDir = (ConfigurationDir)flowChartinstance.getFlowChartRegistry(org.maltparser.core.config.ConfigurationDir.class, idName);
+				DataFormatManager dataFormatManager = configDir.getDataFormatManager();
+//				DataFormatManager dataFormatManager = flowChartinstance.getDataFormatManager();
+//				HashMap<String, DataFormatInstance> dataFormatInstances = flowChartinstance.getDataFormatInstances();
+				HashMap<String, DataFormatInstance> dataFormatInstances = configDir.getDataFormatInstances();
 				if (modeName.equals("learn")) {
 					DataFormatInstance dataFormatInstance = null;
-					if (flowChartinstance.getDataFormatManager().getInputDataFormatSpec().getDataStructure() == DataStructure.PHRASE) {
-						HashSet<Dependency> deps = flowChartinstance.getDataFormatManager().getInputDataFormatSpec().getDependencies();
+					if (dataFormatManager.getInputDataFormatSpec().getDataStructure() == DataStructure.PHRASE) {
+						HashSet<Dependency> deps = dataFormatManager.getInputDataFormatSpec().getDependencies();
 //						String nullValueStategy = OptionManager.instance().getOptionValue(getOptionContainerIndex(), "singlemalt", "null_value").toString();
 //						String rootLabels = OptionManager.instance().getOptionValue(getOptionContainerIndex(), "graph", "root_label").toString();
 						for (Dependency dep : deps) {
-//							dataFormatInstance = flowChartinstance.getDataFormatManager().getDataFormatSpec(dep.getDependentOn()).createDataFormatInstance(flowChartinstance.getSymbolTables(), nullValueStategy, rootLabels);
+//							dataFormatInstance = dataFormatManager.getDataFormatSpec(dep.getDependentOn()).createDataFormatInstance(flowChartinstance.getSymbolTables(), nullValueStategy, rootLabels);
 //							flowChartinstance.getDataFormatInstances().put(flowChartinstance.getDataFormatManager().getOutputDataFormatSpec().getDataFormatName(), dataFormatInstance);
-							dataFormatInstance = flowChartinstance.getDataFormatInstances().get(flowChartinstance.getDataFormatManager().getOutputDataFormatSpec().getDataFormatName());
+							dataFormatInstance = dataFormatInstances.get(dataFormatManager.getOutputDataFormatSpec().getDataFormatName());
 						}
 						
 						String decisionSettings = OptionManager.instance().getOptionValue(getOptionContainerIndex(),"guide", "decision_settings").toString().trim();
@@ -100,13 +106,12 @@ public class SingleMaltChartItem extends ChartItem {
 							OptionManager.instance().overloadOptionValue(getOptionContainerIndex(), "guide", "decision_settings", decisionSettings+newDecisionSettings.toString());
 						}
 					} else {
-						dataFormatInstance = flowChartinstance.getDataFormatInstances().get(flowChartinstance.getDataFormatManager().getInputDataFormatSpec().getDataFormatName());
+						dataFormatInstance = dataFormatInstances.get(dataFormatManager.getInputDataFormatSpec().getDataFormatName());
 					}
 					singleMalt.initialize(getOptionContainerIndex(), dataFormatInstance, configDir, SingleMalt.LEARN);
 				} else if (modeName.equals("parse")) {
 					singleMalt.initialize(getOptionContainerIndex(), 
-							flowChartinstance.getDataFormatInstances().get(flowChartinstance.getDataFormatManager().getInputDataFormatSpec().getDataFormatName())
-							, configDir, SingleMalt.PARSE);
+							dataFormatInstances.get(dataFormatManager.getInputDataFormatSpec().getDataFormatName()), configDir, SingleMalt.PARSE);
 				} else {
 					return ChartItem.TERMINATE;
 				}

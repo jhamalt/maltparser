@@ -62,6 +62,9 @@
 		<desc><![CDATA[ The column name must correspond to an output column in the data format and the address function 
 		must return a graph node in the dependency graph. (If the address function is undefined, a null-value is returned.) ]]></desc>
 	</function>
+	<function name="InputTable" class="org.maltparser.core.syntaxgraph.feature.InputTableFeature" hasSubFunctions="false">
+		<desc><![CDATA[ This is a internal feature for MaltParser to address internal symbol table. (If the address function is undefined, a null-value is returned.) ]]></desc>
+	</function>
 	<function name="OutputTable" class="org.maltparser.core.syntaxgraph.feature.OutputTableFeature" hasSubFunctions="false">
 		<desc><![CDATA[ This is a internal feature for MaltParser to address internal symbol table. (If the address function is undefined, a null-value is returned.) ]]></desc>
 	</function>

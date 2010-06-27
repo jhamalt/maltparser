@@ -106,7 +106,7 @@ public class DecisionTreeModel implements InstanceModel {
 	/**
 	 * Constructs a feature divide model.
 	 * 
-	 * @param features
+	 * @param featureVector
 	 *            the feature vector used by the decision tree model
 	 * @param parent
 	 *            the parent guide model.

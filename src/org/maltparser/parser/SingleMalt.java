@@ -17,6 +17,7 @@ import org.maltparser.core.helper.SystemLogger;
 import org.maltparser.core.helper.Util;
 import org.maltparser.core.io.dataformat.DataFormatInstance;
 import org.maltparser.core.options.OptionManager;
+import org.maltparser.core.propagation.PropagationManager;
 import org.maltparser.core.symbol.SymbolTableHandler;
 import org.maltparser.core.syntaxgraph.DependencyStructure;
 import org.maltparser.parser.guide.ClassifierGuide;
@@ -38,6 +39,7 @@ public class SingleMalt implements DependencyParserConfig {
 	protected long startTime;
 	protected long endTime;
 	protected int nIterations = 0;
+	protected PropagationManager propagationManager;
 	
 	public void initialize(int containerIndex, DataFormatInstance dataFormatInstance, ConfigurationDir configDir, int mode) throws MaltChainedException {
 
@@ -55,10 +57,24 @@ public class SingleMalt implements DependencyParserConfig {
 		registry.put(org.maltparser.core.symbol.SymbolTableHandler.class, getSymbolTables());
 		registry.put(org.maltparser.core.io.dataformat.DataFormatInstance.class, dataFormatInstance);
 //		registry.put(org.maltparser.parser.DependencyParserConfig.class, this);
+		initPropagation();
 		initParsingAlgorithm(); 
-
+		
 	}
 	
+	private void initPropagation()  throws MaltChainedException {
+		String propagationSpecFileName = getOptionValue("singlemalt", "propagation").toString();
+		if (propagationSpecFileName == null || propagationSpecFileName.length() == 0) {
+			return;
+		}
+		propagationManager = new PropagationManager(configDir, symbolTableHandler);
+		if (mode == SingleMalt.LEARN) {
+			propagationSpecFileName = configDir.copyToConfig(propagationSpecFileName);
+			OptionManager.instance().overloadOptionValue(optionContainerIndex, "singlemalt", "propagation", propagationSpecFileName);
+		}
+		getConfigLogger().info("  Propagation          : " + propagationSpecFileName+"\n");
+		propagationManager.loadSpecification(propagationSpecFileName);
+	}
 	
 	/**
 	 * Initialize the parsing algorithm
@@ -221,6 +237,10 @@ public class SingleMalt implements DependencyParserConfig {
 		return symbolTableHandler;
 	}
 	
+	public PropagationManager getPropagationManager() {
+		return propagationManager;
+	}
+
 	public Algorithm getAlgorithm() {
 		return parsingAlgorithm;
 	}

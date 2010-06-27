@@ -37,11 +37,13 @@ public class ArcEager extends TransitionSystem {
 			e = nivreConfig.getDependencyStructure().addDependencyEdge(input.peek().getIndex(), stack.peek().getIndex());
 			addEdgeLabels(e);
 			stack.pop();
+//			doPropagation(e);
 			break;
 		case RIGHTARC:
 			e = nivreConfig.getDependencyStructure().addDependencyEdge(stack.peek().getIndex(), input.peek().getIndex());
 			addEdgeLabels(e);
 			stack.push(input.pop());
+//			doPropagation(e);
 			break;
 		case REDUCE:
 			stack.pop();

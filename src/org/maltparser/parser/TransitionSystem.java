@@ -3,6 +3,7 @@ package org.maltparser.parser;
 import java.util.HashMap;
 
 import org.maltparser.core.exception.MaltChainedException;
+import org.maltparser.core.propagation.PropagationManager;
 import org.maltparser.core.symbol.SymbolTable;
 import org.maltparser.core.symbol.SymbolTableHandler;
 import org.maltparser.core.symbol.TableHandler;
@@ -24,6 +25,7 @@ public abstract class TransitionSystem {
 	protected ActionContainer[] actionContainers;
 	protected ActionContainer transActionContainer;
 	protected ActionContainer[] arcLabelActionContainers;
+	protected PropagationManager propagationManager = null;
 	
 	public TransitionSystem() throws MaltChainedException {	}
 	
@@ -47,10 +49,13 @@ public abstract class TransitionSystem {
 				if (arcLabelActionContainers[i] == null) {
 					throw new MaltChainedException("arcLabelActionContainer " + i + " is null when doing transition " + transition);
 				}
-
-				short v = arcLabels.get(arcLabelActionContainers[i].getTable()).shortValue();
-				arcLabelActionContainers[i].setAction(v);
-//				arcLabelActionContainers[i].setAction(arcLabels.get(arcLabelActionContainers[i].getTable()).shortValue());
+				
+				Integer code = arcLabels.get(arcLabelActionContainers[i].getTable());
+				if (code != null) {
+					arcLabelActionContainers[i].setAction(code.shortValue());
+				} else {
+					arcLabelActionContainers[i].setAction(-1);
+				}
 			}		
 		}
 		GuideUserAction oracleAction = history.getEmptyGuideUserAction();
@@ -75,7 +80,9 @@ public abstract class TransitionSystem {
 				} else {
 					e.addLabel((SymbolTable)arcLabelActionContainers[i].getTable(), ((DependencyGraph)e.getBelongsToGraph()).getDefaultRootEdgeLabelCode((SymbolTable)arcLabelActionContainers[i].getTable()));
 				}
-				
+			}
+			if (propagationManager != null) {
+				propagationManager.propagate(e);
 			}
 		}
 	}
@@ -154,6 +161,18 @@ public abstract class TransitionSystem {
 		return transitionTableHandler;
 	}
 	
+	public PropagationManager getPropagationManager() {
+		return propagationManager;
+	}
+
+//	protected void doPropagation(Edge e) throws MaltChainedException{
+//
+//	}
+	
+	public void setPropagationManager(PropagationManager propagationManager) {
+		this.propagationManager = propagationManager;
+	}
+
 	public String getActionString(GuideUserAction action) throws MaltChainedException {
 		StringBuilder sb = new StringBuilder();
 		action.getAction(actionContainers);

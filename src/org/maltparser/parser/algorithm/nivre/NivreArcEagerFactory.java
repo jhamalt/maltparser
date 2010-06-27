@@ -19,7 +19,9 @@ public class NivreArcEagerFactory extends NivreFactory {
 		if (manager.getConfigLogger().isInfoEnabled()) {
 			manager.getConfigLogger().info("  Transition system    : Arc-Eager\n");
 		}
-		return new ArcEager();
+		TransitionSystem ts = new ArcEager();
+		ts.setPropagationManager(manager.getPropagationManager());
+		return ts;
 	}
 	
 	public OracleGuide makeOracleGuide(GuideUserHistory history) throws MaltChainedException {

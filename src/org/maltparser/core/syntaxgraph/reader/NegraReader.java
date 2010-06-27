@@ -49,6 +49,7 @@ public class NegraReader implements SyntaxGraphReader {
 	private String charsetName;
 	private int nIterations;
 	private int cIterations;
+	private boolean closeStream = true;
 	
 	public NegraReader() {
 		currentHeaderTable = NegraTables.UNDEF;
@@ -91,13 +92,16 @@ public class NegraReader implements SyntaxGraphReader {
 	
 	public void open(InputStream is, String charsetName) throws MaltChainedException {
 		try {
+			if (is == System.in) {
+				closeStream = false;
+			}
 			open(new InputStreamReader(is, charsetName));
 		} catch (UnsupportedEncodingException e) {
 			throw new DataFormatException("The character encoding set '"+charsetName+"' isn't supported. ", e);
 		}
 	}
 	
-	public void open(InputStreamReader isr) throws MaltChainedException {
+	private void open(InputStreamReader isr) throws MaltChainedException {
 		setReader(new BufferedReader(isr));
 		setSentenceCount(0);
 	}
@@ -442,7 +446,9 @@ public class NegraReader implements SyntaxGraphReader {
 	public void close() throws MaltChainedException {
 		try {
 			if (reader != null) {
-				reader.close();
+				if (closeStream) {
+					reader.close();
+				}
 				reader = null;
 			}
 		}   catch (IOException e) {

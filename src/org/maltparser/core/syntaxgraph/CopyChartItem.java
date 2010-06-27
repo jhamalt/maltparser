@@ -4,7 +4,6 @@ import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.flow.FlowChartInstance;
 import org.maltparser.core.flow.item.ChartItem;
 import org.maltparser.core.flow.spec.ChartItemSpecification;
-import org.maltparser.core.helper.SystemLogger;
 import org.maltparser.core.options.OptionManager;
 import org.maltparser.core.symbol.SymbolTable;
 import org.maltparser.core.syntaxgraph.edge.Edge;
@@ -15,6 +14,7 @@ import org.maltparser.core.syntaxgraph.node.DependencyNode;
 * @author Johan Hall
 */
 public class CopyChartItem extends ChartItem {
+	private String idName;
 	private String targetName;
 	private String sourceName;
 	private String taskName;
@@ -28,7 +28,9 @@ public class CopyChartItem extends ChartItem {
 	public void initialize(FlowChartInstance flowChartinstance, ChartItemSpecification chartItemSpecification) throws MaltChainedException {
 		super.initialize(flowChartinstance, chartItemSpecification);
 		for (String key : chartItemSpecification.getChartItemAttributes().keySet()) {
-			if (key.equals("target")) {
+			if (key.equals("id")) {
+				idName = chartItemSpecification.getChartItemAttributes().get(key);
+			} else if (key.equals("target")) {
 				targetName = chartItemSpecification.getChartItemAttributes().get(key);
 			} else if (key.equals("source")) {
 				sourceName = chartItemSpecification.getChartItemAttributes().get(key);
@@ -36,7 +38,9 @@ public class CopyChartItem extends ChartItem {
 				taskName = chartItemSpecification.getChartItemAttributes().get(key);
 			}
 		}
-		if (targetName == null) {
+		if (idName == null) {
+			idName = getChartElement("copy").getAttributes().get("id").getDefaultValue();
+		} else if (targetName == null) {
 			targetName = getChartElement("copy").getAttributes().get("target").getDefaultValue();
 		} else if (sourceName == null) {
 			sourceName = getChartElement("copy").getAttributes().get("source").getDefaultValue();
@@ -126,6 +130,8 @@ public class CopyChartItem extends ChartItem {
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
 		sb.append("    copy ");
+		sb.append("id:");sb.append(idName);
+		sb.append(' ');
 		sb.append("task:");
 		sb.append(taskName);
 		sb.append(' ');

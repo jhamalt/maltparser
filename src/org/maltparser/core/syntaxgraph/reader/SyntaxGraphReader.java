@@ -39,13 +39,6 @@ public interface SyntaxGraphReader {
 	 */
 	public void open(InputStream is, String charsetName) throws MaltChainedException;
 	/**
-	 * Opens an input stream reader
-	 * 
-	 * @param isr an input stream reader
-	 * @throws MaltChainedException
-	 */
-	public void open(InputStreamReader isr) throws MaltChainedException;
-	/**
 	 * Cause the syntax graph reader to read the beginning of the file (such as header information)
 	 * 
 	 * @throws MaltChainedException

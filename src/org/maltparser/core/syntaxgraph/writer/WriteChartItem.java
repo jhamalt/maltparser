@@ -1,13 +1,18 @@
 package org.maltparser.core.syntaxgraph.writer;
 
 
+import java.util.HashMap;
+
+import org.maltparser.core.config.ConfigurationDir;
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.flow.FlowChartInstance;
 import org.maltparser.core.flow.item.ChartItem;
 import org.maltparser.core.flow.spec.ChartItemSpecification;
 import org.maltparser.core.io.dataformat.DataFormatException;
 import org.maltparser.core.io.dataformat.DataFormatInstance;
+import org.maltparser.core.io.dataformat.DataFormatManager;
 import org.maltparser.core.options.OptionManager;
+import org.maltparser.core.symbol.SymbolTableHandler;
 import org.maltparser.core.syntaxgraph.TokenStructure;
 
 /**
@@ -16,6 +21,7 @@ import org.maltparser.core.syntaxgraph.TokenStructure;
 * @author Johan Hall
 */
 public class WriteChartItem extends ChartItem {
+	private String idName;
 	private String outputFormatName;
 	private String outputFileName;
 	private String outputCharSet;
@@ -37,14 +43,18 @@ public class WriteChartItem extends ChartItem {
 		super.initialize(flowChartinstance, chartItemSpecification);
 		
 		for (String key : chartItemSpecification.getChartItemAttributes().keySet()) {
-			if (key.equals("source")) {
+			if (key.equals("id")) {
+				idName = chartItemSpecification.getChartItemAttributes().get(key);
+			} else if (key.equals("source")) {
 				sourceName = chartItemSpecification.getChartItemAttributes().get(key);
 			} else if (key.equals("optiongroup")) {
 				optiongroupName = chartItemSpecification.getChartItemAttributes().get(key);
 			}
 		}
 		
-		if (sourceName == null) {
+		if (idName == null) {
+			idName = getChartElement("write").getAttributes().get("id").getDefaultValue();
+		} else if (sourceName == null) {
 			sourceName = getChartElement("write").getAttributes().get("source").getDefaultValue();
 		} else if (optiongroupName == null) {
 			optiongroupName = getChartElement("write").getAttributes().get("optiongroup").getDefaultValue();
@@ -174,13 +184,21 @@ public class WriteChartItem extends ChartItem {
 	
 	
 	public void initOutput(String nullValueStategy, String rootLabels) throws MaltChainedException {
-		if (flowChartinstance.getDataFormatInstances().size() == 0 || flowChartinstance.getDataFormatManager().getInputDataFormatSpec() != flowChartinstance.getDataFormatManager().getOutputDataFormatSpec()) {
-			outputDataFormatInstance = flowChartinstance.getDataFormatManager().getOutputDataFormatSpec().createDataFormatInstance(flowChartinstance.getSymbolTables(), nullValueStategy, rootLabels);
-			if (!flowChartinstance.getDataFormatInstances().containsKey(flowChartinstance.getDataFormatManager().getOutputDataFormatSpec().getDataFormatName())) {
-				flowChartinstance.getDataFormatInstances().put(flowChartinstance.getDataFormatManager().getOutputDataFormatSpec().getDataFormatName(), outputDataFormatInstance);
+		ConfigurationDir configDir = (ConfigurationDir)flowChartinstance.getFlowChartRegistry(org.maltparser.core.config.ConfigurationDir.class, idName);
+		DataFormatManager dataFormatManager = configDir.getDataFormatManager();
+//		DataFormatManager dataFormatManager = flowChartinstance.getDataFormatManager();
+		SymbolTableHandler symbolTables = configDir.getSymbolTables();
+//		SymbolTableHandler symbolTables = flowChartinstance.getSymbolTables();
+		HashMap<String, DataFormatInstance> dataFormatInstances = configDir.getDataFormatInstances();
+//		HashMap<String, DataFormatInstance> dataFormatInstances = flowChartinstance.getDataFormatInstances();
+		
+		if (dataFormatInstances.size() == 0 || dataFormatManager.getInputDataFormatSpec() != dataFormatManager.getOutputDataFormatSpec()) {
+			outputDataFormatInstance = dataFormatManager.getOutputDataFormatSpec().createDataFormatInstance(symbolTables, nullValueStategy, rootLabels);
+			if (!dataFormatInstances.containsKey(dataFormatManager.getOutputDataFormatSpec().getDataFormatName())) {
+				dataFormatInstances.put(dataFormatManager.getOutputDataFormatSpec().getDataFormatName(), outputDataFormatInstance);
 			}
 		} else {
-			outputDataFormatInstance = flowChartinstance.getDataFormatInstances().get(flowChartinstance.getDataFormatManager().getInputDataFormatSpec().getDataFormatName());
+			outputDataFormatInstance = dataFormatInstances.get(dataFormatManager.getInputDataFormatSpec().getDataFormatName());
 		}
 	}
 	
@@ -235,6 +253,8 @@ public class WriteChartItem extends ChartItem {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("    write ");
+		sb.append("id:");sb.append(idName);
+		sb.append(' ');
 		sb.append("source:");
 		sb.append(sourceName);
 		sb.append(' ');

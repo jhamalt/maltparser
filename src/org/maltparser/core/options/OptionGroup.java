@@ -89,7 +89,17 @@ public class OptionGroup {
 	 */
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
-		
+//		for (String value : new TreeSet<String>(options.keySet())) {
+//			sb.append("super.put(\""); 
+//			sb.append("--");
+//			sb.append(name);
+//			sb.append("-");
+//			sb.append(options.get(value).getName());
+//			sb.append("\", \"");
+//			sb.append(options.get(value).getDefaultValueString());
+//			sb.append("\");\n");
+//		}
+
 		if (OptionGroup.toStringSetting == OptionGroup.WITHGROUPNAME) {
 			sb.append("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
 			sb.append("+ " + name+"\n");

@@ -19,7 +19,9 @@ public class TwoPlanarArcEagerFactory extends TwoPlanarFactory {
 		if (manager.getConfigLogger().isInfoEnabled()) {
 			manager.getConfigLogger().info("  Transition system    : 2-Planar Arc-Eager\n");
 		}
-		return new TwoPlanar();
+		TransitionSystem ts = new TwoPlanar();
+		ts.setPropagationManager(manager.getPropagationManager());
+		return ts;
 	}
 	
 	public OracleGuide makeOracleGuide(GuideUserHistory history) throws MaltChainedException {

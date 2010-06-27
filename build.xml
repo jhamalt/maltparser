@@ -27,7 +27,10 @@
 	
 	<!-- The directory where source files are stored. -->
 	<property name="java.source.dir" value="src/"/>
-	
+	<property name="java.source.examples.dir" value="examples/apiexamples/srcex/"/>
+	<property name="junit.source.dir" value="test/"/>
+	<property name="test.report.dir" location="testreport" />
+
 	<!-- distribution directory -->
 	<property name="dist.dir" value="dist/malt"/>
 
@@ -74,10 +77,16 @@
 		<pathelement location="${libsvm.jar}"/>
 		<pathelement location="${liblinear.jar}"/>
 		<pathelement location="${log4j.jar}"/>
+		<pathelement location="${junit.jar}"/>
 		<pathelement location="${jsr173_1.0_api.jar}"/>
 		<pathelement location="${stax-1.2.0.jar}"/>
 	</path>
-
+	
+	<!-- Construct compile classpath -->
+	<path id="junit.class.path">
+		<pathelement location="${dist.dir}/${jar.filename}"/>
+		<pathelement location="${jar.dest}/junit-4.8.2.jar"/>
+	</path>
 	<!-- ================================================================= -->
 	<!-- Default target                                                    -->
 	<!-- ================================================================= -->
@@ -95,8 +104,7 @@
 
     dist    - will create a complete distribution in dist/
 
-    release - will create a complete distribution in dist/
-              using stricter settings for public distribution.
+    test	- junit tests (only few tests)
     	
     Properties of your system:
     
@@ -130,7 +138,7 @@
 		<mkdir dir="${javac.dest}" />
 		<mkdir dir="${plugin.dir}" />
 
-		<javac srcdir="${java.source.dir}"
+		<javac srcdir="${java.source.dir}:${junit.source.dir}"
            destdir="${javac.dest}"
            includes="${stem}/**/*.java"
            includeAntRuntime="${javac.includeAntRuntime}"
@@ -164,7 +172,8 @@
 		<copy file="${jsr173_1.0_api.jar}" tofile="${jar.dest}/jsr173_1.0_api.jar"/>
 		<copy file="${log4j.jar}" tofile="${jar.dest}/log4j.jar"/>
 		<copy file="${libsvm.jar}" tofile="${jar.dest}/libsvm.jar"/>
-		<copy file="${liblinear.jar}" tofile="${jar.dest}/liblinear-1.33-with-deps.jar"/>
+		<copy file="${junit.jar}" tofile="${jar.dest}/junit-4.8.2.jar"/>
+		<copy file="${liblinear.jar}" tofile="${jar.dest}/liblinear-1.51-with-deps.jar"/>
 		<jar jarfile="${dist.dir}/${jar.filename}" basedir="${javac.dest}"
          includes="${stem}/**/*.class,appdata/**/*.*"
          manifest="${dist.dir}/MANIFEST.MF">
@@ -177,7 +186,7 @@
 		<mkdir dir="${jar.dest}"/>
 		<filter token="version" value="${version}" />
 		<manifest file="${dist.dir}/MANIFEST.MF">
-			<attribute name="Class-Path" value="lib/log4j.jar lib/stax-1.2.0.jar lib/jsr173_1.0_api.jar lib/libsvm.jar lib/liblinear-1.33-with-deps.jar  "/>
+			<attribute name="Class-Path" value="lib/log4j.jar lib/stax-1.2.0.jar lib/jsr173_1.0_api.jar lib/libsvm.jar lib/liblinear-1.51-with-deps.jar  "/>
 			<attribute name="Main-Class" value="org.maltparser.Malt"/>
 			<attribute name="Implementation-Title" value="MaltParser"/>
 			<attribute name="Implementation-Version" value="${version}"/>
@@ -218,6 +227,8 @@
 	    	org.maltparser.core.options.option,
 	    	org.maltparser.core.plugin,
 			org.maltparser.core.pool,
+			org.maltparser.core.propagation,
+			org.maltparser.core.propagation.spec,
 	    	org.maltparser.core.symbol,
 			org.maltparser.core.symbol.nullvalue,
 	    	org.maltparser.core.symbol.trie,
@@ -236,7 +247,9 @@
 	    	org.maltparser.parser.algorithm,
 	    	org.maltparser.parser.algorithm.covington,
 	    	org.maltparser.parser.algorithm.nivre, 
+			org.maltparser.parser.algorithm.planar, 
 			org.maltparser.parser.algorithm.stack, 
+			org.maltparser.parser.algorithm.twoplanar, 
 	    	org.maltparser.parser.guide, 
 			org.maltparser.parser.guide.decision, 
 	    	org.maltparser.parser.guide.instance,
@@ -244,6 +257,7 @@
 			org.maltparser.parser.history.action,
 			org.maltparser.parser.history.container,
 			org.maltparser.parser.history.kbest,
+			org.maltparser.parser.transition,
 			org.maltparser.transform.pseudo"
              version="true"
              protected="true"
@@ -253,7 +267,7 @@
              doctitle="MaltParser version ${version}&lt;br&gt;API Specification"
              windowtitle="MaltParser ${version}"
              header="&lt;b&gt;MaltParser ${version}&lt;/b&gt;"
-             bottom="Copyright 2007-2009 Johan Hall, Jens Nilsson and Joakim Nivre.">
+             bottom="Copyright 2007-2010 Johan Hall, Jens Nilsson and Joakim Nivre.">
 
 			<link href="http://java.sun.com/javase/6/docs/api/"/>
 			<classpath refid="compile.classpath"/>
@@ -322,15 +336,18 @@
 		<delete dir="${dist.tmp}" />
 	</target>
 
-	<!-- ================================================================= -->
-	<!-- Build a complete distribution for release.                        -->
-	<!-- ================================================================= -->
-	<target name="release">
-		<property name="javac.includeAntRuntime" value="false"/>
-		<property name="javac.includeJavaRuntime" value="false"/>
-		<property name="javac.fork" value="true"/>
-		<property name="build.compiler" value="classic"/>
-		<antcall target="dist"/>
+	<target name="test" depends="jar">
+		<mkdir dir="${test.report.dir}" />
+		<junit printsummary="yes" haltonfailure="yes">
+			<classpath refid="junit.class.path" />
+			<formatter type="plain" />
+			<batchtest todir="${test.report.dir}">
+				<fileset dir="${junit.source.dir}">
+					<include name="**/*Test*.java" />
+				</fileset>
+			</batchtest>
+		</junit>
+
 	</target>
 </project>
 

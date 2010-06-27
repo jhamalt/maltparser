@@ -44,6 +44,7 @@ public class DeterministicParser extends Parser {
 			parserState.apply(action);
 		} 
 		copyEdges(currentParserConfiguration.getDependencyGraph(), parseDependencyGraph);
+		copyDynamicInput(currentParserConfiguration.getDependencyGraph(), parseDependencyGraph);
 		parseDependencyGraph.linkAllTreesToRoot();
 		if (diagnostics == true) {
 			writeToDiaFile("\n");
