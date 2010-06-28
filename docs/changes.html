@@ -44,15 +44,15 @@ Modified: @today@
 <h3>MaltParser 1.3.2</h3>
 <table class="bodyTable">
 <tr class="a"><th>Changes</th></tr>
-<tr class="b"><td>Two now parsing algorithms 'planar' and 'twoplanar' written by Carlos Gomez Rodriguez</td></tr>
-<tr class="b"><td>Replaced the libsvm.jar with LIBSVM version 2.91</td></tr>
-<tr class="b"><td>Replaced the liblinear.jar with Liblinear version 1.51</td></tr>
-<tr class="b"><td>The default options of the liblinear options is changed from '-s_1_-c_1_-e_0.1_-B_1' to '-s_4_-c_0.1'</td></tr>
-<tr class="b"><td>The parser model file '.mco' is not unpacked during parsing, instead it reads models and others informations directly from the file.</td></tr>
+<tr class="b"><td>Two new parsing algorithms 'planar' and 'twoplanar' written by Carlos Gómez-Rodríguez.</td></tr>
+<tr class="b"><td>Replaced the libsvm.jar with LIBSVM version 2.91.</td></tr>
+<tr class="b"><td>Replaced the liblinear.jar with Liblinear version 1.51.</td></tr>
+<tr class="b"><td>The default options of the liblinear options is changed from '-s_1_-c_1_-e_0.1_-B_1' to '-s_4_-c_0.1'.</td></tr>
+<tr class="b"><td>The parser model file '.mco' is not unpacked during parsing, instead the parser reads models and other information directly from the file.</td></tr>
 <tr class="b"><td>New functionality that allows partial dependency trees to be parsed.</td></tr>
-<tr class="b"><td>New functionality that allows to propagate column values towards the root of the dependency graph when doing a labeled transition.</td></tr>
-<tr class="b"><td>MaltParserService that makes easier for third-party applications to call MaltParser.</td></tr>
-<tr class="b"><td>Seven examples that shows how to use MaltParser from other applications.</td></tr>
+<tr class="b"><td>New functionality that allows propagation of column values towards the root of the dependency graph when doing a labeled transition.</td></tr>
+<tr class="b"><td>MaltParserService that makes it easier for third-party applications to call MaltParser.</td></tr>
+<tr class="b"><td>Seven examples that show how to use MaltParser from other applications.</td></tr>
 </table>
 
 <a name="1.3.1"></a>
@@ -60,7 +60,7 @@ Modified: @today@
 <table class="bodyTable">
 <tr class="a"><th>Changes</th></tr>
 <tr class="b"><td>Improved the performance of the liblinear learner interface.</td></tr>
-<tr class="b"><td>'_' character do not mean ignore dependency label in the TabReader.</td></tr>
+<tr class="b"><td>'_' character does not mean ignore dependency label in the TabReader.</td></tr>
 <tr class="b"><td>It is now possible to have file names with blanks.</td></tr>
 <tr class="b"><td>Better error message if a column is an empty string in TabReader.</td></tr>
 <tr class="b"><td>Corrected the StackProjective.xml feature model file.</td></tr>
