@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -595,11 +595,46 @@ Note that it is only the swap transition that can move nodes from <b>Stack</b> b
 
 <a name="planar"></a>
 <h4>Planar</h4>
-<p></p>
+
+<p>The Planar algorithm (G&oacute;mez-Rodr&iacute;guez and Nivre, 2010)
+is a linear-time algorithm limited to planar dependency structures, the
+set of structures that do not contain any crossing links. It works in a
+similar way to Nivre's algorithm in arc-eager mode, but with more
+fine-grained transitions. The <a href="optiondesc.html#planar-connectedness">connectedness</a>, <a href="optiondesc.html#planar-acyclicity">acyclicity</a> and <a href="optiondesc.html#planar-no_covered_roots">no covered roots</a>
+options can be used to configure which additional constraints, apart
+from planarity, will be imposed on the target set of dependency graphs.
+<br />
+<br />
+Just like Nivre's algorithm, the Planar algorithm uses two data structures:</p>
+<ul>
+  <li>A stack <b>Stack</b> of partially processed tokens, where <b>Stack[i]</b> is the i+1th token from the top of the stack, with the top being <b>Stack[0]</b>.</li>
+  <li>A list <b>Input</b> of remaining input tokens, where <b>Input[i]</b> is the i+1th token in the list, with the first token being <b>Input[0]</b>.</li>
+</ul>
+
 
 <a name="2planar"></a>
 <h4>2-Planar</h4>
-<p></p>
+
+<p>The 2-Planar algorithm (G&oacute;mez-Rodr&iacute;guez and Nivre,
+2010) is a linear-time algorithm that can be used to parse 2-planar
+dependency structures, i.e., those whose links may be coloured with two
+colours in such a way that no two same-coloured links cross. The
+2-planar algorithm uses two stacks, one of which is the active stack at
+a given time while the other is the inactive stack. Input words are
+always pushed into both stacks at the same time, but then the algorithm
+behaves like the Planar parser working with only one stack (the active
+stack), until a Switch transition is executed: this transition switches
+the stacks around, making the previously inactive stack active and vice
+versa.<br />
+<br />
+The <a href="optiondesc.html#2planar-reduceonswitch">reduce on switch</a> option can be used to change the specific behaviour of Switch transitions, while the <a href="optiondesc.html#2planar-planar_root_handling">planar root handling</a> option can be employed to change the algorithm's behavior with respect to root tokens.</p>
+<p>The 2-Planar algorithm uses three data structures:</p>
+
+<ul>
+  <li>An active stack (<span style="font-weight: bold;">ActiveStack</span>) of partially processed tokens that may be linked on a given plane, where <span style="font-weight: bold;">ActiveStack[i]</span> is the i+1th token from the top of the stack, with the top being <span style="font-weight: bold;">ActiveStack[0]</span>.</li>
+  <li>An inactive stack (<span style="font-weight: bold;">InactiveStack</span>) of partially processed tokens that may be linked on the other plane, where <span style="font-weight: bold;">InactiveStack[i]</span> is the i+1th token from the top of the stack, with the top being <span style="font-weight: bold;">InactiveStack[0]</span>.</li>
+  <li>A list <span style="font-weight: bold;">Input</span> of remaining input tokens, where <span style="font-weight: bold;">Input[i]</span> is the i+1th token in the list, with the first token being <span style="font-weight: bold;">Input[0]</span>.</li>
+</ul>
 
 <a name="featurespec"></a>
 <h3>Feature model</h3>
