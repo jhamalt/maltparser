@@ -598,7 +598,7 @@ Note that it is only the swap transition that can move nodes from <b>Stack</b> b
 <p></p>
 
 <a name="2planar"></a>
-<h4>2Planar</h4>
+<h4>2-Planar</h4>
 <p></p>
 
 <a name="featurespec"></a>
@@ -870,15 +870,14 @@ If the feature specification file does not contain any submodels then the parser
  
 <a name="propagation"></a>	
 <h3>Propagation</h3>
-<p>Since MaltParser 1.3.2 it is possible to propagate column values towards the root of the dependency graph when a labeled transition is performed. The propagation is managed by
-a propagation specification file formatted in XML with the following attributes:  </p>
+<p>Since MaltParser 1.3.2 it is possible to propagate column values towards the root of the dependency graph when a labeled transition is performed. The propagation is managed by a propagation specification file formatted in XML with the following attributes:  </p>
 
 <table class="bodyTable">
 <tr class="a"><th>Attribute</th><th>Name</th><th>Description</th></tr>
-<tr class="b"><td align="left">FROM</td><td>The data column from where the values are copied. </td></tr> 
-<tr class="b"><td align="left">TO</td><td>The data column to where the values are copied. The data column should not exist in the data format and the values are interpreted as sets. When a new value is copied to this column, a union of the new value and the old value is made. The atomic values are separated with the sign |.</td></tr>
-<tr class="b"><td align="left">FOR</td><td>A set of values that can be copied. If empty then all values can be copied.</td></tr> 
-<tr class="b"><td align="left">OVER</td><td>A set of dependency labels that allow propagation when a labeled transition is performed. If empty then all dependency labels allow propagation.</td></tr> 
+<tr class="b"><td align="left">FROM</td><td>The data column from which the values are copied. </td></tr> 
+<tr class="b"><td align="left">TO</td><td>The data column to which the values are copied. This data column should not exist in the data format and the values are interpreted as sets. When a new value is copied to this column, the result is the set union of the new value and the old value. The atomic values (set members) are separated by the sign |.</td></tr>
+<tr class="b"><td align="left">FOR</td><td>A subset of values that can be copied (other values will not be copied). If empty then all values will be copied.</td></tr> 
+<tr class="b"><td align="left">OVER</td><td>A subset of dependency labels that allow propagation when a labeled transition is performed. If empty then all dependency labels allow propagation.</td></tr> 
 </table>
 
 Below you can see an example of a propagation specification file:</p>
@@ -899,7 +898,8 @@ Below you can see an example of a propagation specification file:</p>
    &lt;/propagation&gt;
 &lt;/propagations&gt;
 </pre>
-
+<p>The top half specifies that POSTAG values should be copied to the CJ-POSTAG field of the head, whenever an arc with the label CJ (for conjunct) is created. Assuming an analysis of coordination where the coordinating conjunction is the head of coordinate structure, this will have the effect of propagating information about the POSTAG values of the conjuncts to the head of the coordinate structure.</p>
+<p>The bottom half specifies that DEPREL values should be copied to the VALENCY field of the head, whenever an arc labeled by one of the labels listed in the FOR parameter is created. Provided that these labels denote valency-bound functions, this will have the effect of propagating information about satisfaction of valency constraints to the head.</p>
 
 <a name="phrase"></a>
 <h3>Phrase structure parsing</h3>
@@ -1031,10 +1031,10 @@ search for the rightmost lexical child. If no lexical child can be found, then t
 <p>There are two ways to call the MaltParserService:</p>
 
 <ul>
-<li>By running experiments, which allow other programs to train a parser model or parse with a parser model. IO-handling is done by MaltParser.
-<li>By first initialize a parser model and then call the method parse() for each sentence that should be parsed by MaltParser. IO-handling of the sentence is done by the third-party program.
+<li>By running experiments, which allows other programs to train a parser model or parse with a parser model. IO-handling is done by MaltParser.
+<li>By first initializing a parser model and then calling the method parse() for each sentence that should be parsed by MaltParser. IO-handling of the sentence is then done by the third-party program.
 </ul>
-<p>How to use MaltParserService, please see the examples provided in the directory <b>examples/apiexamples/srcex</b></p>
+<p>For more information about how to use MaltParserService, please see the examples provided in the directory <b>examples/apiexamples/srcex</b></p>
 
 <a name="ref"></a>
 <h3>References</h3>
