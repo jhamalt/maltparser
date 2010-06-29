@@ -853,10 +853,9 @@ If the feature specification file does not contain any submodels then the parser
 
 <a name="partial_trees"></a>
 <h3>Partial trees</h3>
-<p>Since MaltParser 1.3.2 it is possible to parse with partial trees, i.e., the input file have sentences with partial dependency structure. To parse with partial trees you need the following: </p>
-
+<p>Since MaltParser 1.3.2 it is possible to parse with partial trees, i.e., sentences may be input with a partial dependency structure, a subgraph of a complete dependency tree. To parse with partial trees you need to do the following: </p>
 <ul>
-<li>Add two input data columns to your data format file: <i>PARTHEAD</i> defines the unlabeled structure of a partial dependency graph and <i>PARTDEPREL</i> defines a dependency label of a partial dependency graph.
+<li>Add two input data columns to your data format file: <i>PARTHEAD</i> defines the unlabeled structure of a partial dependency tree by specifying the head of each token (and 0 if the token is a root in the partial dependency graph) and <i>PARTDEPREL</i> defines the dependency labels of the partial dependency tree.
 <li>Add the partial dependency structure to the columns <i>PARTHEAD</i> and <i>PARTDEPREL</i> in your input file.
 <li>The option <i>--singlemalt-use_partial_tree</i> need to be set to <i>true</i> by using the command line flag <i>-up true</i>
 </ul>
@@ -866,7 +865,8 @@ If the feature specification file does not contain any submodels then the parser
 	&lt;column name="PARTHEAD" category="INPUT" type="INTEGER"/&gt;
 	&lt;column name="PARTDEPREL" category="INPUT" type="STRING"/&gt;
 </pre>
-<p>Note: To benefit from the partial trees, the parser model should also be trained on partial trees.</p>
+<p>Note: To benefit from the partial dependency structure, the parser model should also be trained on partial trees. Moreover, since arcs can only be added between roots of the partial tree, the partial tree should satisfy the following constraint: if an arc (i, j) is included, then the subtree rooted at j in the complete tree must also be included.
+</p>
  
 <a name="propagation"></a>	
 <h3>Propagation</h3>
