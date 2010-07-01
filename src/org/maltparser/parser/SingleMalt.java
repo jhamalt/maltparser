@@ -265,7 +265,8 @@ public class SingleMalt implements DependencyParserConfig {
 				// use default feature model depending on the selected parser algorithm
 				OptionManager.instance().overloadOptionValue(optionContainerIndex, "guide", "features", getOptionValueString("singlemalt", "parsing_algorithm"));
 				featureModelFileName = getOptionValue("guide", "features").toString().trim();
-				featureModelFileName = configDir.copyToConfig(Util.findURLinJars(featureModelFileName));
+				featureModelFileName = featureModelFileName.replace("{learner}", getOptionValueString("guide", "learner"));
+				featureModelFileName = configDir.copyToConfig(Util.findURLinJars(featureModelFileName));;
 			} else {
 				featureModelFileName = configDir.copyToConfig(featureModelFileName);
 			}

@@ -100,7 +100,7 @@ learning method (LIBSVM).
 <p>MaltParser outputs the following information:
 <pre>
 -----------------------------------------------------------------------------
-                          MaltParser 1.3.2                             
+                          MaltParser 1.4                             
 -----------------------------------------------------------------------------
          MALT (Models and Algorithms for Language Technology) Group          
              Vaxjo University and Uppsala University                         
@@ -286,7 +286,7 @@ JRE vendor name:               Sun Microsystems Inc.
 JRE version number:            1.6.0_18
 
 MALTPARSER
-Version:                       1.3.2
+Version:                       1.4
 Build date:                    June 27 2010
 
 SETTINGS
@@ -890,7 +890,7 @@ If the feature specification file does not contain any submodels then the parser
 
 <a name="partial_trees"></a>
 <h3>Partial trees</h3>
-<p>Since MaltParser 1.3.2 it is possible to parse with partial trees, i.e., sentences may be input with a partial dependency structure, a subgraph of a complete dependency tree. To parse with partial trees you need to do the following: </p>
+<p>Since MaltParser 1.4 it is possible to parse with partial trees, i.e., sentences may be input with a partial dependency structure, a subgraph of a complete dependency tree. To parse with partial trees you need to do the following: </p>
 <ul>
 <li>Add two input data columns to your data format file: <i>PARTHEAD</i> defines the unlabeled structure of a partial dependency tree by specifying the head of each token (and 0 if the token is a root in the partial dependency graph) and <i>PARTDEPREL</i> defines the dependency labels of the partial dependency tree.
 <li>Add the partial dependency structure to the columns <i>PARTHEAD</i> and <i>PARTDEPREL</i> in your input file.
@@ -907,7 +907,7 @@ If the feature specification file does not contain any submodels then the parser
  
 <a name="propagation"></a>	
 <h3>Propagation</h3>
-<p>Since MaltParser 1.3.2 it is possible to propagate column values towards the root of the dependency graph when a labeled transition is performed. The propagation is managed by a propagation specification file formatted in XML with the following attributes:  </p>
+<p>Since MaltParser 1.4 it is possible to propagate column values towards the root of the dependency graph when a labeled transition is performed. The propagation is managed by a propagation specification file formatted in XML with the following attributes:  </p>
 
 <table class="bodyTable">
 <tr class="a"><th>Attribute</th><th>Name</th><th>Description</th></tr>

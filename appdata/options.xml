@@ -164,7 +164,7 @@ many single malt configurations. ]]></desc>
 			<shortdesc>Diagnostics file name (default: standard output)</shortdesc>
 		</option>
 		<option type="bool" name="use_partial_tree" flag="up" default="false" usage="save">
-			<desc><![CDATA[ If <i>true</i>, then partial trees is allowed as input and the parser will construct these partial trees before parsing. By default 
+			<desc><![CDATA[ If <i>true</i>, then partial trees are allowed as input and the parser will construct these partial trees before parsing. By default
 			this option is false. Please see the user guide: <a href="userguide.html#partial_trees">Partial trees</a> ]]></desc>
 			<shortdesc>Use partial trees during parsing</shortdesc>
 		</option>
@@ -427,17 +427,17 @@ otherwise all tokens in Left must be inspected before the next token is shifted.
 			no feature specification file is specified,  the parser will use a default feature model specification for the given parsing algorithm that is included in the
 			MaltParser distribution (included in the malt.jar file).  ]]></desc>
 			<shortdesc>Feature model specification</shortdesc>
-			<legalvalue name="nivreeager" mapto="/appdata/features/NivreEager.xml">Nivre arc-eager default model</legalvalue>
-			<legalvalue name="nivrestandard" mapto="/appdata/features/NivreStandard.xml">Nivre arc-standard default model</legalvalue>
-			<legalvalue name="covnonproj" mapto="/appdata/features/CovingtonNonProjective.xml">Covington non-projective default model</legalvalue>
-			<legalvalue name="covproj" mapto="/appdata/features/CovingtonProjective.xml">Covington projective default model</legalvalue>
-			<legalvalue name="stackproj" mapto="/appdata/features/StackProjective.xml">Stack projective default model</legalvalue>
-			<!--  <legalvalue name="stackincr" mapto="/appdata/features/StackIncremental.xml">Stack incremental default model</legalvalue> -->
-			<legalvalue name="stackeager" mapto="/appdata/features/StackSwap.xml">Stack projective default model</legalvalue>
-			<legalvalue name="stacklazy" mapto="/appdata/features/StackSwap.xml">Stack projective default model</legalvalue>
-			<!--  <legalvalue name="stackattardi" mapto="/appdata/features/StackAttardi.xml">Stack projective default model</legalvalue> -->
-			<legalvalue name="planar" mapto="/appdata/features/PlanarEager.xml">Planar arc-eager default model</legalvalue>
-			<legalvalue name="2planar" mapto="/appdata/features/2PlanarEager.xml">2-Planar arc-eager default model</legalvalue>
+			<legalvalue name="nivreeager" mapto="/appdata/features/{learner}/NivreEager.xml">Nivre arc-eager default model</legalvalue>
+			<legalvalue name="nivrestandard" mapto="/appdata/features/{learner}/NivreStandard.xml">Nivre arc-standard default model</legalvalue>
+			<legalvalue name="covnonproj" mapto="/appdata/features/{learner}/CovingtonNonProjective.xml">Covington non-projective default model</legalvalue>
+			<legalvalue name="covproj" mapto="/appdata/features/{learner}/CovingtonProjective.xml">Covington projective default model</legalvalue>
+			<legalvalue name="stackproj" mapto="/appdata/features/{learner}/StackProjective.xml">Stack projective default model</legalvalue>
+			<!--  <legalvalue name="stackincr" mapto="/appdata/features/{learner}/StackIncremental.xml">Stack incremental default model</legalvalue> -->
+			<legalvalue name="stackeager" mapto="/appdata/features/{learner}/StackSwap.xml">Stack projective default model</legalvalue>
+			<legalvalue name="stacklazy" mapto="/appdata/features/{learner}/StackSwap.xml">Stack projective default model</legalvalue>
+			<!--  <legalvalue name="stackattardi" mapto="/appdata/features/{learner}/StackAttardi.xml">Stack projective default model</legalvalue> -->
+			<legalvalue name="planar" mapto="/appdata/features/{learner}/PlanarEager.xml">Planar arc-eager default model</legalvalue>
+			<legalvalue name="2planar" mapto="/appdata/features/{learner}/2PlanarEager.xml">2-Planar arc-eager default model</legalvalue>
 		</option>
 		<option type="string" name="data_split_column" flag="d" default="" usage="save">
 			<desc><![CDATA[ For some learning methods (like LIBSVM) it is impractical to induce a single model based on all training instances. With
