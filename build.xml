@@ -28,8 +28,6 @@
 	<!-- The directory where source files are stored. -->
 	<property name="java.source.dir" value="src/"/>
 	<property name="java.source.examples.dir" value="examples/apiexamples/srcex/"/>
-	<property name="junit.source.dir" value="test/"/>
-	<property name="test.report.dir" location="testreport" />
 
 	<!-- distribution directory -->
 	<property name="dist.dir" value="dist/malt"/>
@@ -77,16 +75,10 @@
 		<pathelement location="${libsvm.jar}"/>
 		<pathelement location="${liblinear.jar}"/>
 		<pathelement location="${log4j.jar}"/>
-		<pathelement location="${junit.jar}"/>
 		<pathelement location="${jsr173_1.0_api.jar}"/>
 		<pathelement location="${stax-1.2.0.jar}"/>
 	</path>
 	
-	<!-- Construct compile classpath -->
-	<path id="junit.class.path">
-		<pathelement location="${dist.dir}/${jar.filename}"/>
-		<pathelement location="${jar.dest}/junit-4.8.2.jar"/>
-	</path>
 	<!-- ================================================================= -->
 	<!-- Default target                                                    -->
 	<!-- ================================================================= -->
@@ -103,8 +95,6 @@
     javadoc - build project javadoc files
 
     dist    - will create a complete distribution in dist/
-
-    test	- junit tests (only few tests)
     	
     Properties of your system:
     
@@ -138,7 +128,7 @@
 		<mkdir dir="${javac.dest}" />
 		<mkdir dir="${plugin.dir}" />
 
-		<javac srcdir="${java.source.dir}:${junit.source.dir}"
+		<javac srcdir="${java.source.dir}"
            destdir="${javac.dest}"
            includes="${stem}/**/*.java"
            includeAntRuntime="${javac.includeAntRuntime}"
@@ -172,7 +162,6 @@
 		<copy file="${jsr173_1.0_api.jar}" tofile="${jar.dest}/jsr173_1.0_api.jar"/>
 		<copy file="${log4j.jar}" tofile="${jar.dest}/log4j.jar"/>
 		<copy file="${libsvm.jar}" tofile="${jar.dest}/libsvm.jar"/>
-		<copy file="${junit.jar}" tofile="${jar.dest}/junit-4.8.2.jar"/>
 		<copy file="${liblinear.jar}" tofile="${jar.dest}/liblinear-1.51-with-deps.jar"/>
 		<jar jarfile="${dist.dir}/${jar.filename}" basedir="${javac.dest}"
          includes="${stem}/**/*.class,appdata/**/*.*"
@@ -336,18 +325,5 @@
 		<delete dir="${dist.tmp}" />
 	</target>
 
-	<target name="test" depends="jar">
-		<mkdir dir="${test.report.dir}" />
-		<junit printsummary="yes" haltonfailure="yes">
-			<classpath refid="junit.class.path" />
-			<formatter type="plain" />
-			<batchtest todir="${test.report.dir}">
-				<fileset dir="${junit.source.dir}">
-					<include name="**/*Test*.java" />
-				</fileset>
-			</batchtest>
-		</junit>
-
-	</target>
 </project>
 
