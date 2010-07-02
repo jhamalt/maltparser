@@ -56,6 +56,7 @@
 			<legalvalue name="deproj">Deprojectivizes input data using a configuration</legalvalue>
 			<legalvalue name="learnwo">Same as <i>learn</i>, but also outputs the graphs to file specified by the flag -o</legalvalue>
 			<legalvalue name="testdata">Generates test instances to run experiments with a learner outside MaltParser. Use for example the flag <i>-lsi true</i>i> to save instances.</legalvalue>
+			<legalvalue name="versioning">Converts an old parser model (mco-file) into the latest version (supports version 1.3 parser model or later)</legalvalue>
 		</option>
 		<option type="class" name="type" flag="t" default="singlemalt" usage="both">
 			<desc><![CDATA[ MaltParser @version@ has one available configuration type: <b>singlemalt</b>. Later releases 

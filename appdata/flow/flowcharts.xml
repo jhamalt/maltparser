@@ -139,4 +139,10 @@
 			<chartitem item="write" id="pseudo" source="system"/>
 		</process>
 	</flowchart>
+	
+	<flowchart name="versioning">
+		<preprocess>
+			<chartitem item="configdir" id="singlemalt" task="versioning"/>
+		</preprocess>
+	</flowchart>
 </flowcharts>

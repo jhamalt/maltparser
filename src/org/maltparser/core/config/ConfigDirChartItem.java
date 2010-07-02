@@ -9,6 +9,7 @@ import org.maltparser.core.flow.FlowChartInstance;
 import org.maltparser.core.flow.item.ChartItem;
 import org.maltparser.core.flow.spec.ChartItemSpecification;
 import org.maltparser.core.helper.SystemInfo;
+import org.maltparser.core.helper.SystemLogger;
 import org.maltparser.core.options.OptionManager;
 /**
 *
@@ -86,7 +87,26 @@ public class ConfigDirChartItem extends ChartItem {
 			
 			flowChartinstance.addFlowChartRegistry(org.maltparser.core.config.ConfigurationDir.class, idName, configDir);
 		}
-		if (taskName.equals("loadsavedoptions")) {
+		if (taskName.equals("versioning")) {
+			configDir.versioning();
+		} else if (taskName.equals("loadsavedoptions")) {
+			configDir.initCreatedByMaltParserVersionFromInfoFile();
+			if (configDir.getCreatedByMaltParserVersion() == null) {
+				SystemLogger.logger().warn("Couln't determine which version of MaltParser that created the parser model: " + configDirName+ ".mco\n MaltParser will terminate\n");
+				System.exit(1);
+			} else if (!configDir.getCreatedByMaltParserVersion().startsWith(SystemInfo.getVersion())) {
+				if (configDir.getCreatedByMaltParserVersion().startsWith("1.3")) {
+					SystemLogger.logger().warn("The parser model '"+ configDirName+ ".mco' is created by MaltParser "+configDir.getCreatedByMaltParserVersion()+".\n");
+					SystemLogger.logger().warn("You can convert the parser model to a MaltParser "+SystemInfo.getVersion()+" parser model:\n");
+					SystemLogger.logger().warn("   java -jar malt.jar -c "+configDirName+" -m versioning\n");
+					SystemLogger.logger().warn("MaltParser will terminate.\n");
+				} else {
+					SystemLogger.logger().warn("The parser model '"+ configDirName+ ".mco' is created by MaltParser "+configDir.getCreatedByMaltParserVersion()+", which cannot be used by MaltParser "+SystemInfo.getVersion()+".\n");
+					SystemLogger.logger().warn("Please retrain the parser model with MaltParser "+SystemInfo.getVersion()+" or download MaltParser "+configDir.getCreatedByMaltParserVersion()+" from http://maltparser.org/download.html\n");
+					SystemLogger.logger().warn("MaltParser will terminate\n");					
+				}
+				System.exit(1);
+			}
 			OptionManager.instance().loadOptions(getOptionContainerIndex(), configDir.getInputStreamReaderFromConfigFile("savedoptions.sop"));
 			configDir.initDataFormat();
 		} else if (taskName.equals("createdir")) {
@@ -101,18 +121,12 @@ public class ConfigDirChartItem extends ChartItem {
 	
 	public int preprocess(int signal) throws MaltChainedException {
 		if (taskName.equals("unpack")) {
+			SystemLogger.logger().info("Unpacking the parser model '"+ configDirName+ ".mco' ...\n");
 			configDir.unpackConfigFile();
 		} else if (taskName.equals("info")) {
 			configDir.echoInfoFile();
 		} else if (taskName.equals("loadsymboltables")) {
 			configDir.getSymbolTables().load(configDir.getInputStreamReaderFromConfigFileEntry("symboltables.sym",inCharSet));
-//			flowChartinstance.getSymbolTables().load(configDir.getInputStreamReaderFromConfigFileEntry("symboltables.sym",inCharSet));
-//		} else if (taskName.equals("createdir")) {
-//			configDir.setCreatedByMaltParserVersion(SystemInfo.getVersion());
-//			configDir.createConfigDirectory();
-//			if (optionFileName != null && optionFileName.length() > 0) {
-//				configDir.copyToConfig(new File(optionFileName));
-//			}
 		}
 		return signal;
 	}
@@ -131,7 +145,6 @@ public class ConfigDirChartItem extends ChartItem {
 			configDir.deleteConfigDirectory();
 		} else if (taskName.equals("savesymboltables")) {
 			configDir.getSymbolTables().save(configDir.getOutputStreamWriter("symboltables.sym", outCharSet));
-//			flowChartinstance.getSymbolTables().save(configDir.getOutputStreamWriter("symboltables.sym", outCharSet));
 		}
 		return signal;
 	}

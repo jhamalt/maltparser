@@ -17,7 +17,10 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.SortedSet;
@@ -27,6 +30,7 @@ import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 
+import org.maltparser.core.config.version.Versioning;
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.helper.SystemInfo;
 import org.maltparser.core.helper.SystemLogger;
@@ -91,8 +95,6 @@ public class ConfigurationDir  {
 			throw new ConfigurationException("The configuration name is not specified. ");
 		}
 		setConfigDirectory(new File(workingDirectory.getPath()+File.separator+getName()));
-		
-		
 	}
 	
 	public void initDataFormat() throws MaltChainedException {
@@ -377,6 +379,7 @@ public class ConfigurationDir  {
 		}
 		return destFileName;
     }
+ 
     
 	/**
 	 * Removes the configuration directory, if it exists and it contains a .info file. 
@@ -499,7 +502,7 @@ public class ConfigurationDir  {
 			throw new ConfigurationException("The maltparser configurtation file '"+workingDirectory.getPath()+File.separator+getName()+".mco"+"' cannot be created. ", e);
 		} 
 	}
-	
+
 	private void createConfigFile(String directory, JarOutputStream jos) throws MaltChainedException {
     	byte[] readBuffer = new byte[BUFFER];
 		try {
@@ -534,7 +537,67 @@ public class ConfigurationDir  {
 			throw new ConfigurationException("The directory '"+directory+"' cannot be compressed into a mco file. ", e);
 		} 
 	}
-    
+	
+
+	public void copyConfigFile(File in, File out, Versioning versioning) throws MaltChainedException {
+		try {
+			JarFile jar = new JarFile(in);
+			JarOutputStream tempJar = new JarOutputStream(new FileOutputStream(out));
+	        byte[] buffer = new byte[BUFFER];
+	        int bytesRead;
+	        StringBuilder sb = new StringBuilder();
+
+	        for (Enumeration<JarEntry> entries = jar.entries(); entries.hasMoreElements(); ) {
+	            JarEntry inEntry = (JarEntry) entries.nextElement();
+	            InputStream entryStream = jar.getInputStream(inEntry);
+	            JarEntry outEntry = versioning.getJarEntry(inEntry);
+	            
+	            if (!versioning.hasChanges(inEntry, outEntry)) {
+		            tempJar.putNextEntry(outEntry);
+		            while ((bytesRead = entryStream.read(buffer)) != -1) {
+		            	tempJar.write(buffer, 0, bytesRead);
+		            }
+	            } else {
+	            	tempJar.putNextEntry(outEntry);
+	            	BufferedReader br = new BufferedReader(new InputStreamReader(entryStream));
+	            	String line = null;
+	            	sb.setLength(0);
+	            	while ((line = br.readLine()) != null) {
+	            		sb.append(line);
+	            		sb.append('\n');
+	            	}
+	            	String outString = versioning.modifyJarEntry(inEntry, outEntry, sb);
+	            	tempJar.write(outString.getBytes());
+	            }
+	        }
+	        if (versioning.getFeatureModelXML() != null && versioning.getFeatureModelXML().startsWith("/appdata")) {
+	        	int index = versioning.getFeatureModelXML().lastIndexOf('/');
+    	    	BufferedInputStream bis = new BufferedInputStream(Util.findURLinJars(versioning.getFeatureModelXML()).openStream());
+    	    	tempJar.putNextEntry(new JarEntry(versioning.getNewConfigName()+"/" +versioning.getFeatureModelXML().substring(index+1)));
+    	        int n = 0;
+    		    while ((n = bis.read(buffer, 0, BUFFER)) != -1) {
+    		    	tempJar.write(buffer, 0, n);
+    		    }
+    	        bis.close();
+	        }
+	        if (versioning.getInputFormatXML() != null && versioning.getInputFormatXML().startsWith("/appdata")) {
+	        	int index = versioning.getInputFormatXML().lastIndexOf('/');
+    	    	BufferedInputStream bis = new BufferedInputStream(Util.findURLinJars(versioning.getInputFormatXML()).openStream());
+    	    	tempJar.putNextEntry(new JarEntry(versioning.getNewConfigName()+"/" +versioning.getInputFormatXML().substring(index+1)));
+    	        int n = 0;
+    		    while ((n = bis.read(buffer, 0, BUFFER)) != -1) {
+    		    	tempJar.write(buffer, 0, n);
+    		    }
+    	        bis.close();
+	        }
+	        tempJar.flush();
+	        tempJar.close();
+	        jar.close();
+		} catch (IOException e) {
+			throw new ConfigurationException("", e);
+		}
+	}
+	
     protected void initNameNTypeFromInfoFile(URL url) throws MaltChainedException {
 		if (url == null) {
 			throw new ConfigurationException("The URL cannot be found. ");
@@ -803,14 +866,10 @@ public class ConfigurationDir  {
 	public void setCreatedByMaltParserVersion(String createdByMaltParserVersion) {
 		this.createdByMaltParserVersion = createdByMaltParserVersion;
 	}
-
-	protected void initCreatedByMaltParserVersionFromInfoFile() throws MaltChainedException {
-		File info = new File(configDirectory.getPath()+File.separator+getName()+"_"+getType()+".info");
-		if (!info.exists()) {
-			throw new ConfigurationException("Could not retrieve the version number of the MaltParser configuration.");
-		}
+	
+	public void initCreatedByMaltParserVersionFromInfoFile() throws MaltChainedException {
 		try {
-			BufferedReader br = new BufferedReader(new FileReader(info));
+			BufferedReader br = new BufferedReader(getInputStreamReaderFromConfigFileEntry(getName()+"_"+getType()+".info", "UTF-8"));
 			String line = null;
 			while ((line = br.readLine()) != null) {
 				if (line.startsWith("Version:                       ")) {
@@ -824,7 +883,31 @@ public class ConfigurationDir  {
 		} catch (IOException e) {
 			throw new ConfigurationException("Could not retrieve the version number of the MaltParser configuration.", e);
 		}
-		checkNConvertConfigVersion();
+	}
+	
+	public void versioning() throws MaltChainedException {
+		initCreatedByMaltParserVersionFromInfoFile();
+		SystemLogger.logger().info("\nCurrent version      : " + SystemInfo.getVersion() + "\n");
+		SystemLogger.logger().info("Parser model version : " + createdByMaltParserVersion + "\n");
+		if (SystemInfo.getVersion() == null) {
+			throw new ConfigurationException("Couln't determine the version of MaltParser");
+		} else if (createdByMaltParserVersion == null) {
+			throw new ConfigurationException("Couln't determine the version of the parser model");
+		} else if (SystemInfo.getVersion().equals(createdByMaltParserVersion)) {
+			SystemLogger.logger().info("The parser model "+getName()+".mco has already the same version as the current version of MaltParser. \n");
+			return;
+		}
+		
+		File mcoPath = new File(workingDirectory.getPath()+File.separator+getName()+".mco");
+		File newMcoPath = new File(workingDirectory.getPath()+File.separator+getName()+"."+SystemInfo.getVersion().trim()+".mco");
+		Versioning versioning = new Versioning(name, type, mcoPath, createdByMaltParserVersion);
+		if (!versioning.support(createdByMaltParserVersion)) {
+			SystemLogger.logger().warn("The parser model '"+ name+ ".mco' is created by MaltParser "+getCreatedByMaltParserVersion()+", which cannot be converted to a MaltParser "+SystemInfo.getVersion()+" parser model.\n");
+			SystemLogger.logger().warn("Please retrain the parser model with MaltParser "+SystemInfo.getVersion() +" or download MaltParser "+getCreatedByMaltParserVersion()+" from http://maltparser.org/download.html\n");
+			return;
+		}
+		SystemLogger.logger().info("Converts the parser model '"+ mcoPath.getName()+ "' into '"+newMcoPath.getName()+"'....\n");
+		copyConfigFile(mcoPath, newMcoPath, versioning);
 	}
 	
 	protected void checkNConvertConfigVersion() throws MaltChainedException {

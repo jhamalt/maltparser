@@ -1,13 +1,19 @@
 package org.maltparser.core.helper;
 
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.apache.log4j.Logger;
+import org.maltparser.core.config.ConfigurationException;
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.plugin.Plugin;
 import org.maltparser.core.plugin.PluginLoader;
@@ -18,6 +24,7 @@ import org.maltparser.core.plugin.PluginLoader;
 * @author Johan Hall
 */
 public class Util {
+	  private static final int BUFFER = 4096;
 	  private static final char AMP_CHAR = '&';
 	  private static final char LT_CHAR = '<';
 	  private static final char GT_CHAR = '>';
@@ -186,4 +193,24 @@ public class Util {
 			logger.info("      0MB\n");
 		}
 	}
+	
+	public static void copyfile(String source, String destination) throws MaltChainedException {
+    	try {
+    		byte[] readBuffer = new byte[BUFFER];
+	    	BufferedInputStream bis = new BufferedInputStream(new FileInputStream(source));
+	        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(destination), BUFFER);
+	        int n = 0;
+		    while ((n = bis.read(readBuffer, 0, BUFFER)) != -1) {
+		    	bos.write(readBuffer, 0, n);
+		    }
+	        bos.flush();
+	        bos.close();
+	        bis.close();
+		} catch (FileNotFoundException e) {
+			throw new MaltChainedException("The destination file '"+destination+"' cannot be created when coping the file. ", e);
+		} catch (IOException e) {
+			throw new MaltChainedException("The source file '"+source+"' cannot be copied to destination '"+destination+"'. ", e);
+		}
+	}
+
 }
