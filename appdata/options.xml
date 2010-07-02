@@ -107,10 +107,8 @@ many single malt configurations. ]]></desc>
 			<legalvalue name="covnonproj" class="org.maltparser.parser.algorithm.covington.CovingtonNonProjFactory">Covington non-projective</legalvalue>
 			<legalvalue name="covproj" class="org.maltparser.parser.algorithm.covington.CovingtonProjFactory">Covington projective</legalvalue>
 			<legalvalue name="stackproj" class="org.maltparser.parser.algorithm.stack.StackProjFactory">Stack projective</legalvalue>
-			<!--  <legalvalue name="stackincr" class="org.maltparser.parser.algorithm.stack.StackIncrFactory">Stack projective</legalvalue> -->
 			<legalvalue name="stackeager" class="org.maltparser.parser.algorithm.stack.StackSwapEagerFactory">Stack eager</legalvalue>	
 			<legalvalue name="stacklazy" class="org.maltparser.parser.algorithm.stack.StackSwapLazyFactory">Stack lazy</legalvalue>
-			<!--  <legalvalue name="stackattardi" class="org.maltparser.parser.algorithm.stack.StackAttardiFactory">Stack Attardi</legalvalue> -->
 			<legalvalue name="planar" class="org.maltparser.parser.algorithm.planar.NivrePlanarArcEagerFactory">Planar eager</legalvalue>
 			<legalvalue name="2planar" class="org.maltparser.parser.algorithm.twoplanar.TwoPlanarArcEagerFactory">2-Planar eager</legalvalue>
 		</option>
@@ -198,8 +196,6 @@ many single malt configurations. ]]></desc>
 			<shortdesc>Path to format specification file</shortdesc>
 			<legalvalue name="conllx" mapto="/appdata/dataformat/conllx.xml">CoNLL-X data format</legalvalue>
 			<legalvalue name="malttab" mapto="/appdata/dataformat/malttab.xml">MaltTAB data format</legalvalue>
-			<!--  <legalvalue name="bracketps" mapto="/appdata/dataformat/bracketps.xml">Bracket phrase structure</legalvalue>
-			<legalvalue name="bracketds" mapto="/appdata/dataformat/bracketds.xml">Bracket encoded dependency  structure</legalvalue> -->
 			<legalvalue name="negraps" mapto="/appdata/dataformat/negraps.xml">Negra phrase structure</legalvalue>
 			<legalvalue name="negrads" mapto="/appdata/dataformat/negrads.xml">Negra dependency  structure</legalvalue>
 			<legalvalue name="tal05ps" mapto="/appdata/dataformat/tal05ps.xml">Talbanken05 phrase structure</legalvalue>
@@ -215,7 +211,6 @@ many single malt configurations. ]]></desc>
 			</ul> ]]></desc>
 			<shortdesc>Data reader</shortdesc>
 			<legalvalue name="tab" class="org.maltparser.core.syntaxgraph.reader.TabReader">Tab-separated reader</legalvalue>
-			<!--  <legalvalue name="bracket" class="org.maltparser.core.syntaxgraph.reader.BracketReader">Bracket reader</legalvalue> -->
 			<legalvalue name="negra" class="org.maltparser.core.syntaxgraph.reader.NegraReader">Negra reader</legalvalue>
 			<legalvalue name="tiger" class="org.maltparser.core.syntaxgraph.reader.TigerXMLReader">TigerXML reader</legalvalue>
 		</option>
@@ -253,8 +248,6 @@ many single malt configurations. ]]></desc>
 			<shortdesc>Path to format specification file</shortdesc>
 			<legalvalue name="conllx" mapto="/appdata/dataformat/conllx.xml">CoNLL-X data format</legalvalue>
 			<legalvalue name="malttab" mapto="/appdata/dataformat/malttab.xml">MaltTAB data format</legalvalue>
-			<!-- <legalvalue name="bracketps" mapto="/appdata/dataformat/bracketps.xml">Bracket phrase structure</legalvalue>
-			<legalvalue name="bracketds" mapto="/appdata/dataformat/bracketds.xml">Bracket encoded dependency  structure</legalvalue> -->
 			<legalvalue name="negraps" mapto="/appdata/dataformat/negraps.xml">Negra phrase structure</legalvalue>
 			<legalvalue name="negrads" mapto="/appdata/dataformat/negrads.xml">Negra dependency structure</legalvalue>
 			<legalvalue name="tal05ps" mapto="/appdata/dataformat/tal05ps.xml">Talbanken05 phrase structure</legalvalue>
@@ -270,7 +263,6 @@ many single malt configurations. ]]></desc>
 			</ul> ]]></desc>
 			<shortdesc>Data writer</shortdesc>
 			<legalvalue name="tab" class="org.maltparser.core.syntaxgraph.writer.TabWriter">Tab-separated writer</legalvalue>
-			<!-- <legalvalue name="bracket" class="org.maltparser.core.syntaxgraph.writer.BracketWriter">Bracket writer</legalvalue> -->
 			<legalvalue name="negra" class="org.maltparser.core.syntaxgraph.writer.NegraWriter">Negra writer</legalvalue>
 			<legalvalue name="tiger" class="org.maltparser.core.syntaxgraph.writer.TigerXMLWriter">TigerXML writer</legalvalue>
 		</option>
@@ -309,11 +301,6 @@ many single malt configurations. ]]></desc>
 			<legalvalue name="relaxed">Root dependents not attached during parsing (attached with default label afterwards), reduction of unattached tokens permissible</legalvalue>
 			<legalvalue name="normal">Root dependents attached by RightArc transition during parsing (unattached tokens attached with default label afterwards)</legalvalue>
 		</option>
-		<!-- <option type="bool" name="post_processing" flag="npp" default="false" usage="save">
-			<desc><![CDATA[ If <b>post_processing=true</b>, the parser will make a second pass over the input where only 
-			unattached tokens are processed. ]]></desc>
-			<shortdesc>Post processing</shortdesc>
-		</option>-->
 	</optiongroup>
 	<optiongroup groupname="2planar">
 		<desc><![CDATA[ The <b>2-planar</b> option group controls the 2-planar parsing algorithm.  ]]></desc>
@@ -433,10 +420,8 @@ otherwise all tokens in Left must be inspected before the next token is shifted.
 			<legalvalue name="covnonproj" mapto="/appdata/features/{learner}/CovingtonNonProjective.xml">Covington non-projective default model</legalvalue>
 			<legalvalue name="covproj" mapto="/appdata/features/{learner}/CovingtonProjective.xml">Covington projective default model</legalvalue>
 			<legalvalue name="stackproj" mapto="/appdata/features/{learner}/StackProjective.xml">Stack projective default model</legalvalue>
-			<!--  <legalvalue name="stackincr" mapto="/appdata/features/{learner}/StackIncremental.xml">Stack incremental default model</legalvalue> -->
 			<legalvalue name="stackeager" mapto="/appdata/features/{learner}/StackSwap.xml">Stack projective default model</legalvalue>
 			<legalvalue name="stacklazy" mapto="/appdata/features/{learner}/StackSwap.xml">Stack projective default model</legalvalue>
-			<!--  <legalvalue name="stackattardi" mapto="/appdata/features/{learner}/StackAttardi.xml">Stack projective default model</legalvalue> -->
 			<legalvalue name="planar" mapto="/appdata/features/{learner}/PlanarEager.xml">Planar arc-eager default model</legalvalue>
 			<legalvalue name="2planar" mapto="/appdata/features/{learner}/2PlanarEager.xml">2-Planar arc-eager default model</legalvalue>
 		</option>
@@ -470,30 +455,6 @@ otherwise all tokens in Left must be inspected before the next token is shifted.
 			training sets that contain less than 100 instances will be merged into a default training set. ]]></desc>
 			<shortdesc>Data split threshold</shortdesc>
 		</option>
-		<!-- <option type="string" name="tree_force_divide" flag="Z" default="" usage="save">
-			<desc><![CDATA[ TODO: write desc ]]></desc>
-			<shortdesc></shortdesc>
-		</option>
-		<option type="string" name="tree_automatic_split_order" flag="Z" default="" usage="save">
-			<desc><![CDATA[ TODO: write desc ]]></desc>
-			<shortdesc></shortdesc>
-		</option>
-		<option type="string" name="tree_split_columns" flag="Z" default="" usage="save">
-			<desc><![CDATA[ TODO: write desc ]]></desc>
-			<shortdesc>Data split input column</shortdesc>
-		</option>
-		<option type="string" name="tree_split_structures" flag="X" default="" usage="save">
-			<desc><![CDATA[ TODO: write desc  ]]></desc>
-			<shortdesc>Data split data structure</shortdesc>
-		</option>
-		<option type="integer" name="tree_split_threshold" flag="Y" default="50" usage="save">
-			<desc><![CDATA[ TODO: write desc ]]></desc>
-			<shortdesc>Data split threshold</shortdesc>
-		</option>
-		<option type="integer" name="tree_number_of_cross_validation_divisions" flag="Y" default="2" usage="save">
-			<desc><![CDATA[ TODO: write desc ]]></desc>
-			<shortdesc>Data split threshold</shortdesc>
-		</option>   -->
 		<option type="integer" name="kbest" flag="k" default="-1" usage="save">
 			<desc><![CDATA[ The classifier can produce a k-best list of predicted parser actions. The <b>kbest</b> option indicates how many 
 			items the k-best list should contain. If <code>-k -1</code>, all possible parser actions are ranked in the k-best list. 
