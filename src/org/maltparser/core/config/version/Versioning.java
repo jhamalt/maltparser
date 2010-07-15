@@ -18,7 +18,7 @@ public class Versioning {
 	private String featureModelXML;
 	private String inputFormatXML;
 	
-	public static String[] availableVersions = {"1.0.0", "1.0.1", "1.0.2", "1.0.3", "1.1", "1.2", "1.3", "1.3.1", "1.4"};
+	public static String[] availableVersions = {"1.0.0", "1.0.1", "1.0.2", "1.0.3", "1.1", "1.2", "1.3", "1.3.1", "1.4", "1.4.1"};
 	public static boolean[] supportVersions = {false, false, false, false, false, false, true, true, true};
 	
 	public Versioning(String configName, String configType, File mcoPath, String parserModelVersion) {
