@@ -399,6 +399,8 @@ otherwise all tokens in Left must be inspected before the next token is shifted.
 			For example, it could look like this: <code>-llo -s_4_-c_0.1</code> ]]></desc>
 			<shortdesc>LIBLINEAR options (see liblinear Documentation)</shortdesc>
 		</option>
+
+		
 		<option type="string" name="liblinear_external" flag="llx" default="" usage="train">
 			<desc><![CDATA[ Path to <code>train</code> executable file of the liblinear package (Microsoft Windows use <code>train.exe</code>) ]]></desc>
 			<shortdesc>Path to <code>svm-train</code></shortdesc>
@@ -470,10 +472,7 @@ otherwise all tokens in Left must be inspected before the next token is shifted.
 			training sets that contain less than 100 instances will be merged into a default training set. ]]></desc>
 			<shortdesc>Data split threshold</shortdesc>
 		</option>
-		<!-- <option type="string" name="tree_force_divide" flag="Z" default="" usage="save">
-			<desc><![CDATA[ TODO: write desc ]]></desc>
-			<shortdesc></shortdesc>
-		</option>
+
 		<option type="string" name="tree_automatic_split_order" flag="Z" default="" usage="save">
 			<desc><![CDATA[ TODO: write desc ]]></desc>
 			<shortdesc></shortdesc>
@@ -490,10 +489,20 @@ otherwise all tokens in Left must be inspected before the next token is shifted.
 			<desc><![CDATA[ TODO: write desc ]]></desc>
 			<shortdesc>Data split threshold</shortdesc>
 		</option>
+		<option type="string" name="tree_min_improvement_threshold" flag="Z" default="0.0" usage="save">
+			<desc><![CDATA[ TODO: write desc ]]></desc>
+			<shortdesc></shortdesc>
+		</option>
+		<option type="string" name="tree_force_divide" flag="Z" default="" usage="save">
+		
+		<option type="string" name="tree_force_divide" flag="Z" default="" usage="save">
+			<desc><![CDATA[ TODO: write desc ]]></desc>
+			<shortdesc></shortdesc>
+		</option>
 		<option type="integer" name="tree_number_of_cross_validation_divisions" flag="Y" default="2" usage="save">
 			<desc><![CDATA[ TODO: write desc ]]></desc>
 			<shortdesc>Data split threshold</shortdesc>
-		</option>   -->
+		</option>
 		<option type="integer" name="kbest" flag="k" default="-1" usage="save">
 			<desc><![CDATA[ The classifier can produce a k-best list of predicted parser actions. The <b>kbest</b> option indicates how many 
 			items the k-best list should contain. If <code>-k -1</code>, all possible parser actions are ranked in the k-best list. 

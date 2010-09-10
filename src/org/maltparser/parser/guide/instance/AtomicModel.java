@@ -160,9 +160,12 @@ public class AtomicModel implements InstanceModel {
 			method.train(featureVector);
 			method.terminate();
 			method = null;
+			
 		} catch (NullPointerException e) {	
 			throw new GuideException("The learner cannot be found. ", e);
 		}
+		
+
 	}
 	
 	/**
@@ -310,7 +313,7 @@ public class AtomicModel implements InstanceModel {
 	 */
 	protected void setFrequency(int frequency) {
 		this.frequency = frequency;
-	}
+	} 
 	
 	/**
 	 * Returns a learner object
