@@ -319,10 +319,10 @@ public class DecisionTreeModel implements InstanceModel {
 				.getOptionValue("guide", "tree_split_structures").toString();
 
 		automaticSplit = getGuide().getConfiguration().getOptionValue("guide",
-				"tree_automatic_split_order").toString().equals("yes");
+				"tree_automatic_split_order").toString().equals("true");
 
 		treeForceDivide = getGuide().getConfiguration().getOptionValue("guide",
-				"tree_force_divide").toString().equals("yes");
+				"tree_force_divide").toString().equals("true");
 
 		treeMinImprovementThreshold = new Double(getGuide().getConfiguration()
 				.getOptionValue("guide", "tree_min_improvement_threshold")
@@ -846,7 +846,7 @@ public class DecisionTreeModel implements InstanceModel {
 						.getConfiguration()
 						.getConfigLogger()
 						.info(
-								"Skipping cross validation of the root node since the flag tree_force_divide is set to yes. "
+								"Skipping cross validation of the root node since the flag tree_force_divide is set to true. "
 										+ "The cross validation score for the root node is set to zero.\n");
 			}
 
