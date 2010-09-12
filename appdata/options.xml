@@ -475,14 +475,14 @@ otherwise all tokens in Left must be inspected before the next token is shifted.
 
 		<option type="bool" name="tree_automatic_split_order" flag="tas" default="false" usage="save">
 			<desc><![CDATA[ When this option is set to true a decision tree together with the configured learner will be used. The Gain Ratio measurement with entropy as impurity 
-			measurment will be used to select the division order of the tree. The tree option can be seen as an advanced version of the data_split options since the tree option will
-			result in a split of training data which the data_split option also does. How the tree is created is explained in the following pseudo code:
+			measurement will be used to select the division order of the tree. The <b>tree_automatic_split_order</b> option can be seen as an advanced version of the <b>data_split</b> option since the tree option will
+			result in a split of training data which the <b>data_split</b> option also does. How the tree is created is explained in the following pseudo code:
 			<br/><br/>
 <b>Given:</b></br>
 <ul>
-<li>List of features to divide on <i>L</i></li>
+<li>List of features to divide on <i>L</i> (This will be created automatically with the Gain Ratio as ordering measurement when this option is used.)</li>
 <li>A training set <i>T</i></li>
-<li>Minimum size of training set <i>M</i></li>
+<li>Minimum size of a training set created after division <i>M</i></li>
 </ul>
 
 <b>Algorithm:</b>
@@ -492,64 +492,66 @@ otherwise all tokens in Left must be inspected before the next token is shifted.
 <li>If the size of <i>T</i> is less than <i>M</i> then return <i>A</i> as the result</li>
 <li>If <i>L</i> is empty return <i>A</i> as the result</li>
 <li>Divide <i>T</i> into several subset so every distinct value of the first feature in <i>L</i> has it's own subset</li>
-<li>Create an additional training set by concatenating all training sets with size less than M</li>
-
-<li>For all training sets created in step 4 and 5 except the ones concatenated because the size were less than M run this algorithm again with L substituted with L without the first element and T substituted with the sub training set and collect the results</li>
-<li>Calculate the weighted average accuracy <i>WA</i> from the results obtained in 4</li>
+<li>Create an additional training set by concatenating all training sets created in 4 that has a size less than <i>M</i></li>
+<li>For all training sets created in step 4 and 5 except the ones concatenated because the size were less than M, run this algorithm again with <i>L</i> 
+substituted with “<i>L</i> without the first element” and T substituted with the sub training set and collect the results</li>
+<li>Calculate the weighted average accuracy <i>WA</i> from the results obtained in 6</li>
 <li>If the weighted average accuracy <i>WA</i> is less than the accuracy without division <i>A</i> then return <i>A</i> as the result otherwise return <i>WA</i> as the result</li>
 </ol>
 	
-			The parameter tree_split_threshold can be used to set M in the algorithm presented above. The tree division method has improved the accuracy in many experiments together with LIBLINEAR compared to a pure LIBLINEAR based training. Note, that the method can consume a
-			lot of memory if the training set is large since that will result in many leaf nodes all containing a LIBLINEAR model. Use the options  tree_split_columns and tree_split_structures
+			The parameter <b>tree_split_threshold</b> can be used to set <i>M</i> in the algorithm presented above. The tree division method has 
+			improved the accuracy in many experiments together with LIBLINEAR compared to a pure LIBLINEAR based training without any division. 
+			Note, that the method can consume a lot of memory if the training set is large since that will result in many leaf nodes all 
+			containing a LIBLINEAR model. Use the options  <b>tree_split_columns</b> and <b>tree_split_structures</b>
 			instead if you want to configure the split order manually.]]></desc>
 			<shortdesc>Decision tree with automatic split order</shortdesc>
 		</option>
 		<option type="string" name="tree_split_columns" flag="Z" default="" usage="save">
-			<desc><![CDATA[ This parameter together with the parameter tree_split_structures will create a decison tree together with the specified learner
-			as machine learning method. See the description of the parameter tree_automatic_split_order for a description of the algorithm used. The following
-			example illustrate how the parameters can be used to set up the decison tree learner with a configured split order. The example provided has also
-			showed to give good results. <br/>
+			<desc><![CDATA[ This parameter together with the parameter <b>tree_split_structures</b> will create a decision tree together with the specified learner
+			as machine learning method. See the description of the parameter <b>tree_automatic_split_order</b> for a description of the algorithm used to create the decision tree. The following
+			example illustrate how the parameters can be used to set up the decision tree learner with a configured split order. The example provided has also
+			showed to give good results in experiments. <br/><br/>
 <code>
-<option name="tree_split_columns" value="POSTAG@POSTAG@POSTAG@POSTAG@POSTAG@POSTAG"/><br/>
-<option name="tree_split_structures" value="Input[0]@Stack[0]@Input[1]@Input[2]@Input[3]@Stack[1]"/>
-</code><br/>
+&lt;option name="tree_split_columns"    value="POSTAG@POSTAG@POSTAG@POSTAG@POSTAG@POSTAG"/&lt;<br/>
+&lt;option name="tree_split_structures" value="Input[0]@Stack[0]@Input[1]@Input[2]@Input[3]@Stack[1]"/&gt;
+</code><br/><br/>
 
 			The options specifies two lists separated with @ tokens. The elements at the same position in both list specifies a split. E.g. The first split will
-			be on the POSTAG value of the first token in the buffer (Input[0]). 
+			be on the <code>POSTAG</code> value of the first token in the buffer (<code>Input[0]</code>). 
 
 			]]></desc>
 			<shortdesc>Column split order for decision tree with configured split order</shortdesc>
 		</option>
 		<option type="string" name="tree_split_structures" flag="X" default="" usage="save">
-			<desc><![CDATA[ This option is used together with the option tree_split_columns. See the description for option tree_split_columns for
+			<desc><![CDATA[ This option is used together with the option tree_split_columns. See the description for the option <b>tree_split_columns</b> for
 			usage information. ]]></desc>
 			<shortdesc>Structure split order for decision tree with configured split order</shortdesc>
 		</option>
 		<option type="integer" name="tree_split_threshold" flag="Y" default="50" usage="save">
-			<desc><![CDATA[ This parameter specifes the smallest leaf node that can be used in a with a decision tree. See the description of option
-			tree_automatic_split_order for a description of how the decion tree is created. This parmeter corresponds to parameter M in the algorithm presented
+			<desc><![CDATA[ This parameter specifies the smallest leaf node that can be used in a decision tree. See the description of option
+			<b>tree_automatic_split_order</b> for a description of how the decision tree is created. This parameter corresponds to parameter <i>M</i> in the algorithm presented
 			in the description for that option.]]></desc>
-			<shortdesc>Tree split threshold</shortdesc>
+			<shortdesc>Decision tree split threshold</shortdesc>
 		</option>
 		<option type="double" name="tree_min_improvement_threshold" flag="Z" default="0.0" usage="save">
-			<desc><![CDATA[ This option specifies a minum improvement in procentage of the accuracy that a split of a node in a decion tree need to have. 
-			See the description of option tree_automatic_split_order for an explanation of the decion tree creation. The intention of this option is to
-			reduce the risk of overtraining of the decion tree. Different values of this option have been tested in experiments but no posetive effect 
-			was observed when the option tree_number_of_cross_validation_divisions was set to 2.]]></desc>
-			<shortdesc>Decion tree minimum improvement threshold</shortdesc>
+			<desc><![CDATA[ This option specifies a minimum improvement in percentage of the accuracy that a split of a node in a decision tree need to have. 
+			See the description of option <b>tree_automatic_split_order</b> for an explanation of the decision tree creation. The intention of this option is to
+			reduce the risk of over-training of the decision tree. Different values of this option have been tested in experiments but no positive effect 
+			was observed when the option <b>tree_number_of_cross_validation_divisions</b> was set to 2.]]></desc>
+			<shortdesc>Decision tree minimum improvement threshold</shortdesc>
 		</option>
 		<option type="bool" name="tree_force_divide" flag="Z" default="true" usage="save">
-			<desc><![CDATA[ When this option is set together with tree division the root node will always be split which mean that cross validation will
-			not be run on the root node. This can reduce the training time significantly and experiments show that at least one divison almost always increase
-			the accuracy when tree devison is used together with LIBLINEAR. See the description of option tree_automatic_split_order for information on how 
-			the decion tree is created.]]></desc>
-			<shortdesc>Force devison of the root node when a decion tree is created</shortdesc>
+			<desc><![CDATA[ When this option is set together with a decision tree configuration, the root node will always be split which mean that cross validation will
+			not be run on the root node. This can reduce the training time significantly and experiments show that at least one division almost always increase
+			the accuracy when tree division is used together with LIBLINEAR. See the description of option <b>tree_automatic_split_order</b> for information on how 
+			the decision tree is created.]]></desc>
+			<shortdesc>Force division of the root node when a decision tree is created</shortdesc>
 		</option>
 		<option type="integer" name="tree_number_of_cross_validation_divisions" flag="Y" default="2" usage="save">
-			<desc><![CDATA[ This option decides how many cross validation divisions that will be made when a decion tree is created. The value 2 has in experiments
-			given better accuracy than greater values of this option. This may be becouse greater values gives a decion tree that is overtrained and don't generalise well enough.
-			See the description of option tree_automatic_split_order for information on how the decion tree is created. ]]></desc>
-			<shortdesc>Number of cross validation devisons used when createing a decision tree</shortdesc>
+			<desc><![CDATA[ This option decides how many cross validation divisions that will be made when a decision tree is created. The value 2 has in experiments
+			given better accuracy than greater values of this option. This may be because greater values gives a decision tree that is over-trained and don't generalize well enough.
+			See the description of the option <b>tree_automatic_split_order</b> for information on how the decision tree is created. ]]></desc>
+			<shortdesc>Number of cross validation divisions used when creating a decision tree</shortdesc>
 		</option>
 		<option type="integer" name="kbest" flag="k" default="-1" usage="save">
 			<desc><![CDATA[ The classifier can produce a k-best list of predicted parser actions. The <b>kbest</b> option indicates how many 
