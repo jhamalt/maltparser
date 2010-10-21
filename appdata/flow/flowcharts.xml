@@ -75,9 +75,9 @@
 			<chartitem item="write" id="singlemalt" source="system"/>
 		</process>
 	</flowchart>
-	
 	<flowchart name="testdata">
 		<preprocess>
+			<chartitem item="configdir" id="singlemalt" task="unpack"/>
 			<chartitem item="configdir" id="singlemalt" task="loadsavedoptions"/>
 			<chartitem item="configdir" id="singlemalt" task="loadsymboltables"/>
 			<chartitem item="graph" id="singlemalt" task="create" structure="gold"/>
@@ -91,9 +91,6 @@
 			<chartitem item="pseudoproj" id="singlemalt" task="proj" source="gold" target="gold"/>
 			<chartitem item="singlemalt" id="singlemalt" mode="learn" task="process" source="gold" target="system"/>
 		</process>
-		<postprocess>
-			<chartitem item="singlemalt" id="singlemalt" mode="learn" task="train"/>
-		</postprocess>
 	</flowchart>
 	
 	<flowchart name="convert">
