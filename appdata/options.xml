@@ -478,7 +478,7 @@ otherwise all tokens in Left must be inspected before the next token is shifted.
 			measurement will be used to select the division order of the tree. The <b>tree_automatic_split_order</b> option can be seen as an advanced version of the <b>data_split</b> option since the tree option will
 			result in a split of training data which the <b>data_split</b> option also does. How the tree is created is explained in the following pseudo code:
 			<br/><br/>
-<b>Given:</b></br>
+<b>Given:</b><br/>
 <ul>
 <li>List of features to divide on <i>L</i> (This will be created automatically with the Gain Ratio as ordering measurement when this option is used.)</li>
 <li>A training set <i>T</i></li>
@@ -506,7 +506,7 @@ substituted with “<i>L</i> without the first element” and T substituted with
 			instead if you want to configure the split order manually.]]></desc>
 			<shortdesc>Decision tree with automatic split order</shortdesc>
 		</option>
-		<option type="string" name="tree_split_columns" flag="Z" default="" usage="save">
+		<option type="string" name="tree_split_columns" flag="Z1" default="" usage="save">
 			<desc><![CDATA[ This parameter together with the parameter <b>tree_split_structures</b> will create a decision tree together with the specified learner
 			as machine learning method. See the description of the parameter <b>tree_automatic_split_order</b> for a description of the algorithm used to create the decision tree. The following
 			example illustrate how the parameters can be used to set up the decision tree learner with a configured split order. The example provided has also
@@ -527,27 +527,27 @@ substituted with “<i>L</i> without the first element” and T substituted with
 			usage information. ]]></desc>
 			<shortdesc>Structure split order for decision tree with configured split order</shortdesc>
 		</option>
-		<option type="integer" name="tree_split_threshold" flag="Y" default="50" usage="save">
+		<option type="integer" name="tree_split_threshold" flag="Y1" default="50" usage="save">
 			<desc><![CDATA[ This parameter specifies the smallest leaf node that can be used in a decision tree. See the description of option
 			<b>tree_automatic_split_order</b> for a description of how the decision tree is created. This parameter corresponds to parameter <i>M</i> in the algorithm presented
 			in the description for that option.]]></desc>
 			<shortdesc>Decision tree split threshold</shortdesc>
 		</option>
-		<option type="double" name="tree_min_improvement_threshold" flag="Z" default="0.0" usage="save">
+		<option type="integer" name="tree_min_improvement_threshold" flag="Z2" default="0" usage="save">
 			<desc><![CDATA[ This option specifies a minimum improvement in percentage of the accuracy that a split of a node in a decision tree need to have. 
 			See the description of option <b>tree_automatic_split_order</b> for an explanation of the decision tree creation. The intention of this option is to
 			reduce the risk of over-training of the decision tree. Different values of this option have been tested in experiments but no positive effect 
 			was observed when the option <b>tree_number_of_cross_validation_divisions</b> was set to 2.]]></desc>
 			<shortdesc>Decision tree minimum improvement threshold</shortdesc>
 		</option>
-		<option type="bool" name="tree_force_divide" flag="Z" default="true" usage="save">
+		<option type="bool" name="tree_force_divide" flag="Z3" default="true" usage="save">
 			<desc><![CDATA[ When this option is set together with a decision tree configuration, the root node will always be split which mean that cross validation will
 			not be run on the root node. This can reduce the training time significantly and experiments show that at least one division almost always increase
 			the accuracy when tree division is used together with LIBLINEAR. See the description of option <b>tree_automatic_split_order</b> for information on how 
 			the decision tree is created.]]></desc>
 			<shortdesc>Force division of the root node when a decision tree is created</shortdesc>
 		</option>
-		<option type="integer" name="tree_number_of_cross_validation_divisions" flag="Y" default="2" usage="save">
+		<option type="integer" name="tree_number_of_cross_validation_divisions" flag="Y2" default="2" usage="save">
 			<desc><![CDATA[ This option decides how many cross validation divisions that will be made when a decision tree is created. The value 2 has in experiments
 			given better accuracy than greater values of this option. This may be because greater values gives a decision tree that is over-trained and don't generalize well enough.
 			See the description of the option <b>tree_automatic_split_order</b> for information on how the decision tree is created. ]]></desc>
