@@ -418,6 +418,24 @@ otherwise all tokens in Left must be inspected before the next token is shifted.
 			<legalvalue name="all">All output of LibLinear is logged</legalvalue>
 		</option>
 	</optiongroup>
+	<optiongroup groupname="cheater">
+		<desc><![CDATA[ This group contains options that are specific for the cheater learner. ]]></desc>
+		<option type="string" name="cheater_file" flag="lcf" default="" usage="both">
+			<desc><![CDATA[  ]]></desc>
+			<shortdesc></shortdesc>
+		</option>
+		<option type="bool" name="save_cheat_action" flag="lci" default="false" usage="both">
+			<desc><![CDATA[  ]]></desc>
+			<shortdesc></shortdesc>
+		</option>
+		<option type="enum" name="verbosity" flag="lcv" default="silent" usage="both">
+			<desc><![CDATA[ ]]></desc>
+			<shortdesc>Verbosity of Cheater</shortdesc>
+			<legalvalue name="silent">No output from LibLinear is logged</legalvalue>
+			<legalvalue name="error">Only the error stream of LibLinear is logged</legalvalue>
+			<legalvalue name="all">All output of LibLinear is logged</legalvalue>
+		</option>
+	</optiongroup>
 	<optiongroup groupname="guide">
 		<desc><![CDATA[ Contains options that are specific for the guide, which can be seen as an interface (or glue) between the parsing algorithm
 		and the learner. During learning, the parsing algorithm sends training instances to the guide, which prepares the corresponding feature vectors 
@@ -573,6 +591,7 @@ substituted with “<i>L</i> without the first element” and T substituted with
 			<shortdesc>Learner</shortdesc>
 			<legalvalue name="libsvm" class="org.maltparser.ml.libsvm.Libsvm">LIBSVM learner</legalvalue>
 			<legalvalue name="liblinear" class="org.maltparser.ml.liblinear.Liblinear">LIBLINEAR learner</legalvalue>
+			<legalvalue name="cheater" class="org.maltparser.ml.cheater.Cheater">Cheater learner</legalvalue>
 		</option>
 		<option type="string" name="decision_settings" flag="gds" default="T.TRANS+A.DEPREL" usage="save">
 			<desc><![CDATA[ This option specifies how a parser action is combined or divided. By default, arc label(s) and transition are combined into

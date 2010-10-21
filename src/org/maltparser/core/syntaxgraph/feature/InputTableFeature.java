@@ -62,12 +62,13 @@ public class InputTableFeature extends TableFeature {
 						featureValue.setKnown(getSymbolTable().getKnown(node.getLabelCode(getSymbolTable())));
 						featureValue.setNullValue(false);
 					} else {
-						featureValue.setCode(0);
-						featureValue.setSymbol("#null");
-//						if (getSymbolTable() != null) {
-//							featureValue.setCode(getSymbolTable().getNullValueCode(NullValueId.NO_VALUE));
-//							featureValue.setSymbol(getSymbolTable().getNullValueSymbol(NullValueId.NO_VALUE));
-//						} else {
+//						featureValue.setCode(0);
+//						featureValue.setSymbol("#null");
+						if (getSymbolTable() != null) {
+							featureValue.setCode(getSymbolTable().getNullValueCode(NullValueId.NO_VALUE));
+							featureValue.setSymbol(getSymbolTable().getNullValueSymbol(NullValueId.NO_VALUE));
+						} 
+//						else {
 //							featureValue.setCode(0);
 //							featureValue.setSymbol("#null");
 //						}
@@ -75,15 +76,16 @@ public class InputTableFeature extends TableFeature {
 						featureValue.setNullValue(true);
 					}	
 				} else {
-//					if (getSymbolTable() != null) {
-//						featureValue.setCode(getSymbolTable().getNullValueCode(NullValueId.ROOT_NODE));
-//						featureValue.setSymbol(getSymbolTable().getNullValueSymbol(NullValueId.ROOT_NODE));
-//					} else {
+					if (getSymbolTable() != null) {
+						featureValue.setCode(getSymbolTable().getNullValueCode(NullValueId.ROOT_NODE));
+						featureValue.setSymbol(getSymbolTable().getNullValueSymbol(NullValueId.ROOT_NODE));
+					} 
+//					else {
 //						featureValue.setCode(0);
 //						featureValue.setSymbol("#null");
 //					}
-					featureValue.setCode(0);
-					featureValue.setSymbol("#null");
+//					featureValue.setCode(0);
+//					featureValue.setSymbol("#null");
 					featureValue.setKnown(true);
 					featureValue.setNullValue(true);
 				}
