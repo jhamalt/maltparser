@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -36,6 +36,7 @@ Modified: @today@
 <tr><td><a href="#propagation">Propagation</a></td></tr>
 <tr><td><a href="#phrase">Parsing phrase structure</a></td></tr>
 <tr><td><a href="#api">MaltParser API</a></td></tr>
+<tr><td><a href="#opt">MaltParser optimization</a></td></tr>
 <tr><td><a href="#ref">References</a></td></tr>
 </table>
 
@@ -100,7 +101,7 @@ learning method (LIBSVM).
 <p>MaltParser outputs the following information:
 <pre>
 -----------------------------------------------------------------------------
-                          MaltParser 1.4.1                            
+                          MaltParser 1.4                             
 -----------------------------------------------------------------------------
          MALT (Models and Algorithms for Language Technology) Group          
              Vaxjo University and Uppsala University                         
@@ -277,7 +278,7 @@ This will output a lot of information about the configuration:
 CONFIGURATION
 Configuration name:   test
 Configuration type:   singlemalt
-Created:              Sun Jul 15 11:59:37 CEST 2010
+Created:              Sun Jun 27 15:59:37 CEST 2010
 
 SYSTEM
 Operating system architecture: amd64
@@ -286,8 +287,8 @@ JRE vendor name:               Sun Microsystems Inc.
 JRE version number:            1.6.0_18
 
 MALTPARSER
-Version:                       1.4.1
-Build date:                    July 15 2010
+Version:                       1.4
+Build date:                    June 27 2010
 
 SETTINGS
 2planar
@@ -461,7 +462,7 @@ non-projective arc that is lifted first, not the shortest one. Lifting the most 
 two or more non-projective arcs interact. In practice, however, this will probably have little impact for the parsing accuracy.
 </p>
 <a name="singlemalt_deproj"></a>
-<h4>Deprojectivize input data</h4>
+<h4>Deprojectivize output data</h4>
 MaltParser can also be used to deprojectivize a projective file containing pseudo-projective encoding, with or without involving parsing, 
 where it is assumed that the configuration <b>pproj</b> contains the same encoding scheme as during projectivization. It could look like this:
 <pre>
@@ -729,7 +730,13 @@ InputArc(PHEAD, Stack[0], Input[0])
 </td></tr>
 <tr><td  width="15%">InputArcDir</td><td>Takes two arguments, a column name and an address function, and returns LEFT, RIGHT or ROOT depending on whether the column value defines the head of the node identified by the address function to be situated on the left or on the right or to be the artificial root node. The column name must correspond to an <b>input</b> column of integer type in the data format and the address function must return a token node in the input string. (If the address function is undefined, a null-value is returned.) This feature function can be used to define features over the dependency graph predicted by another parser and given as input to MaltParser. Example:
 <pre>
-InputArc(PHEAD, Stack[0])
+InputArcDir(PHEAD, Stack[0])
+</pre>
+</td></tr>
+<tr><td  width="15%">InputTable</td><td>Takes two arguments, a column name and an address function, and returns the column value for the node  identified by the address function. The column name must correspond to a new column defined in a 
+propagation specification and the address function must return a token node in the input string. (If the address function is undefined, a null-value is returned.) Example:
+<pre>
+InputTable(CJ-POSTAG, Stack[0])
 </pre>
 </td></tr>
 <tr><td  width="15%">Exists</td><td>Takes an address function as argument and returns TRUE if the address function returns an existing node (and FALSE otherwise). Example:
@@ -842,15 +849,15 @@ To differentiate the feature model when using sequential prediction you can spec
 			&lt;feature&gt;InputColumn(POSTAG, Input[0])&lt;/feature&gt;
 			&lt;feature&gt;InputColumn(POSTAG, Input[1])&lt;/feature&gt;
 			...
-		&lt;/submodels&gt;
+		&lt;/submodel&gt;
 		&lt;submodel name="A.DEPREL"&gt;
 			&lt;feature&gt;InputColumn(POSTAG, Stack[0])&lt;/feature&gt;
 			&lt;feature&gt;InputColumn(POSTAG, Input[0])&lt;/feature&gt;
 			&lt;feature&gt;InputColumn(POSTAG, Input[1])&lt;/feature&gt;
 			...
-			&lt;feature&gtInputColumn(FORM,ldep(Input[0]))&lt;/feature&gt
-            &lt;feature&gtInputColumn(FORM,rdep(Stack[0]))&lt;/feature&gt
-		&lt;/submodels&gt;
+			&lt;feature&gt;InputColumn(FORM,ldep(Input[0]))&lt;/feature&gt
+			&lt;feature&gt;InputColumn(FORM,rdep(Stack[0]))&lt;/feature&gt
+		&lt;/submodel&gt;
 	&lt;/featuremodel&gt;
 &lt;/featuremodels&gt;
 </pre>
@@ -866,23 +873,23 @@ LA the left arc model:
 			&lt;feature&gt;InputColumn(POSTAG, Input[0])&lt;/feature&gt;
 			&lt;feature&gt;InputColumn(POSTAG, Input[1])&lt;/feature&gt;
 			...
-		&lt;/submodels&gt;
+		&lt;/submodel&gt;
 		&lt;submodel name="RA.A.DEPREL"&gt;
 			&lt;feature&gt;InputColumn(POSTAG, Stack[0])&lt;/feature&gt;
 			&lt;feature&gt;InputColumn(POSTAG, Input[0])&lt;/feature&gt;
 			&lt;feature&gt;InputColumn(POSTAG, Input[1])&lt;/feature&gt;
 			...
-			&lt;feature&gtInputColumn(FORM,ldep(Input[0]))&lt;/feature&gt
-            &lt;feature&gtInputColumn(FORM,rdep(Stack[0]))&lt;/feature&gt
-		&lt;/submodels&gt;
+			&lt;feature&gt;InputColumn(FORM,ldep(Input[0]))&lt;/feature&gt
+			&lt;feature&gt;InputColumn(FORM,rdep(Stack[0]))&lt;/feature&gt
+		&lt;/submodel&gt;
 		&lt;submodel name="LA.A.DEPREL"&gt;
 			&lt;feature&gt;InputColumn(POSTAG, Stack[0])&lt;/feature&gt;
 			&lt;feature&gt;InputColumn(POSTAG, Input[0])&lt;/feature&gt;
 			&lt;feature&gt;InputColumn(POSTAG, Input[1])&lt;/feature&gt;
 			...
-			&lt;feature&gtInputColumn(FORM,ldep(Input[0]))&lt;/feature&gt;
-            &lt;feature&gtInputColumn(FORM,rdep(Stack[0]))&lt;/feature&gt;
-		&lt;/submodels&gt;
+			&lt;feature&gt;InputColumn(FORM,ldep(Input[0]))&lt;/feature&gt;
+			&lt;feature&gt;InputColumn(FORM,rdep(Stack[0]))&lt;/feature&gt;
+   		&lt;/submodel&gt;
 	&lt;/featuremodel&gt;
 &lt;/featuremodels&gt;
 </pre>
@@ -937,6 +944,8 @@ Below you can see an example of a propagation specification file:</p>
 </pre>
 <p>The top half specifies that POSTAG values should be copied to the CJ-POSTAG field of the head, whenever an arc with the label CJ (for conjunct) is created. Assuming an analysis of coordination where the coordinating conjunction is the head of coordinate structure, this will have the effect of propagating information about the POSTAG values of the conjuncts to the head of the coordinate structure.</p>
 <p>The bottom half specifies that DEPREL values should be copied to the VALENCY field of the head, whenever an arc labeled by one of the labels listed in the FOR parameter is created. Provided that these labels denote valency-bound functions, this will have the effect of propagating information about satisfaction of valency constraints to the head.</p>
+
+<p>New columns introduced in the FROM attribute of a propagation specification can be referenced in feature specifications using the function InputTable, e.g. <i>&lt;feature&gt;InputTable(CJ-POSTAG, Stack[0])&lt;/feature&gt;</i>.
 
 <a name="phrase"></a>
 <h3>Phrase structure parsing</h3>
@@ -1072,6 +1081,12 @@ search for the rightmost lexical child. If no lexical child can be found, then t
 <li>By first initializing a parser model and then calling the method parse() for each sentence that should be parsed by MaltParser. IO-handling of the sentence is then done by the third-party program.
 </ul>
 <p>For more information about how to use MaltParserService, please see the examples provided in the directory <b>examples/apiexamples/srcex</b></p>
+
+<a name="opt"></a>
+<h3>MaltParser optimization</h3>
+<p>MaltParser is a fairly complex system with many parameters that need to be optimized. Simply using the system “out of the box” with default settings is therefore likely to result in suboptimal performance.</p>
+
+<p>Please read "<a href="http://maltparser.org/guides/opt/quick-opt.pdf">A Quick Guide to MaltParser Optimization</a>" to get hints and tips to how you can optimize MaltParser.</p>
 
 <a name="ref"></a>
 <h3>References</h3>

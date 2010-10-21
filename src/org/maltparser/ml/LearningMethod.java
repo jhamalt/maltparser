@@ -9,7 +9,6 @@ import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.feature.FeatureVector;
 import org.maltparser.core.feature.function.FeatureFunction;
 import org.maltparser.core.syntaxgraph.DependencyStructure;
-import org.maltparser.ml.liblinear.LiblinearException;
 import org.maltparser.parser.history.action.SingleDecision;
 
 

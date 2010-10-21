@@ -157,7 +157,7 @@ public class MaltParserService {
 		}
 		String maltpath = getMaltJarPath();
 		if (maltpath == null) {
-			new MaltChainedException("malt.jar could not be found. ");
+			throw new MaltChainedException("malt.jar could not be found. ");
 		}
 		urlMaltJar = Util.findURL(maltpath);
 		try {
