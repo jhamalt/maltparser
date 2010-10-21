@@ -116,33 +116,35 @@ public class Liblinear implements LearningMethod {
 		} else if (decision == null) {
 			throw new LiblinearException("The decision cannot be found");
 		}	
+		StringBuilder sb = new StringBuilder();
 		try {
-			instanceOutput.write(decision.getDecisionCode()+"\t");
-			for (int i = 0; i < featureVector.size(); i++) {
+			sb.append(decision.getDecisionCode()+"\t");
+			int n = featureVector.size();
+			for (int i = 0; i < n; i++) {
 				FeatureValue featureValue = featureVector.get(i).getFeatureValue();
 				if (excludeNullValues == true && featureValue.isNullValue()) {
-					instanceOutput.write("-1");
+					sb.append("-1");
 				} else {
 					if (featureValue instanceof SingleFeatureValue) {
-						instanceOutput.write(((SingleFeatureValue)featureValue).getCode()+"");
+						sb.append(((SingleFeatureValue)featureValue).getCode()+"");
 					} else if (featureValue instanceof MultipleFeatureValue) {
 						Set<Integer> values = ((MultipleFeatureValue)featureValue).getCodes();
 						int j=0;
 						for (Integer value : values) {
-							instanceOutput.write(value.toString());
+							sb.append(value.toString());
 							if (j != values.size()-1) {
-								instanceOutput.write("|");
+								sb.append("|");
 							}
 							j++;
 						}
 					}
 				}
-				if (i != featureVector.size()) {
-					instanceOutput.write('\t');
-				}
+//				if (i < n-1) {
+					sb.append('\t');
+//				}
 			}
-
-			instanceOutput.write('\n');
+			sb.append('\n');
+			instanceOutput.write(sb.toString());
 			instanceOutput.flush();
 			increaseNumberOfInstances();
 		} catch (IOException e) {
@@ -450,7 +452,7 @@ public class Liblinear implements LearningMethod {
 		} else if (featureVector == null) {
 			throw new LiblinearException("The Liblinear learner cannot predict the next class, because the feature vector cannot be found. ");
 		}
-		int j = 0;
+
 		int offset = 1;
 		int i = 0;
 		for (FeatureFunction feature : featureVector) {
@@ -458,12 +460,12 @@ public class Liblinear implements LearningMethod {
 			if (!(excludeNullValues == true && featureValue.isNullValue())) {
 				if (featureValue instanceof SingleFeatureValue) {
 					if (((SingleFeatureValue)featureValue).getCode() < cardinalities[i]) {
-						xlist.add(j++, new FeatureNode(((SingleFeatureValue)featureValue).getCode() + offset, 1));
+						xlist.add(new FeatureNode(((SingleFeatureValue)featureValue).getCode() + offset, 1));
 					}
 				} else if (featureValue instanceof MultipleFeatureValue) {
 					for (Integer value : ((MultipleFeatureValue)featureValue).getCodes()) {
 						if (value < cardinalities[i]) {
-							xlist.add(j++, new FeatureNode(value + offset, 1));
+							xlist.add(new FeatureNode(value + offset, 1));
 						}
 					}
 				}
@@ -471,9 +473,8 @@ public class Liblinear implements LearningMethod {
 			offset += cardinalities[i];
 			i++;
 		}
-		
-		FeatureNode[] xarray = new FeatureNode[j];
-		for (int k = 0; k < j; k++) {
+		FeatureNode[] xarray = new FeatureNode[xlist.size()];
+		for (int k = 0; k < xlist.size(); k++) {
 			xarray[k] = xlist.get(k);
 		}
 
@@ -624,15 +625,13 @@ public class Liblinear implements LearningMethod {
 	public Problem readLibLinearProblem(InputStreamReader isr, int[] cardinalities) throws MaltChainedException {
 		Problem problem = new Problem();
 
-
-		
 		try {
 			final BufferedReader fp = new BufferedReader(isr);
 			int max_index = 0;
 			if (xlist == null) {
 				xlist = new ArrayList<FeatureNode>(); 
 			}
-			problem.bias = getBias();
+			problem.bias = -1; //getBias();
 			problem.l = getNumberOfInstances();
 			problem.x = new FeatureNode[problem.l][];
 			problem.y = new int[problem.l];
@@ -681,9 +680,9 @@ public class Liblinear implements LearningMethod {
 			}
 			fp.close();	
 			problem.n = max_index;
-			if ( problem.bias >= 0 ) {
-				problem.n++;
-			}
+//			if ( problem.bias >= 0 ) {
+//				problem.n++;
+//			}
 			xlist = null;
 		} catch (IOException e) {
 			throw new LiblinearException("Cannot read from the instance file. ", e);
@@ -813,7 +812,7 @@ public class Liblinear implements LearningMethod {
 		liblinearOptions.put("s", "4"); // type = SolverType.L2LOSS_SVM_DUAL (default)
 		liblinearOptions.put("c", "0.1"); // cost = 1 (default)
 		liblinearOptions.put("e", "0.1"); // epsilon = 0.1 (default)
-		liblinearOptions.put("B", "1"); // bias = 1 (default)
+		liblinearOptions.put("B", "-1"); // bias = -1 (default)
 	}
 
 	public String[] getLibLinearParamStringArray() {
