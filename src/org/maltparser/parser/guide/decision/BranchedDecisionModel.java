@@ -323,13 +323,14 @@ public class BranchedDecisionModel implements DecisionModel {
 		
 		DependencyParserConfig c = guide.getConfiguration();
 		
-		if (c.getOptionValue("guide", "tree_automatic_split_order").toString().equals("yes") ||
-				(c.getOptionValue("guide", "tree_split_columns")!=null &&
-			c.getOptionValue("guide", "tree_split_columns").toString().length() > 0) ||
-			(c.getOptionValue("guide", "tree_split_structures")!=null &&
-			c.getOptionValue("guide", "tree_split_structures").toString().length() > 0)) {
-			instanceModel = new DecisionTreeModel(fv, this); 
-		}else if (c.getOptionValue("guide", "data_split_column").toString().length() == 0) {
+//		if (c.getOptionValue("guide", "tree_automatic_split_order").toString().equals("yes") ||
+//				(c.getOptionValue("guide", "tree_split_columns")!=null &&
+//			c.getOptionValue("guide", "tree_split_columns").toString().length() > 0) ||
+//			(c.getOptionValue("guide", "tree_split_structures")!=null &&
+//			c.getOptionValue("guide", "tree_split_structures").toString().length() > 0)) {
+//			instanceModel = new DecisionTreeModel(fv, this); 
+//		}else 
+		if (c.getOptionValue("guide", "data_split_column").toString().length() == 0) {
 			instanceModel = new AtomicModel(-1, fv, this);
 		} else {
 			instanceModel = new FeatureDivideModel(fv, this);

@@ -2,10 +2,8 @@ package org.maltparser.core.io.dataformat;
 
 import java.net.URL;
 import java.util.HashMap;
-import java.util.HashSet;
 
 import org.maltparser.core.exception.MaltChainedException;
-import org.maltparser.core.io.dataformat.DataFormatSpecification.Dependency;
 
 public class DataFormatManager {
 	private DataFormatSpecification inputDataFormatSpec;

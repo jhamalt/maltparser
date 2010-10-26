@@ -107,10 +107,8 @@ many single malt configurations. ]]></desc>
 			<legalvalue name="covnonproj" class="org.maltparser.parser.algorithm.covington.CovingtonNonProjFactory">Covington non-projective</legalvalue>
 			<legalvalue name="covproj" class="org.maltparser.parser.algorithm.covington.CovingtonProjFactory">Covington projective</legalvalue>
 			<legalvalue name="stackproj" class="org.maltparser.parser.algorithm.stack.StackProjFactory">Stack projective</legalvalue>
-			<!--  <legalvalue name="stackincr" class="org.maltparser.parser.algorithm.stack.StackIncrFactory">Stack projective</legalvalue> -->
 			<legalvalue name="stackeager" class="org.maltparser.parser.algorithm.stack.StackSwapEagerFactory">Stack eager</legalvalue>	
 			<legalvalue name="stacklazy" class="org.maltparser.parser.algorithm.stack.StackSwapLazyFactory">Stack lazy</legalvalue>
-			<!--  <legalvalue name="stackattardi" class="org.maltparser.parser.algorithm.stack.StackAttardiFactory">Stack Attardi</legalvalue> -->
 			<legalvalue name="planar" class="org.maltparser.parser.algorithm.planar.NivrePlanarArcEagerFactory">Planar eager</legalvalue>
 			<legalvalue name="2planar" class="org.maltparser.parser.algorithm.twoplanar.TwoPlanarArcEagerFactory">2-Planar eager</legalvalue>
 		</option>
@@ -198,8 +196,6 @@ many single malt configurations. ]]></desc>
 			<shortdesc>Path to format specification file</shortdesc>
 			<legalvalue name="conllx" mapto="/appdata/dataformat/conllx.xml">CoNLL-X data format</legalvalue>
 			<legalvalue name="malttab" mapto="/appdata/dataformat/malttab.xml">MaltTAB data format</legalvalue>
-			<!--  <legalvalue name="bracketps" mapto="/appdata/dataformat/bracketps.xml">Bracket phrase structure</legalvalue>
-			<legalvalue name="bracketds" mapto="/appdata/dataformat/bracketds.xml">Bracket encoded dependency  structure</legalvalue> -->
 			<legalvalue name="negraps" mapto="/appdata/dataformat/negraps.xml">Negra phrase structure</legalvalue>
 			<legalvalue name="negrads" mapto="/appdata/dataformat/negrads.xml">Negra dependency  structure</legalvalue>
 			<legalvalue name="tal05ps" mapto="/appdata/dataformat/tal05ps.xml">Talbanken05 phrase structure</legalvalue>
@@ -215,7 +211,6 @@ many single malt configurations. ]]></desc>
 			</ul> ]]></desc>
 			<shortdesc>Data reader</shortdesc>
 			<legalvalue name="tab" class="org.maltparser.core.syntaxgraph.reader.TabReader">Tab-separated reader</legalvalue>
-			<!--  <legalvalue name="bracket" class="org.maltparser.core.syntaxgraph.reader.BracketReader">Bracket reader</legalvalue> -->
 			<legalvalue name="negra" class="org.maltparser.core.syntaxgraph.reader.NegraReader">Negra reader</legalvalue>
 			<legalvalue name="tiger" class="org.maltparser.core.syntaxgraph.reader.TigerXMLReader">TigerXML reader</legalvalue>
 		</option>
@@ -253,8 +248,6 @@ many single malt configurations. ]]></desc>
 			<shortdesc>Path to format specification file</shortdesc>
 			<legalvalue name="conllx" mapto="/appdata/dataformat/conllx.xml">CoNLL-X data format</legalvalue>
 			<legalvalue name="malttab" mapto="/appdata/dataformat/malttab.xml">MaltTAB data format</legalvalue>
-			<!-- <legalvalue name="bracketps" mapto="/appdata/dataformat/bracketps.xml">Bracket phrase structure</legalvalue>
-			<legalvalue name="bracketds" mapto="/appdata/dataformat/bracketds.xml">Bracket encoded dependency  structure</legalvalue> -->
 			<legalvalue name="negraps" mapto="/appdata/dataformat/negraps.xml">Negra phrase structure</legalvalue>
 			<legalvalue name="negrads" mapto="/appdata/dataformat/negrads.xml">Negra dependency structure</legalvalue>
 			<legalvalue name="tal05ps" mapto="/appdata/dataformat/tal05ps.xml">Talbanken05 phrase structure</legalvalue>
@@ -270,7 +263,6 @@ many single malt configurations. ]]></desc>
 			</ul> ]]></desc>
 			<shortdesc>Data writer</shortdesc>
 			<legalvalue name="tab" class="org.maltparser.core.syntaxgraph.writer.TabWriter">Tab-separated writer</legalvalue>
-			<!-- <legalvalue name="bracket" class="org.maltparser.core.syntaxgraph.writer.BracketWriter">Bracket writer</legalvalue> -->
 			<legalvalue name="negra" class="org.maltparser.core.syntaxgraph.writer.NegraWriter">Negra writer</legalvalue>
 			<legalvalue name="tiger" class="org.maltparser.core.syntaxgraph.writer.TigerXMLWriter">TigerXML writer</legalvalue>
 		</option>
@@ -309,11 +301,6 @@ many single malt configurations. ]]></desc>
 			<legalvalue name="relaxed">Root dependents not attached during parsing (attached with default label afterwards), reduction of unattached tokens permissible</legalvalue>
 			<legalvalue name="normal">Root dependents attached by RightArc transition during parsing (unattached tokens attached with default label afterwards)</legalvalue>
 		</option>
-		<!-- <option type="bool" name="post_processing" flag="npp" default="false" usage="save">
-			<desc><![CDATA[ If <b>post_processing=true</b>, the parser will make a second pass over the input where only 
-			unattached tokens are processed. ]]></desc>
-			<shortdesc>Post processing</shortdesc>
-		</option>-->
 	</optiongroup>
 	<optiongroup groupname="2planar">
 		<desc><![CDATA[ The <b>2-planar</b> option group controls the 2-planar parsing algorithm.  ]]></desc>
@@ -399,8 +386,6 @@ otherwise all tokens in Left must be inspected before the next token is shifted.
 			For example, it could look like this: <code>-llo -s_4_-c_0.1</code> ]]></desc>
 			<shortdesc>LIBLINEAR options (see liblinear Documentation)</shortdesc>
 		</option>
-
-		
 		<option type="string" name="liblinear_external" flag="llx" default="" usage="train">
 			<desc><![CDATA[ Path to <code>train</code> executable file of the liblinear package (Microsoft Windows use <code>train.exe</code>) ]]></desc>
 			<shortdesc>Path to <code>svm-train</code></shortdesc>
@@ -413,24 +398,6 @@ otherwise all tokens in Left must be inspected before the next token is shifted.
 		<option type="enum" name="verbosity" flag="llv" default="silent" usage="train">
 			<desc><![CDATA[ ]]></desc>
 			<shortdesc>Verbosity of LibLinear</shortdesc>
-			<legalvalue name="silent">No output from LibLinear is logged</legalvalue>
-			<legalvalue name="error">Only the error stream of LibLinear is logged</legalvalue>
-			<legalvalue name="all">All output of LibLinear is logged</legalvalue>
-		</option>
-	</optiongroup>
-	<optiongroup groupname="cheater">
-		<desc><![CDATA[ This group contains options that are specific for the cheater learner. ]]></desc>
-		<option type="string" name="cheater_file" flag="lcf" default="" usage="both">
-			<desc><![CDATA[  ]]></desc>
-			<shortdesc></shortdesc>
-		</option>
-		<option type="bool" name="save_cheat_action" flag="lci" default="false" usage="both">
-			<desc><![CDATA[  ]]></desc>
-			<shortdesc></shortdesc>
-		</option>
-		<option type="enum" name="verbosity" flag="lcv" default="silent" usage="both">
-			<desc><![CDATA[ ]]></desc>
-			<shortdesc>Verbosity of Cheater</shortdesc>
 			<legalvalue name="silent">No output from LibLinear is logged</legalvalue>
 			<legalvalue name="error">Only the error stream of LibLinear is logged</legalvalue>
 			<legalvalue name="all">All output of LibLinear is logged</legalvalue>
@@ -453,10 +420,8 @@ otherwise all tokens in Left must be inspected before the next token is shifted.
 			<legalvalue name="covnonproj" mapto="/appdata/features/{learner}/CovingtonNonProjective.xml">Covington non-projective default model</legalvalue>
 			<legalvalue name="covproj" mapto="/appdata/features/{learner}/CovingtonProjective.xml">Covington projective default model</legalvalue>
 			<legalvalue name="stackproj" mapto="/appdata/features/{learner}/StackProjective.xml">Stack projective default model</legalvalue>
-			<!--  <legalvalue name="stackincr" mapto="/appdata/features/{learner}/StackIncremental.xml">Stack incremental default model</legalvalue> -->
 			<legalvalue name="stackeager" mapto="/appdata/features/{learner}/StackSwap.xml">Stack projective default model</legalvalue>
 			<legalvalue name="stacklazy" mapto="/appdata/features/{learner}/StackSwap.xml">Stack projective default model</legalvalue>
-			<!--  <legalvalue name="stackattardi" mapto="/appdata/features/{learner}/StackAttardi.xml">Stack projective default model</legalvalue> -->
 			<legalvalue name="planar" mapto="/appdata/features/{learner}/PlanarEager.xml">Planar arc-eager default model</legalvalue>
 			<legalvalue name="2planar" mapto="/appdata/features/{learner}/2PlanarEager.xml">2-Planar arc-eager default model</legalvalue>
 		</option>
@@ -490,87 +455,6 @@ otherwise all tokens in Left must be inspected before the next token is shifted.
 			training sets that contain less than 100 instances will be merged into a default training set. ]]></desc>
 			<shortdesc>Data split threshold</shortdesc>
 		</option>
-
-		<option type="bool" name="tree_automatic_split_order" flag="tas" default="false" usage="save">
-			<desc><![CDATA[ When this option is set to true a decision tree together with the configured learner will be used. The Gain Ratio measurement with entropy as impurity 
-			measurement will be used to select the division order of the tree. The <b>tree_automatic_split_order</b> option can be seen as an advanced version of the <b>data_split</b> option since the tree option will
-			result in a split of training data which the <b>data_split</b> option also does. How the tree is created is explained in the following pseudo code:
-			<br/><br/>
-<b>Given:</b><br/>
-<ul>
-<li>List of features to divide on <i>L</i> (This will be created automatically with the Gain Ratio as ordering measurement when this option is used.)</li>
-<li>A training set <i>T</i></li>
-<li>Minimum size of a training set created after division <i>M</i></li>
-</ul>
-
-<b>Algorithm:</b>
-
-<ol>
-<li>Run cross validation on <i>T</i> and record the accuracy as <i>A</i></li>
-<li>If the size of <i>T</i> is less than <i>M</i> then return <i>A</i> as the result</li>
-<li>If <i>L</i> is empty return <i>A</i> as the result</li>
-<li>Divide <i>T</i> into several subset so every distinct value of the first feature in <i>L</i> has it's own subset</li>
-<li>Create an additional training set by concatenating all training sets created in 4 that has a size less than <i>M</i></li>
-<li>For all training sets created in step 4 and 5 except the ones concatenated because the size were less than M, run this algorithm again with <i>L</i> 
-substituted with “<i>L</i> without the first element” and T substituted with the sub training set and collect the results</li>
-<li>Calculate the weighted average accuracy <i>WA</i> from the results obtained in 6</li>
-<li>If the weighted average accuracy <i>WA</i> is less than the accuracy without division <i>A</i> then return <i>A</i> as the result otherwise return <i>WA</i> as the result</li>
-</ol>
-	
-			The parameter <b>tree_split_threshold</b> can be used to set <i>M</i> in the algorithm presented above. The tree division method has 
-			improved the accuracy in many experiments together with LIBLINEAR compared to a pure LIBLINEAR based training without any division. 
-			Note, that the method can consume a lot of memory if the training set is large since that will result in many leaf nodes all 
-			containing a LIBLINEAR model. Use the options  <b>tree_split_columns</b> and <b>tree_split_structures</b>
-			instead if you want to configure the split order manually.]]></desc>
-			<shortdesc>Decision tree with automatic split order</shortdesc>
-		</option>
-		<option type="string" name="tree_split_columns" flag="Z1" default="" usage="save">
-			<desc><![CDATA[ This parameter together with the parameter <b>tree_split_structures</b> will create a decision tree together with the specified learner
-			as machine learning method. See the description of the parameter <b>tree_automatic_split_order</b> for a description of the algorithm used to create the decision tree. The following
-			example illustrate how the parameters can be used to set up the decision tree learner with a configured split order. The example provided has also
-			showed to give good results in experiments. <br/><br/>
-<code>
-&lt;option name="tree_split_columns"    value="POSTAG@POSTAG@POSTAG@POSTAG@POSTAG@POSTAG"/&lt;<br/>
-&lt;option name="tree_split_structures" value="Input[0]@Stack[0]@Input[1]@Input[2]@Input[3]@Stack[1]"/&gt;
-</code><br/><br/>
-
-			The options specifies two lists separated with @ tokens. The elements at the same position in both list specifies a split. E.g. The first split will
-			be on the <code>POSTAG</code> value of the first token in the buffer (<code>Input[0]</code>). 
-
-			]]></desc>
-			<shortdesc>Column split order for decision tree with configured split order</shortdesc>
-		</option>
-		<option type="string" name="tree_split_structures" flag="X" default="" usage="save">
-			<desc><![CDATA[ This option is used together with the option tree_split_columns. See the description for the option <b>tree_split_columns</b> for
-			usage information. ]]></desc>
-			<shortdesc>Structure split order for decision tree with configured split order</shortdesc>
-		</option>
-		<option type="integer" name="tree_split_threshold" flag="Y1" default="50" usage="save">
-			<desc><![CDATA[ This parameter specifies the smallest leaf node that can be used in a decision tree. See the description of option
-			<b>tree_automatic_split_order</b> for a description of how the decision tree is created. This parameter corresponds to parameter <i>M</i> in the algorithm presented
-			in the description for that option.]]></desc>
-			<shortdesc>Decision tree split threshold</shortdesc>
-		</option>
-		<option type="integer" name="tree_min_improvement_threshold" flag="Z2" default="0" usage="save">
-			<desc><![CDATA[ This option specifies a minimum improvement in percentage of the accuracy that a split of a node in a decision tree need to have. 
-			See the description of option <b>tree_automatic_split_order</b> for an explanation of the decision tree creation. The intention of this option is to
-			reduce the risk of over-training of the decision tree. Different values of this option have been tested in experiments but no positive effect 
-			was observed when the option <b>tree_number_of_cross_validation_divisions</b> was set to 2.]]></desc>
-			<shortdesc>Decision tree minimum improvement threshold</shortdesc>
-		</option>
-		<option type="bool" name="tree_force_divide" flag="Z3" default="true" usage="save">
-			<desc><![CDATA[ When this option is set together with a decision tree configuration, the root node will always be split which mean that cross validation will
-			not be run on the root node. This can reduce the training time significantly and experiments show that at least one division almost always increase
-			the accuracy when tree division is used together with LIBLINEAR. See the description of option <b>tree_automatic_split_order</b> for information on how 
-			the decision tree is created.]]></desc>
-			<shortdesc>Force division of the root node when a decision tree is created</shortdesc>
-		</option>
-		<option type="integer" name="tree_number_of_cross_validation_divisions" flag="Y2" default="2" usage="save">
-			<desc><![CDATA[ This option decides how many cross validation divisions that will be made when a decision tree is created. The value 2 has in experiments
-			given better accuracy than greater values of this option. This may be because greater values gives a decision tree that is over-trained and don't generalize well enough.
-			See the description of the option <b>tree_automatic_split_order</b> for information on how the decision tree is created. ]]></desc>
-			<shortdesc>Number of cross validation divisions used when creating a decision tree</shortdesc>
-		</option>
 		<option type="integer" name="kbest" flag="k" default="-1" usage="save">
 			<desc><![CDATA[ The classifier can produce a k-best list of predicted parser actions. The <b>kbest</b> option indicates how many 
 			items the k-best list should contain. If <code>-k -1</code>, all possible parser actions are ranked in the k-best list. 
@@ -591,7 +475,6 @@ substituted with “<i>L</i> without the first element” and T substituted with
 			<shortdesc>Learner</shortdesc>
 			<legalvalue name="libsvm" class="org.maltparser.ml.libsvm.Libsvm">LIBSVM learner</legalvalue>
 			<legalvalue name="liblinear" class="org.maltparser.ml.liblinear.Liblinear">LIBLINEAR learner</legalvalue>
-			<legalvalue name="cheater" class="org.maltparser.ml.cheater.Cheater">Cheater learner</legalvalue>
 		</option>
 		<option type="string" name="decision_settings" flag="gds" default="T.TRANS+A.DEPREL" usage="save">
 			<desc><![CDATA[ This option specifies how a parser action is combined or divided. By default, arc label(s) and transition are combined into

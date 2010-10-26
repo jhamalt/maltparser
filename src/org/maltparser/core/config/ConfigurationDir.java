@@ -17,8 +17,6 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -134,10 +132,7 @@ public class ConfigurationDir  {
 
 		URL inURL = findURL(inputFormatName);
 		URL outURL = findURL(outputFormatName);
-//		SystemLogger.logger().info(inputFormatName + "\n");
-//		SystemLogger.logger().info(outputFormatName + "\n");
-//		SystemLogger.logger().info(inURL + "\n");
-//		SystemLogger.logger().info(outURL + "\n");
+
 		
 		if (outURL != null) {
 			try {
@@ -150,6 +145,7 @@ public class ConfigurationDir  {
 		} else {
 			outURL = Util.findURL(outputFormatName);
 		}
+		
 		dataFormatManager = new DataFormatManager(inURL, outURL);
 		symbolTables = new TrieSymbolTableHandler();
 	}
@@ -256,7 +252,10 @@ public class ConfigurationDir  {
 		File mcoPath = new File(workingDirectory.getPath()+File.separator+getName()+".mco");
 		try {
 			JarFile mcoFile = new JarFile(mcoPath.getAbsolutePath());
-			JarEntry entry = mcoFile.getJarEntry(getName()+File.separator+fileName);
+			JarEntry entry = mcoFile.getJarEntry(getName()+'/'+fileName);
+			if (entry == null) {
+				entry = mcoFile.getJarEntry(getName()+'\\'+fileName);
+			}
 			return entry;
 		} catch (FileNotFoundException e) {
 			throw new ConfigurationException("The file entry '"+fileName+"' in mco-file '"+mcoPath+"' cannot be found. ", e);
@@ -269,7 +268,13 @@ public class ConfigurationDir  {
 		File mcoPath = new File(workingDirectory.getPath()+File.separator+getName()+".mco");
 		try {
 			JarFile mcoFile = new JarFile(mcoPath.getAbsolutePath());
-			JarEntry entry = mcoFile.getJarEntry(getName()+File.separator+fileName);
+			JarEntry entry = mcoFile.getJarEntry(getName()+'/'+fileName);
+			if (entry == null) {
+				entry = mcoFile.getJarEntry(getName()+'\\'+fileName);
+			}
+			if (entry == null) {
+				throw new FileNotFoundException();
+			}
 			return new InputStreamReader(mcoFile.getInputStream(entry),  charSet);
 		} catch (FileNotFoundException e) {
 			throw new ConfigurationException("The file entry '"+fileName+"' in the mco file '"+mcoPath+"' cannot be found. ", e);
@@ -301,10 +306,17 @@ public class ConfigurationDir  {
 			if (!mcoPath.exists()) {
 				throw new ConfigurationException("Couldn't find mco-file '" +mcoPath.getAbsolutePath()+ "'");
 			}
-			new URL("file", null, mcoPath.getAbsolutePath());
-			return new URL("jar:"+new URL("file", null, mcoPath.getAbsolutePath())+"!/"+getName()+File.separator+fileName + "\n");
+//			new URL("file", null, mcoPath.getAbsolutePath());
+			URL url = new URL("jar:"+new URL("file", null, mcoPath.getAbsolutePath())+"!/"+getName()+'/'+fileName + "\n");
+			try { 
+				InputStream is = url.openStream();
+				is.close();
+			} catch (IOException e) {
+				url = new URL("jar:"+new URL("file", null, mcoPath.getAbsolutePath())+"!/"+getName()+'\\'+fileName + "\n");
+			}
+			return url;
 		} catch (MalformedURLException e) {
-			throw new ConfigurationException("Couldn't find the URL '" +"jar:"+mcoPath.getAbsolutePath()+"!/"+getName()+File.separator+fileName+ "'", e);
+			throw new ConfigurationException("Couldn't find the URL '" +"jar:"+mcoPath.getAbsolutePath()+"!/"+getName()+'/'+fileName+ "'", e);
 		}
 	}
 	
@@ -521,8 +533,9 @@ public class ConfigurationDir  {
 	
 				FileInputStream fis = new FileInputStream(f);
 				
-				
-				JarEntry entry = new JarEntry(f.getPath().substring(workingDirectory.getPath().length()+1));
+				String entryPath = f.getPath().substring(workingDirectory.getPath().length()+1);
+				entryPath = entryPath.replace('\\', '/');
+				JarEntry entry = new JarEntry(entryPath);
 				jos.putNextEntry(entry);
 	
 				while ((bytesIn = fis.read(readBuffer)) != -1) {
@@ -706,7 +719,7 @@ public class ConfigurationDir  {
 		        if (entryName.startsWith("/")) {
 		        	entryName = entryName.substring(1);
 		        }
-		        if (entryName.endsWith(File.separator)) {
+		        if (entryName.endsWith(File.separator) || entryName.endsWith("/")) {
 		            return;
 		        }
 		        int index = -1;
