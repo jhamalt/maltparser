@@ -203,8 +203,8 @@ two attributes: <b>name</b> that corresponds to an option name and <b>value</b> 
 		&lt;optiongroup groupname="nivre"&gt;
 			&lt;option name="root_handling" value="strict"/&gt;
 		&lt;/optiongroup&gt;
-		&lt;optiongroup groupname="libsvm"&gt;
-			&lt;option name="libsvm_options" value="-s_0_-t_1_-d_2_-g_0.2_-c_1.0_-r_0.4_-e_0.1"/&gt;
+		&lt;optiongroup groupname="lib"&gt;
+			&lt;option name="lib_options" value="-s_0_-t_1_-d_2_-g_0.2_-c_1.0_-r_0.4_-e_0.1"/&gt;
 		&lt;/optiongroup&gt;
 		&lt;optiongroup groupname="guide"&gt;
 			&lt;option name="data_split_column" value="POSTAG"/&gt;
@@ -229,7 +229,7 @@ want to create a configuration that has the same settings as the option file wit
 <pre>
 prompt> java -jar malt.jar -c example1 -m learn 
                            -i examples/data/talbanken05_train.conll -a nivrestandard 
-                           -r strict -lso -s_0_-t_1_-d_2_-g_0.2_-c_1.0_-r_0.4_-e_0.1 
+                           -r strict -lo -s_0_-t_1_-d_2_-g_0.2_-c_1.0_-r_0.4_-e_0.1 
                            -d POSTAG -s Input[0] -T 100
 </pre>
 To parse using one of the three configurations you simply type:
@@ -326,16 +326,11 @@ input
   charset ( -ic)                        UTF-8
   reader_options (-iro)                 
   format ( -if)                         /appdata/dataformat/conllx.xml
-liblinear
-  save_instance_files (-lli)            false
-  liblinear_external (-llx)             
-  liblinear_options (-llo)              -s_4_-c_0.1
-  verbosity (-llv)                      silent
-libsvm
-  libsvm_external (-lsx)                
-  save_instance_files (-lsi)            false
-  libsvm_options (-lso)                 -s_0_-t_1_-d_2_-g_0.2_-c_1_-r_0_-e_1.0
-  verbosity (-lsv)                      silent
+lib
+  external (-lx)                 
+  save_instance_files (-li)             false
+  options (-lo)                         -s_0_-t_1_-d_2_-g_0.2_-c_1_-r_0_-e_1.0
+  verbosity (-lv)                       silent
 nivre
   root_handling (  -r)                  normal
 output
@@ -483,7 +478,7 @@ the MaltParser jar-file (malt.jar) in the <b>appdata/dataformat</b> directory. T
 <pre>
 &lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;dataformat name="conllx"&gt;
-	&lt;column name="ID" category="INPUT" type="ECHO"/&gt;
+	&lt;column name="ID" category="INPUT" type="INTEGER"/&gt;
 	&lt;column name="FORM" category="INPUT" type="STRING"/&gt;
 	&lt;column name="LEMMA" category="INPUT" type="STRING"/&gt;
 	&lt;column name="CPOSTAG" category="INPUT" type="STRING"/&gt;
@@ -491,8 +486,9 @@ the MaltParser jar-file (malt.jar) in the <b>appdata/dataformat</b> directory. T
 	&lt;column name="FEATS" category="INPUT" type="STRING"/&gt;
 	&lt;column name="HEAD" category="HEAD" type="INTEGER"/&gt;
 	&lt;column name="DEPREL" category="DEPENDENCY_EDGE_LABEL" type="STRING"/&gt;
-	&lt;column name="PHEAD" category="HEAD" type="IGNORE" default="_"/&gt;
-	&lt;column name="PDEPREL" category="DEPENDENCY_EDGE_LABEL" type="IGNORE" default="_"/&gt;
+	&lt;column name="PHEAD" category="IGNORE" type="INTEGER" default="_"/&gt;
+	&lt;column name="PDEPREL" category="IGNORE" type="STRING" default="_"/&gt;
+
 &lt;/dataformat&gt;
 </pre>
 <p>A data format specification file has two types of XML elements. First, there is the <b>dataformat</b> element with the attribute <b>name</b>, which 
@@ -513,15 +509,15 @@ to produce labeled dependency graph, these must be present in learning mode.</td
 <tr><td>PHRASE_STRUCTURE_NODE_LABEL</td><td>Denote that the column contain a phrase category label.</td></tr>
 <tr><td>SECONDARY_EDGE_LABEL</td><td>Denote that the column contain a secondary edge label.</td></tr>
 <tr><td>HEAD</td><td>The head column defines the unlabeled structure of a dependency graph and is also output data of the parser in parsing mode. </td></tr>
+<tr><td>IGNORE</td><td>The column value will be ignored and therefore will not be present in the output file.</td></tr>
 </table>
 </td></tr>
 <tr class="b"><td align="left">type</td><td>Defines the data type of the column and/or its treatment during learning and parsing:
 <table>
-<tr><td>STRING</td><td>The column value will be stored as a string value in a symbol table.</td></tr>
-<tr><td>INTEGER</td><td>The column value will be stored as an integer value.</td></tr>
-<tr><td>BOOLEAN</td><td>The column value will be stored as a boolean value.</td></tr>
-<tr><td>ECHO</td><td>The column value will be stored as an integer value, but cannot be used in the definition of features.</td></tr>
-<tr><td>IGNORE</td><td>The column value will be ignored and therefore will not be present in the output file.</td></tr>
+<tr><td>STRING</td><td>The column value will be used as a string value in the feature model.</td></tr>
+<tr><td>INTEGER</td><td>The column value will be used as an integer value in the feature model.</td></tr>
+<tr><td>BOOLEAN</td><td>The column value will be used as a boolean value in the feature model..</td></tr>
+<tr><td>REAL</td><td>The column value will be used as a real value in the feature model..</td></tr>
 </table>
 </td></tr>
 <tr class="b"><td align="left">default</td><td>The default output for columns that have the column type IGNORE.</td></tr>

@@ -36,7 +36,7 @@ public class Cheater implements LearningMethod {
 	protected String name;
 	protected int numberOfInstances;
 	protected boolean excludeNullValues;
-	private int[] cardinalities;
+//	private int[] cardinalities;
 	private String cheaterFileName;
 	private BufferedWriter cheaterWriter = null;
 	private boolean saveCheatAction;
@@ -91,7 +91,7 @@ public class Cheater implements LearningMethod {
 						sb.append("-1");
 					} else {
 						if (featureValue instanceof SingleFeatureValue) {
-							sb.append(((SingleFeatureValue)featureValue).getCode()+"");
+							sb.append(((SingleFeatureValue)featureValue).getIndexCode()+"");
 						} else if (featureValue instanceof MultipleFeatureValue) {
 							Set<Integer> values = ((MultipleFeatureValue)featureValue).getCodes();
 							int j=0;
@@ -124,22 +124,22 @@ public class Cheater implements LearningMethod {
 		} else if (owner == null) {
 			throw new CheaterException("The parent guide model cannot be found. ");
 		}
-		if (!saveCheatAction) {
-			cardinalities = getCardinalities(featureVector);
-			maltSVMFormat2OriginalSVMFormat(getInstanceInputStreamReader(".ins"), getInstanceOutputStreamWriter(".ins.tmp"), cardinalities);
-			saveCardinalities(getInstanceOutputStreamWriter(".car"), cardinalities);
-		}
+//		if (!saveCheatAction) {
+//			cardinalities = getCardinalities(featureVector);
+//			maltSVMFormat2OriginalSVMFormat(getInstanceInputStreamReader(".ins"), getInstanceOutputStreamWriter(".ins.tmp"), cardinalities);
+//			saveCardinalities(getInstanceOutputStreamWriter(".car"), cardinalities);
+//		}
 	}
 	
 	
 	public boolean predict(FeatureVector featureVector, SingleDecision decision) throws MaltChainedException {
-		if (cardinalities == null) {
-			if (getConfigFileEntry(".car") != null) {
-				cardinalities = loadCardinalities(getInstanceInputStreamReaderFromConfigFile(".car"));
-			} else {
-				cardinalities = getCardinalities(featureVector);
-			}
-		}
+//		if (cardinalities == null) {
+//			if (getConfigFileEntry(".car") != null) {
+//				cardinalities = loadCardinalities(getInstanceInputStreamReaderFromConfigFile(".car"));
+//			} else {
+//				cardinalities = getCardinalities(featureVector);
+//			}
+//		}
 		if (cheatValues == null) {
 			if (cheaterFileName == null || cheaterFileName.equals("")) {
 				throw new CheaterException("The cheater file name is assigned. ");
@@ -171,24 +171,24 @@ public class Cheater implements LearningMethod {
 		}
 		
 
-		for (FeatureFunction feature : featureVector) {
-			final FeatureValue featureValue = feature.getFeatureValue();
-			if (!(excludeNullValues == true && featureValue.isNullValue())) {
-				if (featureValue instanceof SingleFeatureValue) {
-					if (((SingleFeatureValue)featureValue).getCode() < cardinalities[i]) {
-						csb.append((((SingleFeatureValue)featureValue).getCode() + offset) + ":" + "1 ");
-					}
-				} else if (featureValue instanceof MultipleFeatureValue) {
-					for (Integer value : ((MultipleFeatureValue)featureValue).getCodes()) {
-						if (value < cardinalities[i]) {
-							csb.append((value + offset) + ":" + "1 ");
-						}
-					}
-				}
-			}
-			offset += cardinalities[i];
-			i++;
-		}
+//		for (FeatureFunction feature : featureVector) {
+//			final FeatureValue featureValue = feature.getFeatureValue();
+//			if (!(excludeNullValues == true && featureValue.isNullValue())) {
+//				if (featureValue instanceof SingleFeatureValue) {
+//					if (((SingleFeatureValue)featureValue).getCode() < cardinalities[i]) {
+//						csb.append((((SingleFeatureValue)featureValue).getCode() + offset) + ":" + "1 ");
+//					}
+//				} else if (featureValue instanceof MultipleFeatureValue) {
+//					for (Integer value : ((MultipleFeatureValue)featureValue).getCodes()) {
+//						if (value < cardinalities[i]) {
+//							csb.append((value + offset) + ":" + "1 ");
+//						}
+//					}
+//				}
+//			}
+//			offset += cardinalities[i];
+//			i++;
+//		}
 		csb.setLength(csb.length()-1);
 		csb.append('\n');
 		try {
@@ -244,51 +244,51 @@ public class Cheater implements LearningMethod {
 		}
 	}
 	
-	private int[] getCardinalities(FeatureVector featureVector) {
-		int[] cardinalities = new int[featureVector.size()];
-		int i = 0;
-		for (FeatureFunction feature : featureVector) {
-			cardinalities[i++] = feature.getFeatureValue().getCardinality();
-		}
-		return cardinalities;
-	}
-	
-	private void saveCardinalities(OutputStreamWriter osw, int[] cardinalities) throws MaltChainedException {
-		final BufferedWriter out = new BufferedWriter(osw);
-		try {
-			for (int i = 0, n = cardinalities.length; i < n; i++) {
-				out.write(Integer.toString(cardinalities[i]));
-				if (i < n - 1) {
-					out.write(',');
-				}
-			}
-			out.write('\n');
-			out.close();
-		} catch (IOException e) {
-			throw new CheaterException("", e);
-		}
-	}
-	
-	private int[] loadCardinalities(InputStreamReader isr) throws MaltChainedException {
-		int[] cardinalities = null;
-		try {
-			final BufferedReader in = new BufferedReader(isr); 
-			String line;
-			if ((line = in.readLine()) != null) {
-				String[] items = line.split(",");
-				cardinalities = new int[items.length];
-				for (int i = 0; i < items.length; i++) {
-					cardinalities[i] = Integer.parseInt(items[i]);
-				}
- 			}
-			in.close();
-		} catch (IOException e) {
-			throw new CheaterException("", e);
-		} catch (NumberFormatException e) {
-			throw new CheaterException("", e);
-		}
-		return cardinalities;
-	}
+//	private int[] getCardinalities(FeatureVector featureVector) {
+//		int[] cardinalities = new int[featureVector.size()];
+//		int i = 0;
+//		for (FeatureFunction feature : featureVector) {
+//			cardinalities[i++] = feature.getFeatureValue().getCardinality();
+//		}
+//		return cardinalities;
+//	}
+//	
+//	private void saveCardinalities(OutputStreamWriter osw, int[] cardinalities) throws MaltChainedException {
+//		final BufferedWriter out = new BufferedWriter(osw);
+//		try {
+//			for (int i = 0, n = cardinalities.length; i < n; i++) {
+//				out.write(Integer.toString(cardinalities[i]));
+//				if (i < n - 1) {
+//					out.write(',');
+//				}
+//			}
+//			out.write('\n');
+//			out.close();
+//		} catch (IOException e) {
+//			throw new CheaterException("", e);
+//		}
+//	}
+//	
+//	private int[] loadCardinalities(InputStreamReader isr) throws MaltChainedException {
+//		int[] cardinalities = null;
+//		try {
+//			final BufferedReader in = new BufferedReader(isr); 
+//			String line;
+//			if ((line = in.readLine()) != null) {
+//				String[] items = line.split(",");
+//				cardinalities = new int[items.length];
+//				for (int i = 0; i < items.length; i++) {
+//					cardinalities[i] = Integer.parseInt(items[i]);
+//				}
+// 			}
+//			in.close();
+//		} catch (IOException e) {
+//			throw new CheaterException("", e);
+//		} catch (NumberFormatException e) {
+//			throw new CheaterException("", e);
+//		}
+//		return cardinalities;
+//	}
 	
 	protected void initSpecialParameters() throws MaltChainedException {
 		if (getConfiguration().getOptionValue("singlemalt", "null_value") != null && getConfiguration().getOptionValue("singlemalt", "null_value").toString().equalsIgnoreCase("none")) {
@@ -446,25 +446,5 @@ public class Cheater implements LearningMethod {
 		
 
 		return sb.toString();
-	}
-
-	@Override
-	public double crossValidate(FeatureVector featureVector, int nrOfSplits)
-			throws MaltChainedException {
-		return 0;
-	}
-
-	@Override
-	public void divideByFeatureSet(
-			Set<Integer> featureIdsToCreateSeparateBranchesForSet,
-			ArrayList<Integer> divideFeatureIndexVector, String otherId)
-			throws MaltChainedException {
-	}
-
-	@Override
-	public Map<Integer, Integer> createFeatureIdToCountMap(
-			ArrayList<Integer> divideFeatureIndexVector)
-			throws MaltChainedException {
-		return null;
 	}
 }

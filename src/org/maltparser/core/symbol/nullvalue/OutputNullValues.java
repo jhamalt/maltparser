@@ -8,32 +8,18 @@ import org.maltparser.core.symbol.SymbolTable;
 @since 1.0
  */
 public class OutputNullValues extends NullValues {
-	private String rootLabel;
-	
-	public OutputNullValues(String nullValueStrategy, SymbolTable table, String rootLabel) {
+
+	public OutputNullValues(String nullValueStrategy, SymbolTable table) {
 		super(table);
-		setRootLabel(rootLabel);
+
 		setNullValueEncoding(nullValueStrategy);
 		makeNullValues();
-	}
-	
-	private void setRootLabel(String rootLabel) {
-		if (rootLabel == null) {
-			this.rootLabel = "ROOT";
-		}
-		this.rootLabel = rootLabel;
-	}
-	
-	public String getRootLabel() {
-		return rootLabel;
 	}
 	
 	protected void setNullValueEncoding(String nullValueStrategy) {
 		setNullValueStrategy(nullValueStrategy);
 		if (nullValueStrategy.equalsIgnoreCase("none")) {
 			nullValueEncoding = NullValueDegree.NONE;
-		} else if (nullValueStrategy.equalsIgnoreCase("rootlabel")) {
-			nullValueEncoding = NullValueDegree.ROOTLABEL;
 		} else if (nullValueStrategy.equalsIgnoreCase("rootnode")) {
 			nullValueEncoding = NullValueDegree.ROOTNODE;
 		} else if (nullValueStrategy.equalsIgnoreCase("novalue")) {
@@ -53,16 +39,6 @@ public class OutputNullValues extends NullValues {
 			nullValue2CodeMap.put(NullValueId.NO_VALUE, 0);
 			symbol2CodeMap.put("#null#", 0);
 			code2SymbolMap.put(0, "#null#");
-			setNextCode(1);
-		} else if (nullValueEncoding == NullValueDegree.ROOTLABEL) {
-			nullValue2SymbolMap.put(NullValueId.NO_NODE, rootLabel);
-			nullValue2SymbolMap.put(NullValueId.ROOT_NODE, rootLabel);
-			nullValue2SymbolMap.put(NullValueId.NO_VALUE, rootLabel);
-			nullValue2CodeMap.put(NullValueId.NO_NODE, 0);
-			nullValue2CodeMap.put(NullValueId.ROOT_NODE, 0);
-			nullValue2CodeMap.put(NullValueId.NO_VALUE, 0);
-			symbol2CodeMap.put(rootLabel, 0);
-			code2SymbolMap.put(0, rootLabel);
 			setNextCode(1);
 		} else if (nullValueEncoding == NullValueDegree.ROOTNODE) {
 			nullValue2SymbolMap.put(NullValueId.NO_NODE, "#null#");

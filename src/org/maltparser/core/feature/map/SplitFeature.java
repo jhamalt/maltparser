@@ -11,6 +11,8 @@ import org.maltparser.core.feature.value.FeatureValue;
 import org.maltparser.core.feature.value.FunctionValue;
 import org.maltparser.core.feature.value.MultipleFeatureValue;
 import org.maltparser.core.feature.value.SingleFeatureValue;
+import org.maltparser.core.io.dataformat.ColumnDescription;
+import org.maltparser.core.io.dataformat.DataFormatInstance;
 import org.maltparser.core.symbol.SymbolTable;
 import org.maltparser.core.symbol.SymbolTableHandler;
 
@@ -22,14 +24,15 @@ import org.maltparser.core.symbol.SymbolTableHandler;
 public class SplitFeature implements FeatureMapFunction {
 	protected FeatureFunction parentFeature;
 	protected MultipleFeatureValue multipleFeatureValue;
-	protected SymbolTableHandler tableHandler;
+	protected DataFormatInstance dataFormatInstance;
+	protected ColumnDescription column;
 	protected SymbolTable table;
 	protected String separators;
 	protected Pattern separatorsPattern;
 	
-	public SplitFeature(SymbolTableHandler tableHandler) throws MaltChainedException {
+	public SplitFeature(DataFormatInstance dataFormatInstance) throws MaltChainedException {
 		super();
-		setTableHandler(tableHandler);
+		setDataFormatInstance(dataFormatInstance);
 		multipleFeatureValue = new MultipleFeatureValue(this);
 	}
 	
@@ -45,7 +48,13 @@ public class SplitFeature implements FeatureMapFunction {
 		}
 		setParentFeature((FeatureFunction)arguments[0]);
 		setSeparators((String)arguments[1]);
-		setSymbolTable(tableHandler.addSymbolTable("SPLIT_"+parentFeature.getSymbolTable().getName(), parentFeature.getSymbolTable()));
+		ColumnDescription parentColumn = dataFormatInstance.getColumnDescriptionByName(parentFeature.getSymbolTable().getName());
+		if (parentColumn.getType() != ColumnDescription.STRING) {
+			throw new FeatureException("Could not initialize SplitFeature: the first argument must be a string. ");
+		}
+		setColumn(dataFormatInstance.addInternalColumnDescription("SPLIT_"+parentFeature.getSymbolTable().getName(), parentColumn));
+		setSymbolTable(column.getSymbolTable());
+//		setSymbolTable(tableHandler.addSymbolTable("SPLIT_"+parentFeature.getSymbolTable().getName(), parentFeature.getSymbolTable()));
 	}
 	
 	public Class<?>[] getParameterTypes() {
@@ -150,15 +159,25 @@ public class SplitFeature implements FeatureMapFunction {
 	}
 
 	public SymbolTableHandler getTableHandler() {
-		return tableHandler;
+		return dataFormatInstance.getSymbolTables();
 	}
 
-	public void setTableHandler(SymbolTableHandler tableHandler) {
-		this.tableHandler = tableHandler;
+	public DataFormatInstance getDataFormatInstance() {
+		return dataFormatInstance;
 	}
 
-
+	public void setDataFormatInstance(DataFormatInstance dataFormatInstance) {
+		this.dataFormatInstance = dataFormatInstance;
+	}
 	
+	public ColumnDescription getColumn() {
+		return column;
+	}
+	
+	protected void setColumn(ColumnDescription column) {
+		this.column = column;
+	}
+
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
 		sb.append("Split(");

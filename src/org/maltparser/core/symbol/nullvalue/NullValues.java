@@ -15,7 +15,7 @@ import org.maltparser.core.symbol.SymbolTable;
  */
 public abstract class NullValues {
 	protected enum NullValueDegree {
-		NONE, ONE, ROOTLABEL, ROOTNODE, NOVALUE
+		NONE, ONE, ROOTNODE, NOVALUE
 	};
 	public enum NullValueId {
 		NO_NODE, ROOT_NODE, NO_VALUE

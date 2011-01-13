@@ -28,7 +28,6 @@ public class FeatureVector extends ArrayList<FeatureFunction> implements Seriali
 	public FeatureVector(FeatureModel featureModel, SpecificationSubModel specSubModel) throws MaltChainedException {
 		setSpecSubModel(specSubModel);
 		setFeatureModel(featureModel);
-
 		for (String spec : specSubModel) {
 			add(featureModel.identifyFeature(spec));	
 		}
@@ -89,8 +88,10 @@ public class FeatureVector extends ArrayList<FeatureFunction> implements Seriali
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		for (FeatureFunction function : this) {
-			sb.append(function.getFeatureValue().toString());
-			sb.append('\n');
+			if (function != null) {
+				sb.append(function.getFeatureValue().toString());
+				sb.append('\n');
+			}
 		}
 		return sb.toString();
 	}

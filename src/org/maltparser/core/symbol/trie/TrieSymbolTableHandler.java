@@ -65,15 +65,6 @@ public class TrieSymbolTableHandler implements SymbolTableHandler {
 		return symbolTable;
 	}
 	
-	public TrieSymbolTable addSymbolTable(String tableName, int columnCategory, String nullValueStrategy, String rootLabel) throws MaltChainedException {
-		TrieSymbolTable symbolTable = symbolTables.get(tableName);
-		if (symbolTable == null) {
-			symbolTable = new TrieSymbolTable(tableName, trie, columnCategory, nullValueStrategy, rootLabel);
-			symbolTables.put(tableName, symbolTable);
-		}
-		return symbolTable;
-	}
-	
 	public TrieSymbolTable getSymbolTable(String tableName) {
 		return symbolTables.get(tableName);
 	}
@@ -122,14 +113,10 @@ public class TrieSymbolTableHandler implements SymbolTableHandler {
 				} catch (PatternSyntaxException e) {
 					throw new SymbolException("The header line of the symbol table  '"+fileLine.substring(1)+"' could not split into atomic parts. ", e);
 				}
-				if (items.length != 4) {
+				if (items.length != 3) {
 					throw new SymbolException("The header line of the symbol table  '"+fileLine.substring(1)+"' must contain four columns. ");
 				}
-				if (items[3].equals("#DUMMY#")) {
-					addSymbolTable(items[0], Integer.parseInt(items[1]), items[2]);
-				} else {
-					addSymbolTable(items[0], Integer.parseInt(items[1]), items[2], items[3]);
-				}
+				addSymbolTable(items[0], Integer.parseInt(items[1]), items[2]);
 			}
 		} catch (NumberFormatException e) {
 			throw new SymbolException("The symbol table file (.sym) contains a non-integer value in the header. ", e);
@@ -180,25 +167,6 @@ public class TrieSymbolTableHandler implements SymbolTableHandler {
 			BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), charSet));
 			String fileLine;
 			TrieSymbolTable table = addSymbolTable(tableName, columnCategory, nullValueStrategy);
-
-			while ((fileLine = br.readLine()) != null) {
-				table.addSymbol(fileLine.trim());
-			}
-			return table;
-		} catch (FileNotFoundException e) {
-			throw new SymbolException("The tagset file '"+fileName+"' cannot be found. ", e);
-		} catch (UnsupportedEncodingException e) {
-			throw new SymbolException("The char set '"+charSet+"' is not supported. ", e);
-		} catch (IOException e) {
-			throw new SymbolException("The tagset file '"+fileName+"' cannot be loaded. ", e);
-		}
-	}
-	
-	public SymbolTable loadTagset(String fileName, String tableName, String charSet, int columnCategory, String nullValueStrategy, String rootLabel) throws MaltChainedException {
-		try {
-			BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), charSet));
-			String fileLine;
-			TrieSymbolTable table = addSymbolTable(tableName, columnCategory, nullValueStrategy, rootLabel);
 
 			while ((fileLine = br.readLine()) != null) {
 				table.addSymbol(fileLine.trim());

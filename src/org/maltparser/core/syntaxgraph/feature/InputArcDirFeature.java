@@ -79,35 +79,32 @@ public class InputArcDirFeature implements FeatureFunction {
 			try {
 				int index = Integer.parseInt(node.getLabelSymbol(column.getSymbolTable()));
 				if (node.isRoot()) {
-					featureValue.setCode(table.getNullValueCode(NullValueId.ROOT_NODE));
+					featureValue.setIndexCode(table.getNullValueCode(NullValueId.ROOT_NODE));
 					featureValue.setSymbol(table.getNullValueSymbol(NullValueId.ROOT_NODE));
-					featureValue.setKnown(true);
 					featureValue.setNullValue(true);
 				} else if (index == 0) {
-					featureValue.setCode(table.getSymbolStringToCode("ROOT"));
+					featureValue.setIndexCode(table.getSymbolStringToCode("ROOT"));
 					featureValue.setSymbol("ROOT");
-					featureValue.setKnown(true);
 					featureValue.setNullValue(false);
 				} else if (index < node.getIndex()) {
-					featureValue.setCode(table.getSymbolStringToCode("LEFT"));
+					featureValue.setIndexCode(table.getSymbolStringToCode("LEFT"));
 					featureValue.setSymbol("LEFT");
-					featureValue.setKnown(true);
 					featureValue.setNullValue(false);
 				} else if (index > node.getIndex()) {
-					featureValue.setCode(table.getSymbolStringToCode("RIGHT"));
+					featureValue.setIndexCode(table.getSymbolStringToCode("RIGHT"));
 					featureValue.setSymbol("RIGHT");
-					featureValue.setKnown(true);
 					featureValue.setNullValue(false);
 				}
 			} catch (NumberFormatException e) {
 				throw new FeatureException("The index of the feature must be an integer value. ", e);
 			}
 		} else {
-			featureValue.setCode(table.getNullValueCode(NullValueId.NO_NODE));
+			featureValue.setIndexCode(table.getNullValueCode(NullValueId.NO_NODE));
 			featureValue.setSymbol(table.getNullValueSymbol(NullValueId.NO_NODE));
-			featureValue.setKnown(true);
 			featureValue.setNullValue(true);
 		}
+		featureValue.setValue(1);
+		featureValue.setKnown(true);
 	}
 
 	public AddressFunction getAddressFunction() {

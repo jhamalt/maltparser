@@ -139,8 +139,6 @@ many single malt configurations. ]]></desc>
 			<li><code>none</code>: Excludes all kinds of null-values when extracting the feature vector, this option value is not possible for learning
 			methods that have symbolic feature vector encoding.
 			<li><code>one</code>: Maps all kinds of null values to one symbol.
-			<li><code>rootlabel</code>: Maps all kinds of null values to one symbol and for output columns this symbol is the same as the root 
-			label (used to emulate MaltParser 0.4)
 			<li><code>rootnode</code>: Distinguishes between <code>NO NODE</code> and <code>ROOT NODE</code>, and the <code>NO VALUE</code> null-value case is mapped 
 			to the <code>ROOT NODE</code> null-value for output columns. 
 			<li><code>novalue</code>: Distinguishes between <code>NO NODE</code> and <code>ROOT NODE</code> for both input and output columns, and <code>NO VALUE</code> for output columns. 
@@ -149,7 +147,6 @@ many single malt configurations. ]]></desc>
 			<shortdesc>The degree of differentiation of null-values</shortdesc>
 			<legalvalue name="none">Excludes all types of null values</legalvalue>
 			<legalvalue name="one">Maps all kinds of null values to one symbol</legalvalue>
-			<legalvalue name="rootlabel">Same as 'one', but null value for output column is mapped to the root label</legalvalue>
 			<legalvalue name="rootnode">Distinguish between no node and root node</legalvalue>
 			<legalvalue name="novalue">Distinguish between no node and root node, and no value for output column</legalvalue>
 		</option>
@@ -346,61 +343,33 @@ otherwise all tokens in Left must be inspected before the next token is shifted.
 			<shortdesc>Allow shift transition</shortdesc>
 		</option>
 	</optiongroup>
-	<optiongroup groupname="libsvm">
-		<desc><![CDATA[ This group contains options that are specific for the LIBSVM learner. ]]></desc>
-		<option type="string" name="libsvm_options" flag="lso" default="-s_0_-t_1_-d_2_-g_0.2_-c_1_-r_0_-e_1.0" usage="save">
+	<optiongroup groupname="lib">
+		<desc><![CDATA[ This group contains options that are specific for the liblinear and libsvm learner. ]]></desc>
+		<option type="string" name="options" flag="lo" default="" usage="save">
 			<desc><![CDATA[ There are many LIBSVM options (see <a href="http://www.csie.ntu.edu.tw/~cjlin/libsvm/" target="_blank">LIBSVM Documentation</a>). 
 			Note that all whitespace is replaced by underscore if this option is specified in the command-line prompt. 
-			For example, it could look like this: <code>-lso -s_0_-t_1_-d_2_-g_0.2_-c_1_-r_0_-e_1.0</code> . ]]></desc>
-			<shortdesc>LIBSVM options (see LIBSVM Documentation)</shortdesc>
-		</option>
-		<option type="string" name="libsvm_external" flag="lsx" default="" usage="train">
-			<desc><![CDATA[ If you have the LIBSVM package installed on your system then it is possible to use the C++ implementation
-			of LIBSVM learner instead of the internal Java implementation (<code>libsvm.jar</code>) during learning time. It is very likely 
-			that the external C++ implementation is faster and uses less memory on your system. By specifying this option with the path to 
-			the executable file <code>svm-train</code> (Microsoft Windows use <code>svm-train.exe</code>) the parser will train LIBSVM models 
-			with <code>svm-train</code> instead of using <code>libsvm.jar</code>. 
-			<b>Note</b>: There can be a slight differences in accuracy between using the internal LIBSVM learner and the external 
-			LIBSVM learner, due to different versions of LIBSVM and the precision in assigning floating-point parameters.  ]]></desc>
-			<shortdesc>Path to <code>svm-train</code></shortdesc>
-		</option>
-		<option type="bool" name="save_instance_files" flag="lsi" default="false" usage="save">
-			<desc><![CDATA[ If <b>save_instance_files=true</b>, training instance files are saved in the configuration, otherwise 
-			these files are deleted. The training instance files are not used during parsing. ]]></desc>
-			<shortdesc>If <b>save_instance_files=true</b>, instance files are saved in the configuration.</shortdesc>
-		</option>
-		<option type="enum" name="verbosity" flag="lsv" default="silent" usage="train">
-			<desc><![CDATA[ ]]></desc>
-			<shortdesc>Verbosity of LIBSVM</shortdesc>
-			<legalvalue name="silent">No output from LIBSVM is logged</legalvalue>
-			<legalvalue name="error">Only the error stream of LIBSVM is logged</legalvalue>
-			<legalvalue name="all">All output of LIBSVM is logged</legalvalue>
-		</option>
-	</optiongroup>
-	<optiongroup groupname="liblinear">
-		<desc><![CDATA[ This group contains options that are specific for the LIBLINEAR learner. ]]></desc>
-		<option type="string" name="liblinear_options" flag="llo" default="-s_4_-c_0.1" usage="save">
-			<desc><![CDATA[ Liblinear have several options (see <a href="http://www.csie.ntu.edu.tw/~cjlin/liblinear/" target="_blank">liblinear Documentation</a>) that 
+			For example, it could look like this: <code>-lo -s_0_-t_1_-d_2_-g_0.2_-c_1_-r_0_-e_1.0</code>. 
+			Liblinear have several options (see <a href="http://www.csie.ntu.edu.tw/~cjlin/liblinear/" target="_blank">liblinear Documentation</a>) that 
 			you can specify with this options. 
 			Note that all whitespace is replaced by underscore if this option is specified in the command-line prompt. 
-			For example, it could look like this: <code>-llo -s_4_-c_0.1</code> ]]></desc>
+			For example, it could look like this: <code>-lo -s_4_-c_0.1</code> ]]></desc>
 			<shortdesc>LIBLINEAR options (see liblinear Documentation)</shortdesc>
 		</option>
-		<option type="string" name="liblinear_external" flag="llx" default="" usage="train">
-			<desc><![CDATA[ Path to <code>train</code> executable file of the liblinear package (Microsoft Windows use <code>train.exe</code>) ]]></desc>
-			<shortdesc>Path to <code>svm-train</code></shortdesc>
+		<option type="string" name="external" flag="lx" default="" usage="train">
+			<desc><![CDATA[ Path to <code>train</code> or <code>svm-train</code> executable file of the liblinear or the libsvm package. ]]></desc>
+			<shortdesc>Path to <code>train</code> or <code>svm-train</code></shortdesc>
 		</option>
-		<option type="bool" name="save_instance_files" flag="lli" default="false" usage="save">
+		<option type="bool" name="save_instance_files" flag="li" default="false" usage="save">
 			<desc><![CDATA[ If <b>save_instance_files=true</b>, training instance files are saved in the configuration, otherwise 
 			these files are deleted. The training instance files are not used during parsing. ]]></desc>
 			<shortdesc>If <b>save_instance_files=true</b>, instance files are saved in the configuration.</shortdesc>
 		</option>
-		<option type="enum" name="verbosity" flag="llv" default="silent" usage="train">
-			<desc><![CDATA[ ]]></desc>
-			<shortdesc>Verbosity of LibLinear</shortdesc>
-			<legalvalue name="silent">No output from LibLinear is logged</legalvalue>
-			<legalvalue name="error">Only the error stream of LibLinear is logged</legalvalue>
-			<legalvalue name="all">All output of LibLinear is logged</legalvalue>
+		<option type="enum" name="verbosity" flag="lv" default="silent" usage="train">
+			<desc><![CDATA[ Verbosity of the liblinear or the libsvm package ]]></desc>
+			<shortdesc>Verbosity of the liblinear or the libsvm package</shortdesc>
+			<legalvalue name="silent">No output from the liblinear or the libsvm package is logged</legalvalue>
+			<legalvalue name="error">Only the error stream of the liblinear or the libsvm package is logged</legalvalue>
+			<legalvalue name="all">All output of the liblinear or the libsvm package is logged</legalvalue>
 		</option>
 	</optiongroup>
 	<optiongroup groupname="guide">
@@ -473,8 +442,8 @@ otherwise all tokens in Left must be inspected before the next token is shifted.
 			<desc><![CDATA[ This option specifies the learning method (learner package). MaltParser @version@ includes
 			the LIBSVM learner and the LIBLINEAR learner. ]]></desc>
 			<shortdesc>Learner</shortdesc>
-			<legalvalue name="libsvm" class="org.maltparser.ml.libsvm.Libsvm">LIBSVM learner</legalvalue>
-			<legalvalue name="liblinear" class="org.maltparser.ml.liblinear.Liblinear">LIBLINEAR learner</legalvalue>
+			<legalvalue name="libsvm" class="org.maltparser.ml.lib.LibSvm">LIBSVM learner</legalvalue>
+			<legalvalue name="liblinear" class="org.maltparser.ml.lib.LibLinear">LIBLINEAR learner</legalvalue>
 		</option>
 		<option type="string" name="decision_settings" flag="gds" default="T.TRANS+A.DEPREL" usage="save">
 			<desc><![CDATA[ This option specifies how a parser action is combined or divided. By default, arc label(s) and transition are combined into

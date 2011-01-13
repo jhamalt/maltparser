@@ -26,7 +26,6 @@ public class ReadChartItem extends ChartItem {
 	private Class<? extends SyntaxGraphReader> graphReaderClass;
 	
 	private String nullValueStrategy;
-	private String rootLabels;
 	
 	private SyntaxGraphReader reader;
 	private String targetName;
@@ -69,10 +68,8 @@ public class ReadChartItem extends ChartItem {
 		setSyntaxGraphReaderClass((Class<?>)OptionManager.instance().getOptionValue(getOptionContainerIndex(), optiongroupName, "reader"));
 
 		setNullValueStrategy(OptionManager.instance().getOptionValue(getOptionContainerIndex(), "singlemalt", "null_value").toString());
-		setRootLabels(OptionManager.instance().getOptionValue(getOptionContainerIndex(), "graph", "root_label").toString());
 		
-		
-		initInput(getNullValueStrategy(), getRootLabels());
+		initInput(getNullValueStrategy());
 		initReader(getSyntaxGraphReaderClass(), getInputFileName(), getInputCharSet(), getReaderOptions(), iterations);
 	}
 	
@@ -188,18 +185,6 @@ public class ReadChartItem extends ChartItem {
 		this.nullValueStrategy = nullValueStrategy;
 	}
 
-	public String getRootLabels() {
-		if (nullValueStrategy == null) {
-			return "ROOT";
-		}
-		return rootLabels;
-	}
-
-	public void setRootLabels(String rootLabels) {
-		this.rootLabels = rootLabels;
-	}
-	
-
 	public String getTargetName() {
 		return targetName;
 	}
@@ -216,7 +201,7 @@ public class ReadChartItem extends ChartItem {
 		return inputDataFormatInstance;
 	}
 
-	public void initInput(String nullValueStategy, String rootLabels) throws MaltChainedException {
+	public void initInput(String nullValueStategy) throws MaltChainedException {
 		ConfigurationDir configDir = (ConfigurationDir)flowChartinstance.getFlowChartRegistry(org.maltparser.core.config.ConfigurationDir.class, idName);
 		DataFormatManager dataFormatManager = configDir.getDataFormatManager();
 //		DataFormatManager dataFormatManager = flowChartinstance.getDataFormatManager();
@@ -225,7 +210,7 @@ public class ReadChartItem extends ChartItem {
 		HashMap<String, DataFormatInstance> dataFormatInstances = configDir.getDataFormatInstances();
 //		HashMap<String, DataFormatInstance> dataFormatInstances = flowChartinstance.getDataFormatInstances();
 		
-		inputDataFormatInstance = dataFormatManager.getInputDataFormatSpec().createDataFormatInstance(symbolTables, nullValueStategy, rootLabels);
+		inputDataFormatInstance = dataFormatManager.getInputDataFormatSpec().createDataFormatInstance(symbolTables, nullValueStategy);
 		if (!dataFormatInstances.containsKey(dataFormatManager.getInputDataFormatSpec().getDataFormatName())) {
 			dataFormatInstances.put(dataFormatManager.getInputDataFormatSpec().getDataFormatName(), inputDataFormatInstance);
 		}

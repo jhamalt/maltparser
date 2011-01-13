@@ -138,9 +138,8 @@ public class NumOfFeature implements FeatureFunction {
 		final AddressValue arg1 = addressFunction.getAddressValue();
 		// if arg1 or arg2 is null, then set a NO_NODE null value as feature value
 		if (arg1.getAddress() == null ) { 
-			featureValue.setCode(table.getNullValueCode(NullValueId.NO_NODE));
+			featureValue.setIndexCode(table.getNullValueCode(NullValueId.NO_NODE));
 			featureValue.setSymbol(table.getNullValueSymbol(NullValueId.NO_NODE));
-			featureValue.setKnown(true);
 			featureValue.setNullValue(true);			
 		} else {
 			// Unfortunately this method takes a lot of time  arg1.getAddressClass().asSubclass(org.maltparser.core.syntaxgraph.node.DependencyNode.class);
@@ -158,7 +157,7 @@ public class NumOfFeature implements FeatureFunction {
 			boolean f = false;
 			for (Integer upper : normalization.keySet()) {
 				if (numof >= lower && numof < upper) {
-					featureValue.setCode(table.getSymbolStringToCode(normalization.get(lower)));
+					featureValue.setIndexCode(table.getSymbolStringToCode(normalization.get(lower)));
 					featureValue.setSymbol(normalization.get(lower));
 					f = true;
 					break;
@@ -166,13 +165,14 @@ public class NumOfFeature implements FeatureFunction {
 				lower = upper;
 			}
 			if (f == false) {
-				featureValue.setCode(table.getSymbolStringToCode(normalization.get(lower)));
+				featureValue.setIndexCode(table.getSymbolStringToCode(normalization.get(lower)));
 				featureValue.setSymbol(normalization.get(lower));
 			}
 			// Tells the feature value that the feature is known and is not a null value
-			featureValue.setKnown(true);
 			featureValue.setNullValue(false);
 		}
+		featureValue.setValue(1);
+		featureValue.setKnown(true);
 	}
 	
 	public void setNumOfRelation(String numOfRelationName) {

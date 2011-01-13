@@ -41,8 +41,6 @@ public class InputNullValues extends NullValues {
 		setNullValueStrategy(nullValueStrategy);
 		if (nullValueStrategy.equalsIgnoreCase("none")) {
 			nullValueEncoding = NullValueDegree.NONE;
-		} else if (nullValueStrategy.equalsIgnoreCase("rootlabel")) {
-			nullValueEncoding = NullValueDegree.ONE;
 		} else if (nullValueStrategy.equalsIgnoreCase("rootnode")) {
 			nullValueEncoding = NullValueDegree.ROOTNODE;
 		} else if (nullValueStrategy.equalsIgnoreCase("novalue")) {

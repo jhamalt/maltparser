@@ -47,7 +47,7 @@ public abstract class FeatureValue extends FunctionValue {
 	public void setCardinality(int cardinality) {
 		this.cardinality = cardinality;
 	}
-
+	
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -59,6 +59,6 @@ public abstract class FeatureValue extends FunctionValue {
 	}
 	
 	public String toString() {
-		return super.toString()+ "[ null=" + nullValue + ", cardinality="+cardinality+" ] ";
+		return super.toString()+ "[ null=" + nullValue + ", ] ";// cardinality="+cardinality+" ] ";
 	}
 }

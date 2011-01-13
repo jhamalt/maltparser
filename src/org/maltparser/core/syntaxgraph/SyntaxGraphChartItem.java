@@ -77,9 +77,8 @@ public class SyntaxGraphChartItem extends ChartItem {
 				dependency = true;
 				HashSet<Dependency> deps = dataFormatManager.getInputDataFormatSpec().getDependencies();
 				String nullValueStategy = OptionManager.instance().getOptionValue(getOptionContainerIndex(), "singlemalt", "null_value").toString();
-				String rootLabels = OptionManager.instance().getOptionValue(getOptionContainerIndex(), "graph", "root_label").toString();
 				for (Dependency dep : deps) {
-					dataFormatInstance = dataFormatManager.getDataFormatSpec(dep.getDependentOn()).createDataFormatInstance(symbolTables, nullValueStategy, rootLabels);
+					dataFormatInstance = dataFormatManager.getDataFormatSpec(dep.getDependentOn()).createDataFormatInstance(symbolTables, nullValueStategy);
 					dataFormatInstances.put(dataFormatManager.getOutputDataFormatSpec().getDataFormatName(), dataFormatInstance);
 				}
 			}

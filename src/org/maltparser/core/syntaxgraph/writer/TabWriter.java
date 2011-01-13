@@ -77,7 +77,7 @@ public class TabWriter implements SyntaxGraphWriter {
 				while (columns.hasNext()) {
 					column = columns.next();
 
-					if (column.getCategory() == ColumnDescription.INPUT && column.getType() != ColumnDescription.IGNORE) {
+					if (column.getCategory() == ColumnDescription.INPUT) { // && column.getType() != ColumnDescription.IGNORE) {
 						TokenNode node = syntaxGraph.getTokenNode(i); 
 						if (!column.getName().equals("ID")) {
 							if (node.hasLabel(column.getSymbolTable())) {
@@ -93,14 +93,14 @@ public class TabWriter implements SyntaxGraphWriter {
 						} else {
 							writer.write(Integer.toString(i));
 						}
-					} else if (column.getCategory() == ColumnDescription.HEAD && column.getType() != ColumnDescription.IGNORE && syntaxGraph instanceof DependencyStructure) {
+					} else if (column.getCategory() == ColumnDescription.HEAD /* && column.getType() != ColumnDescription.IGNORE */&& syntaxGraph instanceof DependencyStructure) {
 						if (((DependencyStructure)syntaxGraph).getDependencyNode(i).hasHead()) {
 							writer.write(Integer.toString(((DependencyStructure)syntaxGraph).getDependencyNode(i).getHead().getIndex()));
 						} else {
 							writer.write(Integer.toString(0));
 						}
 						
-					} else if (column.getCategory() == ColumnDescription.DEPENDENCY_EDGE_LABEL && column.getType() != ColumnDescription.IGNORE && syntaxGraph instanceof DependencyStructure) {
+					} else if (column.getCategory() == ColumnDescription.DEPENDENCY_EDGE_LABEL /* && column.getType() != ColumnDescription.IGNORE */ && syntaxGraph instanceof DependencyStructure) {
 						if (((DependencyStructure)syntaxGraph).getDependencyNode(i).hasHead() && ((DependencyStructure)syntaxGraph).getDependencyNode(i).hasHeadEdgeLabel(column.getSymbolTable())) {
 							output.append(((DependencyStructure)syntaxGraph).getDependencyNode(i).getHeadEdgeLabelSymbol(column.getSymbolTable()));
 						} else {

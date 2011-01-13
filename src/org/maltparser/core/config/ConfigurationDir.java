@@ -264,6 +264,25 @@ public class ConfigurationDir  {
 		}
 	}
 	
+	public InputStream getInputStreamFromConfigFileEntry(String fileName) throws MaltChainedException {
+		File mcoPath = new File(workingDirectory.getPath()+File.separator+getName()+".mco");
+		try {
+			JarFile mcoFile = new JarFile(mcoPath.getAbsolutePath());
+			JarEntry entry = mcoFile.getJarEntry(getName()+'/'+fileName);
+			if (entry == null) {
+				entry = mcoFile.getJarEntry(getName()+'\\'+fileName);
+			}
+			if (entry == null) {
+				throw new FileNotFoundException();
+			}
+			return mcoFile.getInputStream(entry);
+		} catch (FileNotFoundException e) {
+			throw new ConfigurationException("The file entry '"+fileName+"' in the mco file '"+mcoPath+"' cannot be found. ", e);
+		} catch (IOException e) {
+			throw new ConfigurationException("The file entry '"+fileName+"' in the mco file '"+mcoPath+"' cannot be loaded. ", e);
+		}
+	}
+	
 	public InputStreamReader getInputStreamReaderFromConfigFileEntry(String fileName, String charSet) throws MaltChainedException {
 		File mcoPath = new File(workingDirectory.getPath()+File.separator+getName()+".mco");
 		try {
@@ -1098,5 +1117,9 @@ public class ConfigurationDir  {
 	
 	public HashMap<String, DataFormatInstance> getDataFormatInstances() {
 		return dataFormatInstances;
+	}
+	
+	public DataFormatInstance getInputDataFormatInstance() {
+		return dataFormatInstances.get(dataFormatManager.getInputDataFormatSpec().getDataFormatName());
 	}
 }

@@ -45,31 +45,35 @@ public abstract class TableFeature implements FeatureFunction, Modifiable {
 		}
 	}
 	
-	public void setFeatureValue(int value) throws MaltChainedException {
-		if (table.getSymbolCodeToString(value) == null) {
-			featureValue.setCode(value);
-			featureValue.setKnown(table.getKnown(value));
+	public void setFeatureValue(int indexCode) throws MaltChainedException {
+		if (table.getSymbolCodeToString(indexCode) == null) {
+			featureValue.setIndexCode(indexCode);
+			featureValue.setValue(1);
+			featureValue.setKnown(table.getKnown(indexCode));
 			featureValue.setSymbol(table.getNullValueSymbol(NullValueId.NO_NODE));
 			featureValue.setNullValue(true);
 		} else {
-			featureValue.setCode(value);
-			featureValue.setKnown(table.getKnown(value));
-			featureValue.setSymbol(table.getSymbolCodeToString(value));
-			featureValue.setNullValue(table.isNullValue(value));
+			featureValue.setIndexCode(indexCode);
+			featureValue.setValue(1);
+			featureValue.setKnown(table.getKnown(indexCode));
+			featureValue.setSymbol(table.getSymbolCodeToString(indexCode));
+			featureValue.setNullValue(table.isNullValue(indexCode));
 		}
 	}
 	
-	public void setFeatureValue(String value) throws MaltChainedException {
-		if (table.getSymbolStringToCode(value) < 0) {
-			featureValue.setCode(table.getNullValueCode(NullValueId.NO_NODE));
-			featureValue.setKnown(table.getKnown(value));
-			featureValue.setSymbol(value);
+	public void setFeatureValue(String symbol) throws MaltChainedException {
+		if (table.getSymbolStringToCode(symbol) < 0) {
+			featureValue.setIndexCode(table.getNullValueCode(NullValueId.NO_NODE));
+			featureValue.setValue(1);
+			featureValue.setKnown(table.getKnown(symbol));
+			featureValue.setSymbol(symbol);
 			featureValue.setNullValue(true);
 		} else {
-			featureValue.setCode(table.getSymbolStringToCode(value));
-			featureValue.setKnown(table.getKnown(value));
-			featureValue.setSymbol(value);
-			featureValue.setNullValue(table.isNullValue(value));
+			featureValue.setIndexCode(table.getSymbolStringToCode(symbol));
+			featureValue.setValue(1);
+			featureValue.setKnown(table.getKnown(symbol));
+			featureValue.setSymbol(symbol);
+			featureValue.setNullValue(table.isNullValue(symbol));
 		}
 	}
 	

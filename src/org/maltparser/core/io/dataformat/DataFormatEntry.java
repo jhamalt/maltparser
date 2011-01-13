@@ -5,14 +5,12 @@ package org.maltparser.core.io.dataformat;
  * @author Johan Hall
  * @since 1.0
 **/
-public class DataFormatEntry implements Comparable<DataFormatEntry>{
-	/** Column position from 0 to n-1, where n is number of columns in the data format. */
-	private int position;
+public class DataFormatEntry {
 	/** Column name */
 	private String dataFormatEntryName;
-	/** Column category (INPUT, HEAD or OUTPUT) */
+	/** Column category (INPUT, HEAD, DEPENDENCY_EDGE_LABEL, PHRASE_STRUCTURE_EDGE_LABEL, PHRASE_STRUCTURE_NODE_LABEL, SECONDARY_EDGE_LABEL, IGNORE and INTERNAL) */
 	private String category;
-	/** Column type (STRING, INTEGER, BOOLEAN, ECHO or IGNORE) */
+	/** Column type (STRING, INTEGER, BOOLEAN, REAL) */
 	private String type;
 	/** Default output for a ignore column */
 	private String defaultOutput;
@@ -27,30 +25,11 @@ public class DataFormatEntry implements Comparable<DataFormatEntry>{
 	 * @param type	column type
 	 * @param defaultOutput	default output for a ignore column
 	 */
-	public DataFormatEntry(int position, String dataFormatEntryName, String category, String type, String defaultOutput) {
-		setPosition(position);
+	public DataFormatEntry(String dataFormatEntryName, String category, String type, String defaultOutput) {
 		setDataFormatEntryName(dataFormatEntryName);
 		setCategory(category);
 		setType(type);
 		setDefaultOutput(defaultOutput);
-	}
-	
-	/**
-	 * Returns the column position
-	 * 
-	 * @return the column position
-	 */
-	public int getPosition() {
-		return position;
-	}
-
-	/**
-	 * Sets the column position
-	 * 
-	 * @param position	column position
-	 */
-	public void setPosition(int position) {
-		this.position = position;
 	}
 
 	/**
@@ -105,19 +84,6 @@ public class DataFormatEntry implements Comparable<DataFormatEntry>{
 		this.type = type.toUpperCase();
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Comparable#compareTo(java.lang.Object)
-	 */
-	public int compareTo(DataFormatEntry obj) {
-		if (this.position == obj.position) {
-			return 0;
-		} else if (this.position < obj.position) {
-			return -1;
-		} else {
-			return 1;
-		}
-	}
-
 	/**
 	 * Returns the default output of an ignore column
 	 * 
@@ -164,8 +130,6 @@ public class DataFormatEntry implements Comparable<DataFormatEntry>{
 	
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
-		sb.append(position);
-		sb.append("\t");
 		sb.append(dataFormatEntryName);
 		sb.append("\t");
 		sb.append(category);

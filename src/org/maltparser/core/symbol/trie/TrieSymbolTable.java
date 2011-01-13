@@ -39,22 +39,9 @@ public class TrieSymbolTable implements SymbolTable {
 		if (columnCategory == ColumnDescription.INPUT) {
 			nullValues = new InputNullValues(nullValueStrategy, this);
 		} else if (columnCategory == ColumnDescription.DEPENDENCY_EDGE_LABEL) {
-			nullValues = new OutputNullValues(nullValueStrategy, this, null);
+			nullValues = new OutputNullValues(nullValueStrategy, this);
 		} else {
 			nullValues = new InputNullValues(nullValueStrategy, this);
-		}
-		valueCounter = nullValues.getNextCode();
-	}
-
-	public TrieSymbolTable(String name,  Trie trie, int columnCategory, String nullValueStrategy, String rootLabel) throws MaltChainedException {
-		this.name = name;
-		this.trie = trie;
-		this.columnCategory = columnCategory;
-		codeTable = new TreeMap<Integer, TrieNode>();
-		if (columnCategory == ColumnDescription.INPUT) {
-			nullValues = new InputNullValues(nullValueStrategy, this);
-		} else if (columnCategory == ColumnDescription.DEPENDENCY_EDGE_LABEL) {
-			nullValues = new OutputNullValues(nullValueStrategy, this, rootLabel);
 		}
 		valueCounter = nullValues.getNextCode();
 	}
@@ -186,12 +173,6 @@ public class TrieSymbolTable implements SymbolTable {
 			out.append(Integer.toString(getColumnCategory()));
 			out.append('\t');
 			out.append(getNullValueStrategy());
-			out.append('\t');
-			if (nullValues instanceof OutputNullValues && ((OutputNullValues)nullValues).getRootLabel() != null) {
-				out.append(((OutputNullValues)nullValues).getRootLabel());
-			} else {
-				out.append("#DUMMY#");
-			}
 			out.append('\n');
 		} catch (IOException e) {
 			throw new SymbolException("Could not save the symbol table. ", e);

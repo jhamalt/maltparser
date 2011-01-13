@@ -4,8 +4,9 @@ import java.util.Vector;
 
 import org.apache.log4j.Logger;
 import org.maltparser.core.exception.MaltChainedException;
+import org.maltparser.core.io.dataformat.ColumnDescription;
+import org.maltparser.core.io.dataformat.DataFormatInstance;
 import org.maltparser.core.symbol.SymbolTable;
-import org.maltparser.core.symbol.SymbolTableHandler;
 import org.maltparser.core.syntaxgraph.DependencyStructure;
 import org.maltparser.core.syntaxgraph.node.DependencyNode;
 
@@ -39,6 +40,12 @@ public class PseudoProjectivity {
 	private SymbolTable pppathSymbolTable;
 	private SymbolTable ppliftedSymbolTable;
 	private SymbolTable ppcoveredRootSymbolTable;
+	
+	private ColumnDescription deprelColumn;
+	private ColumnDescription pppathColumn;
+	private ColumnDescription ppliftedColumn;
+	private ColumnDescription ppcoveredRootColumn;
+	
 	private Vector<Boolean> nodeLifted;
 	private Vector<Vector<DependencyNode>> nodeTrace;
 	private Vector<DependencyNode> headDeprel;
@@ -51,7 +58,9 @@ public class PseudoProjectivity {
 	public PseudoProjectivity() { }
 
 	public void initialize(String markingStrategyString, String coveredRoot, String liftingOrder, Logger configLogger,
-			SymbolTableHandler symbolTables) throws MaltChainedException {
+			DataFormatInstance dataFormatInstance) throws MaltChainedException {
+//	public void initialize(String markingStrategyString, String coveredRoot, String liftingOrder, Logger configLogger,
+//			SymbolTableHandler symbolTables) throws MaltChainedException {
 		nodeLifted = new Vector<Boolean>();
 		nodeTrace = new Vector<Vector<DependencyNode>>();
 		headDeprel = new Vector<DependencyNode>();
@@ -74,11 +83,14 @@ public class PseudoProjectivity {
 		} else if (markingStrategyString.equalsIgnoreCase("trace")) {
 			markingStrategy = PseudoProjectiveEncoding.TRACE;
 		}
-
-		this.deprelSymbolTable = symbolTables.getSymbolTable("DEPREL");
+		this.deprelColumn = dataFormatInstance.getColumnDescriptionByName("DEPREL");
+		this.deprelSymbolTable = deprelColumn.getSymbolTable();
+//		this.deprelSymbolTable = dataFormatInstance.getSymbolTables().getSymbolTable("DEPREL");
 		if (markingStrategy == PseudoProjectiveEncoding.HEAD || markingStrategy == PseudoProjectiveEncoding.PATH
 				|| markingStrategy == PseudoProjectiveEncoding.HEADPATH) {
-			this.ppliftedSymbolTable = symbolTables.addSymbolTable("PPLIFTED", deprelSymbolTable);
+			this.ppliftedColumn = dataFormatInstance.addInternalColumnDescription("PPLIFTED", "DEPENDENCY_EDGE_LABEL", "BOOLEAN", deprelColumn.getNullValueStrategy());
+			this.ppliftedSymbolTable = ppliftedColumn.getSymbolTable();
+//			this.ppliftedSymbolTable = dataFormatInstance.getSymbolTables().addSymbolTable("PPLIFTED", deprelSymbolTable);
 			if (this.markingStrategy == PseudoProjectiveEncoding.PATH) {
 				ppliftedSymbolTable.addSymbol("#true#");
 				ppliftedSymbolTable.addSymbol("#false#");
@@ -88,7 +100,9 @@ public class PseudoProjectivity {
 		}
 
 		if (markingStrategy == PseudoProjectiveEncoding.PATH || markingStrategy == PseudoProjectiveEncoding.HEADPATH) {
-			pppathSymbolTable = symbolTables.addSymbolTable("PPPATH", deprelSymbolTable);
+			this.pppathColumn = dataFormatInstance.addInternalColumnDescription("PPPATH", "DEPENDENCY_EDGE_LABEL", "BOOLEAN", deprelColumn.getNullValueStrategy());
+			this.pppathSymbolTable = pppathColumn.getSymbolTable();
+//			pppathSymbolTable = dataFormatInstance.getSymbolTables().addSymbolTable("PPPATH", deprelSymbolTable);
 			pppathSymbolTable.addSymbol("#true#");
 			pppathSymbolTable.addSymbol("#false#");
 		}
@@ -104,7 +118,9 @@ public class PseudoProjectivity {
 		}
 
 		if (this.rootAttachment != CoveredRootAttachment.NONE) {
-			this.ppcoveredRootSymbolTable = symbolTables.addSymbolTable("PPCOVERED", deprelSymbolTable);
+			this.ppcoveredRootColumn = dataFormatInstance.addInternalColumnDescription("PPCOVERED", "DEPENDENCY_EDGE_LABEL", "BOOLEAN", deprelColumn.getNullValueStrategy());
+			this.ppcoveredRootSymbolTable = ppcoveredRootColumn.getSymbolTable();
+//			this.ppcoveredRootSymbolTable = dataFormatInstance.getSymbolTables().addSymbolTable("PPCOVERED", deprelSymbolTable);
 			ppcoveredRootSymbolTable.addSymbol("#true#");
 			ppcoveredRootSymbolTable.addSymbol("#false#");
 		}

@@ -46,7 +46,7 @@ public class OutputTableFeature extends TableFeature {
 		final AddressValue a = addressFunction.getAddressValue();
 		
 		if (a.getAddress() == null) {
-			featureValue.setCode(getSymbolTable().getNullValueCode(NullValueId.NO_NODE));
+			featureValue.setIndexCode(getSymbolTable().getNullValueCode(NullValueId.NO_NODE));
 			featureValue.setSymbol(getSymbolTable().getNullValueSymbol(NullValueId.NO_NODE));
 			featureValue.setKnown(true);
 			featureValue.setNullValue(true);			
@@ -57,18 +57,18 @@ public class OutputTableFeature extends TableFeature {
 				final DependencyNode node = (DependencyNode)a.getAddress();
 				if (!node.isRoot()) {
 					if (node.hasHead()) {
-						featureValue.setCode(node.getHeadEdge().getLabelCode(getSymbolTable()));
+						featureValue.setIndexCode(node.getHeadEdge().getLabelCode(getSymbolTable()));
 						featureValue.setSymbol(getSymbolTable().getSymbolCodeToString(node.getHeadEdge().getLabelCode(getSymbolTable())));
 						featureValue.setKnown(getSymbolTable().getKnown(node.getHeadEdge().getLabelCode(getSymbolTable())));
 						featureValue.setNullValue(false);
 					} else {
-						featureValue.setCode(getSymbolTable().getNullValueCode(NullValueId.NO_VALUE));
+						featureValue.setIndexCode(getSymbolTable().getNullValueCode(NullValueId.NO_VALUE));
 						featureValue.setSymbol(getSymbolTable().getNullValueSymbol(NullValueId.NO_VALUE));
 						featureValue.setKnown(true);
 						featureValue.setNullValue(true);
 					}	
 				} else {
-					featureValue.setCode(getSymbolTable().getNullValueCode(NullValueId.ROOT_NODE));
+					featureValue.setIndexCode(getSymbolTable().getNullValueCode(NullValueId.ROOT_NODE));
 					featureValue.setSymbol(getSymbolTable().getNullValueSymbol(NullValueId.ROOT_NODE));
 					featureValue.setKnown(true);
 					featureValue.setNullValue(true);
@@ -80,6 +80,7 @@ public class OutputTableFeature extends TableFeature {
 //				featureValue.setNullValue(true);
 //			}
 		}
+		featureValue.setValue(1);
 	}
 	
 	public AddressFunction getAddressFunction() {

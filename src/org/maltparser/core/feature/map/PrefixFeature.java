@@ -7,6 +7,8 @@ import org.maltparser.core.feature.function.FeatureMapFunction;
 import org.maltparser.core.feature.value.FeatureValue;
 import org.maltparser.core.feature.value.MultipleFeatureValue;
 import org.maltparser.core.feature.value.SingleFeatureValue;
+import org.maltparser.core.io.dataformat.ColumnDescription;
+import org.maltparser.core.io.dataformat.DataFormatInstance;
 import org.maltparser.core.symbol.SymbolTable;
 import org.maltparser.core.symbol.SymbolTableHandler;
 /**
@@ -19,11 +21,13 @@ public class PrefixFeature implements FeatureMapFunction {
 	protected MultipleFeatureValue multipleFeatureValue;
 	protected SymbolTableHandler tableHandler;
 	protected SymbolTable table;
+	protected DataFormatInstance dataFormatInstance;
+	protected ColumnDescription column;
 	protected int prefixLength;
 
-	public PrefixFeature(SymbolTableHandler tableHandler) throws MaltChainedException {
+	public PrefixFeature(DataFormatInstance dataFormatInstance) throws MaltChainedException {
 		super();
-		setTableHandler(tableHandler);
+		setDataFormatInstance(dataFormatInstance);
 		multipleFeatureValue = new MultipleFeatureValue(this);
 	}
 	
@@ -39,7 +43,13 @@ public class PrefixFeature implements FeatureMapFunction {
 		}
 		setParentFeature((FeatureFunction)arguments[0]);
 		setPrefixLength(((Integer)arguments[1]).intValue());
-		setSymbolTable(tableHandler.addSymbolTable("PREFIX_"+prefixLength+"_"+parentFeature.getSymbolTable().getName(), parentFeature.getSymbolTable()));
+		ColumnDescription parentColumn = dataFormatInstance.getColumnDescriptionByName(parentFeature.getSymbolTable().getName());
+		if (parentColumn.getType() != ColumnDescription.STRING) {
+			throw new FeatureException("Could not initialize PrefixFeature: the first argument must be a string. ");
+		}
+		setColumn(dataFormatInstance.addInternalColumnDescription("PREFIX_"+prefixLength+"_"+parentFeature.getSymbolTable().getName(), parentColumn));
+		setSymbolTable(column.getSymbolTable());
+//		setSymbolTable(tableHandler.addSymbolTable("PREFIX_"+prefixLength+"_"+parentFeature.getSymbolTable().getName(), parentFeature.getSymbolTable()));
 	}
 	
 	public Class<?>[] getParameterTypes() {
@@ -58,7 +68,7 @@ public class PrefixFeature implements FeatureMapFunction {
 	public String getSymbol(int code) throws MaltChainedException {
 		return table.getSymbolCodeToString(code);
 	}
-
+	
 	public void update() throws MaltChainedException {
 		parentFeature.update();
 		FeatureValue value = parentFeature.getFeatureValue();
@@ -121,11 +131,7 @@ public class PrefixFeature implements FeatureMapFunction {
 	}
 
 	public SymbolTableHandler getTableHandler() {
-		return tableHandler;
-	}
-
-	public void setTableHandler(SymbolTableHandler tableHandler) {
-		this.tableHandler = tableHandler;
+		return dataFormatInstance.getSymbolTables();
 	}
 
 	public SymbolTable getSymbolTable() {
@@ -135,7 +141,23 @@ public class PrefixFeature implements FeatureMapFunction {
 	public void setSymbolTable(SymbolTable table) {
 		this.table = table;
 	}
+	
+	public DataFormatInstance getDataFormatInstance() {
+		return dataFormatInstance;
+	}
 
+	public void setDataFormatInstance(DataFormatInstance dataFormatInstance) {
+		this.dataFormatInstance = dataFormatInstance;
+	}
+	
+	public ColumnDescription getColumn() {
+		return column;
+	}
+	
+	protected void setColumn(ColumnDescription column) {
+		this.column = column;
+	}
+	
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;

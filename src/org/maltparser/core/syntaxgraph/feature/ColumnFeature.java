@@ -1,6 +1,7 @@
 package org.maltparser.core.syntaxgraph.feature;
 
 import org.maltparser.core.exception.MaltChainedException;
+import org.maltparser.core.feature.FeatureException;
 import org.maltparser.core.feature.function.FeatureFunction;
 import org.maltparser.core.feature.function.Modifiable;
 import org.maltparser.core.feature.value.FeatureValue;
@@ -46,31 +47,88 @@ public abstract class ColumnFeature implements FeatureFunction, Modifiable {
 		featureValue.setCardinality(column.getSymbolTable().getValueCounter()); 
 	}
 	
-	public void setFeatureValue(int value) throws MaltChainedException {
-		if (column.getSymbolTable().getSymbolCodeToString(value) == null) {
-			featureValue.setCode(value);
-			featureValue.setKnown(column.getSymbolTable().getKnown(value));
+	public void setFeatureValue(int indexCode) throws MaltChainedException {
+		String symbol = column.getSymbolTable().getSymbolCodeToString(indexCode);
+		
+		if (symbol == null) {
+			featureValue.setIndexCode(indexCode);
+			featureValue.setValue(1);
+			featureValue.setKnown(column.getSymbolTable().getKnown(indexCode));
 			featureValue.setSymbol(column.getSymbolTable().getNullValueSymbol(NullValueId.NO_NODE));
 			featureValue.setNullValue(true);
 		} else {
-			featureValue.setCode(value);
-			featureValue.setKnown(column.getSymbolTable().getKnown(value));
-			featureValue.setSymbol(column.getSymbolTable().getSymbolCodeToString(value));
-			featureValue.setNullValue(column.getSymbolTable().isNullValue(value));
+			boolean nullValue = column.getSymbolTable().isNullValue(indexCode);
+			if (column.getType() == ColumnDescription.STRING || nullValue) {
+				featureValue.setIndexCode(indexCode);
+				featureValue.setValue(1);
+				featureValue.setKnown(column.getSymbolTable().getKnown(indexCode));
+				featureValue.setSymbol(symbol);
+				featureValue.setNullValue(nullValue);
+			} else {
+				castFeatureValue(symbol);
+			}
 		}
 	}
 	
-	public void setFeatureValue(String value) throws MaltChainedException {
-		if (column.getSymbolTable().getSymbolStringToCode(value) < 0) {
-			featureValue.setCode(column.getSymbolTable().getNullValueCode(NullValueId.NO_NODE));
-			featureValue.setKnown(column.getSymbolTable().getKnown(value));
-			featureValue.setSymbol(value);
+	public void setFeatureValue(String symbol) throws MaltChainedException {
+		int indexCode = column.getSymbolTable().getSymbolStringToCode(symbol);
+		if (indexCode < 0) {
+			featureValue.setIndexCode(column.getSymbolTable().getNullValueCode(NullValueId.NO_NODE));
+			featureValue.setValue(1);
+			featureValue.setKnown(column.getSymbolTable().getKnown(symbol));
+			featureValue.setSymbol(symbol);
 			featureValue.setNullValue(true);
 		} else {
-			featureValue.setCode(column.getSymbolTable().getSymbolStringToCode(value));
-			featureValue.setKnown(column.getSymbolTable().getKnown(value));
-			featureValue.setSymbol(value);
-			featureValue.setNullValue(column.getSymbolTable().isNullValue(value));
+			boolean nullValue = column.getSymbolTable().isNullValue(symbol);
+			if (column.getType() == ColumnDescription.STRING || nullValue) {
+				featureValue.setIndexCode(column.getSymbolTable().getSymbolStringToCode(symbol));
+				featureValue.setValue(1);
+				featureValue.setKnown(column.getSymbolTable().getKnown(symbol));
+				featureValue.setSymbol(symbol);
+				featureValue.setNullValue(nullValue);
+			} else {
+				castFeatureValue(symbol);
+			}
+		}
+	}
+	
+	protected void castFeatureValue(String symbol) throws MaltChainedException {
+		if (column.getType() == ColumnDescription.INTEGER) {
+			try {
+				int dotIndex = symbol.indexOf('.');
+				if (dotIndex == -1) {
+					featureValue.setValue(Integer.parseInt(symbol));
+					featureValue.setSymbol(symbol);
+				} else {
+					featureValue.setValue(Integer.parseInt(symbol.substring(0,dotIndex)));
+					featureValue.setSymbol(symbol.substring(0,dotIndex));
+				}
+			} catch (NumberFormatException e) {
+				throw new FeatureException("Could not cast the feature value '"+symbol+"' to integer value.", e);
+			}
+		} else if (column.getType() == ColumnDescription.BOOLEAN) {
+			int dotIndex = symbol.indexOf('.');
+			if (symbol.equals("1") || symbol.equals("true") ||  symbol.equals("#true#") || (dotIndex != -1 && symbol.substring(0,dotIndex).equals("1"))) {
+				featureValue.setValue(1);
+				featureValue.setSymbol("true");
+			} else if (symbol.equals("false") || symbol.equals("0") || (dotIndex != -1 && symbol.substring(0,dotIndex).equals("0"))) {
+				featureValue.setValue(0);
+				featureValue.setSymbol("false");
+			} else {
+				throw new FeatureException("Could not cast the feature value '"+symbol+"' to boolean value.");
+			}
+		} else if (column.getType() == ColumnDescription.REAL) {
+			try {
+				featureValue.setValue(Double.parseDouble(symbol));
+				featureValue.setSymbol(symbol);
+			} catch (NumberFormatException e) {
+				throw new FeatureException("Could not cast the feature value '"+symbol+"' to real value.", e);
+			}
+		}
+		if (column.getType() == ColumnDescription.INTEGER || column.getType() == ColumnDescription.BOOLEAN || column.getType() == ColumnDescription.REAL) {
+			featureValue.setNullValue(false);
+			featureValue.setKnown(true);
+			featureValue.setIndexCode(1);
 		}
 	}
 	

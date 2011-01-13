@@ -99,24 +99,28 @@ public class ArcDirFeature implements FeatureFunction {
 			final DependencyNode node = (DependencyNode)addressFunction.getAddressValue().getAddress();
 			if (!node.isRoot()) { 
 				if (node.getHead().getIndex() < node.getIndex()) {
-					featureValue.setCode(table.getSymbolStringToCode("LEFT"));
+					featureValue.setIndexCode(table.getSymbolStringToCode("LEFT"));
+					featureValue.setValue(1);
 					featureValue.setSymbol("LEFT");
 					featureValue.setKnown(true);
 					featureValue.setNullValue(false);
 				} else {
-					featureValue.setCode(table.getSymbolStringToCode("RIGHT"));
+					featureValue.setIndexCode(table.getSymbolStringToCode("RIGHT"));
+					featureValue.setValue(1);
 					featureValue.setSymbol("RIGHT");
 					featureValue.setKnown(true);
 					featureValue.setNullValue(false);
 				}
 			} else { 
-				featureValue.setCode(table.getNullValueCode(NullValueId.ROOT_NODE));
+				featureValue.setIndexCode(table.getNullValueCode(NullValueId.ROOT_NODE));
+				featureValue.setValue(1);
 				featureValue.setSymbol(table.getNullValueSymbol(NullValueId.ROOT_NODE));
 				featureValue.setKnown(true);
 				featureValue.setNullValue(true);
 			}
 		} else {
-			featureValue.setCode(table.getNullValueCode(NullValueId.NO_NODE));
+			featureValue.setIndexCode(table.getNullValueCode(NullValueId.NO_NODE));
+			featureValue.setValue(1);
 			featureValue.setSymbol(table.getNullValueSymbol(NullValueId.NO_NODE));
 			featureValue.setKnown(true);
 			featureValue.setNullValue(true);

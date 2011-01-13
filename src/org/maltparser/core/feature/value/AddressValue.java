@@ -33,7 +33,7 @@ public class AddressValue extends FunctionValue {
 	public void setAddress(Object address) {
 		this.address = address;
 	}
-
+	
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;

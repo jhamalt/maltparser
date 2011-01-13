@@ -29,7 +29,6 @@ public class WriteChartItem extends ChartItem {
 	private Class<? extends SyntaxGraphWriter> graphWriterClass;
 	
 	private String nullValueStrategy;
-	private String rootLabels;
 	
 	private SyntaxGraphWriter writer;
 	private String sourceName;
@@ -67,9 +66,8 @@ public class WriteChartItem extends ChartItem {
 		setSyntaxGraphWriterClass((Class<?>)OptionManager.instance().getOptionValue(getOptionContainerIndex(), optiongroupName, "writer"));
 
 		setNullValueStrategy(OptionManager.instance().getOptionValue(getOptionContainerIndex(), "singlemalt", "null_value").toString());
-		setRootLabels(OptionManager.instance().getOptionValue(getOptionContainerIndex(), "graph", "root_label").toString());
 
-		initOutput(getNullValueStrategy(), getRootLabels());
+		initOutput(getNullValueStrategy());
 		initWriter(getSyntaxGraphWriterClass(), getOutputFileName(), getOutputCharSet(), getWriterOptions());
 	}
 	
@@ -170,20 +168,8 @@ public class WriteChartItem extends ChartItem {
 	public void setNullValueStrategy(String nullValueStrategy) {
 		this.nullValueStrategy = nullValueStrategy;
 	}
-
-	public String getRootLabels() {
-		if (nullValueStrategy == null) {
-			return "ROOT";
-		}
-		return rootLabels;
-	}
-
-	public void setRootLabels(String rootLabels) {
-		this.rootLabels = rootLabels;
-	}
 	
-	
-	public void initOutput(String nullValueStategy, String rootLabels) throws MaltChainedException {
+	public void initOutput(String nullValueStategy) throws MaltChainedException {
 		ConfigurationDir configDir = (ConfigurationDir)flowChartinstance.getFlowChartRegistry(org.maltparser.core.config.ConfigurationDir.class, idName);
 		DataFormatManager dataFormatManager = configDir.getDataFormatManager();
 //		DataFormatManager dataFormatManager = flowChartinstance.getDataFormatManager();
@@ -193,7 +179,7 @@ public class WriteChartItem extends ChartItem {
 //		HashMap<String, DataFormatInstance> dataFormatInstances = flowChartinstance.getDataFormatInstances();
 		
 		if (dataFormatInstances.size() == 0 || dataFormatManager.getInputDataFormatSpec() != dataFormatManager.getOutputDataFormatSpec()) {
-			outputDataFormatInstance = dataFormatManager.getOutputDataFormatSpec().createDataFormatInstance(symbolTables, nullValueStategy, rootLabels);
+			outputDataFormatInstance = dataFormatManager.getOutputDataFormatSpec().createDataFormatInstance(symbolTables, nullValueStategy);
 			if (!dataFormatInstances.containsKey(dataFormatManager.getOutputDataFormatSpec().getDataFormatName())) {
 				dataFormatInstances.put(dataFormatManager.getOutputDataFormatSpec().getDataFormatName(), outputDataFormatInstance);
 			}

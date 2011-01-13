@@ -3,6 +3,7 @@ package org.maltparser.core.syntaxgraph.feature;
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.feature.function.AddressFunction;
 import org.maltparser.core.feature.value.AddressValue;
+import org.maltparser.core.io.dataformat.ColumnDescription;
 import org.maltparser.core.io.dataformat.DataFormatInstance;
 import org.maltparser.core.symbol.nullvalue.NullValues.NullValueId;
 import org.maltparser.core.syntaxgraph.SyntaxGraphException;
@@ -45,39 +46,42 @@ public class OutputColumnFeature extends ColumnFeature {
 		final AddressValue a = addressFunction.getAddressValue();
 		
 		if (a.getAddress() == null) {
-			featureValue.setCode(column.getSymbolTable().getNullValueCode(NullValueId.NO_NODE));
+			featureValue.setIndexCode(column.getSymbolTable().getNullValueCode(NullValueId.NO_NODE));
 			featureValue.setSymbol(column.getSymbolTable().getNullValueSymbol(NullValueId.NO_NODE));
 			featureValue.setKnown(true);
-			featureValue.setNullValue(true);			
+			featureValue.setNullValue(true);
+			featureValue.setValue(1);
 		} else {
-//			try { 
-//				a.getAddressClass().asSubclass(org.maltparser.core.syntaxgraph.node.DependencyNode.class);
-				final DependencyNode node = (DependencyNode)a.getAddress();
-				if (!node.isRoot()) {
-					if (node.hasHead()) {
-						featureValue.setCode(node.getHeadEdge().getLabelCode(column.getSymbolTable()));
-						featureValue.setSymbol(column.getSymbolTable().getSymbolCodeToString(node.getHeadEdge().getLabelCode(column.getSymbolTable())));
-						featureValue.setKnown(column.getSymbolTable().getKnown(node.getHeadEdge().getLabelCode(column.getSymbolTable())));
+			final DependencyNode node = (DependencyNode)a.getAddress();
+			if (!node.isRoot()) {
+				if (node.hasHead()) {
+					int indexCode = node.getHeadEdge().getLabelCode(column.getSymbolTable());
+					String symbol = column.getSymbolTable().getSymbolCodeToString(indexCode);
+					if (column.getType() == ColumnDescription.STRING) {
+						featureValue.setIndexCode(indexCode);
+						featureValue.setSymbol(symbol);
+						featureValue.setKnown(column.getSymbolTable().getKnown(indexCode));
 						featureValue.setNullValue(false);
+						featureValue.setValue(1);
 					} else {
-						featureValue.setCode(column.getSymbolTable().getNullValueCode(NullValueId.NO_VALUE));
-						featureValue.setSymbol(column.getSymbolTable().getNullValueSymbol(NullValueId.NO_VALUE));
-						featureValue.setKnown(true);
-						featureValue.setNullValue(true);
-					}	
+						castFeatureValue(symbol);
+					}
 				} else {
-					featureValue.setCode(column.getSymbolTable().getNullValueCode(NullValueId.ROOT_NODE));
-					featureValue.setSymbol(column.getSymbolTable().getNullValueSymbol(NullValueId.ROOT_NODE));
+					featureValue.setIndexCode(column.getSymbolTable().getNullValueCode(NullValueId.NO_VALUE));
+					featureValue.setSymbol(column.getSymbolTable().getNullValueSymbol(NullValueId.NO_VALUE));
 					featureValue.setKnown(true);
 					featureValue.setNullValue(true);
-				}
-//			} catch (ClassCastException e) {
-//				featureValue.setCode(column.getSymbolTable().getNullValueCode(NullValueId.NO_NODE));
-//				featureValue.setSymbol(column.getSymbolTable().getNullValueSymbol(NullValueId.NO_NODE));
-//				featureValue.setKnown(true);
-//				featureValue.setNullValue(true);
-//			}
+					featureValue.setValue(1);
+				}	
+			} else {
+				featureValue.setIndexCode(column.getSymbolTable().getNullValueCode(NullValueId.ROOT_NODE));
+				featureValue.setSymbol(column.getSymbolTable().getNullValueSymbol(NullValueId.ROOT_NODE));
+				featureValue.setKnown(true);
+				featureValue.setNullValue(true);
+				featureValue.setValue(1);
+			}
 		}
+		
 	}
 	
 	public AddressFunction getAddressFunction() {

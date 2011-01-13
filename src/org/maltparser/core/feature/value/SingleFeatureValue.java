@@ -8,30 +8,33 @@ import org.maltparser.core.feature.function.Function;
  * @since 1.0
 **/
 public class SingleFeatureValue extends FeatureValue {
-	protected int code;
+	protected int indexCode;
 	protected String symbol;
+	protected double value;
 	protected boolean known;
 	
 	public SingleFeatureValue(Function function) {
 		super(function);
-		setCode(0);
+		setIndexCode(0);
 		setSymbol(null);
 		setKnown(true);
+		setValue(0);
 	}
 	
 	public void reset() {
 		super.reset();
-		setCode(0);
+		setIndexCode(0);
 		setSymbol(null);
 		setKnown(true);
+		setValue(0);
 	}
 	
-	public int getCode() {
-		return code;
+	public int getIndexCode() {
+		return indexCode;
 	}
 
-	public void setCode(int code) {
-		this.code = code;
+	public void setIndexCode(int code) {
+		this.indexCode = code;
 	}
 
 	public String getSymbol() {
@@ -40,6 +43,14 @@ public class SingleFeatureValue extends FeatureValue {
 
 	public void setSymbol(String symbol) {
 		this.symbol = symbol;
+	}
+
+	public double getValue() {
+		return value;
+	}
+
+	public void setValue(double value) {
+		this.value = value;
 	}
 
 	public boolean isKnown() {
@@ -59,12 +70,12 @@ public class SingleFeatureValue extends FeatureValue {
 			return false;
 		if (!symbol.equals(((SingleFeatureValue)obj).symbol))
 			return false;
-		if (code != ((SingleFeatureValue)obj).code)
+		if (indexCode != ((SingleFeatureValue)obj).indexCode)
 			return false;
 		return super.equals(obj);
 	}
 	
 	public String toString() {
-		return super.toString()+ "{" + symbol + " -> " + code + ", known=" + known +"} ";
+		return super.toString()+ "{" + symbol + " -> " + indexCode + ", known=" + known +"} ";
 	}
 }

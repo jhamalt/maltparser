@@ -136,8 +136,9 @@ public class DistanceFeature implements FeatureFunction {
 		
 		// if arg1 or arg2 is null, then set a NO_NODE null value as feature value
 		if (arg1.getAddress() == null || arg2.getAddress() == null) { 
-			featureValue.setCode(table.getNullValueCode(NullValueId.NO_NODE));
+			featureValue.setIndexCode(table.getNullValueCode(NullValueId.NO_NODE));
 			featureValue.setSymbol(table.getNullValueSymbol(NullValueId.NO_NODE));
+			featureValue.setValue(1);
 			featureValue.setKnown(true);
 			featureValue.setNullValue(true);			
 		} else {
@@ -157,16 +158,18 @@ public class DistanceFeature implements FeatureFunction {
 				boolean f = false;
 				for (Integer upper : normalization.keySet()) {
 					if (distance >= lower && distance < upper) {
-						featureValue.setCode(table.getSymbolStringToCode(normalization.get(lower)));
+						featureValue.setIndexCode(table.getSymbolStringToCode(normalization.get(lower)));
 						featureValue.setSymbol(normalization.get(lower));
+						featureValue.setValue(1);
 						f = true;
 						break;
 					}
 					lower = upper;
 				}
 				if (f == false) {
-					featureValue.setCode(table.getSymbolStringToCode(normalization.get(lower)));
+					featureValue.setIndexCode(table.getSymbolStringToCode(normalization.get(lower)));
 					featureValue.setSymbol(normalization.get(lower));
+					featureValue.setValue(1);
 				}
 				
 				// Tells the feature value that the feature is known and is not a null value
@@ -175,8 +178,9 @@ public class DistanceFeature implements FeatureFunction {
 
 			} else { 
 				// if node1 or node2 is a root node, set a ROOT_NODE null value as feature value
-				featureValue.setCode(table.getNullValueCode(NullValueId.ROOT_NODE));
+				featureValue.setIndexCode(table.getNullValueCode(NullValueId.ROOT_NODE));
 				featureValue.setSymbol(table.getNullValueSymbol(NullValueId.ROOT_NODE));
+				featureValue.setValue(1);
 				featureValue.setKnown(true);
 				featureValue.setNullValue(true);
 			}

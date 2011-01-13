@@ -11,7 +11,6 @@ import org.maltparser.parser.DependencyParserConfig;
 import org.maltparser.parser.guide.ClassifierGuide;
 import org.maltparser.parser.guide.GuideException;
 import org.maltparser.parser.guide.instance.AtomicModel;
-import org.maltparser.parser.guide.instance.DecisionTreeModel;
 import org.maltparser.parser.guide.instance.FeatureDivideModel;
 import org.maltparser.parser.guide.instance.InstanceModel;
 import org.maltparser.parser.history.action.GuideDecision;
