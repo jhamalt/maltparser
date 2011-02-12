@@ -19,7 +19,6 @@ public class DataFormatEntry {
 	/**
 	 * Creates a data format entry
 	 * 
-	 * @param position	column position
 	 * @param dataFormatEntryName column name
 	 * @param category	column category
 	 * @param type	column type

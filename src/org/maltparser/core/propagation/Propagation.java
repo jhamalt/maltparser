@@ -34,7 +34,7 @@ public class Propagation {
 	 * Creates a propagation object based on the propagation specification
 	 * 
 	 * @param spec a propagation specification
-	 * @param symbolTables a symbol table
+	 * @param dataFormatInstance a data format instance
 	 * @throws MaltChainedException
 	 */
 	public Propagation(PropagationSpec spec, DataFormatInstance dataFormatInstance) throws MaltChainedException {

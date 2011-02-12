@@ -12,7 +12,6 @@ import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.feature.FeatureVector;
 import org.maltparser.core.helper.NoPrintStream;
 import org.maltparser.ml.lib.XNode;
-import org.maltparser.ml.libsvm.LibsvmException;
 import org.maltparser.parser.guide.instance.InstanceModel;
 import org.maltparser.parser.history.action.SingleDecision;
 import org.maltparser.parser.history.kbest.KBestList;
@@ -36,7 +35,7 @@ public class LibSvm extends Lib {
 			try {
 				model = svm.svm_load_model(new BufferedReader(getInstanceInputStreamReaderFromConfigFile(".mod")));
 			} catch (IOException e) {
-				throw new LibsvmException("The model cannot be loaded. ", e);
+				throw new LibException("The model cannot be loaded. ", e);
 			}
 		}
 		svm_node[] xarray = new svm_node[featureSet.size()];
@@ -56,7 +55,7 @@ public class LibSvm extends Lib {
 				svm_predict_with_kbestlist(model, xarray, decision.getKBestList());
 			}
 		} catch (OutOfMemoryError e) {
-				throw new LibsvmException("Out of memory. Please increase the Java heap size (-Xmx<size>). ", e);
+				throw new LibException("Out of memory. Please increase the Java heap size (-Xmx<size>). ", e);
 		}
 		return true;
 	}
@@ -66,7 +65,7 @@ public class LibSvm extends Lib {
 			final svm_problem prob = readProblem(getInstanceInputStreamReader(".ins"), featureSet);
 			final svm_parameter param = getLibSvmParameters();
 			if(svm.svm_check_parameter(prob, param) != null) {
-				throw new LibsvmException(svm.svm_check_parameter(prob, param));
+				throw new LibException(svm.svm_check_parameter(prob, param));
 			}
 			owner.getGuide().getConfiguration().getConfigLogger().info("Creating LIBSVM model "+getFile(".mod").getName()+"\n");
 			final PrintStream out = System.out;
@@ -80,13 +79,13 @@ public class LibSvm extends Lib {
 				getFile(".ins").delete();
 			}
 		} catch (OutOfMemoryError e) {
-			throw new LibsvmException("Out of memory. Please increase the Java heap size (-Xmx<size>). ", e);
+			throw new LibException("Out of memory. Please increase the Java heap size (-Xmx<size>). ", e);
 		} catch (IllegalArgumentException e) {
-			throw new LibsvmException("The LIBSVM learner was not able to redirect Standard Error stream. ", e);
+			throw new LibException("The LIBSVM learner was not able to redirect Standard Error stream. ", e);
 		} catch (SecurityException e) {
-			throw new LibsvmException("The LIBSVM learner cannot remove the instance file. ", e);
+			throw new LibException("The LIBSVM learner cannot remove the instance file. ", e);
 		} catch (IOException e) {
-			throw new LibsvmException("The LIBSVM learner cannot save the model file '"+getFile(".mod").getAbsolutePath()+"'. ", e);
+			throw new LibException("The LIBSVM learner cannot save the model file '"+getFile(".mod").getAbsolutePath()+"'. ", e);
 		}
 	}
 	
@@ -167,7 +166,7 @@ public class LibSvm extends Lib {
 					featureSet.clear();
 					i++;
 				} catch (ArrayIndexOutOfBoundsException e) {
-					throw new LibsvmException("Couldn't read libsvm problem from the instance file. ", e);
+					throw new LibException("Couldn't read libsvm problem from the instance file. ", e);
 				}
 			}
 			fp.close();	
@@ -176,7 +175,7 @@ public class LibSvm extends Lib {
 				param.gamma = 1.0/featureCounter;
 			}
 		} catch (IOException e) {
-			throw new LibsvmException("Couldn't read libsvm problem from the instance file. ", e);
+			throw new LibException("Couldn't read libsvm problem from the instance file. ", e);
 		}
 		return problem;
 	}

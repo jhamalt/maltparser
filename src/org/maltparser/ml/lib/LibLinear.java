@@ -18,7 +18,6 @@ import liblinear.SolverType;
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.feature.FeatureVector;
 import org.maltparser.core.helper.NoPrintStream;
-import org.maltparser.ml.liblinear.LiblinearException;
 import org.maltparser.parser.guide.instance.InstanceModel;
 import org.maltparser.parser.history.action.SingleDecision;
 import org.maltparser.parser.history.kbest.KBestList;
@@ -39,11 +38,11 @@ public class LibLinear extends Lib {
 			try {
 				model = Linear.loadModel(new BufferedReader(getInstanceInputStreamReaderFromConfigFile(".mod")));
 			} catch (IOException e) {
-				throw new LiblinearException("The model cannot be loaded. ", e);
+				throw new LibException("The model cannot be loaded. ", e);
 			}
 		}
 		if (model == null) { 
-			throw new LiblinearException("The Liblinear learner cannot predict the next class, because the learning model cannot be found. ");
+			throw new LibException("The Liblinear learner cannot predict the next class, because the learning model cannot be found. ");
 		}
 		FeatureNode[] xarray = new FeatureNode[featureSet.size()];
 		int k = 0;
@@ -76,13 +75,13 @@ public class LibLinear extends Lib {
 				getFile(".ins").delete();
 			}
 		} catch (OutOfMemoryError e) {
-			throw new LiblinearException("Out of memory. Please increase the Java heap size (-Xmx<size>). ", e);
+			throw new LibException("Out of memory. Please increase the Java heap size (-Xmx<size>). ", e);
 		} catch (IllegalArgumentException e) {
-			throw new LiblinearException("The Liblinear learner was not able to redirect Standard Error stream. ", e);
+			throw new LibException("The Liblinear learner was not able to redirect Standard Error stream. ", e);
 		} catch (SecurityException e) {
-			throw new LiblinearException("The Liblinear learner cannot remove the instance file. ", e);
+			throw new LibException("The Liblinear learner cannot remove the instance file. ", e);
 		} catch (IOException e) {
-			throw new LiblinearException("The Liblinear learner cannot save the model file '"+getFile(".mod").getAbsolutePath()+"'. ", e);
+			throw new LibException("The Liblinear learner cannot save the model file '"+getFile(".mod").getAbsolutePath()+"'. ", e);
 		}
 	}
 	
@@ -132,14 +131,14 @@ public class LibLinear extends Lib {
 					featureSet.clear();
 					i++;
 				} catch (ArrayIndexOutOfBoundsException e) {
-					throw new LiblinearException("Couldn't read liblinear problem from the instance file. ", e);
+					throw new LibException("Couldn't read liblinear problem from the instance file. ", e);
 				}
 			}
 			fp.close();	
 			featureSet = null;
 			problem.n = featureMap.size();
 		} catch (IOException e) {
-			throw new LiblinearException("Cannot read from the instance file. ", e);
+			throw new LibException("Cannot read from the instance file. ", e);
 		}
 		return problem;
 	}
@@ -163,17 +162,17 @@ public class LibLinear extends Lib {
 		} else if (type.equals("6")) {
 			param.setSolverType(SolverType.L1R_LR);	
 		} else {
-			throw new LiblinearException("The liblinear type (-s) is not an integer value between 0 and 4. ");
+			throw new LibException("The liblinear type (-s) is not an integer value between 0 and 4. ");
 		}
 		try {
 			param.setC(Double.valueOf(libOptions.get("c")).doubleValue());
 		} catch (NumberFormatException e) {
-			throw new LiblinearException("The liblinear cost (-c) value is not numerical value. ", e);
+			throw new LibException("The liblinear cost (-c) value is not numerical value. ", e);
 		}
 		try {
 			param.setEps(Double.valueOf(libOptions.get("e")).doubleValue());
 		} catch (NumberFormatException e) {
-			throw new LiblinearException("The liblinear epsilon (-e) value is not numerical value. ", e);
+			throw new LibException("The liblinear epsilon (-e) value is not numerical value. ", e);
 		}
 		return param;
 	}

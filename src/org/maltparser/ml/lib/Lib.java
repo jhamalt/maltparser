@@ -30,7 +30,6 @@ import org.maltparser.core.feature.value.MultipleFeatureValue;
 import org.maltparser.core.feature.value.SingleFeatureValue;
 import org.maltparser.core.syntaxgraph.DependencyStructure;
 import org.maltparser.ml.LearningMethod;
-import org.maltparser.ml.liblinear.LiblinearException;
 import org.maltparser.parser.DependencyParserConfig;
 import org.maltparser.parser.guide.instance.InstanceModel;
 import org.maltparser.parser.history.action.SingleDecision;
@@ -130,7 +129,7 @@ public abstract class Lib implements LearningMethod {
 			instanceOutput.flush();
 			increaseNumberOfInstances();
 		} catch (IOException e) {
-			throw new LibException("The Liblinear learner cannot write to the instance file. ", e);
+			throw new LibException("The learner cannot write to the instance file. ", e);
 		}
 	}
 
@@ -189,13 +188,13 @@ public abstract class Lib implements LearningMethod {
 			getFile(".ins").delete();
 			out.flush();
 		} catch (SecurityException e) {
-			throw new LibException("The Liblinear learner cannot remove the instance file. ", e);
+			throw new LibException("The learner cannot remove the instance file. ", e);
 		} catch (NullPointerException  e) {
 			throw new LibException("The instance file cannot be found. ", e);
 		} catch (FileNotFoundException e) {
 			throw new LibException("The instance file cannot be found. ", e);
 		} catch (IOException e) {
-			throw new LibException("The Liblinear learner read from the instance file. ", e);
+			throw new LibException("The learner read from the instance file. ", e);
 		}
 	}
 
@@ -260,7 +259,7 @@ public abstract class Lib implements LearningMethod {
 	protected void trainExternal(FeatureVector featureVector) throws MaltChainedException {
 		try {		
 			binariesInstances2SVMFileFormat(getInstanceInputStreamReader(".ins"), getInstanceOutputStreamWriter(".ins.tmp"), featureSet);
-			owner.getGuide().getConfiguration().getConfigLogger().info("Creating Liblinear model (external) "+getFile(".mod").getName());
+			owner.getGuide().getConfiguration().getConfigLogger().info("Creating learner model (external) "+getFile(".mod").getName());
 
 			final String[] params = getLibParamStringArray();
 			String[] arrayCommands = new String[params.length+3];
@@ -300,15 +299,15 @@ public abstract class Lib implements LearningMethod {
 	        }
 	        owner.getGuide().getConfiguration().getConfigLogger().info('\n');
 		} catch (InterruptedException e) {
-			 throw new LiblinearException("Liblinear is interrupted. ", e);
+			 throw new LibException("Learner is interrupted. ", e);
 		} catch (IllegalArgumentException e) {
-			throw new LiblinearException("The Liblinear learner was not able to redirect Standard Error stream. ", e);
+			throw new LibException("The learner was not able to redirect Standard Error stream. ", e);
 		} catch (SecurityException e) {
-			throw new LiblinearException("The Liblinear learner cannot remove the instance file. ", e);
+			throw new LibException("The learner cannot remove the instance file. ", e);
 		} catch (IOException e) {
-			throw new LiblinearException("The Liblinear learner cannot save the model file '"+getFile(".mod").getAbsolutePath()+"'. ", e);
+			throw new LibException("The learner cannot save the model file '"+getFile(".mod").getAbsolutePath()+"'. ", e);
 		} catch (OutOfMemoryError e) {
-			throw new LiblinearException("Out of memory. Please increase the Java heap size (-Xmx<size>). ", e);
+			throw new LibException("Out of memory. Please increase the Java heap size (-Xmx<size>). ", e);
 		}
 	}
 	protected abstract void trainInternal(FeatureVector featureVector) throws MaltChainedException;
@@ -336,9 +335,9 @@ public abstract class Lib implements LearningMethod {
 	
 	
 	/**
-	 * Returns the parameter string for used for configure Liblinear
+	 * Returns the parameter string used for configure the learner
 	 * 
-	 * @return the parameter string for used for configure Liblinear
+	 * @return the parameter string used for configure the learner
 	 */
 	public String getParamString() {
 		return paramString;
@@ -457,7 +456,7 @@ public abstract class Lib implements LearningMethod {
 			String path = getConfiguration().getOptionValue("lib", "external").toString(); 
 			try {
 				if (!new File(path).exists()) {
-					throw new LibException("The path to the external Liblinear trainer 'svm-train' is wrong.");
+					throw new LibException("The path to the external  trainer 'svm-train' is wrong.");
 				}
 				if (new File(path).isDirectory()) {
 					throw new LibException("The option --lib-external points to a directory, the path should point at the 'train' file or the 'train.exe' file in the libsvm or the liblinear package");

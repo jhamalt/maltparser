@@ -52,6 +52,7 @@
 			<legalvalue name="info">Prints the info file of a configuration</legalvalue>
 			<legalvalue name="unpack">Unpacks a configuration</legalvalue>
 			<legalvalue name="convert">Simple format converter</legalvalue>
+			<legalvalue name="analyze"></legalvalue>
 			<legalvalue name="proj">Projectivizes input data using a configuration</legalvalue>
 			<legalvalue name="deproj">Deprojectivizes input data using a configuration</legalvalue>
 			<legalvalue name="learnwo">Same as <i>learn</i>, but also outputs the graphs to file specified by the flag -o</legalvalue>
@@ -470,16 +471,24 @@ otherwise all tokens in Left must be inspected before the next token is shifted.
 		<option type="enum" name="covered_root" flag="pcr" default="none" usage="save">
 			<desc><![CDATA[ Attachment strategy for covered roots.  ]]></desc>
 			<shortdesc>Attachment strategy for covered roots</shortdesc>
-			<legalvalue name="none">No covered root transformation</legalvalue>
-			<legalvalue name="left">Attach covered roots to the left end of the covering arc</legalvalue>
-			<legalvalue name="right">Attach covered roots to the right end of the covering arc</legalvalue>
-			<legalvalue name="head">Attach covered roots to the head of the covering arc</legalvalue>
+			<legalvalue name="none">No covered root transformation; covered roots treated as any other node</legalvalue>
+			<legalvalue name="ignore">No covered root transformation; covered roots ignored in projectivity tests (old implementation of none)</legalvalue>
+			<legalvalue name="left">Attach covered roots to the left end of the shortest covering arc</legalvalue>
+			<legalvalue name="right">Attach covered roots to the right end of the shortest covering arc</legalvalue>
+			<legalvalue name="head">Attach covered roots to the head of the shortest covering arc</legalvalue>
 		</option>
 		<option type="enum" name="lifting_order" flag="plo" default="shortest" usage="save">
 			<desc><![CDATA[ Lifting order, in case a dependency graph contains multiple non-projective arcs.  ]]></desc>
 			<shortdesc>Lifting order, in case a dependency graph contains multiple non-projective arcs</shortdesc>
 			<legalvalue name="shortest">Lift the shortest arcs first (break ties from left to right)</legalvalue>
 			<legalvalue name="deepest">Lift the most deeply nested arcs first (break ties from left to right)</legalvalue>
+		</option>
+	</optiongroup>
+	<optiongroup groupname="analyzer">
+		<option type="enum" name="task" flag="at" default="projectivity" usage="process">
+			<desc><![CDATA[ ]]></desc>
+			<shortdesc></shortdesc>
+			<legalvalue name="projectivity">Projectivity</legalvalue>
 		</option>
 	</optiongroup>
 </options>
