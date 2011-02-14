@@ -23,4 +23,5 @@ public interface SymbolTable extends Table {
 	public boolean isNullValue(String value) throws MaltChainedException;
 	public boolean isNullValue(int code) throws MaltChainedException;
 	public void copy(SymbolTable fromTable) throws MaltChainedException;
+	public int getColumnCategory();
 }

@@ -19,7 +19,7 @@ public class ColumnDescription implements Comparable<ColumnDescription> {
 	public static final int PHRASE_STRUCTURE_NODE_LABEL = 5;
 	public static final int SECONDARY_EDGE_LABEL = 6;
 	public static final int IGNORE = 7;
-	
+	public static final int TOKEN_LABEL = 8;
 	// Types
 	public static final int STRING = 1;
 	public static final int INTEGER = 2;
@@ -136,6 +136,8 @@ public class ColumnDescription implements Comparable<ColumnDescription> {
 			this.category = ColumnDescription.SECONDARY_EDGE_LABEL;
 		} else if (category.toUpperCase().equals("IGNORE")) {
 			this.category = ColumnDescription.IGNORE;
+		} else if (category.toUpperCase().equals("TOKEN_LABEL")) {
+			this.category = ColumnDescription.TOKEN_LABEL;
 		} else {
 			throw new DataFormatException("The category '"+category+"' is not allowed. ");
 		}
@@ -161,9 +163,6 @@ public class ColumnDescription implements Comparable<ColumnDescription> {
 		} else if (type.toUpperCase().equals("ECHO")) {
 			// ECHO is removed, but if it occurs in the data format file it will be interpreted as an integer instead.
 			this.type = ColumnDescription.INTEGER;
-//			this.type = ColumnDescription.ECHO;
-//		} else if (type.toUpperCase().equals("IGNORE")) {
-//			this.type = ColumnDescription.IGNORE;
 		} else {
 			throw new DataFormatException("The column type '"+type+"' is not allowed. ");
 		}	

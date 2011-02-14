@@ -130,7 +130,7 @@ public class TabReader implements SyntaxGraphReader {
 					ColumnDescription column = null;
 					if (columns.hasNext()) {
 						column = columns.next();
-						if (column.getCategory() == ColumnDescription.INPUT && node != null) {
+						if ((column.getCategory() == ColumnDescription.INPUT || column.getCategory() == ColumnDescription.TOKEN_LABEL) && node != null) {
 							syntaxGraph.addLabel(node, column.getName(), input.toString());
 						} else if (column.getCategory() == ColumnDescription.HEAD) {
 							if (syntaxGraph instanceof DependencyStructure) {

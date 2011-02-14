@@ -77,7 +77,7 @@ public class TabWriter implements SyntaxGraphWriter {
 				while (columns.hasNext()) {
 					column = columns.next();
 
-					if (column.getCategory() == ColumnDescription.INPUT) { // && column.getType() != ColumnDescription.IGNORE) {
+					if (column.getCategory() == ColumnDescription.INPUT || column.getCategory() == ColumnDescription.TOKEN_LABEL) { 
 						TokenNode node = syntaxGraph.getTokenNode(i); 
 						if (!column.getName().equals("ID")) {
 							if (node.hasLabel(column.getSymbolTable())) {

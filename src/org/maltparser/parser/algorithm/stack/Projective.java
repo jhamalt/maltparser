@@ -3,6 +3,7 @@ package org.maltparser.parser.algorithm.stack;
 import java.util.Stack;
 
 import org.maltparser.core.exception.MaltChainedException;
+import org.maltparser.core.symbol.SymbolTable;
 import org.maltparser.core.syntaxgraph.LabelSet;
 import org.maltparser.core.syntaxgraph.edge.Edge;
 import org.maltparser.core.syntaxgraph.node.DependencyNode;
@@ -21,6 +22,8 @@ public class Projective extends TransitionSystem {
 	protected static final int SHIFT = 1;
 	protected static final int RIGHTARC = 2;
 	protected static final int LEFTARC = 3;
+	protected static final int POSTAG = 4;
+
 	
 	public Projective() throws MaltChainedException {
 		super();
@@ -35,6 +38,12 @@ public class Projective extends TransitionSystem {
 		DependencyNode head = null;
 		DependencyNode dep = null;
 		switch (transActionContainer.getActionCode()) {
+		case POSTAG:
+			DependencyNode top = stack.get(stack.size()-1);
+			if (arcLabelActionContainers.length > 0) {
+				top.addLabel((SymbolTable)arcLabelActionContainers[0].getTable(), arcLabelActionContainers[0].getActionCode());
+			}
+			break;
 		case LEFTARC:
 			head = stack.pop(); 
 			dep = stack.pop();
@@ -55,17 +64,25 @@ public class Projective extends TransitionSystem {
 			}
 			break;
 		}
+		
 	}
 	
 	public boolean permissible(GuideUserAction currentAction, ParserConfiguration configuration) throws MaltChainedException {
 		StackConfig config = (StackConfig)configuration;
 		currentAction.getAction(actionContainers);
 		int trans = transActionContainer.getActionCode();
-		if ((trans == LEFTARC || trans == RIGHTARC) && !isActionContainersLabeled()) {
+		if ((trans == LEFTARC || trans == RIGHTARC || trans == POSTAG) && !isActionContainersLabeled()) {
 			return false;
 		}
 		Stack<DependencyNode> stack = config.getStack();
 		Stack<DependencyNode> input = config.getInput();
+		
+		if (stack.size() > 0 && trans != POSTAG && !stack.get(stack.size()-1).getLabelSet().containsKey("POSTAG")) {
+			return false;
+		}
+		if (trans == POSTAG && (stack.size() == 0 || stack.get(stack.size()-1).getLabelSet().containsKey("POSTAG"))) {
+			return false;
+		}
 		if ((trans == LEFTARC || trans == RIGHTARC) && stack.size() < 2) {
 			return false;
 		}
@@ -87,6 +104,7 @@ public class Projective extends TransitionSystem {
 		ttable.addTransition(SHIFT, "SH", false, null);
 		ttable.addTransition(RIGHTARC, "RA", true, null);
 		ttable.addTransition(LEFTARC, "LA", true, null);
+		ttable.addTransition(POSTAG, "PT", true, null);
 	}
 	
 	protected void initWithDefaultTransitions(GuideUserHistory history) throws MaltChainedException {

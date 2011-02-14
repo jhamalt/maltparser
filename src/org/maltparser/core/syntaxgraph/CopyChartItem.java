@@ -4,6 +4,7 @@ import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.flow.FlowChartInstance;
 import org.maltparser.core.flow.item.ChartItem;
 import org.maltparser.core.flow.spec.ChartItemSpecification;
+import org.maltparser.core.io.dataformat.ColumnDescription;
 import org.maltparser.core.options.OptionManager;
 import org.maltparser.core.symbol.SymbolTable;
 import org.maltparser.core.syntaxgraph.edge.Edge;
@@ -87,7 +88,9 @@ public class CopyChartItem extends ChartItem {
 			DependencyNode gnode = sourceGraph.getTokenNode(index);
 			DependencyNode pnode = targetGraph.addTokenNode(gnode.getIndex());
 			for (SymbolTable table : gnode.getLabelTypes()) {
-				pnode.addLabel(table, gnode.getLabelSymbol(table));
+				if (table.getColumnCategory() == ColumnDescription.INPUT) {
+					pnode.addLabel(table, gnode.getLabelSymbol(table));
+				}
 			}
 		}
 	}

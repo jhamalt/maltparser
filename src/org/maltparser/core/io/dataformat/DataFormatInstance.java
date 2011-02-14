@@ -26,6 +26,7 @@ public class DataFormatInstance implements Iterable<ColumnDescription> {
 	private SortedMap<String,ColumnDescription> secondaryEdgeLabelColumnDescriptions;
 	private SortedMap<String,ColumnDescription> inputColumnDescriptions;
 	private SortedMap<String,ColumnDescription> ignoreColumnDescriptions;
+	private SortedMap<String,ColumnDescription> tokenLabelColumnDescriptions;
 	
 	private SortedSet<ColumnDescription> headColumnDescriptionSet;
 	private SortedSet<ColumnDescription> dependencyEdgeLabelColumnDescriptionSet;
@@ -34,12 +35,14 @@ public class DataFormatInstance implements Iterable<ColumnDescription> {
 	private SortedSet<ColumnDescription> secondaryEdgeLabelColumnDescriptionSet;
 	private SortedSet<ColumnDescription> inputColumnDescriptionSet;
 	private SortedSet<ColumnDescription> ignoreColumnDescriptionSet;
+	private SortedSet<ColumnDescription> tokenLabelColumnDescriptionSet;
 	
 	private SortedMap<String,SymbolTable> dependencyEdgeLabelSymbolTables;
 	private SortedMap<String,SymbolTable> phraseStructureEdgeLabelSymbolTables;
 	private SortedMap<String,SymbolTable> phraseStructureNodeLabelSymbolTables;
 	private SortedMap<String,SymbolTable> secondaryEdgeLabelSymbolTables;
 	private SortedMap<String,SymbolTable> inputSymbolTables;
+	private SortedMap<String,SymbolTable> tokenLabelSymbolTables;
 	
 	// Internal
 	private SortedMap<String,ColumnDescription> internalColumnDescriptions;
@@ -289,13 +292,6 @@ public class DataFormatInstance implements Iterable<ColumnDescription> {
 		}
 	}
 	
-	public SortedMap<String,SymbolTable> getInputSymbolTables() {
-		if (inputSymbolTables == null) {
-			createInputSymbolTables();
-		}
-		return inputSymbolTables;
-	}
-	
 	protected void createInputColumnDescriptions() {
 		inputColumnDescriptions = new TreeMap<String,ColumnDescription>();
 		for (ColumnDescription column : columnDescriptions) {
@@ -310,6 +306,30 @@ public class DataFormatInstance implements Iterable<ColumnDescription> {
 			createInputColumnDescriptions();
 		}
 		return inputColumnDescriptions;
+	}
+	
+	public SortedMap<String,SymbolTable> getInputSymbolTables() {
+		if (tokenLabelSymbolTables == null) {
+			tokenLabelSymbolTables = new TreeMap<String,SymbolTable>();
+			for (ColumnDescription column : columnDescriptions) {
+				if (column.getCategory() == ColumnDescription.TOKEN_LABEL) { 
+					tokenLabelSymbolTables.put(column.getSymbolTable().getName(), column.getSymbolTable());
+				}
+			}
+		}
+		return tokenLabelSymbolTables;
+	}
+	
+	public SortedMap<String,ColumnDescription> getTokenLabelColumnDescriptions() {
+		if (tokenLabelColumnDescriptions == null) {
+			tokenLabelColumnDescriptions = new TreeMap<String,ColumnDescription>();
+			for (ColumnDescription column : columnDescriptions) {
+				if (column.getCategory() == ColumnDescription.TOKEN_LABEL) { 
+					tokenLabelColumnDescriptions.put(column.getName(), column);
+				}
+			}
+		}
+		return tokenLabelColumnDescriptions;
 	}
 	
 	protected void createIgnoreColumnDescriptions() {
@@ -411,6 +431,18 @@ public class DataFormatInstance implements Iterable<ColumnDescription> {
 			}
 		}
 		return ignoreColumnDescriptionSet;
+	}
+	
+	public SortedSet<ColumnDescription> getTokenLabelColumnDescriptionSet() {
+		if (tokenLabelColumnDescriptionSet == null) {
+			tokenLabelColumnDescriptionSet = new TreeSet<ColumnDescription>();
+			for (ColumnDescription column : columnDescriptions) {
+				if (column.getCategory() == ColumnDescription.TOKEN_LABEL) { 
+					tokenLabelColumnDescriptionSet.add(column);
+				}
+			}
+		}
+		return tokenLabelColumnDescriptionSet;
 	}
 	
 	public SymbolTableHandler getSymbolTables() {

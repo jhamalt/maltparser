@@ -141,6 +141,10 @@ public abstract class TransitionSystem {
 				if (!getTableHandlers().containsKey("A")) {
 					getTableHandlers().put("A", symbolTableHandler);
 				}
+			} else if (decisionElements[i].substring(0,index).equals("L")) {
+				if (!getTableHandlers().containsKey("L")) {
+					getTableHandlers().put("L", symbolTableHandler);
+				}
 			} else {
 				throw new ParsingException("The decision settings '"+decisionSettings+"' contains an unknown table handler '"+decisionElements[i].substring(0,index)+"'. " +
 						"Only T (Transition table handler) and A (ArcLabel table handler) is allowed. ");

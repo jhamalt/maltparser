@@ -155,7 +155,7 @@ public class NegraWriter implements SyntaxGraphWriter {
 				int ti = 1;
 				while (columns.hasNext()) {
 					column = columns.next();
-					if (column.getCategory() == ColumnDescription.INPUT) {
+					if (column.getCategory() == ColumnDescription.INPUT || column.getCategory() == ColumnDescription.TOKEN_LABEL) {
 						writer.write(terminal.getLabelSymbol(column.getSymbolTable()));
 						int nTabs = 1;
 						if (ti == 1 || ti == 2) {

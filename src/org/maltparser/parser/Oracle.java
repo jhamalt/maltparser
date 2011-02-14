@@ -17,6 +17,7 @@ public abstract class Oracle implements OracleGuide {
 	protected ActionContainer[] actionContainers;
 	protected ActionContainer transActionContainer;
 	protected ActionContainer[] arcLabelActionContainers;
+	protected ActionContainer[] tokenLabelActionContainers;
 	
 	public Oracle(DependencyParserConfig manager, GuideUserHistory history) throws MaltChainedException {
 		this.manager = manager;

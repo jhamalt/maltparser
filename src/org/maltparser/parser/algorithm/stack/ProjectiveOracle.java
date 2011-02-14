@@ -3,7 +3,9 @@ package org.maltparser.parser.algorithm.stack;
 import java.util.Stack;
 
 import org.maltparser.core.exception.MaltChainedException;
+import org.maltparser.core.symbol.SymbolTable;
 import org.maltparser.core.syntaxgraph.DependencyStructure;
+import org.maltparser.core.syntaxgraph.LabelSet;
 import org.maltparser.core.syntaxgraph.node.DependencyNode;
 import org.maltparser.parser.DependencyParserConfig;
 import org.maltparser.parser.Oracle;
@@ -15,6 +17,7 @@ import org.maltparser.parser.history.action.GuideUserAction;
  *
  */
 public class ProjectiveOracle  extends Oracle {
+	private SymbolTable postagTable;
 	public ProjectiveOracle(DependencyParserConfig manager, GuideUserHistory history) throws MaltChainedException {
 		super(manager, history);
 		setGuideName("projective");
@@ -23,8 +26,16 @@ public class ProjectiveOracle  extends Oracle {
 	public GuideUserAction predict(DependencyStructure gold, ParserConfiguration configuration) throws MaltChainedException {
 		StackConfig config = (StackConfig)configuration;
 		Stack<DependencyNode> stack = config.getStack();
-
-		if (stack.size() < 2) {
+		if (stack.size() < 1) {
+			return updateActionContainers(Projective.SHIFT, null);
+		} else if (!stack.get(stack.size()-1).getLabelSet().containsKey("POSTAG")) {
+			if (postagTable == null) {
+				postagTable = gold.getSymbolTables().getSymbolTable("POSTAG");
+			}
+			LabelSet ls = new LabelSet(1);
+			ls.put(postagTable, gold.getTokenNode(stack.get(stack.size()-1).getIndex()).getLabelCode(postagTable));
+			return updateActionContainers(Projective.POSTAG, ls);
+		} else if (stack.size() < 2) {
 			return updateActionContainers(Projective.SHIFT, null);
 		} else {
 			DependencyNode left = stack.get(stack.size()-2);

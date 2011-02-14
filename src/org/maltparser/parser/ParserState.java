@@ -18,7 +18,7 @@ public class ParserState {
 	private SymbolTableHandler symboltables;
 	private GuideUserHistory history;
 	private TransitionSystem transitionSystem;
-	private HistoryStructure historyStructure;
+//	private HistoryStructure historyStructure;
 	private ParserConfiguration config;
 	
 	public ParserState(Algorithm algorithm, AbstractParserFactory factory) throws MaltChainedException {
@@ -29,7 +29,7 @@ public class ParserState {
 		setAlgorithm(algorithm);
 		setFactory(factory);
 		setSymboltables(algorithm.getManager().getSymbolTables());
-		setHistoryStructure(new HistoryList());
+//		setHistoryStructure(new HistoryList());
 		setTransitionSystem(factory.makeTransitionSystem());
 		String decisionSettings = algorithm.getManager().getOptionValue("guide", "decision_settings").toString().trim();
 		getTransitionSystem().initTableHandlers(decisionSettings, symboltables);
@@ -41,7 +41,7 @@ public class ParserState {
 	
 	public void clear() throws MaltChainedException {
 		history.clear();
-		historyStructure.clear();
+//		historyStructure.clear();
 	}
 	
 	public Algorithm getAlgorithm() {
@@ -76,13 +76,13 @@ public class ParserState {
 		this.transitionSystem = transitionSystem;
 	}
 	
-	public HistoryStructure getHistoryStructure() {
-		return historyStructure;
-	}
-
-	protected void setHistoryStructure(HistoryStructure historyStructure) {
-		this.historyStructure = historyStructure;
-	}
+//	public HistoryStructure getHistoryStructure() {
+//		return historyStructure;
+//	}
+//
+//	protected void setHistoryStructure(HistoryStructure historyStructure) {
+//		this.historyStructure = historyStructure;
+//	}
 	
 	public void initialize(DependencyStructure dependencyStructure) throws MaltChainedException {
 		config.clear();

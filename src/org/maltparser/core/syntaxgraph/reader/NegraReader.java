@@ -248,7 +248,7 @@ public class NegraReader implements SyntaxGraphReader {
 								if (columns.hasNext()) {
 									column = columns.next();
 								}
-								if (column.getCategory() == ColumnDescription.INPUT && child != null) {
+								if ((column.getCategory() == ColumnDescription.INPUT || column.getCategory() == ColumnDescription.TOKEN_LABEL) && child != null) {
 									syntaxGraph.addLabel(child, column.getName(), (i == n - 1)?line.substring(start):line.substring(start, i));
 								} else if (column.getCategory() == ColumnDescription.PHRASE_STRUCTURE_EDGE_LABEL && child != null) { // && column.getName().equals("EDGELABEL")) {
 									edgelabelSymbol.setLength(0);
