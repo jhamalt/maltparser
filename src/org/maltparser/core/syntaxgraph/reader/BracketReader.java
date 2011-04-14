@@ -147,7 +147,7 @@ public class BracketReader implements SyntaxGraphReader {
 					c = (char) l;
 					l = reader.read();
 					if (c != ' ' && c != '(' && c != ')' && c != '\\' && c != 'n' && c != 'r' && c != 't' && c != '\"' && c != '\'') {
-						System.out.println("Error");
+//						System.out.println("Error");
 						System.exit(1);
 					} else {
 						input.append("\\" + c);

@@ -44,26 +44,18 @@ public abstract class ColumnFeature implements FeatureFunction, Modifiable {
 	}
 	
 	public void updateCardinality() {
-		featureValue.setCardinality(column.getSymbolTable().getValueCounter()); 
+//		featureValue.setCardinality(column.getSymbolTable().getValueCounter()); 
 	}
 	
 	public void setFeatureValue(int indexCode) throws MaltChainedException {
-		String symbol = column.getSymbolTable().getSymbolCodeToString(indexCode);
+		final String symbol = column.getSymbolTable().getSymbolCodeToString(indexCode);
 		
 		if (symbol == null) {
-			featureValue.setIndexCode(indexCode);
-			featureValue.setValue(1);
-			featureValue.setKnown(column.getSymbolTable().getKnown(indexCode));
-			featureValue.setSymbol(column.getSymbolTable().getNullValueSymbol(NullValueId.NO_NODE));
-			featureValue.setNullValue(true);
+			featureValue.update(indexCode, column.getSymbolTable().getNullValueSymbol(NullValueId.NO_NODE), true, 1);
 		} else {
 			boolean nullValue = column.getSymbolTable().isNullValue(indexCode);
 			if (column.getType() == ColumnDescription.STRING || nullValue) {
-				featureValue.setIndexCode(indexCode);
-				featureValue.setValue(1);
-				featureValue.setKnown(column.getSymbolTable().getKnown(indexCode));
-				featureValue.setSymbol(symbol);
-				featureValue.setNullValue(nullValue);
+				featureValue.update(indexCode, symbol, nullValue, 1);
 			} else {
 				castFeatureValue(symbol);
 			}
@@ -73,19 +65,11 @@ public abstract class ColumnFeature implements FeatureFunction, Modifiable {
 	public void setFeatureValue(String symbol) throws MaltChainedException {
 		int indexCode = column.getSymbolTable().getSymbolStringToCode(symbol);
 		if (indexCode < 0) {
-			featureValue.setIndexCode(column.getSymbolTable().getNullValueCode(NullValueId.NO_NODE));
-			featureValue.setValue(1);
-			featureValue.setKnown(column.getSymbolTable().getKnown(symbol));
-			featureValue.setSymbol(symbol);
-			featureValue.setNullValue(true);
+			featureValue.update(column.getSymbolTable().getNullValueCode(NullValueId.NO_NODE), symbol, true, 1);
 		} else {
 			boolean nullValue = column.getSymbolTable().isNullValue(symbol);
 			if (column.getType() == ColumnDescription.STRING || nullValue) {
-				featureValue.setIndexCode(column.getSymbolTable().getSymbolStringToCode(symbol));
-				featureValue.setValue(1);
-				featureValue.setKnown(column.getSymbolTable().getKnown(symbol));
-				featureValue.setSymbol(symbol);
-				featureValue.setNullValue(nullValue);
+				featureValue.update(indexCode, symbol, nullValue, 1);
 			} else {
 				castFeatureValue(symbol);
 			}
@@ -127,7 +111,6 @@ public abstract class ColumnFeature implements FeatureFunction, Modifiable {
 		}
 		if (column.getType() == ColumnDescription.INTEGER || column.getType() == ColumnDescription.BOOLEAN || column.getType() == ColumnDescription.REAL) {
 			featureValue.setNullValue(false);
-			featureValue.setKnown(true);
 			featureValue.setIndexCode(1);
 		}
 	}

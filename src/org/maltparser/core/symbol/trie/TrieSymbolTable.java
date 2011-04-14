@@ -26,7 +26,7 @@ public class TrieSymbolTable implements SymbolTable {
 	private final Trie trie;
 	private final SortedMap<Integer, TrieNode> codeTable;
 	private int columnCategory;
-	private NullValues nullValues;
+	private final NullValues nullValues;
 	private int valueCounter;
     /** Cache the hash code for the symbol table */
     private int cachedHash;
@@ -51,14 +51,16 @@ public class TrieSymbolTable implements SymbolTable {
 		this.trie = trie;
 		codeTable = new TreeMap<Integer, TrieNode>();
 		nullValues = new InputNullValues("one", this);
-		//nullValues = null;
 		valueCounter = 1;
 	}
 	
 	public int addSymbol(String symbol) throws MaltChainedException {
 		if (nullValues == null || !nullValues.isNullValue(symbol)) {
+			if (symbol == null || symbol.length() == 0) {
+				throw new SymbolException("Symbol table error: empty string cannot be added to the symbol table");
+			}
 			final TrieNode node = trie.addValue(symbol, this, -1);
-			final int code = node.getEntry(this).getCode();
+			final int code = node.getEntry(this); 
 			if (!codeTable.containsKey(code)) {
 				codeTable.put(code, node);
 			}
@@ -70,8 +72,11 @@ public class TrieSymbolTable implements SymbolTable {
 	
 	public int addSymbol(StringBuilder symbol) throws MaltChainedException {
 		if (nullValues == null || !nullValues.isNullValue(symbol)) {
+			if (symbol == null || symbol.length() == 0) {
+				throw new SymbolException("Symbol table error: empty string cannot be added to the symbol table");
+			}
 			final TrieNode node = trie.addValue(symbol, this, -1);
-			final int code = node.getEntry(this).getCode();
+			final int code = node.getEntry(this);
 			if (!codeTable.containsKey(code)) {
 				codeTable.put(code, node);
 			}
@@ -102,11 +107,11 @@ public class TrieSymbolTable implements SymbolTable {
 				if (trie == null) {
 					throw new SymbolException("The symbol table is corrupt. ");
 				} 
-				final TrieEntry entry = trie.getEntry(symbol, this);
+				final Integer entry = trie.getEntry(symbol, this);
 				if (entry == null) {
 					throw new SymbolException("Could not find the symbol '"+symbol+"' in the symbol table. ");
 				}
-				return entry.getCode();				
+				return entry; //.getCode();				
 			} else {
 				return nullValues.symbolToCode(symbol);
 			}
@@ -125,38 +130,6 @@ public class TrieSymbolTable implements SymbolTable {
 	
 	public int getColumnCategory() {
 		return columnCategory;
-	}
-
-	public boolean getKnown(int code) {
-		if (code >= 0) {
-			if (nullValues == null || !nullValues.isNullValue(code)) {
-				return codeTable.get(code).getEntry(this).isKnown();
-			} else {
-				return true;
-			}
-		} else {
-			return false;
-		}
-	}
-
-	public boolean getKnown(String symbol) {
-		if (nullValues == null || !nullValues.isNullValue(symbol)) {
-			final TrieEntry entry = trie.getEntry(symbol, this);
-			if (entry == null) {
-				return false;
-			}
-			return entry.isKnown();
-		} else {
-			return true;
-		}
-	}
-	
-	public void makeKnown(int code) {
-		if (code >= 0) {
-			if (nullValues == null || !nullValues.isNullValue(code)) {
-				codeTable.get(code).getEntry(this).setKnown(true);
-			} 
-		}
 	}
 	
 	public void printSymbolTable(Logger logger) throws MaltChainedException {
@@ -212,7 +185,7 @@ public class TrieSymbolTable implements SymbolTable {
 				int code = Integer.parseInt(fileLine.substring(0,index));
 				final String str = fileLine.substring(index+1);
 				final TrieNode node = trie.addValue(str, this, code);
-				codeTable.put(node.getEntry(this).getCode(), node);
+				codeTable.put(node.getEntry(this), node); //.getCode(), node);
 				if (max < code) {
 					max = code;
 				}
@@ -280,7 +253,7 @@ public class TrieSymbolTable implements SymbolTable {
 		for (Integer code : fromCodeTable.keySet()) {
 			final String str = trie.getValue(fromCodeTable.get(code), this);
 			final TrieNode node = trie.addValue(str, this, code);
-			codeTable.put(node.getEntry(this).getCode(), node);
+			codeTable.put(node.getEntry(this), node); //.getCode(), node);
 			if (max < code) {
 				max = code;
 			}
@@ -307,7 +280,8 @@ public class TrieSymbolTable implements SymbolTable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		return ((name == null) ? ((TrieSymbolTable)obj).name == null : name.equals(((TrieSymbolTable)obj).name));
+		final TrieSymbolTable other = (TrieSymbolTable)obj;
+		return ((name == null) ? other.name == null : name.equals(other.name));
 	}
 
 	public int hashCode() {

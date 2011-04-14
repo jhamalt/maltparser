@@ -10,8 +10,6 @@ import org.maltparser.core.feature.FeatureModel;
 import org.maltparser.core.feature.FeatureModelManager;
 import org.maltparser.core.feature.FeatureVector;
 import org.maltparser.core.feature.system.FeatureEngine;
-import org.maltparser.core.helper.SystemLogger;
-import org.maltparser.core.helper.Util;
 import org.maltparser.core.plugin.PluginLoader;
 import org.maltparser.core.syntaxgraph.DependencyStructure;
 import org.maltparser.parser.DependencyParserConfig;
@@ -31,22 +29,64 @@ import org.maltparser.parser.history.container.TableContainer.RelationToNextDeci
 @since 1.0
 */
 public class SingleGuide implements ClassifierGuide {
-	private DependencyParserConfig configuration;
-	private GuideHistory history;
+	private final DependencyParserConfig configuration;
+	private final GuideHistory history;
+	private final GuideMode guideMode;
+	private final FeatureModelManager featureModelManager;
+	private final FeatureModel featureModel;
 	private DecisionModel decisionModel = null;
-	private GuideMode guideMode;
-	private FeatureModelManager featureModelManager;
-	private FeatureModel featureModel;
 	private String guideName;
 	
 	public SingleGuide(DependencyParserConfig configuration, GuideHistory history, GuideMode guideMode) throws MaltChainedException {
-		setConfiguration(configuration);
-		setHistory(history);
-		setGuideMode(guideMode);
-		initFeatureModelManager();
-		initHistory();
-		initFeatureModel();
-		featureModel.updateCardinality();
+		this.configuration = configuration;
+		
+		this.guideMode = guideMode;
+		final FeatureEngine system = new FeatureEngine();
+		system.load("/appdata/features/ParserFeatureSystem.xml");
+		system.load(PluginLoader.instance());
+		featureModelManager = new FeatureModelManager(system, getConfiguration().getConfigurationDir());
+
+		// initialize history
+		this.history = history;
+		Class<?> kBestListClass = null;
+		int kBestSize = 1;
+		if (guideMode == ClassifierGuide.GuideMode.CLASSIFY) {
+			kBestListClass = (Class<?>)getConfiguration().getOptionValue("guide", "kbest_type");
+			kBestSize = ((Integer)getConfiguration().getOptionValue("guide", "kbest")).intValue();
+		}
+		history.setKBestListClass(kBestListClass);
+		history.setKBestSize(kBestSize);
+		history.setSeparator(getConfiguration().getOptionValue("guide", "classitem_separator").toString());
+
+		// initialize feature model
+		String featureModelFileName = getConfiguration().getOptionValue("guide", "features").toString().trim();
+
+		if (featureModelFileName.endsWith(".par")) {
+			String markingStrategy = getConfiguration().getOptionValue("pproj", "marking_strategy").toString().trim();
+			String coveredRoot = getConfiguration().getOptionValue("pproj", "covered_root").toString().trim();
+			featureModelManager.loadParSpecification(featureModelFileName, markingStrategy, coveredRoot);
+		} else {
+			featureModelManager.loadSpecification(featureModelFileName);
+		}
+		if (getConfiguration().getConfigLogger().isInfoEnabled()) {
+			getConfiguration().getConfigLogger().info("  Feature model        : " + featureModelFileName+"\n");
+			if (getGuideMode() == ClassifierGuide.GuideMode.BATCH) {
+				getConfiguration().getConfigLogger().info("  Learner              : " + getConfiguration().getOptionValueString("guide", "learner").toString()+"\n");
+			} else {
+				getConfiguration().getConfigLogger().info("  Classifier           : " + getConfiguration().getOptionValueString("guide", "learner")+"\n");	
+			}
+		}
+		featureModel = getFeatureModelManager().getFeatureModel(getConfiguration().getOptionValue("guide", "features").toString(), 0, getConfiguration().getRegistry());
+		if (getGuideMode() == ClassifierGuide.GuideMode.BATCH && getConfiguration().getConfigurationDir().getInfoFileWriter() != null) {
+			try {
+				getConfiguration().getConfigurationDir().getInfoFileWriter().write("\nFEATURE MODEL\n");
+				getConfiguration().getConfigurationDir().getInfoFileWriter().write(featureModel.toString());
+				getConfiguration().getConfigurationDir().getInfoFileWriter().flush();
+			} catch (IOException e) {
+				throw new GuideException("Could not write feature model specification to configuration information file. ", e);
+			}
+		}
+
 	}
 		
 	public void addInstance(GuideDecision decision) throws MaltChainedException {
@@ -135,30 +175,6 @@ public class SingleGuide implements ClassifierGuide {
 		return featureModelManager;
 	}
 	
-	protected void setConfiguration(DependencyParserConfig configuration) {
-		this.configuration = configuration;
-	}
-
-	protected void setHistory(GuideHistory actionHistory) {
-		this.history = actionHistory;
-	}
-	
-	protected void setGuideMode(GuideMode guideMode) {
-		this.guideMode = guideMode;
-	}
-	
-	protected void initHistory() throws MaltChainedException {
-		Class<?> kBestListClass = null;
-		int kBestSize = 1;
-		if (guideMode == ClassifierGuide.GuideMode.CLASSIFY) {
-			kBestListClass = (Class<?>)getConfiguration().getOptionValue("guide", "kbest_type");
-			kBestSize = ((Integer)getConfiguration().getOptionValue("guide", "kbest")).intValue();
-		}
-		history.setKBestListClass(kBestListClass);
-		history.setKBestSize(kBestSize);
-		history.setSeparator(getConfiguration().getOptionValue("guide", "classitem_separator").toString());
-	}
-	
 	protected void initDecisionModel(SingleDecision decision) throws MaltChainedException {
 		Class<?> decisionModelClass = null;
 		if (decision.getRelationToNextDecision() == RelationToNextDecision.SEQUANTIAL) {
@@ -190,44 +206,6 @@ public class SingleGuide implements ClassifierGuide {
 			throw new GuideException("The decision model class '"+decisionModelClass.getName()+"' cannot be initialized. ", e);
 		}
 	}
-	
-	protected void initFeatureModelManager() throws MaltChainedException {
-		final FeatureEngine system = new FeatureEngine();
-		system.load("/appdata/features/ParserFeatureSystem.xml");
-		system.load(PluginLoader.instance());
-		featureModelManager = new FeatureModelManager(system, getConfiguration().getConfigurationDir());
-	}
-	
-	protected void initFeatureModel() throws MaltChainedException {
-		String featureModelFileName = getConfiguration().getOptionValue("guide", "features").toString().trim();
-
-		if (featureModelFileName.endsWith(".par")) {
-			String markingStrategy = getConfiguration().getOptionValue("pproj", "marking_strategy").toString().trim();
-			String coveredRoot = getConfiguration().getOptionValue("pproj", "covered_root").toString().trim();
-			featureModelManager.loadParSpecification(featureModelFileName, markingStrategy, coveredRoot);
-		} else {
-			featureModelManager.loadSpecification(featureModelFileName);
-		}
-		if (getConfiguration().getConfigLogger().isInfoEnabled()) {
-			getConfiguration().getConfigLogger().info("  Feature model        : " + featureModelFileName+"\n");
-			if (getGuideMode() == ClassifierGuide.GuideMode.BATCH) {
-				getConfiguration().getConfigLogger().info("  Learner              : " + getConfiguration().getOptionValueString("guide", "learner").toString()+"\n");
-			} else {
-				getConfiguration().getConfigLogger().info("  Classifier           : " + getConfiguration().getOptionValueString("guide", "learner")+"\n");	
-			}
-		}
-		featureModel = getFeatureModelManager().getFeatureModel(getConfiguration().getOptionValue("guide", "features").toString(), 0, getConfiguration().getRegistry());
-		if (getGuideMode() == ClassifierGuide.GuideMode.BATCH && getConfiguration().getConfigurationDir().getInfoFileWriter() != null) {
-			try {
-				getConfiguration().getConfigurationDir().getInfoFileWriter().write("\nFEATURE MODEL\n");
-				getConfiguration().getConfigurationDir().getInfoFileWriter().write(featureModel.toString());
-				getConfiguration().getConfigurationDir().getInfoFileWriter().flush();
-			} catch (IOException e) {
-				throw new GuideException("Could not write feature model specification to configuration information file. ", e);
-			}
-		}
-	}
-	
 	
 	public String getGuideName() {
 		return guideName;

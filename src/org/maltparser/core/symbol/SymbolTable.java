@@ -10,9 +10,9 @@ import org.maltparser.core.symbol.nullvalue.NullValues.NullValueId;
 
 public interface SymbolTable extends Table {
 	public int addSymbol(StringBuilder symbol) throws MaltChainedException;
-	public boolean getKnown(int code);
-	public boolean getKnown(String symbol);
-	public void makeKnown(int code);
+//	public boolean getKnown(int code);
+//	public boolean getKnown(String symbol);
+//	public void makeKnown(int code);
 	public Set<Integer> getCodes();
 	public void printSymbolTable(Logger logger) throws MaltChainedException;
 	public void save(BufferedWriter out) throws MaltChainedException;

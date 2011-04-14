@@ -1,13 +1,11 @@
 package org.maltparser.core.feature.value;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.maltparser.core.feature.function.Function;
+import org.maltparser.core.helper.HashSet;
 /**
  *  
  *
@@ -16,27 +14,23 @@ import org.maltparser.core.feature.function.Function;
 **/
 public class MultipleFeatureValue extends FeatureValue {
 	protected SortedMap<Integer, String> featureValues;
-	protected Map<Integer, Boolean> featureKnown;
 	
 	public MultipleFeatureValue(Function function) {
 		super(function);
-		setFeatureValues(new TreeMap<Integer, String>(), new HashMap<Integer, Boolean>());
+		setFeatureValues(new TreeMap<Integer, String>()); 
 	}
 	
 	public void reset() {
 		super.reset();
 		featureValues.clear();
-		featureKnown.clear();
 	}
 	
-	public void addFeatureValue(int code, String Symbol, boolean known) {
+	public void addFeatureValue(int code, String Symbol) { 
 		featureValues.put(code, Symbol);
-		featureKnown.put(code, known);
 	}
 	
-	protected void setFeatureValues(SortedMap<Integer, String> featureValues, Map<Integer, Boolean> featureKnown) {
+	protected void setFeatureValues(SortedMap<Integer, String> featureValues) { 
 		this.featureValues = featureValues;
-		this.featureKnown = featureKnown;
 	}
 	
 	public Set<Integer> getCodes() {
@@ -55,17 +49,31 @@ public class MultipleFeatureValue extends FeatureValue {
 		return featureValues.get(featureValues.firstKey());
 	}	
 	
-	public boolean isKnown(int value) {
-		return featureKnown.get(value);
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		MultipleFeatureValue v = ((MultipleFeatureValue)obj);
+		if (!featureValues.equals(v.featureValues))
+			return false;
+		return super.equals(obj);
 	}
 	
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
-		sb.append(super.toString()+ "{ ");
+		sb.append(super.toString());
+		sb.append('{');
 		for (Integer code : featureValues.keySet()) {
-			sb.append("{"+featureValues.get(code) + "->" +code + ", known="+featureKnown.get(code)+"} ");
+			sb.append('{');
+			sb.append(featureValues.get(code));
+			sb.append("->");
+			sb.append(code);
+			sb.append('}');
 		}
-		sb.append("}");
+		sb.append('}');
 		return sb.toString();
 	}
 }

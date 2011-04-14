@@ -6,7 +6,6 @@ import org.maltparser.core.symbol.Table;
 /**
 *
 * @author Johan Hall
-* @since 1.1
 **/
 public class ActionContainer {
 	protected int actionCode;

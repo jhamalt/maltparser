@@ -81,7 +81,7 @@ public class InputArcFeature implements FeatureFunction {
 
 
 	public void updateCardinality() throws MaltChainedException {
-		featureValue.setCardinality(table.getValueCounter());
+//		featureValue.setCardinality(table.getValueCounter());
 	}
 
 	public void update() throws MaltChainedException {
@@ -116,7 +116,7 @@ public class InputArcFeature implements FeatureFunction {
 		    featureValue.setSymbol(table.getNullValueSymbol(NullValueId.NO_NODE));
 		    featureValue.setNullValue(true);
 		}
-		featureValue.setKnown(true);
+//		featureValue.setKnown(true);
 		featureValue.setValue(1);
 	}
 

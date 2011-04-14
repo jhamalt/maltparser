@@ -121,6 +121,11 @@ public class StackAddressFunction extends AddressFunction {
 	}
 	
 	public String toString() {
-		return subFunctionName + "[" + index + "]";
+		StringBuilder sb = new StringBuilder();
+		sb.append(subFunctionName);
+		sb.append('[');
+		sb.append(index);
+		sb.append(']');
+		return sb.toString();
 	}
 }

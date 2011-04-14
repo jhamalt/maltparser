@@ -13,7 +13,7 @@ import org.maltparser.parser.history.action.GuideUserAction;
  *
  */
 public class BatchTrainer extends Trainer {
-	private OracleGuide oracleGuide;
+	private final OracleGuide oracleGuide;
 	private int parseCount;
 	
 	public BatchTrainer(DependencyParserConfig manager) throws MaltChainedException {
@@ -33,8 +33,9 @@ public class BatchTrainer extends Trainer {
 		if (diagnostics == true) {
 			writeToDiaFile(parseCount + "");
 		}
+		TransitionSystem transitionSystem = parserState.getTransitionSystem();
 		while (!parserState.isTerminalState()) {
-			GuideUserAction action = parserState.getTransitionSystem().getDeterministicAction(parserState.getHistory(), currentParserConfiguration);
+			GuideUserAction action = transitionSystem.getDeterministicAction(parserState.getHistory(), currentParserConfiguration);
 			if (action == null) {
 				action = oracleGuide.predict(goldDependencyGraph, currentParserConfiguration);
 				try {
@@ -46,7 +47,7 @@ public class BatchTrainer extends Trainer {
 				writeToDiaFile(" *");
 			}
 			if (diagnostics == true) {
-				writeToDiaFile(" " + parserState.getTransitionSystem().getActionString(action));
+				writeToDiaFile(" " + transitionSystem.getActionString(action));
 			}	
 			parserState.apply(action);
 		}

@@ -14,7 +14,6 @@ import java.net.URL;
 
 import java.util.Formatter;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -532,7 +531,7 @@ public class OptionManager {
 	 * @return a string representation of all option value
 	 * @throws MaltChainedException
 	 */
-	public String toStringPrettyValues(int containerIndex, HashSet<String> excludeGroups) throws MaltChainedException {
+	public String toStringPrettyValues(int containerIndex, Set<String> excludeGroups) throws MaltChainedException {
 		int reservedSpaceForOptionName = 30;
 		OptionGroup.toStringSetting = OptionGroup.WITHGROUPNAME;
 		StringBuilder sb = new StringBuilder();

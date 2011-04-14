@@ -27,9 +27,8 @@ public class Projective extends TransitionSystem {
 	}
 	
 	public void apply(GuideUserAction currentAction, ParserConfiguration configuration) throws MaltChainedException {
-		StackConfig config = (StackConfig)configuration;
-		Stack<DependencyNode> stack = config.getStack();
-		Stack<DependencyNode> input = config.getInput();
+		final StackConfig config = (StackConfig)configuration;
+		final Stack<DependencyNode> stack = config.getStack();
 		currentAction.getAction(actionContainers);
 		Edge e = null;
 		DependencyNode head = null;
@@ -48,6 +47,7 @@ public class Projective extends TransitionSystem {
 			addEdgeLabels(e);
 			break;
 		default:
+			final Stack<DependencyNode> input = config.getInput();
 			if (input.isEmpty()) {
 				stack.pop();
 			} else {
@@ -58,21 +58,20 @@ public class Projective extends TransitionSystem {
 	}
 	
 	public boolean permissible(GuideUserAction currentAction, ParserConfiguration configuration) throws MaltChainedException {
-		StackConfig config = (StackConfig)configuration;
+		final StackConfig config = (StackConfig)configuration;
 		currentAction.getAction(actionContainers);
-		int trans = transActionContainer.getActionCode();
+		final int trans = transActionContainer.getActionCode();
 		if ((trans == LEFTARC || trans == RIGHTARC) && !isActionContainersLabeled()) {
 			return false;
 		}
-		Stack<DependencyNode> stack = config.getStack();
-		Stack<DependencyNode> input = config.getInput();
+		final Stack<DependencyNode> stack = config.getStack();
 		if ((trans == LEFTARC || trans == RIGHTARC) && stack.size() < 2) {
 			return false;
 		}
 		if (trans == LEFTARC && stack.get(stack.size()-2).isRoot()) { 
 			return false;
 		}
-		if (trans == SHIFT && input.isEmpty()) { 
+		if (trans == SHIFT && config.getInput().isEmpty()) { 
 			return false;
 		}
 		

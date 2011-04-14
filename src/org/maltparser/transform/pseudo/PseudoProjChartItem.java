@@ -1,6 +1,5 @@
 package org.maltparser.transform.pseudo;
 
-import java.util.HashMap;
 
 import org.maltparser.core.config.ConfigurationDir;
 import org.maltparser.core.exception.MaltChainedException;
@@ -10,7 +9,6 @@ import org.maltparser.core.flow.spec.ChartItemSpecification;
 import org.maltparser.core.helper.SystemLogger;
 import org.maltparser.core.io.dataformat.DataFormatInstance;
 import org.maltparser.core.options.OptionManager;
-import org.maltparser.core.symbol.SymbolTableHandler;
 import org.maltparser.core.syntaxgraph.DependencyStructure;
 import org.maltparser.core.syntaxgraph.TokenStructure;
 /**

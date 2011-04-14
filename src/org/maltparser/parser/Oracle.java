@@ -11,31 +11,42 @@ import org.maltparser.parser.history.container.ActionContainer;
  *
  */
 public abstract class Oracle implements OracleGuide {
-	private DependencyParserConfig manager;
-	private GuideUserHistory history;
+	private final DependencyParserConfig manager;
+	private final GuideUserHistory history;
 	private String name;
-	protected ActionContainer[] actionContainers;
+	protected final ActionContainer[] actionContainers;
 	protected ActionContainer transActionContainer;
-	protected ActionContainer[] arcLabelActionContainers;
+	protected final ActionContainer[] arcLabelActionContainers;
 	
 	public Oracle(DependencyParserConfig manager, GuideUserHistory history) throws MaltChainedException {
 		this.manager = manager;
 		this.history = history;
-		initActionContainers();
-	}
-	
-	public void setManager(DependencyParserConfig manager) {
-		this.manager = manager;
+		this.actionContainers = history.getActionContainerArray();
+		
+		if (actionContainers.length < 1) {
+			throw new ParsingException("Problem when initialize the history (sequence of actions). There are no action containers. ");
+		}
+		int nLabels = 0;
+		for (int i = 0; i < actionContainers.length; i++) {
+			if (actionContainers[i].getTableContainerName().startsWith("A.")) {
+				nLabels++;
+			}
+		}
+		int j = 0;
+		this.arcLabelActionContainers = new ActionContainer[nLabels];
+		for (int i = 0; i < actionContainers.length; i++) {
+			if (actionContainers[i].getTableContainerName().equals("T.TRANS")) {
+				transActionContainer = actionContainers[i];
+			} else if (actionContainers[i].getTableContainerName().startsWith("A.")) {
+				arcLabelActionContainers[j++] = actionContainers[i];
+			}
+		}
 	}
 
 	public GuideUserHistory getHistory() {
 		return history;
 	}
-
-	public void setHistory(GuideUserHistory history) {
-		this.history = history;
-	}
-
+	
 	public DependencyParserConfig getConfiguration() {
 		return manager;
 	}
@@ -63,29 +74,5 @@ public abstract class Oracle implements OracleGuide {
 		GuideUserAction oracleAction = history.getEmptyGuideUserAction();
 		oracleAction.addAction(actionContainers);
 		return oracleAction;
-	}
-	
-	public void initActionContainers() throws MaltChainedException {
-		this.actionContainers = history.getActionContainerArray();
-		if (actionContainers.length < 1) {
-			throw new ParsingException("Problem when initialize the history (sequence of actions). There are no action containers. ");
-		}
-		int nLabels = 0;
-		for (int i = 0; i < actionContainers.length; i++) {
-			if (actionContainers[i].getTableContainerName().startsWith("A.")) {
-				nLabels++;
-			}
-		}
-		int j = 0;
-		for (int i = 0; i < actionContainers.length; i++) {
-			if (actionContainers[i].getTableContainerName().equals("T.TRANS")) {
-				transActionContainer = actionContainers[i];
-			} else if (actionContainers[i].getTableContainerName().startsWith("A.")) {
-				if (arcLabelActionContainers == null) {
-					arcLabelActionContainers = new ActionContainer[nLabels];
-				}
-				arcLabelActionContainers[j++] = actionContainers[i];
-			}
-		}
 	}
 }

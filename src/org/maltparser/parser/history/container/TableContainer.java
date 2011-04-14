@@ -5,12 +5,11 @@ import org.maltparser.core.symbol.Table;
 /**
 *
 * @author Johan Hall
-* @since 1.1
 **/
 public class TableContainer {
 	public enum RelationToNextDecision { COMBINED, SEQUANTIAL, BRANCHED, SWITCHED, NONE }
 	protected int cachedCode;
-	protected StringBuilder cachedSymbol;
+	protected final StringBuilder cachedSymbol;
 	protected Table table;
 	protected String name;
 	protected RelationToNextDecision relationToNextDecision;

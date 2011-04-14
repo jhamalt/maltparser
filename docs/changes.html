@@ -28,7 +28,8 @@ Modified: @today@
 
 <table class="bodyTable">
 <tr class="a"><th>Version</th><th>Date</th><th>Description</th></tr>
-<tr class="b"><td><a href="#1.4.1">1.4.1</a></td><td>@today@</td><td>Some minor bug fixes</td></tr>
+<tr class="b"><td><a href="#1.5">1.5</a></td><td>@today@</td><td>Large update and requires that a parser model is retrained.</td></tr>
+<tr class="b"><td><a href="#1.4.1">1.4.1</a></td><td>July 15 2010</td><td>Some minor bug fixes</td></tr>
 <tr class="b"><td><a href="#1.4">1.4</a></td><td>July 2 2010</td><td>New parsing algorithms, new functionality and some other changes and bugfixes</td></tr>
 <tr class="b"><td><a href="#1.3.1">1.3.1</a></td><td>November 14 2009</td><td>Some minor improvements and bug fixes</td></tr>
 <tr class="b"><td><a href="#1.3">1.3</a></td><td>September 30 2009 </td><td>Large update</td></tr>
@@ -41,11 +42,26 @@ Modified: @today@
 <tr class="b"><td><a href="#1.0.0">1.0.0</a></td><td>November 9 2007</td><td>First release</td></tr>
 </table>
 
+<a name="1.5"></a>
+<h3>MaltParser 1.5</h3>
+<table class="bodyTable">
+<tr class="a"><th>Changes</th></tr>
+<tr class="b"><td>Total re-implementation of the interface to liblinear and libsvm.</td></tr>
+<tr class="b"><td>Correction of some bugs in pseudo-projective parsing.</td></tr>
+<tr class="b"><td>Minor changes the specification of the data format.</td></tr>
+<tr class="b"><td>Added the possibility to add numeric fields in the data format and use numeric features in the feature model.</td></tr>
+<tr class="b"><td>Removed the experimental implementation of phrase structure parsing. Use MaltParser 1.2 instead.</td></tr>
+<tr class="b"><td>Removed the null value option called 'RootLabel'</td></tr>
+<tr class="b"><td>Replaced Java's HashMap and HashSet with Google's memory efficient HashMap and HashSet</td></tr>
+<tr class="b"><td>Minor updates of the MaltParser API</td></tr>
+<tr class="b"><td>Some minor changes throughout the code.</td></tr>
+</table>
+
 <a name="1.4.1"></a>
 <h3>MaltParser 1.4.1</h3>
 <table class="bodyTable">
 <tr class="a"><th>Changes</th></tr>
-<tr class="b"><td>Fixed a problem inroduced in 1.4 with path separator in Microsoft Windows environment</td></tr>
+<tr class="b"><td>Fixed a problem introduced in 1.4 with path separator in Microsoft Windows environment</td></tr>
 </table>
 
 <a name="1.4"></a>

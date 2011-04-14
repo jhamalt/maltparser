@@ -1,8 +1,8 @@
 package org.maltparser.parser.transition;
 
-import java.util.HashMap;
 
 import org.maltparser.core.exception.MaltChainedException;
+import org.maltparser.core.helper.HashMap;
 import org.maltparser.core.symbol.Table;
 import org.maltparser.core.symbol.TableHandler;
 /**

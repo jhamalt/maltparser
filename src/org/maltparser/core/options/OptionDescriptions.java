@@ -3,7 +3,6 @@ package org.maltparser.core.options;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -12,6 +11,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.maltparser.core.exception.MaltChainedException;
+import org.maltparser.core.helper.HashSet;
 import org.maltparser.core.helper.SystemLogger;
 import org.maltparser.core.options.option.BoolOption;
 import org.maltparser.core.options.option.ClassOption;

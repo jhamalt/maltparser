@@ -127,9 +127,8 @@ public class TabReader implements SyntaxGraphReader {
 						terminalCounter++;
 						node = syntaxGraph.addTokenNode(terminalCounter);
 					}
-					ColumnDescription column = null;
 					if (columns.hasNext()) {
-						column = columns.next();
+						ColumnDescription column = columns.next();
 						if (column.getCategory() == ColumnDescription.INPUT && node != null) {
 							syntaxGraph.addLabel(node, column.getName(), input.toString());
 						} else if (column.getCategory() == ColumnDescription.HEAD) {

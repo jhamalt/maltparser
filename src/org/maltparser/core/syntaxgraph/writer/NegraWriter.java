@@ -22,7 +22,6 @@ import org.maltparser.core.syntaxgraph.TokenStructure;
 import org.maltparser.core.syntaxgraph.edge.Edge;
 import org.maltparser.core.syntaxgraph.node.NonTerminalNode;
 import org.maltparser.core.syntaxgraph.node.PhraseStructureNode;
-import org.maltparser.ml.libsvm.LibsvmException;
 /**
 *
 *
@@ -312,7 +311,7 @@ public class NegraWriter implements SyntaxGraphWriter {
 				}
 				break;
 			default:
-				throw new LibsvmException("Unknown svm parameter: '"+argv[i-1]+"' with value '"+argv[i]+"'. ");		
+				throw new DataFormatException("Unknown svm parameter: '"+argv[i-1]+"' with value '"+argv[i]+"'. ");		
 			}
 		}	
 	}

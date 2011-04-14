@@ -54,7 +54,7 @@ public class ScoredCandidate extends Candidate {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		ScoredCandidate item = (ScoredCandidate)obj;
+		final ScoredCandidate item = (ScoredCandidate)obj;
 		return actionCode == item.actionCode && score == item.score;
 	}
 	

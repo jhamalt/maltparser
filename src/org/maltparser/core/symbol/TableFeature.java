@@ -38,24 +38,22 @@ public abstract class TableFeature implements FeatureFunction, Modifiable {
 	}
 	
 	public void updateCardinality() {
-		if (table != null) {
-			featureValue.setCardinality(table.getValueCounter());
-		} else {
-			featureValue.setCardinality(0);
-		}
+//		if (table != null) {
+//			featureValue.setCardinality(table.getValueCounter());
+//		} else {
+//			featureValue.setCardinality(0);
+//		}
 	}
 	
 	public void setFeatureValue(int indexCode) throws MaltChainedException {
 		if (table.getSymbolCodeToString(indexCode) == null) {
 			featureValue.setIndexCode(indexCode);
 			featureValue.setValue(1);
-			featureValue.setKnown(table.getKnown(indexCode));
 			featureValue.setSymbol(table.getNullValueSymbol(NullValueId.NO_NODE));
 			featureValue.setNullValue(true);
 		} else {
 			featureValue.setIndexCode(indexCode);
 			featureValue.setValue(1);
-			featureValue.setKnown(table.getKnown(indexCode));
 			featureValue.setSymbol(table.getSymbolCodeToString(indexCode));
 			featureValue.setNullValue(table.isNullValue(indexCode));
 		}
@@ -65,13 +63,11 @@ public abstract class TableFeature implements FeatureFunction, Modifiable {
 		if (table.getSymbolStringToCode(symbol) < 0) {
 			featureValue.setIndexCode(table.getNullValueCode(NullValueId.NO_NODE));
 			featureValue.setValue(1);
-			featureValue.setKnown(table.getKnown(symbol));
 			featureValue.setSymbol(symbol);
 			featureValue.setNullValue(true);
 		} else {
 			featureValue.setIndexCode(table.getSymbolStringToCode(symbol));
 			featureValue.setValue(1);
-			featureValue.setKnown(table.getKnown(symbol));
 			featureValue.setSymbol(symbol);
 			featureValue.setNullValue(table.isNullValue(symbol));
 		}

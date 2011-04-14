@@ -537,7 +537,7 @@ public class MappablePhraseStructureGraph extends Sentence implements Dependency
 				sb.append('\t');
 				sb.append(depnode.getHeadEdge().toString());
 			} catch (MaltChainedException e) {
-				System.out.println(e);
+				System.err.println(e);
 			}
 		}
 		sb.append('\n');

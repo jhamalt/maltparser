@@ -95,16 +95,8 @@ public class ConfigDirChartItem extends ChartItem {
 				SystemLogger.logger().warn("Couln't determine which version of MaltParser that created the parser model: " + configDirName+ ".mco\n MaltParser will terminate\n");
 				System.exit(1);
 			} else if (!configDir.getCreatedByMaltParserVersion().startsWith(SystemInfo.getVersion())) {
-				if (configDir.getCreatedByMaltParserVersion().startsWith("1.3")) {
-					SystemLogger.logger().warn("The parser model '"+ configDirName+ ".mco' is created by MaltParser "+configDir.getCreatedByMaltParserVersion()+".\n");
-					SystemLogger.logger().warn("You can convert the parser model to a MaltParser "+SystemInfo.getVersion()+" parser model:\n");
-					SystemLogger.logger().warn("   java -jar malt.jar -c "+configDirName+" -m versioning\n");
-					SystemLogger.logger().warn("MaltParser will terminate.\n");
-				} else {
-					SystemLogger.logger().warn("The parser model '"+ configDirName+ ".mco' is created by MaltParser "+configDir.getCreatedByMaltParserVersion()+", which cannot be used by MaltParser "+SystemInfo.getVersion()+".\n");
-					SystemLogger.logger().warn("Please retrain the parser model with MaltParser "+SystemInfo.getVersion()+" or download MaltParser "+configDir.getCreatedByMaltParserVersion()+" from http://maltparser.org/download.html\n");
-					SystemLogger.logger().warn("MaltParser will terminate\n");					
-				}
+				SystemLogger.logger().error("The parser model '"+ configDirName+ ".mco' is created by MaltParser "+configDir.getCreatedByMaltParserVersion()+".\n");
+				SystemLogger.logger().error("You have re-train the parser model to be able to parse with current version of MaltParser.");
 				System.exit(1);
 			}
 			OptionManager.instance().loadOptions(getOptionContainerIndex(), configDir.getInputStreamReaderFromConfigFile("savedoptions.sop"));

@@ -62,9 +62,9 @@ public class SeqDecisionModel implements DecisionModel {
 		featureModel.update();
 	}
 	
-	public void updateCardinality() throws MaltChainedException {
-		featureModel.updateCardinality();
-	}
+//	public void updateCardinality() throws MaltChainedException {
+//		featureModel.updateCardinality();
+//	}
 	
 	public void finalizeSentence(DependencyStructure dependencyGraph) throws MaltChainedException {
 		if (instanceModel != null) {
@@ -79,7 +79,7 @@ public class SeqDecisionModel implements DecisionModel {
 		if (guide.getGuideMode() == ClassifierGuide.GuideMode.CLASSIFY) {
 			throw new GuideException("The decision model could not create it's model. ");
 		}
-		featureModel.updateCardinality();
+//		featureModel.updateCardinality();
 		if (instanceModel != null) {
 			instanceModel.noMoreInstances();
 			instanceModel.train();

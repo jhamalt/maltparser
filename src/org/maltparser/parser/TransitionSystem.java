@@ -1,8 +1,8 @@
 package org.maltparser.parser;
 
-import java.util.HashMap;
 
 import org.maltparser.core.exception.MaltChainedException;
+import org.maltparser.core.helper.HashMap;
 import org.maltparser.core.propagation.PropagationManager;
 import org.maltparser.core.symbol.SymbolTable;
 import org.maltparser.core.symbol.SymbolTableHandler;

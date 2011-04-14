@@ -12,7 +12,7 @@ import org.maltparser.parser.history.action.GuideDecision;
 **/
 public interface DecisionModel extends Model {
 	public void updateFeatureModel() throws MaltChainedException;
-	public void updateCardinality() throws MaltChainedException;
+//	public void updateCardinality() throws MaltChainedException;
 	
 	public void addInstance(GuideDecision decision) throws MaltChainedException;
 	public boolean predict(GuideDecision decision) throws MaltChainedException;

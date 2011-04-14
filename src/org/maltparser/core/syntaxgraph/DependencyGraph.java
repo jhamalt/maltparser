@@ -23,7 +23,7 @@ import org.maltparser.core.syntaxgraph.node.Root;
 public class DependencyGraph extends Sentence implements DependencyStructure { 
 	private final ObjectPoolList<Edge> edgePool;
 	private final SortedSet<Edge> graphEdges;
-	private Root root;
+	private final Root root;
 	private boolean singleHeadedConstraint;
 	private RootLabels rootLabels;
 	
@@ -91,8 +91,8 @@ public class DependencyGraph extends Sentence implements DependencyStructure {
 			if (singleHeadedConstraint && dependent.hasHead()) {
 				return moveDependencyEdge(head, dependent);
 			}
-			DependencyNode hc = ((DependencyNode)head).findComponent();
-			DependencyNode dc = ((DependencyNode)dependent).findComponent();
+			final DependencyNode hc = ((DependencyNode)head).findComponent();
+			final DependencyNode dc = ((DependencyNode)dependent).findComponent();
 			if (hc != dc) {
 				link(hc, dc);
 				numberOfComponents--;		
@@ -127,7 +127,7 @@ public class DependencyGraph extends Sentence implements DependencyStructure {
 			return null;
 		}
 		Edge headEdge = dependent.getHeadEdge();
-		LabelSet labels = checkOutNewLabelSet();
+		final LabelSet labels = checkOutNewLabelSet();
 		for (SymbolTable table : headEdge.getLabelTypes()) {
 			labels.put(table, headEdge.getLabelCode(table));
 		}
@@ -191,7 +191,7 @@ public class DependencyGraph extends Sentence implements DependencyStructure {
 		if (source == null || target == null) {
 			throw new SyntaxGraphException("Head or dependent node is missing.");
 		} else if (!target.isRoot()) {
-			Iterator<Edge> ie = ((Node)target).getIncomingEdgeIterator();
+			final Iterator<Edge> ie = ((Node)target).getIncomingEdgeIterator();
 			while (ie.hasNext()) {
 				Edge e = ie.next();
 				if (e.getSource() == source) {

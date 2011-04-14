@@ -1,18 +1,15 @@
 package org.maltparser.core.io.dataformat;
 
 import java.net.URL;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.maltparser.core.exception.MaltChainedException;
-import org.maltparser.core.helper.SystemLogger;
+import org.maltparser.core.helper.HashSet;
 import org.maltparser.core.helper.Util;
 import org.maltparser.core.symbol.SymbolTableHandler;
 import org.w3c.dom.Element;
@@ -46,7 +43,6 @@ public class DataFormatSpecification {
 //		supportedWriters = new HashSet<SyntaxGraphWriter>();
 	}
 	
-//	public DataFormatInstance createDataFormatInstance(SymbolTableHandler symbolTables, String nullValueStrategy, String rootLabel) throws MaltChainedException {
 	public DataFormatInstance createDataFormatInstance(SymbolTableHandler symbolTables, String nullValueStrategy) throws MaltChainedException {
 		return new DataFormatInstance(entries, symbolTables, nullValueStrategy, this); //rootLabel, this);
 
@@ -68,16 +64,7 @@ public class DataFormatSpecification {
 		if (url == null) {
 			throw new DataFormatException("The data format specifcation file cannot be found. ");
 		}
-		
-		if (SystemLogger.logger().isInfoEnabled()) {
-			int index = url.toString().indexOf('!');
-			if (index == -1) {
-				SystemLogger.logger().debug("  Data Format          : "+url.toString()+"\n");
-			} else {
-				SystemLogger.logger().debug("  Data Format          : "+url.toString().substring(index+1)+"\n");
-			}
-		}
-		
+				
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             DocumentBuilder db = dbf.newDocumentBuilder();
@@ -187,6 +174,12 @@ public class DataFormatSpecification {
 
 		public void setMapUrl(String mapUrl) {
 			this.mapUrl = mapUrl;
+		}
+
+		@Override
+		public String toString() {
+			return "Dependency [dependentOn=" + dependentOn + ", map=" + map
+					+ ", mapUrl=" + mapUrl + ", urlString=" + urlString + "]";
 		}
 	}
 }

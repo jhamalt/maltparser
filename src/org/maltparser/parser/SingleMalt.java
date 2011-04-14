@@ -2,6 +2,7 @@ package org.maltparser.parser;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Formatter;
 import java.util.regex.Pattern;
 
@@ -61,6 +62,33 @@ public class SingleMalt implements DependencyParserConfig {
 //		registry.put(org.maltparser.parser.DependencyParserConfig.class, this);
 		initPropagation();
 		initParsingAlgorithm(); 
+		if (configLogger.isInfoEnabled()) {
+			URL inputFormatURL = configDir.getInputFormatURL(); 
+			URL outputFormatURL = configDir.getOutputFormatURL();
+			if (inputFormatURL != null) {
+				if (outputFormatURL == null || outputFormatURL.toString().equals(inputFormatURL.toString())) {
+					int index = inputFormatURL.toString().indexOf('!');
+					if (index == -1) {
+						configLogger.info("  Data Format          : "+inputFormatURL.toString()+"\n");
+					} else {
+						configLogger.info("  Data Format          : "+inputFormatURL.toString().substring(index+1)+"\n");
+					}
+				} else {
+					int indexIn = inputFormatURL.toString().indexOf('!');
+					int indexOut = outputFormatURL.toString().indexOf('!');
+					if (indexIn == -1) {
+						configLogger.info("  Input Data Format    : "+inputFormatURL.toString()+"\n");
+					} else {
+						configLogger.info("  Input Data Format    : "+inputFormatURL.toString().substring(indexIn+1)+"\n");
+					}
+					if (indexOut == -1) {
+						configLogger.info("  Output Data Format   : "+outputFormatURL.toString()+"\n");
+					} else {
+						configLogger.info("  Output Data Format   : "+outputFormatURL.toString().substring(indexOut+1)+"\n");
+					}
+				}
+			}
+		}
 	}
 	
 	private void initPropagation()  throws MaltChainedException {

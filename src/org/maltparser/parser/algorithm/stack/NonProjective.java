@@ -29,9 +29,9 @@ public class NonProjective extends TransitionSystem {
 	}
 	
 	public void apply(GuideUserAction currentAction, ParserConfiguration configuration) throws MaltChainedException {
-		StackConfig config = (StackConfig)configuration;
-		Stack<DependencyNode> stack = config.getStack();
-		Stack<DependencyNode> input = config.getInput();
+		final StackConfig config = (StackConfig)configuration;
+		final Stack<DependencyNode> stack = config.getStack();
+		final Stack<DependencyNode> input = config.getInput();
 		currentAction.getAction(actionContainers);
 		Edge e = null;
 		DependencyNode head = null;
@@ -53,7 +53,7 @@ public class NonProjective extends TransitionSystem {
 			dep = stack.pop();
 			input.push(stack.pop());
 			stack.push(dep);
-			((StackConfig)configuration).lookaheadIncrement();
+			config.lookaheadIncrement();
 			break;
 		default:
 			if (input.isEmpty()) {
@@ -61,26 +61,26 @@ public class NonProjective extends TransitionSystem {
 			} else {
 				stack.push(input.pop()); // SHIFT
 			}
-			((StackConfig)configuration).lookaheadDecrement();
+			config.lookaheadDecrement();
 			break;
 		}
 	}
 	
 	public boolean permissible(GuideUserAction currentAction, ParserConfiguration configuration) throws MaltChainedException {
-		StackConfig config = (StackConfig)configuration;
 		currentAction.getAction(actionContainers);
 		int trans = transActionContainer.getActionCode();
 		if ((trans == LEFTARC || trans == RIGHTARC) && !isActionContainersLabeled()) {
 			return false;
 		}
-		Stack<DependencyNode> stack = config.getStack();
-		Stack<DependencyNode> input = config.getInput();
+		final StackConfig config = (StackConfig)configuration;
+		final Stack<DependencyNode> stack = config.getStack();
 		if ((trans == LEFTARC || trans == RIGHTARC || trans == SWAP) && stack.size() < 2) {
 			return false;
 		}
 		if ((trans == LEFTARC || trans == SWAP) && stack.get(stack.size()-2).isRoot()) { 
 			return false;
 		}
+		final Stack<DependencyNode> input = config.getInput();
 		if (trans == SHIFT && input.isEmpty()) { 
 			return false;
 		}

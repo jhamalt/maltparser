@@ -1,9 +1,9 @@
 package org.maltparser.parser.history;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import org.maltparser.core.exception.MaltChainedException;
+import org.maltparser.core.helper.HashMap;
 import org.maltparser.core.pool.ObjectPoolList;
 import org.maltparser.core.symbol.TableHandler;
 import org.maltparser.parser.history.action.ActionDecision;

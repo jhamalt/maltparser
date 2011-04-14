@@ -112,11 +112,7 @@ public class Token extends GraphNode implements TokenNode, DependencyNode, Phras
 		super.addIncomingEdge(in);
 		if (in.getSource() != null) {
 			if (in.getType() == Edge.DEPENDENCY_EDGE && in.getSource() instanceof DependencyNode) {
-				if (heads.size() >= 1) {
-					heads.add((DependencyNode)in.getSource());
-				} else {
-					heads.add((DependencyNode)in.getSource());
-				}
+				heads.add((DependencyNode)in.getSource());
 			} else if (in.getType() == Edge.PHRASE_STRUCTURE_EDGE && in.getSource() instanceof PhraseStructureNode) {
 				parent = (PhraseStructureNode)in.getSource();
 			}
