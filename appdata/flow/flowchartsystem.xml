@@ -38,5 +38,9 @@
 			<attribute name="source" default="system"/>
 			<attribute name="target" default="system"/>
 		</chartelement>
+		<chartelement item="analyzer" class="org.maltparser.core.syntaxgraph.GraphAnalyzerChartItem">
+			<attribute name="id" default="analyzer"/>
+			<attribute name="source" default="input"/>
+		</chartelement>
 	</chartelements>
 </flowchartsystem>

@@ -4,8 +4,9 @@ import java.util.Vector;
 
 import org.apache.log4j.Logger;
 import org.maltparser.core.exception.MaltChainedException;
+import org.maltparser.core.io.dataformat.ColumnDescription;
+import org.maltparser.core.io.dataformat.DataFormatInstance;
 import org.maltparser.core.symbol.SymbolTable;
-import org.maltparser.core.symbol.SymbolTableHandler;
 import org.maltparser.core.syntaxgraph.DependencyStructure;
 import org.maltparser.core.syntaxgraph.node.DependencyNode;
 
@@ -23,7 +24,7 @@ public class PseudoProjectivity {
 	};
 
 	private enum CoveredRootAttachment {
-		NONE, LEFT, RIGHT, HEAD
+		NONE, IGNORE, LEFT, RIGHT, HEAD
 	};
 
 	private enum LiftingOrder {
@@ -39,6 +40,12 @@ public class PseudoProjectivity {
 	private SymbolTable pppathSymbolTable;
 	private SymbolTable ppliftedSymbolTable;
 	private SymbolTable ppcoveredRootSymbolTable;
+	
+	private ColumnDescription deprelColumn;
+	private ColumnDescription pppathColumn;
+	private ColumnDescription ppliftedColumn;
+	private ColumnDescription ppcoveredRootColumn;
+	
 	private Vector<Boolean> nodeLifted;
 	private Vector<Vector<DependencyNode>> nodeTrace;
 	private Vector<DependencyNode> headDeprel;
@@ -51,7 +58,7 @@ public class PseudoProjectivity {
 	public PseudoProjectivity() { }
 
 	public void initialize(String markingStrategyString, String coveredRoot, String liftingOrder, Logger configLogger,
-			SymbolTableHandler symbolTables) throws MaltChainedException {
+			DataFormatInstance dataFormatInstance) throws MaltChainedException {
 		nodeLifted = new Vector<Boolean>();
 		nodeTrace = new Vector<Vector<DependencyNode>>();
 		headDeprel = new Vector<DependencyNode>();
@@ -74,11 +81,14 @@ public class PseudoProjectivity {
 		} else if (markingStrategyString.equalsIgnoreCase("trace")) {
 			markingStrategy = PseudoProjectiveEncoding.TRACE;
 		}
-
-		this.deprelSymbolTable = symbolTables.getSymbolTable("DEPREL");
+		this.deprelColumn = dataFormatInstance.getColumnDescriptionByName("DEPREL");
+		this.deprelSymbolTable = deprelColumn.getSymbolTable();
+//		this.deprelSymbolTable = dataFormatInstance.getSymbolTables().getSymbolTable("DEPREL");
 		if (markingStrategy == PseudoProjectiveEncoding.HEAD || markingStrategy == PseudoProjectiveEncoding.PATH
 				|| markingStrategy == PseudoProjectiveEncoding.HEADPATH) {
-			this.ppliftedSymbolTable = symbolTables.addSymbolTable("PPLIFTED", deprelSymbolTable);
+			this.ppliftedColumn = dataFormatInstance.addInternalColumnDescription("PPLIFTED", "DEPENDENCY_EDGE_LABEL", "BOOLEAN", deprelColumn.getNullValueStrategy());
+			this.ppliftedSymbolTable = ppliftedColumn.getSymbolTable();
+//			this.ppliftedSymbolTable = dataFormatInstance.getSymbolTables().addSymbolTable("PPLIFTED", deprelSymbolTable);
 			if (this.markingStrategy == PseudoProjectiveEncoding.PATH) {
 				ppliftedSymbolTable.addSymbol("#true#");
 				ppliftedSymbolTable.addSymbol("#false#");
@@ -88,13 +98,16 @@ public class PseudoProjectivity {
 		}
 
 		if (markingStrategy == PseudoProjectiveEncoding.PATH || markingStrategy == PseudoProjectiveEncoding.HEADPATH) {
-			pppathSymbolTable = symbolTables.addSymbolTable("PPPATH", deprelSymbolTable);
+			this.pppathColumn = dataFormatInstance.addInternalColumnDescription("PPPATH", "DEPENDENCY_EDGE_LABEL", "BOOLEAN", deprelColumn.getNullValueStrategy());
+			this.pppathSymbolTable = pppathColumn.getSymbolTable();
 			pppathSymbolTable.addSymbol("#true#");
 			pppathSymbolTable.addSymbol("#false#");
 		}
 
 		if (coveredRoot.equalsIgnoreCase("none")) {
 			this.rootAttachment = CoveredRootAttachment.NONE;
+		} else if (coveredRoot.equalsIgnoreCase("ignore")) {
+			this.rootAttachment = CoveredRootAttachment.IGNORE;
 		} else if (coveredRoot.equalsIgnoreCase("left")) {
 			this.rootAttachment = CoveredRootAttachment.LEFT;
 		} else if (coveredRoot.equalsIgnoreCase("right")) {
@@ -104,7 +117,8 @@ public class PseudoProjectivity {
 		}
 
 		if (this.rootAttachment != CoveredRootAttachment.NONE) {
-			this.ppcoveredRootSymbolTable = symbolTables.addSymbolTable("PPCOVERED", deprelSymbolTable);
+			this.ppcoveredRootColumn = dataFormatInstance.addInternalColumnDescription("PPCOVERED", "DEPENDENCY_EDGE_LABEL", "BOOLEAN", deprelColumn.getNullValueStrategy());
+			this.ppcoveredRootSymbolTable = ppcoveredRootColumn.getSymbolTable();
 			ppcoveredRootSymbolTable.addSymbol("#true#");
 			ppcoveredRootSymbolTable.addSymbol("#false#");
 		}
@@ -141,43 +155,56 @@ public class PseudoProjectivity {
 		}
 		computeRelationLength(pdg);
 	}
-
-	public void projectivize(DependencyStructure pdg) throws MaltChainedException {
-		id++;
-		if (!pdg.isTree()) {
-			configLogger.info("\n[Warning: Sentence '" + id + "' cannot projectivize, because the dependency graph is not a tree]\n");
-			return;
-		}
-		DependencyNode deepestNonProjectiveNode;
-		initProjectivization(pdg);
-
-		if (markingStrategy != PseudoProjectiveEncoding.NONE) {
-			while (!pdg.isProjective()) {
-				if (liftingOrder == LiftingOrder.DEEPEST) {
-					deepestNonProjectiveNode = getDeepestNonProjectiveNode(pdg);
-				} else {
-					deepestNonProjectiveNode = getShortestNonProjectiveNode(pdg);
-				}
-				if (!attachCoveredRoots(pdg, deepestNonProjectiveNode)) {
-					nodeLifted.set(deepestNonProjectiveNode.getIndex(), true);
-					setHeadDeprel(deepestNonProjectiveNode, deepestNonProjectiveNode.getHead());
-					setPath(deepestNonProjectiveNode.getHead());
-					pdg.moveDependencyEdge(pdg.getDependencyNode(deepestNonProjectiveNode.getHead().getHead().getIndex()).getIndex(), deepestNonProjectiveNode.getIndex());
-				}
-			}
-			if (rootAttachment == CoveredRootAttachment.NONE) {
-				deattachCoveredRootsForProjectivization(pdg);
-			}
-		} else if (rootAttachment != CoveredRootAttachment.NONE) {
-			for (int index : pdg.getTokenIndices()) {
-				attachCoveredRoots(pdg, pdg.getTokenNode(index));
-			}
-		}
-		// collectTraceStatistics(pdg);
-		assignPseudoProjectiveDeprels(pdg);
-	}
-
 	
+    public void projectivize(DependencyStructure pdg) throws MaltChainedException {
+        id++;
+        if (!pdg.isTree()) {
+            configLogger.info("\n[Warning: Sentence '" + id + "' cannot projectivize, because the dependency graph is not a tree]\n");
+            return;
+        }
+        DependencyNode deepestNonProjectiveNode;
+        initProjectivization(pdg);
+        if (rootAttachment == CoveredRootAttachment.IGNORE) {
+    		if (markingStrategy != PseudoProjectiveEncoding.NONE) {
+    			while (!pdg.isProjective()) {
+    				if (liftingOrder == LiftingOrder.DEEPEST) {
+    					deepestNonProjectiveNode = getDeepestNonProjectiveNode(pdg);
+    				} else {
+    					deepestNonProjectiveNode = getShortestNonProjectiveNode(pdg);
+    				}
+    				if (!attachCoveredRoots(pdg, deepestNonProjectiveNode)) {
+    					nodeLifted.set(deepestNonProjectiveNode.getIndex(), true);
+    					setHeadDeprel(deepestNonProjectiveNode, deepestNonProjectiveNode.getHead());
+    					setPath(deepestNonProjectiveNode.getHead());
+    					pdg.moveDependencyEdge(pdg.getDependencyNode(deepestNonProjectiveNode.getHead().getHead().getIndex()).getIndex(), deepestNonProjectiveNode.getIndex());
+    				}
+    			}
+    			deattachCoveredRootsForProjectivization(pdg);
+    		}
+        } else {
+	        if (rootAttachment != CoveredRootAttachment.NONE) {
+	            for (int index : pdg.getTokenIndices()) {
+	                attachCoveredRoots(pdg, pdg.getTokenNode(index));
+	            }
+	        }
+	        if (markingStrategy != PseudoProjectiveEncoding.NONE) {
+	            while (!pdg.isProjective()) {
+	                if (liftingOrder == LiftingOrder.DEEPEST) {
+	                    deepestNonProjectiveNode = getDeepestNonProjectiveNode(pdg);
+	                } else {
+	                    deepestNonProjectiveNode = getShortestNonProjectiveNode(pdg);
+	                }
+	                nodeLifted.set(deepestNonProjectiveNode.getIndex(), true);
+	                setHeadDeprel(deepestNonProjectiveNode, deepestNonProjectiveNode.getHead());
+	                setPath(deepestNonProjectiveNode.getHead());
+	                pdg.moveDependencyEdge(pdg.getDependencyNode(deepestNonProjectiveNode.getHead().getHead().getIndex()).getIndex(), deepestNonProjectiveNode.getIndex());
+	            }
+	        }
+        }
+        // collectTraceStatistics(pdg);
+        assignPseudoProjectiveDeprels(pdg);
+    }
+
 	public void mergeArclabels(DependencyStructure pdg) throws MaltChainedException {
 		assignPseudoProjectiveDeprelsForMerge(pdg);
 	}
@@ -254,9 +281,6 @@ public class PseudoProjectivity {
 			if (rightMostIndex == -1) {
 				rightMostIndex = i;
 			}
-//			if (!nodeLifted.get(i) && pdg.getDependencyNode(i).getHead().isRoot() && !deepest.getHead().isRoot()
-//					&& Math.min(deepest.getIndex(), deepest.getHead().getIndex()) < pdg.getDependencyNode(i).getLeftmostDescendantIndex()
-//					&& pdg.getDependencyNode(i).getRightmostDescendantIndex() < Math.max(deepest.getIndex(), deepest.getHead().getIndex())) {
 			if (!nodeLifted.get(i) && pdg.getDependencyNode(i).getHead().isRoot() && !deepest.getHead().isRoot()
 					&& Math.min(deepest.getIndex(), deepest.getHead().getIndex()) < leftMostIndex
 					&& rightMostIndex < Math.max(deepest.getIndex(), deepest.getHead().getIndex())) {
@@ -354,13 +378,7 @@ public class PseudoProjectivity {
 					pdg.getDependencyNode(index).getHeadEdge().addLabel(pppathSymbolTable, newLabelCode);
 				}
 
-				// if (markingStrategy == PseudoProjectiveEncoding.TRACE) {
-				// if (nodeLifted.get(i)) {
-				// newLabel = deprelSymbolTable.getSymbolCodeToString(pdg.getNode(i).getLabelCode(deprelSymbolTable)) + "|";
-				// addArc(pdg, pdg.getNode(i), pdg.getNode(i).getHead(), newLabel);
-				// }
-				// }
-			} else if (rootAttachment != CoveredRootAttachment.NONE) {
+			} else if (!(rootAttachment == CoveredRootAttachment.NONE || rootAttachment == CoveredRootAttachment.IGNORE)) {
 				pdg.getDependencyNode(index).getHeadEdge().addLabel(ppcoveredRootSymbolTable, ppcoveredRootSymbolTable.getSymbolStringToCode("#true#"));
 			}
 		}
@@ -411,7 +429,7 @@ public class PseudoProjectivity {
 						newLabel = deprelSymbolTable.getSymbolCodeToString(pdg.getDependencyNode(index).getHeadEdge().getLabelCode(deprelSymbolTable)) + "|";
 					}
 				}
-			} else if (rootAttachment != CoveredRootAttachment.NONE) {
+			} else if (!(rootAttachment == CoveredRootAttachment.NONE || rootAttachment == CoveredRootAttachment.IGNORE)) {
 				newLabel = deprelSymbolTable.getSymbolCodeToString(pdg.getDependencyNode(index).getHeadEdge().getLabelCode(deprelSymbolTable)) + "|null";
 			}
 			if (newLabel != null) {
@@ -446,8 +464,6 @@ public class PseudoProjectivity {
 			deprojectivizeWithPath(pdg, pdg.getDependencyRoot());
 		} else if (markingStrategy == PseudoProjectiveEncoding.HEADPATH) {
 			deprojectivizeWithHeadAndPath(pdg, pdg.getDependencyRoot());
-			// } else if (markingStrategy == PseudoProjectiveEncoding.TRACE) {
-			// deprojectivizeWithTrace(pdg, pdg.getRoot());
 		}
 	}
 
@@ -499,7 +515,6 @@ public class PseudoProjectivity {
 			possibleSyntacticHead = breadthFirstSearchSortedByDistanceForHead(pdg, node.getHead(), node, syntacticHeadDeprel);
 			if (possibleSyntacticHead != null) {
 				pdg.moveDependencyEdge(possibleSyntacticHead.getIndex(), node.getIndex());
-//				addEdge(pdg, possibleSyntacticHead, node, node.getHeadEdge().getLabelSet());
 				nodeLifted.set(node.getIndex(), false);
 			} else {
 				success = false;
@@ -599,7 +614,6 @@ public class PseudoProjectivity {
 			possibleSyntacticHead = breadthFirstSearchSortedByDistanceForPath(pdg, node.getHead(), node);
 			if (possibleSyntacticHead != null) {
 				pdg.moveDependencyEdge(possibleSyntacticHead.getIndex(), node.getIndex());
-//				addEdge(pdg, possibleSyntacticHead, node, node.getHeadEdge().getLabelSet());
 				nodeLifted.set(node.getIndex(), false);
 			} else {
 				success = false;
@@ -609,7 +623,6 @@ public class PseudoProjectivity {
 			possibleSyntacticHead = breadthFirstSearchSortedByDistanceForPath(pdg, node.getHead(), node);
 			if (possibleSyntacticHead != null) {
 				pdg.moveDependencyEdge(possibleSyntacticHead.getIndex(), node.getIndex());
-//				addEdge(pdg, possibleSyntacticHead, node, node.getHeadEdge().getLabelSet());
 				nodeLifted.set(node.getIndex(), false);
 			} else {
 				success = false;
@@ -662,7 +675,6 @@ public class PseudoProjectivity {
 					.getIndex()));
 			if (possibleSyntacticHead != null) {
 				pdg.moveDependencyEdge(possibleSyntacticHead.getIndex(), node.getIndex());
-//				addEdge(pdg, possibleSyntacticHead, node, node.getHeadEdge().getLabelSet());
 				nodeLifted.set(node.getIndex(), false);
 			} else {
 				success = false;
@@ -673,7 +685,6 @@ public class PseudoProjectivity {
 					.getIndex()));
 			if (possibleSyntacticHead != null) {
 				pdg.moveDependencyEdge(possibleSyntacticHead.getIndex(), node.getIndex());
-//				addEdge(pdg, possibleSyntacticHead, node, node.getHeadEdge().getLabelSet());
 				nodeLifted.set(node.getIndex(), false);
 			} else {
 				success = false;

@@ -23,7 +23,6 @@ import org.maltparser.core.syntaxgraph.node.NonTerminalNode;
 import org.maltparser.core.syntaxgraph.node.PhraseStructureNode;
 import org.maltparser.core.syntaxgraph.node.TokenNode;
 import org.maltparser.core.syntaxgraph.reader.TigerXMLHeader;
-import org.maltparser.ml.libsvm.LibsvmException;
 /**
 *
 *
@@ -398,7 +397,7 @@ public class TigerXMLWriter implements SyntaxGraphWriter {
 				VROOT_SYMBOL = argv[i];
 				break;	
 			default:
-				throw new LibsvmException("Unknown TigerXML writer option: '"+argv[i-1]+"' with value '"+argv[i]+"'. ");		
+				throw new DataFormatException("Unknown TigerXML writer option: '"+argv[i-1]+"' with value '"+argv[i]+"'. ");		
 			}
 		}	
 	}

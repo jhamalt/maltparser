@@ -8,6 +8,8 @@ import org.maltparser.core.feature.value.FeatureValue;
 import org.maltparser.core.feature.value.FunctionValue;
 import org.maltparser.core.feature.value.MultipleFeatureValue;
 import org.maltparser.core.feature.value.SingleFeatureValue;
+import org.maltparser.core.io.dataformat.ColumnDescription;
+import org.maltparser.core.io.dataformat.DataFormatInstance;
 import org.maltparser.core.symbol.SymbolTable;
 import org.maltparser.core.symbol.SymbolTableHandler;
 /**
@@ -20,11 +22,13 @@ public class SuffixFeature implements FeatureMapFunction {
 	protected MultipleFeatureValue multipleFeatureValue;
 	protected SymbolTableHandler tableHandler;
 	protected SymbolTable table;
+	protected DataFormatInstance dataFormatInstance;
+	protected ColumnDescription column;
 	protected int suffixLength;
 
-	public SuffixFeature(SymbolTableHandler tableHandler) throws MaltChainedException {
+	public SuffixFeature(DataFormatInstance dataFormatInstance) throws MaltChainedException {
 		super();
-		setTableHandler(tableHandler);
+		setDataFormatInstance(dataFormatInstance);
 		multipleFeatureValue = new MultipleFeatureValue(this);
 	}
 	
@@ -40,7 +44,13 @@ public class SuffixFeature implements FeatureMapFunction {
 		}
 		setParentFeature((FeatureFunction)arguments[0]);
 		setSuffixLength(((Integer)arguments[1]).intValue());
-		setSymbolTable(tableHandler.addSymbolTable("SUFFIX_"+suffixLength+"_"+parentFeature.getSymbolTable().getName(), parentFeature.getSymbolTable()));
+		ColumnDescription parentColumn = dataFormatInstance.getColumnDescriptionByName(parentFeature.getSymbolTable().getName());
+		if (parentColumn.getType() != ColumnDescription.STRING) {
+			throw new FeatureException("Could not initialize SuffixFeature: the first argument must be a string. ");
+		}
+		setColumn(dataFormatInstance.addInternalColumnDescription("SUFFIX_"+suffixLength+"_"+parentFeature.getSymbolTable().getName(), parentColumn));
+		setSymbolTable(column.getSymbolTable());
+//		setSymbolTable(tableHandler.addSymbolTable("SUFFIX_"+suffixLength+"_"+parentFeature.getSymbolTable().getName(), parentFeature.getSymbolTable()));
 	}
 	
 	public Class<?>[] getParameterTypes() {
@@ -66,7 +76,7 @@ public class SuffixFeature implements FeatureMapFunction {
 		if (value instanceof SingleFeatureValue) {
 			String symbol = ((SingleFeatureValue)value).getSymbol();
 			if (((FeatureValue)value).isNullValue()) {
-				multipleFeatureValue.addFeatureValue(parentFeature.getSymbolTable().getSymbolStringToCode(symbol), symbol, true);
+				multipleFeatureValue.addFeatureValue(parentFeature.getSymbolTable().getSymbolStringToCode(symbol), symbol);
 				multipleFeatureValue.setNullValue(true);
 			} else {
 				String suffixStr;
@@ -76,13 +86,13 @@ public class SuffixFeature implements FeatureMapFunction {
 					suffixStr = symbol;
 				}
 				int code = table.addSymbol(suffixStr);
-				multipleFeatureValue.addFeatureValue(code, suffixStr, table.getKnown(suffixStr));
+				multipleFeatureValue.addFeatureValue(code, suffixStr);
 				multipleFeatureValue.setNullValue(false);
 			}
 		} else if (value instanceof MultipleFeatureValue) {
 			multipleFeatureValue.reset();
 			if (((MultipleFeatureValue)value).isNullValue()) {
-				multipleFeatureValue.addFeatureValue(parentFeature.getSymbolTable().getSymbolStringToCode(((MultipleFeatureValue)value).getFirstSymbol()), ((MultipleFeatureValue)value).getFirstSymbol(), true);
+				multipleFeatureValue.addFeatureValue(parentFeature.getSymbolTable().getSymbolStringToCode(((MultipleFeatureValue)value).getFirstSymbol()), ((MultipleFeatureValue)value).getFirstSymbol());
 				multipleFeatureValue.setNullValue(true);
 			} else {
 				for (String symbol : ((MultipleFeatureValue)value).getSymbols()) {
@@ -93,7 +103,7 @@ public class SuffixFeature implements FeatureMapFunction {
 						suffixStr = symbol;
 					}
 					int code = table.addSymbol(suffixStr);
-					multipleFeatureValue.addFeatureValue(code, suffixStr, table.getKnown(suffixStr));
+					multipleFeatureValue.addFeatureValue(code, suffixStr);
 					multipleFeatureValue.setNullValue(true);
 				}
 			}
@@ -101,8 +111,8 @@ public class SuffixFeature implements FeatureMapFunction {
 	}
 	
 	public void updateCardinality() throws MaltChainedException {
-		parentFeature.updateCardinality();
-		multipleFeatureValue.setCardinality(table.getValueCounter()); 
+//		parentFeature.updateCardinality();
+//		multipleFeatureValue.setCardinality(table.getValueCounter()); 
 	}
 	
 	public FeatureFunction getParentFeature() {
@@ -122,19 +132,31 @@ public class SuffixFeature implements FeatureMapFunction {
 	}
 
 	public SymbolTableHandler getTableHandler() {
-		return tableHandler;
+		return dataFormatInstance.getSymbolTables();
 	}
-
-	public void setTableHandler(SymbolTableHandler tableHandler) {
-		this.tableHandler = tableHandler;
-	}
-
+	
 	public SymbolTable getSymbolTable() {
 		return table;
 	}
 
 	public void setSymbolTable(SymbolTable table) {
 		this.table = table;
+	}
+	
+	public DataFormatInstance getDataFormatInstance() {
+		return dataFormatInstance;
+	}
+
+	public void setDataFormatInstance(DataFormatInstance dataFormatInstance) {
+		this.dataFormatInstance = dataFormatInstance;
+	}
+	
+	public ColumnDescription getColumn() {
+		return column;
+	}
+	
+	protected void setColumn(ColumnDescription column) {
+		this.column = column;
 	}
 	
 	public boolean equals(Object obj) {

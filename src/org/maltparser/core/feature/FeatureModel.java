@@ -2,7 +2,6 @@ package org.maltparser.core.feature;
 
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Stack;
 import java.util.regex.Pattern;
 
@@ -14,6 +13,7 @@ import org.maltparser.core.feature.function.Function;
 import org.maltparser.core.feature.spec.SpecificationModel;
 import org.maltparser.core.feature.spec.SpecificationSubModel;
 import org.maltparser.core.feature.system.FeatureEngine;
+import org.maltparser.core.helper.HashMap;
 
 /**
 *
@@ -112,11 +112,11 @@ public class FeatureModel extends HashMap<String, FeatureVector> {
 		}
 	}
 	
-	public void updateCardinality() throws MaltChainedException {
-		for (int i = 0, n = featureFunctionCache.size(); i < n; i++) {
-			featureFunctionCache.get(i).updateCardinality();
-		}
-	}
+//	public void updateCardinality() throws MaltChainedException {
+//		for (int i = 0, n = featureFunctionCache.size(); i < n; i++) {
+//			featureFunctionCache.get(i).updateCardinality();
+//		}
+//	}
 	
 	public FeatureFunction identifyFeature(String spec) throws MaltChainedException {
 		String[] items =splitPattern.split(spec);
@@ -158,33 +158,36 @@ public class FeatureModel extends HashMap<String, FeatureVector> {
 		for (int i = 0; i < paramTypes.length; i++) {
 			if (paramTypes[i] == java.lang.Integer.class) {
 				if (objects.peek() instanceof String) {
+					String object = (String)objects.pop();
 					try {
-						objects.push(Integer.parseInt(((String)objects.pop())));
+						objects.push(Integer.parseInt(object));
 					} catch (NumberFormatException e) {
-						throw new FeatureException("Could not cast string to integer. ", e);
+						throw new FeatureException("The function '"+function.getClass()+"' cannot be initialized with argument '"+object+"'" + ", expect an integer value. ", e);
 					}
 				} else {
-					throw new FeatureException("Could not cast string to integer. ");
+					throw new FeatureException("The function '"+function.getClass()+"' cannot be initialized with argument '"+objects.peek()+"'" + ", expect an integer value. ");
 				}
 			} else if (paramTypes[i] == java.lang.Double.class) {
 				if (objects.peek() instanceof String) {
+					String object = (String)objects.pop();
 					try {
-						objects.push(Double.parseDouble(((String)objects.pop())));
+						objects.push(Double.parseDouble(object));
 					} catch (NumberFormatException e) {
-						throw new FeatureException("Could not cast string to double. ", e);
+						throw new FeatureException("The function '"+function.getClass()+"' cannot be initialized with argument '"+object+"'" + ", expect a numeric value. ", e);
 					}
 				} else {
-					throw new FeatureException("Could not cast string to double. ");
+					throw new FeatureException("The function '"+function.getClass()+"' cannot be initialized with argument '"+objects.peek()+"'" + ", expect a numeric value. ");
 				}
 			} else if (paramTypes[i] == java.lang.Boolean.class) {
 				if (objects.peek() instanceof String) {
 					objects.push(Boolean.parseBoolean(((String)objects.pop())));
 				} else {
-					throw new FeatureException("Could not cast string to boolean. ");
+					throw new FeatureException("The function '"+function.getClass()+"' cannot be initialized with argument '"+objects.peek()+"'" + ", expect a boolean value. ");
+					
 				}
 			}
 			if (!paramTypes[i].isInstance(objects.peek())) {
-				throw new FeatureException("The function cannot be initialized. " + "(" + paramTypes[i] + ")(" + objects.peek() + ")(" + function + ")(" + objects + ")");
+				throw new FeatureException("The function '"+function.getClass()+"' cannot be initialized with argument '"+objects.peek()+"'");
 			}
 			arguments[i] = objects.pop();
 		}

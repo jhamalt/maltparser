@@ -16,11 +16,11 @@ public class Malt04 {
 		String malt04Cposset = om.getOptionValue(containerIndex, "malt0.4", "cposset").toString();
 		String malt04Depset = om.getOptionValue(containerIndex, "malt0.4", "depset").toString();
 		String nullValueStrategy = om.getOptionValue(containerIndex, "singlemalt", "null_value").toString();
-		String rootLabels = om.getOptionValue(containerIndex, "graph", "root_label").toString();
+//		String rootLabels = om.getOptionValue(containerIndex, "graph", "root_label").toString();
 		String inputCharSet = om.getOptionValue(containerIndex, "input", "charset").toString();
 		loadMalt04Posset(malt04Posset, inputCharSet, nullValueStrategy, symbolTableHandler, logger);
 		loadMalt04Cposset(malt04Cposset, inputCharSet, nullValueStrategy, symbolTableHandler, logger);
-		loadMalt04Depset(malt04Depset, inputCharSet, nullValueStrategy, rootLabels, symbolTableHandler, logger);
+		loadMalt04Depset(malt04Depset, inputCharSet, nullValueStrategy, symbolTableHandler, logger);
 	}
 	
 	public static void loadMalt04Posset(String fileName, String charSet, String nullValueStrategy, SymbolTableHandler symbolTableHandler, Logger logger) throws MaltChainedException {
@@ -41,12 +41,12 @@ public class Malt04 {
 		}
 	}
 	
-	public static void loadMalt04Depset(String fileName, String charSet, String nullValueStrategy, String rootLabels, SymbolTableHandler symbolTableHandler, Logger logger) throws MaltChainedException {
+	public static void loadMalt04Depset(String fileName, String charSet, String nullValueStrategy, SymbolTableHandler symbolTableHandler, Logger logger) throws MaltChainedException {
 		if (!fileName.equalsIgnoreCase("")) {
 			if (logger.isInfoEnabled()) {
 				logger.info("Loading dependency type tagset '"+fileName+"'...\n");
 			}
-			symbolTableHandler.loadTagset(fileName, "DEPREL", charSet, ColumnDescription.DEPENDENCY_EDGE_LABEL, nullValueStrategy, rootLabels);
+			symbolTableHandler.loadTagset(fileName, "DEPREL", charSet, ColumnDescription.DEPENDENCY_EDGE_LABEL, nullValueStrategy);
 		}
 	}
 }

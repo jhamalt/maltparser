@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.feature.function.FeatureFunction;
 import org.maltparser.core.feature.spec.SpecificationSubModel;
+import org.maltparser.core.feature.value.FeatureValue;
 
 /**
 *
@@ -28,7 +29,6 @@ public class FeatureVector extends ArrayList<FeatureFunction> implements Seriali
 	public FeatureVector(FeatureModel featureModel, SpecificationSubModel specSubModel) throws MaltChainedException {
 		setSpecSubModel(specSubModel);
 		setFeatureModel(featureModel);
-
 		for (String spec : specSubModel) {
 			add(featureModel.identifyFeature(spec));	
 		}
@@ -66,7 +66,8 @@ public class FeatureVector extends ArrayList<FeatureFunction> implements Seriali
 	 * @throws MaltChainedException
 	 */
 	public void update() throws MaltChainedException {
-		for (int i = 0; i < size(); i++) {
+		final int size =  size();
+		for (int i = 0; i < size; i++) {
 			get(i).update();
 		}
 	}
@@ -76,12 +77,19 @@ public class FeatureVector extends ArrayList<FeatureFunction> implements Seriali
 	 * 
 	 * @throws MaltChainedException
 	 */
-	public void updateCardinality() throws MaltChainedException {
-		for (int i = 0; i < size(); i++) {
-			get(i).updateCardinality();
-		}
-	}
+//	public void updateCardinality() throws MaltChainedException {
+//		final int size =  size();
+//		for (int i = 0; i < size; i++) {
+//			get(i).updateCardinality();
+//		}
+//	}
 	
+	public FeatureValue getFeatureValue(int index) {
+		if (index < 0 || index >= size()) {
+			return null;
+		}
+		return get(index).getFeatureValue();
+	}
 	
 	/* (non-Javadoc)
 	 * @see java.util.AbstractCollection#toString()
@@ -89,8 +97,10 @@ public class FeatureVector extends ArrayList<FeatureFunction> implements Seriali
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		for (FeatureFunction function : this) {
-			sb.append(function.getFeatureValue().toString());
-			sb.append('\n');
+			if (function != null) {
+				sb.append(function.getFeatureValue().toString());
+				sb.append('\n');
+			}
 		}
 		return sb.toString();
 	}

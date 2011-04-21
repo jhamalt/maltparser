@@ -20,7 +20,7 @@ import java.net.URL;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.jar.JarEntry;
@@ -30,11 +30,14 @@ import java.util.jar.JarOutputStream;
 
 import org.maltparser.core.config.version.Versioning;
 import org.maltparser.core.exception.MaltChainedException;
+import org.maltparser.core.helper.HashSet;
 import org.maltparser.core.helper.SystemInfo;
 import org.maltparser.core.helper.SystemLogger;
 import org.maltparser.core.helper.Util;
 import org.maltparser.core.io.dataformat.DataFormatInstance;
 import org.maltparser.core.io.dataformat.DataFormatManager;
+import org.maltparser.core.io.dataformat.DataFormatSpecification.DataStructure;
+import org.maltparser.core.io.dataformat.DataFormatSpecification.Dependency;
 import org.maltparser.core.options.OptionManager;
 import org.maltparser.core.symbol.SymbolTableHandler;
 import org.maltparser.core.symbol.trie.TrieSymbolTableHandler;
@@ -59,7 +62,8 @@ public class ConfigurationDir  {
 	private SymbolTableHandler symbolTables;
 	private DataFormatManager dataFormatManager;
 	private HashMap<String,DataFormatInstance> dataFormatInstances;
-	
+	private URL inputFormatURL; 
+	private URL outputFormatURL; 
 	
 	/**
 	 * Creates a configuration directory from a mco-file specified by an URL.
@@ -98,8 +102,7 @@ public class ConfigurationDir  {
 	public void initDataFormat() throws MaltChainedException {
 		String inputFormatName = OptionManager.instance().getOptionValue(containerIndex, "input", "format").toString().trim();
 		String outputFormatName = OptionManager.instance().getOptionValue(containerIndex, "output", "format").toString().trim();
-//		SystemLogger.logger().info(inputFormatName + "\n");
-//		SystemLogger.logger().info(outputFormatName + "\n");
+
 		if (configDirectory != null && configDirectory.exists()) {
 			if (outputFormatName.length() == 0 || inputFormatName.equals(outputFormatName)) {
 				URL inputFormatURL = Util.findURLinJars(inputFormatName);
@@ -130,24 +133,47 @@ public class ConfigurationDir  {
 		}
 		dataFormatInstances = new HashMap<String, DataFormatInstance>(3);
 
-		URL inURL = findURL(inputFormatName);
-		URL outURL = findURL(outputFormatName);
-
-		
-		if (outURL != null) {
+		inputFormatURL = findURL(inputFormatName);
+		outputFormatURL = findURL(outputFormatName);
+		if (outputFormatURL != null) {
 			try {
-				InputStream is = outURL.openStream();
+				InputStream is = outputFormatURL.openStream();
 			} catch (FileNotFoundException e) {
-				outURL = Util.findURL(outputFormatName);
+				outputFormatURL = Util.findURL(outputFormatName);
 			} catch (IOException e) {
-				outURL = Util.findURL(outputFormatName);
+				outputFormatURL = Util.findURL(outputFormatName);
 			}
 		} else {
-			outURL = Util.findURL(outputFormatName);
+			outputFormatURL = Util.findURL(outputFormatName);
 		}
-		
-		dataFormatManager = new DataFormatManager(inURL, outURL);
+		dataFormatManager = new DataFormatManager(inputFormatURL, outputFormatURL);
 		symbolTables = new TrieSymbolTableHandler();
+
+		if (dataFormatManager.getInputDataFormatSpec().getDataStructure() == DataStructure.PHRASE) {
+			String mode = OptionManager.instance().getOptionValue(containerIndex, "config", "flowchart").toString().trim();
+			if (mode.equals("learn")) {
+				Set<Dependency> deps = dataFormatManager.getInputDataFormatSpec().getDependencies();
+				for (Dependency dep : deps) {
+					URL depFormatURL = Util.findURLinJars(dep.getUrlString());
+					if (depFormatURL != null) {
+						this.copyToConfig(depFormatURL);
+					} else {
+						this.copyToConfig(dep.getUrlString());
+					}
+				}
+			} 
+			else if (mode.equals("parse")) {
+				Set<Dependency> deps = dataFormatManager.getInputDataFormatSpec().getDependencies();
+				String nullValueStategy = OptionManager.instance().getOptionValue(containerIndex, "singlemalt", "null_value").toString();
+				for (Dependency dep : deps) {
+//					URL depFormatURL = Util.findURLinJars(dep.getUrlString());
+					DataFormatInstance dataFormatInstance = dataFormatManager.getDataFormatSpec(dep.getDependentOn()).createDataFormatInstance(symbolTables, nullValueStategy);
+					addDataFormatInstance(dataFormatManager.getDataFormatSpec(dep.getDependentOn()).getDataFormatName(), dataFormatInstance);
+					dataFormatManager.setInputDataFormatSpec(dataFormatManager.getDataFormatSpec(dep.getDependentOn()));
+//					dataFormatManager.setOutputDataFormatSpec(dataFormatManager.getDataFormatSpec(dep.getDependentOn()));
+				}
+			}
+		}
 	}
 	
 	private URL findURL(String specModelFileName) throws MaltChainedException {
@@ -261,6 +287,25 @@ public class ConfigurationDir  {
 			throw new ConfigurationException("The file entry '"+fileName+"' in mco-file '"+mcoPath+"' cannot be found. ", e);
 		} catch (IOException e) {
 			throw new ConfigurationException("The file entry '"+fileName+"' in mco-file '"+mcoPath+"' cannot be found. ", e);
+		}
+	}
+	
+	public InputStream getInputStreamFromConfigFileEntry(String fileName) throws MaltChainedException {
+		File mcoPath = new File(workingDirectory.getPath()+File.separator+getName()+".mco");
+		try {
+			JarFile mcoFile = new JarFile(mcoPath.getAbsolutePath());
+			JarEntry entry = mcoFile.getJarEntry(getName()+'/'+fileName);
+			if (entry == null) {
+				entry = mcoFile.getJarEntry(getName()+'\\'+fileName);
+			}
+			if (entry == null) {
+				throw new FileNotFoundException();
+			}
+			return mcoFile.getInputStream(entry);
+		} catch (FileNotFoundException e) {
+			throw new ConfigurationException("The file entry '"+fileName+"' in the mco file '"+mcoPath+"' cannot be found. ", e);
+		} catch (IOException e) {
+			throw new ConfigurationException("The file entry '"+fileName+"' in the mco file '"+mcoPath+"' cannot be loaded. ", e);
 		}
 	}
 	
@@ -477,7 +522,7 @@ public class ConfigurationDir  {
 			infoFile.write("\nMALTPARSER\n");
 			infoFile.write("Version:                       "+SystemInfo.getVersion()+"\n");
 			infoFile.write("Build date:                    "+SystemInfo.getBuildDate()+"\n");
-			HashSet<String> excludeGroups = new HashSet<String>();
+			Set<String> excludeGroups = new HashSet<String>();
 			excludeGroups.add("system");
 			infoFile.write("\nSETTINGS\n");
 			infoFile.write(OptionManager.instance().toStringPrettyValues(containerIndex, excludeGroups));
@@ -1095,8 +1140,38 @@ public class ConfigurationDir  {
 	public void setDataFormatManager(DataFormatManager dataFormatManager) {
 		this.dataFormatManager = dataFormatManager;
 	}
-	
-	public HashMap<String, DataFormatInstance> getDataFormatInstances() {
-		return dataFormatInstances;
+		
+	public Set<String> getDataFormatInstanceKeys() {
+		return dataFormatInstances.keySet();
 	}
+	
+	public boolean addDataFormatInstance(String key, DataFormatInstance dataFormatInstance) {
+		if (!dataFormatInstances.containsKey(key)) {
+			dataFormatInstances.put(key, dataFormatInstance);
+			return true;
+		}
+		return false;
+	}
+	
+	public DataFormatInstance getDataFormatInstance(String key) {
+		return dataFormatInstances.get(key);
+	}
+	
+	public int sizeDataFormatInstance() {
+		return dataFormatInstances.size();
+	}
+	
+	public DataFormatInstance getInputDataFormatInstance() {
+		return dataFormatInstances.get(dataFormatManager.getInputDataFormatSpec().getDataFormatName());
+	}
+
+	public URL getInputFormatURL() {
+		return inputFormatURL;
+	}
+
+	public URL getOutputFormatURL() {
+		return outputFormatURL;
+	}
+	
+	
 }

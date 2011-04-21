@@ -1,7 +1,6 @@
 package org.maltparser.core.syntaxgraph.writer;
 
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.io.dataformat.DataFormatInstance;

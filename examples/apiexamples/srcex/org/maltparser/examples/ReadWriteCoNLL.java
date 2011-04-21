@@ -29,7 +29,7 @@ public class ReadWriteCoNLL {
 		// Initialize data format instance of the CoNLL data format from conllx.xml (conllx.xml located in same directory)
 		DataFormatSpecification dataFormat = new DataFormatSpecification();
 		dataFormat.parseDataFormatXMLfile(dataFormatFileName);
-		DataFormatInstance dataFormatInstance = dataFormat.createDataFormatInstance(symbolTables, "none", "ROOT");
+		DataFormatInstance dataFormatInstance = dataFormat.createDataFormatInstance(symbolTables, "none");
 
 		// Creates a dependency graph
 		inputGraph = new DependencyGraph(symbolTables);

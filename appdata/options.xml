@@ -52,11 +52,11 @@
 			<legalvalue name="info">Prints the info file of a configuration</legalvalue>
 			<legalvalue name="unpack">Unpacks a configuration</legalvalue>
 			<legalvalue name="convert">Simple format converter</legalvalue>
+			<legalvalue name="analyze"></legalvalue>
 			<legalvalue name="proj">Projectivizes input data using a configuration</legalvalue>
 			<legalvalue name="deproj">Deprojectivizes input data using a configuration</legalvalue>
 			<legalvalue name="learnwo">Same as <i>learn</i>, but also outputs the graphs to file specified by the flag -o</legalvalue>
-			<legalvalue name="testdata">Generates test instances to run experiments with a learner outside MaltParser. Use for example the flag <i>-lsi true</i>i> to save instances.</legalvalue>
-			<legalvalue name="versioning">Converts an old parser model (mco-file) into the latest version (supports version 1.3 parser model or later)</legalvalue>
+			<legalvalue name="testdata">Generates test instances to run experiments with a learner outside MaltParser. Use for example the flag <em>-li true</em> to save instances.</legalvalue>
 		</option>
 		<option type="class" name="type" flag="t" default="singlemalt" usage="both">
 			<desc><![CDATA[ MaltParser @version@ has one available configuration type: <b>singlemalt</b>. Later releases 
@@ -139,8 +139,6 @@ many single malt configurations. ]]></desc>
 			<li><code>none</code>: Excludes all kinds of null-values when extracting the feature vector, this option value is not possible for learning
 			methods that have symbolic feature vector encoding.
 			<li><code>one</code>: Maps all kinds of null values to one symbol.
-			<li><code>rootlabel</code>: Maps all kinds of null values to one symbol and for output columns this symbol is the same as the root 
-			label (used to emulate MaltParser 0.4)
 			<li><code>rootnode</code>: Distinguishes between <code>NO NODE</code> and <code>ROOT NODE</code>, and the <code>NO VALUE</code> null-value case is mapped 
 			to the <code>ROOT NODE</code> null-value for output columns. 
 			<li><code>novalue</code>: Distinguishes between <code>NO NODE</code> and <code>ROOT NODE</code> for both input and output columns, and <code>NO VALUE</code> for output columns. 
@@ -149,7 +147,6 @@ many single malt configurations. ]]></desc>
 			<shortdesc>The degree of differentiation of null-values</shortdesc>
 			<legalvalue name="none">Excludes all types of null values</legalvalue>
 			<legalvalue name="one">Maps all kinds of null values to one symbol</legalvalue>
-			<legalvalue name="rootlabel">Same as 'one', but null value for output column is mapped to the root label</legalvalue>
 			<legalvalue name="rootnode">Distinguish between no node and root node</legalvalue>
 			<legalvalue name="novalue">Distinguish between no node and root node, and no value for output column</legalvalue>
 		</option>
@@ -186,33 +183,22 @@ many single malt configurations. ]]></desc>
 		<option type="stringenum" name="format" flag="if" default="conllx" usage="save">
 			<desc><![CDATA[ This option tells the parser which format is used in the input data file. The format is defined in an XML file. For 
 			more information see the user guide: <a href="userguide.html#inout">Input and output format</a>. 
-			There are already two data format specification files in the MaltParser distribution (included in malt.jar):
+			There are two data format specification files in the MaltParser distribution (included in malt.jar):
 			<ul> 
 			<li><b>conllx</b> defines the <a href="http://nextens.uvt.nl/depparse-wiki/DataFormat" target="_blank">CoNLL-X shared task format</a></li>
 			<li><b>malttab</b> defines the <a href="http://w3.msi.vxu.se/~nivre/research/MaltXML.html" target="_blank">Malt-TAB</a> format.</li>
-			<li><b>negraps</b> defines simple version of the <a href="http://www.coli.uni-sb.de/~thorsten/publications/Brants-CLAUS98.ps.gz" target="_blank">Negra</a> export format, including lemma column.</li>
-			<li><b>negrads</b> defines internally a dependency representation of the Negra export format. </li>
 			</ul> ]]></desc>
 			<shortdesc>Path to format specification file</shortdesc>
 			<legalvalue name="conllx" mapto="/appdata/dataformat/conllx.xml">CoNLL-X data format</legalvalue>
 			<legalvalue name="malttab" mapto="/appdata/dataformat/malttab.xml">MaltTAB data format</legalvalue>
-			<legalvalue name="negraps" mapto="/appdata/dataformat/negraps.xml">Negra phrase structure</legalvalue>
-			<legalvalue name="negrads" mapto="/appdata/dataformat/negrads.xml">Negra dependency  structure</legalvalue>
-			<legalvalue name="tal05ps" mapto="/appdata/dataformat/tal05ps.xml">Talbanken05 phrase structure</legalvalue>
-			<legalvalue name="tal05ds" mapto="/appdata/dataformat/tal05ds.xml">Talbanken05 dependency  structure</legalvalue>
-			<legalvalue name="tigerps" mapto="/appdata/dataformat/tigerps.xml">Tiger phrase structure</legalvalue>
-			<legalvalue name="tigerds" mapto="/appdata/dataformat/tigerds.xml">Tiger dependency  structure</legalvalue>
 		</option>
 		<option type="class" name="reader" flag="ir" default="tab" usage="both">
-			<desc><![CDATA[ In MaltParser @version@ there are two input readers:
+			<desc><![CDATA[ In MaltParser @version@ there are ine input reader:
 			<ul> 
 			<li><b>tab</b> reads tab-separated files and with columns defined by the input format.</a></li>
-			<li><b>negra</b> reads line-oriented files similar to the Negra export format.</a></li>
 			</ul> ]]></desc>
 			<shortdesc>Data reader</shortdesc>
 			<legalvalue name="tab" class="org.maltparser.core.syntaxgraph.reader.TabReader">Tab-separated reader</legalvalue>
-			<legalvalue name="negra" class="org.maltparser.core.syntaxgraph.reader.NegraReader">Negra reader</legalvalue>
-			<legalvalue name="tiger" class="org.maltparser.core.syntaxgraph.reader.TigerXMLReader">TigerXML reader</legalvalue>
 		</option>
 		<option type="string" name="charset" flag="ic" default="UTF-8" usage="save">
 			<desc><![CDATA[ The <b>charset</b> option defines the character set of the input data file, for example, <code>UTF-8</code> or <code>ISO8858-1</code>.  ]]></desc>
@@ -238,22 +224,14 @@ many single malt configurations. ]]></desc>
 		<option type="stringenum" name="format" flag="of" default="" usage="both">
 			<desc><![CDATA[ This option tells the parser which format is used for the output data file. The format is defined in an XML file. 
 			For more information see the user guide: <a href="userguide.html#define_inout">Define your own input/output format</a>. 
-			There are already two data format specification files in the MaltParser distribution (included in malt.jar):
+			There are two data format specification files in the MaltParser distribution (included in malt.jar):
 			<ul> 
 			<li><b>conllx</b> defines the <a href="http://nextens.uvt.nl/depparse-wiki/DataFormat" target="_blank">CoNLL-X shared task format</a></li>
 			<li><b>malttab</b> defines the <a href="http://w3.msi.vxu.se/~nivre/research/MaltXML.html" target="_blank">Malt-TAB</a> format.</li>
-			<li><b>negraps</b> defines a simple version of the <a href="http://www.coli.uni-sb.de/~thorsten/publications/Brants-CLAUS98.ps.gz" target="_blank">Negra</a> export format, including lemma column.</li>
-			<li><b>negrads</b> defines internally a dependency representation of the Negra export format. </li>
 			</ul>  ]]></desc>
 			<shortdesc>Path to format specification file</shortdesc>
 			<legalvalue name="conllx" mapto="/appdata/dataformat/conllx.xml">CoNLL-X data format</legalvalue>
 			<legalvalue name="malttab" mapto="/appdata/dataformat/malttab.xml">MaltTAB data format</legalvalue>
-			<legalvalue name="negraps" mapto="/appdata/dataformat/negraps.xml">Negra phrase structure</legalvalue>
-			<legalvalue name="negrads" mapto="/appdata/dataformat/negrads.xml">Negra dependency structure</legalvalue>
-			<legalvalue name="tal05ps" mapto="/appdata/dataformat/tal05ps.xml">Talbanken05 phrase structure</legalvalue>
-			<legalvalue name="tal05ds" mapto="/appdata/dataformat/tal05ds.xml">Talbanken05 dependency  structure</legalvalue>
-			<legalvalue name="tigerps" mapto="/appdata/dataformat/tigerps.xml">Tiger phrase structure</legalvalue>
-			<legalvalue name="tigerds" mapto="/appdata/dataformat/tigerds.xml">Tiger dependency  structure</legalvalue>
 		</option>
 		<option type="class" name="writer" flag="ow" default="tab" usage="both">
 			<desc><![CDATA[ In MaltParser @version@ there is two output writer:
@@ -263,8 +241,6 @@ many single malt configurations. ]]></desc>
 			</ul> ]]></desc>
 			<shortdesc>Data writer</shortdesc>
 			<legalvalue name="tab" class="org.maltparser.core.syntaxgraph.writer.TabWriter">Tab-separated writer</legalvalue>
-			<legalvalue name="negra" class="org.maltparser.core.syntaxgraph.writer.NegraWriter">Negra writer</legalvalue>
-			<legalvalue name="tiger" class="org.maltparser.core.syntaxgraph.writer.TigerXMLWriter">TigerXML writer</legalvalue>
 		</option>
 		<option type="string" name="charset" flag="oc" default="UTF-8" usage="save">
 			<desc><![CDATA[ The <b>charset</b> option defines the character set of the output data file, for example, <code>UTF-8</code> or <code>ISO8858-1</code>.   ]]></desc>
@@ -346,63 +322,36 @@ otherwise all tokens in Left must be inspected before the next token is shifted.
 			<shortdesc>Allow shift transition</shortdesc>
 		</option>
 	</optiongroup>
-	<optiongroup groupname="libsvm">
-		<desc><![CDATA[ This group contains options that are specific for the LIBSVM learner. ]]></desc>
-		<option type="string" name="libsvm_options" flag="lso" default="-s_0_-t_1_-d_2_-g_0.2_-c_1_-r_0_-e_1.0" usage="save">
-			<desc><![CDATA[ There are many LIBSVM options (see <a href="http://www.csie.ntu.edu.tw/~cjlin/libsvm/" target="_blank">LIBSVM Documentation</a>). 
-			Note that all whitespace is replaced by underscore if this option is specified in the command-line prompt. 
-			For example, it could look like this: <code>-lso -s_0_-t_1_-d_2_-g_0.2_-c_1_-r_0_-e_1.0</code> . ]]></desc>
-			<shortdesc>LIBSVM options (see LIBSVM Documentation)</shortdesc>
-		</option>
-		<option type="string" name="libsvm_external" flag="lsx" default="" usage="train">
-			<desc><![CDATA[ If you have the LIBSVM package installed on your system then it is possible to use the C++ implementation
-			of LIBSVM learner instead of the internal Java implementation (<code>libsvm.jar</code>) during learning time. It is very likely 
-			that the external C++ implementation is faster and uses less memory on your system. By specifying this option with the path to 
-			the executable file <code>svm-train</code> (Microsoft Windows use <code>svm-train.exe</code>) the parser will train LIBSVM models 
-			with <code>svm-train</code> instead of using <code>libsvm.jar</code>. 
-			<b>Note</b>: There can be a slight differences in accuracy between using the internal LIBSVM learner and the external 
-			LIBSVM learner, due to different versions of LIBSVM and the precision in assigning floating-point parameters.  ]]></desc>
-			<shortdesc>Path to <code>svm-train</code></shortdesc>
-		</option>
-		<option type="bool" name="save_instance_files" flag="lsi" default="false" usage="save">
-			<desc><![CDATA[ If <b>save_instance_files=true</b>, training instance files are saved in the configuration, otherwise 
-			these files are deleted. The training instance files are not used during parsing. ]]></desc>
-			<shortdesc>If <b>save_instance_files=true</b>, instance files are saved in the configuration.</shortdesc>
-		</option>
-		<option type="enum" name="verbosity" flag="lsv" default="silent" usage="train">
-			<desc><![CDATA[ ]]></desc>
-			<shortdesc>Verbosity of LIBSVM</shortdesc>
-			<legalvalue name="silent">No output from LIBSVM is logged</legalvalue>
-			<legalvalue name="error">Only the error stream of LIBSVM is logged</legalvalue>
-			<legalvalue name="all">All output of LIBSVM is logged</legalvalue>
-		</option>
-	</optiongroup>
-	<optiongroup groupname="liblinear">
-		<desc><![CDATA[ This group contains options that are specific for the LIBLINEAR learner. ]]></desc>
-		<option type="string" name="liblinear_options" flag="llo" default="-s_4_-c_0.1" usage="save">
-			<desc><![CDATA[ Liblinear have several options (see <a href="http://www.csie.ntu.edu.tw/~cjlin/liblinear/" target="_blank">liblinear Documentation</a>) that 
-			you can specify with this options. 
-			Note that all whitespace is replaced by underscore if this option is specified in the command-line prompt. 
-			For example, it could look like this: <code>-llo -s_4_-c_0.1</code> ]]></desc>
+	<optiongroup groupname="lib">
+		<desc><![CDATA[ This group contains options that are specific for the liblinear and libsvm learner. ]]></desc>
+		<option type="string" name="options" flag="lo" default="" usage="save">
+			<desc><![CDATA[ There are many LIBSVM options (see <a href="http://www.csie.ntu.edu.tw/~cjlin/libsvm/" target="_blank">LIBSVM Documentation</a>).
+           Note that all whitespace is replaced by underscore if this option is specified in the command-line prompt.
+           For example, it could look like this: <code>-lo -s_0_-t_1_-d_2_-g_0.2_-c_1_-r_0_-e_1.0</code>.
+           Liblinear have several options (see <a href="http://www.csie.ntu.edu.tw/~cjlin/liblinear/" target="_blank">liblinear Documentation</a>) that
+           you can specify with this option.
+           Note that all whitespace is replaced by underscore if this option is specified in the command-line prompt.
+           For example, it could look like this: <code>-lo -s_4_-c_0.1</code> ]]></desc>
 			<shortdesc>LIBLINEAR options (see liblinear Documentation)</shortdesc>
 		</option>
-		<option type="string" name="liblinear_external" flag="llx" default="" usage="train">
-			<desc><![CDATA[ Path to <code>train</code> executable file of the liblinear package (Microsoft Windows use <code>train.exe</code>) ]]></desc>
-			<shortdesc>Path to <code>svm-train</code></shortdesc>
+		<option type="string" name="external" flag="lx" default="" usage="train">
+			<desc><![CDATA[ Path to <code>train</code> or <code>svm-train</code> executable file of the liblinear or the libsvm package. ]]></desc>
+			<shortdesc>Path to <code>train</code> or <code>svm-train</code></shortdesc>
 		</option>
-		<option type="bool" name="save_instance_files" flag="lli" default="false" usage="save">
-			<desc><![CDATA[ If <b>save_instance_files=true</b>, training instance files are saved in the configuration, otherwise 
-			these files are deleted. The training instance files are not used during parsing. ]]></desc>
+		<option type="bool" name="save_instance_files" flag="li" default="false" usage="save">
+			<desc><![CDATA[ If <b>save_instance_files=true</b>, training instance files are saved in the configuration, otherwise
+           these files are deleted. The training instance files are not used during parsing. ]]></desc>
 			<shortdesc>If <b>save_instance_files=true</b>, instance files are saved in the configuration.</shortdesc>
 		</option>
-		<option type="enum" name="verbosity" flag="llv" default="silent" usage="train">
-			<desc><![CDATA[ ]]></desc>
-			<shortdesc>Verbosity of LibLinear</shortdesc>
-			<legalvalue name="silent">No output from LibLinear is logged</legalvalue>
-			<legalvalue name="error">Only the error stream of LibLinear is logged</legalvalue>
-			<legalvalue name="all">All output of LibLinear is logged</legalvalue>
+		<option type="enum" name="verbosity" flag="lv" default="silent" usage="train">
+		<desc><![CDATA[ Verbosity of the liblinear or the libsvm package ]]></desc>
+			<shortdesc>Verbosity of the liblinear or the libsvm package</shortdesc>
+			<legalvalue name="silent">No output from the liblinear or the libsvm package is logged.</legalvalue>
+			<legalvalue name="error">Only the error stream of the liblinear or the libsvm package is logged.</legalvalue>
+			<legalvalue name="all">All output of the liblinear or the libsvm package is logged.</legalvalue>
 		</option>
 	</optiongroup>
+
 	<optiongroup groupname="guide">
 		<desc><![CDATA[ Contains options that are specific for the guide, which can be seen as an interface (or glue) between the parsing algorithm
 		and the learner. During learning, the parsing algorithm sends training instances to the guide, which prepares the corresponding feature vectors 
@@ -467,14 +416,13 @@ otherwise all tokens in Left must be inspected before the next token is shifted.
 			<desc><![CDATA[ The classifier can produce a k-best list of predicted parser actions.    ]]></desc>
 			<shortdesc>Type of k-best list</shortdesc>
 			<legalvalue name="rank" class="org.maltparser.parser.history.kbest.KBestList">Only ranked list</legalvalue>
-			<legalvalue name="score" class="org.maltparser.parser.history.kbest.ScoredKBestList">Scored list, if the learner produce scores</legalvalue>
 		</option>
 		<option type="class" name="learner" flag="l" default="libsvm"  usage="save">
 			<desc><![CDATA[ This option specifies the learning method (learner package). MaltParser @version@ includes
 			the LIBSVM learner and the LIBLINEAR learner. ]]></desc>
 			<shortdesc>Learner</shortdesc>
-			<legalvalue name="libsvm" class="org.maltparser.ml.libsvm.Libsvm">LIBSVM learner</legalvalue>
-			<legalvalue name="liblinear" class="org.maltparser.ml.liblinear.Liblinear">LIBLINEAR learner</legalvalue>
+			<legalvalue name="libsvm" class="org.maltparser.ml.lib.LibSvm">LIBSVM learner</legalvalue>
+			<legalvalue name="liblinear" class="org.maltparser.ml.lib.LibLinear">LIBLINEAR learner</legalvalue>
 		</option>
 		<option type="string" name="decision_settings" flag="gds" default="T.TRANS+A.DEPREL" usage="save">
 			<desc><![CDATA[ This option specifies how a parser action is combined or divided. By default, arc label(s) and transition are combined into
@@ -501,10 +449,11 @@ otherwise all tokens in Left must be inspected before the next token is shifted.
 		<option type="enum" name="covered_root" flag="pcr" default="none" usage="save">
 			<desc><![CDATA[ Attachment strategy for covered roots.  ]]></desc>
 			<shortdesc>Attachment strategy for covered roots</shortdesc>
-			<legalvalue name="none">No covered root transformation</legalvalue>
-			<legalvalue name="left">Attach covered roots to the left end of the covering arc</legalvalue>
-			<legalvalue name="right">Attach covered roots to the right end of the covering arc</legalvalue>
-			<legalvalue name="head">Attach covered roots to the head of the covering arc</legalvalue>
+			<legalvalue name="none">No covered root transformation; covered roots treated as any other node</legalvalue>
+			<legalvalue name="ignore">No covered root transformation; covered roots ignored in projectivity tests (old implementation of none)</legalvalue>
+			<legalvalue name="left">Attach covered roots to the left end of the shortest covering arc</legalvalue>
+			<legalvalue name="right">Attach covered roots to the right end of the shortest covering arc</legalvalue>
+			<legalvalue name="head">Attach covered roots to the head of the shortest covering arc</legalvalue>
 		</option>
 		<option type="enum" name="lifting_order" flag="plo" default="shortest" usage="save">
 			<desc><![CDATA[ Lifting order, in case a dependency graph contains multiple non-projective arcs.  ]]></desc>

@@ -7,6 +7,8 @@ import org.maltparser.core.feature.function.FeatureMapFunction;
 import org.maltparser.core.feature.value.FeatureValue;
 import org.maltparser.core.feature.value.FunctionValue;
 import org.maltparser.core.feature.value.SingleFeatureValue;
+import org.maltparser.core.io.dataformat.ColumnDescription;
+import org.maltparser.core.io.dataformat.DataFormatInstance;
 import org.maltparser.core.symbol.SymbolTable;
 import org.maltparser.core.symbol.SymbolTableHandler;
 /**
@@ -18,13 +20,14 @@ public class Merge3Feature implements FeatureMapFunction {
 	protected FeatureFunction firstFeature;
 	protected FeatureFunction secondFeature;
 	protected FeatureFunction thirdFeature;
-	protected SymbolTableHandler tableHandler;
+	protected DataFormatInstance dataFormatInstance;
 	protected SymbolTable table;
+	protected ColumnDescription column;
 	protected SingleFeatureValue singleFeatureValue;
 	
-	public Merge3Feature(SymbolTableHandler tableHandler) throws MaltChainedException {
+	public Merge3Feature(DataFormatInstance dataFormatInstance) throws MaltChainedException {
 		super();
-		setTableHandler(tableHandler);
+		setDataFormatInstance(dataFormatInstance);
 		singleFeatureValue = new SingleFeatureValue(this);
 	}
 	
@@ -44,8 +47,17 @@ public class Merge3Feature implements FeatureMapFunction {
 		setFirstFeature((FeatureFunction)arguments[0]);
 		setSecondFeature((FeatureFunction)arguments[1]);
 		setThirdFeature((FeatureFunction)arguments[2]);
-		setSymbolTable(tableHandler.addSymbolTable("MERGE3_"+firstFeature.getSymbolTable().getName()+"_"+secondFeature.getSymbolTable().getName()+"_"+thirdFeature.getSymbolTable().getName(), 
-				firstFeature.getSymbolTable()));
+		ColumnDescription firstColumn = dataFormatInstance.getColumnDescriptionByName(firstFeature.getSymbolTable().getName());
+		ColumnDescription secondColumn = dataFormatInstance.getColumnDescriptionByName(secondFeature.getSymbolTable().getName());
+		ColumnDescription thirdColumn = dataFormatInstance.getColumnDescriptionByName(thirdFeature.getSymbolTable().getName());
+		if (firstColumn.getType() != secondColumn.getType() || firstColumn.getType() != thirdColumn.getType()) {
+			throw new FeatureException("Could not initialize MergeFeature: the arguments are not of the same type.");
+		}
+//		setSymbolTable(tableHandler.addSymbolTable("MERGE3_"+firstFeature.getSymbolTable().getName()+"_"+secondFeature.getSymbolTable().getName()+"_"+thirdFeature.getSymbolTable().getName(), 
+//				firstFeature.getSymbolTable()));
+		
+		setColumn(dataFormatInstance.addInternalColumnDescription("MERGE3_"+firstFeature.getSymbolTable().getName()+"_"+secondFeature.getSymbolTable().getName()+"_"+thirdFeature.getSymbolTable().getName(), firstColumn));
+		setSymbolTable(column.getSymbolTable());
 	}
 	
 	public void update() throws MaltChainedException {
@@ -56,27 +68,130 @@ public class Merge3Feature implements FeatureMapFunction {
 		FunctionValue firstValue = firstFeature.getFeatureValue();
 		FunctionValue secondValue = secondFeature.getFeatureValue();
 		FunctionValue thirdValue = thirdFeature.getFeatureValue();
+
 		if (firstValue instanceof SingleFeatureValue && secondValue instanceof SingleFeatureValue && thirdValue instanceof SingleFeatureValue) {
-			String symbol = ((SingleFeatureValue)firstValue).getSymbol();
+			String firstSymbol = ((SingleFeatureValue)firstValue).getSymbol();
 			if (((FeatureValue)firstValue).isNullValue() && ((FeatureValue)secondValue).isNullValue() && ((FeatureValue)thirdValue).isNullValue()) {
-				singleFeatureValue.setCode(firstFeature.getSymbolTable().getSymbolStringToCode(symbol));
-				singleFeatureValue.setKnown(firstFeature.getSymbolTable().getKnown(symbol));
-				singleFeatureValue.setSymbol(symbol);
+				singleFeatureValue.setIndexCode(firstFeature.getSymbolTable().getSymbolStringToCode(firstSymbol));
+				singleFeatureValue.setSymbol(firstSymbol);
 				singleFeatureValue.setNullValue(true);
 			} else {
-				StringBuilder mergedValue = new StringBuilder();
-				mergedValue.append(((SingleFeatureValue)firstValue).getSymbol());
-				mergedValue.append('~');
-				mergedValue.append(((SingleFeatureValue)secondValue).getSymbol());
-				mergedValue.append('~');
-				mergedValue.append(((SingleFeatureValue)thirdValue).getSymbol());
-				singleFeatureValue.setCode(table.addSymbol(mergedValue.toString()));
-				singleFeatureValue.setKnown(table.getKnown(mergedValue.toString()));
-				singleFeatureValue.setSymbol(mergedValue.toString());
-				singleFeatureValue.setNullValue(false);
+				if (column.getType() == ColumnDescription.STRING) { 
+					StringBuilder mergedValue = new StringBuilder();
+					mergedValue.append(((SingleFeatureValue)firstValue).getSymbol());
+					mergedValue.append('~');
+					mergedValue.append(((SingleFeatureValue)secondValue).getSymbol());
+					mergedValue.append('~');
+					mergedValue.append(((SingleFeatureValue)thirdValue).getSymbol());
+					singleFeatureValue.setIndexCode(table.addSymbol(mergedValue.toString()));	
+					singleFeatureValue.setSymbol(mergedValue.toString());
+					singleFeatureValue.setNullValue(false);
+					singleFeatureValue.setValue(1);
+				} else {
+					if (((FeatureValue)firstValue).isNullValue() || ((FeatureValue)secondValue).isNullValue() || ((FeatureValue)thirdValue).isNullValue()) {
+						singleFeatureValue.setValue(0);
+						table.addSymbol("#null#");
+						singleFeatureValue.setSymbol("#null#");
+						singleFeatureValue.setNullValue(true);
+						singleFeatureValue.setIndexCode(1);
+					} else {
+						if (column.getType() == ColumnDescription.BOOLEAN) {
+							boolean result = false;
+							int dotIndex = firstSymbol.indexOf('.');
+							result = firstSymbol.equals("1") || firstSymbol.equals("true") ||  firstSymbol.equals("#true#") || (dotIndex != -1 && firstSymbol.substring(0,dotIndex).equals("1"));
+							if (result == true) {
+								String secondSymbol = ((SingleFeatureValue)secondValue).getSymbol();
+								dotIndex = secondSymbol.indexOf('.');
+								result = secondSymbol.equals("1") || secondSymbol.equals("true") ||  secondSymbol.equals("#true#") || (dotIndex != -1 && secondSymbol.substring(0,dotIndex).equals("1"));
+							}
+							if (result == true) {
+								String thirdSymbol = ((SingleFeatureValue)thirdValue).getSymbol();
+								dotIndex = thirdSymbol.indexOf('.');
+								result = thirdSymbol.equals("1") || thirdSymbol.equals("true") ||  thirdSymbol.equals("#true#") || (dotIndex != -1 && thirdSymbol.substring(0,dotIndex).equals("1"));
+							}
+							if (result) {
+								singleFeatureValue.setValue(1);
+								table.addSymbol("true");
+								singleFeatureValue.setSymbol("true");
+							} else {
+								singleFeatureValue.setValue(0);
+								table.addSymbol("false");
+								singleFeatureValue.setSymbol("false");
+							}
+						} else if (column.getType() == ColumnDescription.INTEGER) {
+							Integer firstInt = 0;
+							Integer secondInt = 0;
+							Integer thirdInt = 0;
+							
+							try {
+								int dotIndex = firstSymbol.indexOf('.');
+								if (dotIndex == -1) {
+									firstInt = Integer.parseInt(firstSymbol);
+								} else {
+									firstInt = Integer.parseInt(firstSymbol.substring(0,dotIndex));
+								}
+							} catch (NumberFormatException e) {
+								throw new FeatureException("Could not cast the feature value '"+firstSymbol+"' to integer value.", e);
+							}
+							String secondSymbol = ((SingleFeatureValue)secondValue).getSymbol();
+							try {
+								int dotIndex = secondSymbol.indexOf('.');
+								if (dotIndex == -1) {
+									secondInt = Integer.parseInt(secondSymbol);
+								} else {
+									secondInt = Integer.parseInt(secondSymbol.substring(0,dotIndex));
+								}
+							} catch (NumberFormatException e) {
+								throw new FeatureException("Could not cast the feature value '"+secondSymbol+"' to integer value.", e);
+							}
+							String thirdSymbol = ((SingleFeatureValue)thirdValue).getSymbol();
+							try {
+								int dotIndex = thirdSymbol.indexOf('.');
+								if (dotIndex == -1) {
+									secondInt = Integer.parseInt(thirdSymbol);
+								} else {
+									secondInt = Integer.parseInt(thirdSymbol.substring(0,dotIndex));
+								}
+							} catch (NumberFormatException e) {
+								throw new FeatureException("Could not cast the feature value '"+thirdSymbol+"' to integer value.", e);
+							}
+							Integer result = firstInt*secondInt*thirdInt;
+							singleFeatureValue.setValue(result);
+							table.addSymbol(result.toString());
+							singleFeatureValue.setSymbol(result.toString());
+						} else if (column.getType() == ColumnDescription.REAL) {
+							Double firstReal = 0.0;
+							Double secondReal = 0.0;
+							Double thirdReal = 0.0;
+							try {
+								firstReal = Double.parseDouble(firstSymbol);
+							} catch (NumberFormatException e) {
+								throw new FeatureException("Could not cast the feature value '"+firstSymbol+"' to real value.", e);
+							}
+							String secondSymbol = ((SingleFeatureValue)secondValue).getSymbol();
+							try {
+								secondReal = Double.parseDouble(secondSymbol);
+							} catch (NumberFormatException e) {
+								throw new FeatureException("Could not cast the feature value '"+secondSymbol+"' to real value.", e);
+							}
+							String thirdSymbol = ((SingleFeatureValue)thirdValue).getSymbol();
+							try {
+								thirdReal = Double.parseDouble(thirdSymbol);
+							} catch (NumberFormatException e) {
+								throw new FeatureException("Could not cast the feature value '"+thirdSymbol+"' to real value.", e);
+							}
+							Double result = firstReal*secondReal*thirdReal;
+							singleFeatureValue.setValue(result);
+							table.addSymbol(result.toString());
+							singleFeatureValue.setSymbol(result.toString());
+						}
+						singleFeatureValue.setNullValue(false);
+						singleFeatureValue.setIndexCode(1);
+					}
+				}
 			}
 		} else {
-			throw new FeatureException("It is not possible to merge Split features. ");
+			throw new FeatureException("It is not possible to merge Split-features. ");
 		}
 	}
 	
@@ -100,10 +215,10 @@ public class Merge3Feature implements FeatureMapFunction {
 	}
 	
 	public void updateCardinality() throws MaltChainedException {
-		firstFeature.updateCardinality();
-		secondFeature.updateCardinality();
-		thirdFeature.updateCardinality();
-		singleFeatureValue.setCardinality(table.getValueCounter()); 
+//		firstFeature.updateCardinality();
+//		secondFeature.updateCardinality();
+//		thirdFeature.updateCardinality();
+//		singleFeatureValue.setCardinality(table.getValueCounter()); 
 	}
 	
 	public FeatureFunction getFirstFeature() {
@@ -131,11 +246,7 @@ public class Merge3Feature implements FeatureMapFunction {
 	}
 	
 	public SymbolTableHandler getTableHandler() {
-		return tableHandler;
-	}
-
-	public void setTableHandler(SymbolTableHandler tableHandler) {
-		this.tableHandler = tableHandler;
+		return dataFormatInstance.getSymbolTables();
 	}
 
 	public SymbolTable getSymbolTable() {
@@ -144,6 +255,22 @@ public class Merge3Feature implements FeatureMapFunction {
 
 	public void setSymbolTable(SymbolTable table) {
 		this.table = table;
+	}
+	
+	public ColumnDescription getColumn() {
+		return column;
+	}
+	
+	protected void setColumn(ColumnDescription column) {
+		this.column = column;
+	}
+	
+	public DataFormatInstance getDataFormatInstance() {
+		return dataFormatInstance;
+	}
+
+	public void setDataFormatInstance(DataFormatInstance dataFormatInstance) {
+		this.dataFormatInstance = dataFormatInstance;
 	}
 	
 	public boolean equals(Object obj) {

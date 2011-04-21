@@ -52,7 +52,7 @@ public class Trie {
 		return sb.toString();
 	}
 	
-	public TrieEntry getEntry(String value, TrieSymbolTable table) {
+	public Integer getEntry(String value, TrieSymbolTable table) {
 		TrieNode node = root;
 		final char[] chars = value.toCharArray();
 		int i=chars.length-1;

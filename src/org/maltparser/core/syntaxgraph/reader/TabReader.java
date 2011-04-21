@@ -127,14 +127,14 @@ public class TabReader implements SyntaxGraphReader {
 						terminalCounter++;
 						node = syntaxGraph.addTokenNode(terminalCounter);
 					}
-					ColumnDescription column = null;
 					if (columns.hasNext()) {
-						column = columns.next();
+						ColumnDescription column = columns.next();
 						if (column.getCategory() == ColumnDescription.INPUT && node != null) {
 							syntaxGraph.addLabel(node, column.getName(), input.toString());
 						} else if (column.getCategory() == ColumnDescription.HEAD) {
 							if (syntaxGraph instanceof DependencyStructure) {
-								if (column.getType() != ColumnDescription.IGNORE && !input.toString().equals(IGNORE_COLUMN_SIGN)) { // bugfix
+								if (column.getCategory() != ColumnDescription.IGNORE && !input.toString().equals(IGNORE_COLUMN_SIGN)) {
+//								if (column.getType() != ColumnDescription.IGNORE && !input.toString().equals(IGNORE_COLUMN_SIGN)) { // bugfix
 								//if (!input.toString().equals(IGNORE_COLUMN_SIGN)) {
 									edge = ((DependencyStructure)syntaxGraph).addDependencyEdge(Integer.parseInt(input.toString()), terminalCounter);
 								}

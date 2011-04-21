@@ -1,6 +1,7 @@
 package org.maltparser.core.io.dataformat;
 
 import java.util.Iterator;
+import java.util.Map;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -40,20 +41,59 @@ public class DataFormatInstance implements Iterable<ColumnDescription> {
 	private SortedMap<String,SymbolTable> secondaryEdgeLabelSymbolTables;
 	private SortedMap<String,SymbolTable> inputSymbolTables;
 	
+	// Internal
+	private SortedMap<String,ColumnDescription> internalColumnDescriptions;
+	private SortedSet<ColumnDescription> internalColumnDescriptionSet;
 	
 	private SymbolTableHandler symbolTables;
 	private DataFormatSpecification dataFormarSpec;
 	
-	public DataFormatInstance(SortedMap<String, DataFormatEntry> entries, SymbolTableHandler symbolTables, String nullValueStrategy, String rootLabel, DataFormatSpecification spec) throws MaltChainedException {
+	public DataFormatInstance(Map<String, DataFormatEntry> entries, SymbolTableHandler symbolTables, String nullValueStrategy, DataFormatSpecification spec) throws MaltChainedException {
 		columnDescriptions = new TreeSet<ColumnDescription>();
 		this.symbolTables = symbolTables;
-		createColumnDescriptions(entries, nullValueStrategy, rootLabel);
+		createColumnDescriptions(entries, nullValueStrategy);
 		setDataFormarSpec(spec);
 	}
 
-	private void createColumnDescriptions(SortedMap<String, DataFormatEntry> entries, String nullValueStrategy, String rootLabel) throws MaltChainedException {
+	public ColumnDescription addInternalColumnDescription(String name, String category, String type,  String nullValueStrategy) throws MaltChainedException {
+		if (internalColumnDescriptions == null) {
+			internalColumnDescriptions = new TreeMap<String,ColumnDescription>();
+			internalColumnDescriptionSet = new TreeSet<ColumnDescription>();
+		}
+		
+		if (!internalColumnDescriptions.containsKey(name)) {
+			ColumnDescription internalColumn = new ColumnDescription(name, category, type, "", symbolTables, nullValueStrategy, true);
+			internalColumnDescriptions.put(name, internalColumn);
+			internalColumnDescriptionSet.add(internalColumn);
+			return internalColumn;
+		} else {
+			return internalColumnDescriptions.get(name);
+		}
+		
+		
+	}
+	
+	public ColumnDescription addInternalColumnDescription(String name, ColumnDescription parentColumn) throws MaltChainedException {
+		if (internalColumnDescriptions == null) {
+			internalColumnDescriptions = new TreeMap<String,ColumnDescription>();
+			internalColumnDescriptionSet = new TreeSet<ColumnDescription>();
+		}
+		
+		if (!internalColumnDescriptions.containsKey(name)) {
+			ColumnDescription internalColumn = new ColumnDescription(name, parentColumn.getCategory(), parentColumn.getType(), parentColumn.getDefaultOutput(), symbolTables, parentColumn.getNullValueStrategy(), true);
+			internalColumnDescriptions.put(name, internalColumn);
+			internalColumnDescriptionSet.add(internalColumn);
+			return internalColumn;
+		} else {
+			return internalColumnDescriptions.get(name);
+		}
+		
+		
+	}
+	
+	private void createColumnDescriptions(Map<String, DataFormatEntry> entries, String nullValueStrategy) throws MaltChainedException {
 		for (DataFormatEntry entry : entries.values()) {
-			columnDescriptions.add(new ColumnDescription(entry.getPosition(), entry.getDataFormatEntryName(), entry.getCategory(), entry.getType(), entry.getDefaultOutput(), symbolTables, nullValueStrategy, rootLabel));
+			columnDescriptions.add(new ColumnDescription(entry.getDataFormatEntryName(), entry.getCategory(), entry.getType(), entry.getDefaultOutput(), symbolTables, nullValueStrategy, false));
 		}
 	}
 	
@@ -63,12 +103,19 @@ public class DataFormatInstance implements Iterable<ColumnDescription> {
 				return column;
 			}
 		}
+		if (internalColumnDescriptionSet != null) {
+			for (ColumnDescription internalColumn : internalColumnDescriptionSet) {
+				if (internalColumn.getName().equals(name)) {
+					return internalColumn;
+				}
+			}
+		}
 		return null;
 	}
 
-	public int getNumberOfColumnDescriptions() {
-		return columnDescriptions.size();
-	}
+//	public int getNumberOfColumnDescriptions() {
+//		return columnDescriptions.size();
+//	}
 	
 	public Iterator<ColumnDescription> iterator() {
 		return columnDescriptions.iterator();
@@ -85,7 +132,7 @@ public class DataFormatInstance implements Iterable<ColumnDescription> {
 	protected void createHeadColumnDescriptions() {
 		headColumnDescriptions = new TreeMap<String,ColumnDescription>();
 		for (ColumnDescription column : columnDescriptions) {
-			if (column.getCategory() == ColumnDescription.HEAD && column.getType() != ColumnDescription.IGNORE) { 
+			if (column.getCategory() == ColumnDescription.HEAD) {
 				headColumnDescriptions.put(column.getName(), column);
 			}
 		}
@@ -108,7 +155,7 @@ public class DataFormatInstance implements Iterable<ColumnDescription> {
 	protected void createDependencyEdgeLabelSymbolTables() {
 		dependencyEdgeLabelSymbolTables = new TreeMap<String,SymbolTable>();
 		for (ColumnDescription column : columnDescriptions) {
-			if (column.getCategory() == ColumnDescription.DEPENDENCY_EDGE_LABEL && column.getType() != ColumnDescription.IGNORE) { 
+			if (column.getCategory() == ColumnDescription.DEPENDENCY_EDGE_LABEL) { 
 				dependencyEdgeLabelSymbolTables.put(column.getSymbolTable().getName(), column.getSymbolTable());
 			}
 		}
@@ -124,7 +171,7 @@ public class DataFormatInstance implements Iterable<ColumnDescription> {
 	protected void createDependencyEdgeLabelColumnDescriptions() {
 		dependencyEdgeLabelColumnDescriptions = new TreeMap<String,ColumnDescription>();
 		for (ColumnDescription column : columnDescriptions) {
-			if (column.getCategory() == ColumnDescription.DEPENDENCY_EDGE_LABEL && column.getType() != ColumnDescription.IGNORE) { 
+			if (column.getCategory() == ColumnDescription.DEPENDENCY_EDGE_LABEL) { 
 				dependencyEdgeLabelColumnDescriptions.put(column.getName(), column);
 			}
 		}
@@ -142,7 +189,7 @@ public class DataFormatInstance implements Iterable<ColumnDescription> {
 	protected void createPhraseStructureEdgeLabelSymbolTables() {
 		phraseStructureEdgeLabelSymbolTables = new TreeMap<String, SymbolTable>();
 		for (ColumnDescription column : columnDescriptions) {
-			if (column.getCategory() == ColumnDescription.PHRASE_STRUCTURE_EDGE_LABEL && column.getType() != ColumnDescription.IGNORE) { 
+			if (column.getCategory() == ColumnDescription.PHRASE_STRUCTURE_EDGE_LABEL) { 
 				phraseStructureEdgeLabelSymbolTables.put(column.getSymbolTable().getName(), column.getSymbolTable());
 			}
 		}
@@ -158,7 +205,7 @@ public class DataFormatInstance implements Iterable<ColumnDescription> {
 	protected void createPhraseStructureEdgeLabelColumnDescriptions() {
 		phraseStructureEdgeLabelColumnDescriptions = new TreeMap<String,ColumnDescription>();
 		for (ColumnDescription column : columnDescriptions) {
-			if (column.getCategory() == ColumnDescription.PHRASE_STRUCTURE_EDGE_LABEL && column.getType() != ColumnDescription.IGNORE) { 
+			if (column.getCategory() == ColumnDescription.PHRASE_STRUCTURE_EDGE_LABEL) {
 				phraseStructureEdgeLabelColumnDescriptions.put(column.getName(), column);
 			}
 		}
@@ -174,7 +221,7 @@ public class DataFormatInstance implements Iterable<ColumnDescription> {
 	protected void createPhraseStructureNodeLabelSymbolTables() {
 		phraseStructureNodeLabelSymbolTables = new TreeMap<String,SymbolTable>();
 		for (ColumnDescription column : columnDescriptions) {
-			if (column.getCategory() == ColumnDescription.PHRASE_STRUCTURE_NODE_LABEL && column.getType() != ColumnDescription.IGNORE) { 
+			if (column.getCategory() == ColumnDescription.PHRASE_STRUCTURE_NODE_LABEL) { 
 				phraseStructureNodeLabelSymbolTables.put(column.getSymbolTable().getName(), column.getSymbolTable());
 			}
 		}
@@ -190,7 +237,7 @@ public class DataFormatInstance implements Iterable<ColumnDescription> {
 	protected void createPhraseStructureNodeLabelColumnDescriptions() {
 		phraseStructureNodeLabelColumnDescriptions = new TreeMap<String,ColumnDescription>();
 		for (ColumnDescription column : columnDescriptions) {
-			if (column.getCategory() == ColumnDescription.PHRASE_STRUCTURE_NODE_LABEL && column.getType() != ColumnDescription.IGNORE) { 
+			if (column.getCategory() == ColumnDescription.PHRASE_STRUCTURE_NODE_LABEL) { 
 				phraseStructureNodeLabelColumnDescriptions.put(column.getName(), column);
 			}
 		}
@@ -206,7 +253,7 @@ public class DataFormatInstance implements Iterable<ColumnDescription> {
 	protected void createSecondaryEdgeLabelSymbolTables() {
 		secondaryEdgeLabelSymbolTables = new TreeMap<String,SymbolTable>();
 		for (ColumnDescription column : columnDescriptions) {
-			if (column.getCategory() == ColumnDescription.PHRASE_STRUCTURE_EDGE_LABEL && column.getType() != ColumnDescription.IGNORE) { 
+			if (column.getCategory() == ColumnDescription.PHRASE_STRUCTURE_EDGE_LABEL) { 
 				secondaryEdgeLabelSymbolTables.put(column.getSymbolTable().getName(), column.getSymbolTable());
 			}
 		}
@@ -222,7 +269,7 @@ public class DataFormatInstance implements Iterable<ColumnDescription> {
 	protected void createSecondaryEdgeLabelColumnDescriptions() {
 		secondaryEdgeLabelColumnDescriptions = new TreeMap<String,ColumnDescription>();
 		for (ColumnDescription column : columnDescriptions) {
-			if (column.getCategory() == ColumnDescription.PHRASE_STRUCTURE_EDGE_LABEL && column.getType() != ColumnDescription.IGNORE) { 
+			if (column.getCategory() == ColumnDescription.PHRASE_STRUCTURE_EDGE_LABEL) {  
 				secondaryEdgeLabelColumnDescriptions.put(column.getName(), column);
 			}
 		}
@@ -238,7 +285,7 @@ public class DataFormatInstance implements Iterable<ColumnDescription> {
 	protected void createInputSymbolTables() {
 		inputSymbolTables = new TreeMap<String,SymbolTable>();
 		for (ColumnDescription column : columnDescriptions) {
-			if (column.getCategory() == ColumnDescription.INPUT && column.getType() != ColumnDescription.IGNORE) { 
+			if (column.getCategory() == ColumnDescription.INPUT) { 
 				inputSymbolTables.put(column.getSymbolTable().getName(), column.getSymbolTable());
 			}
 		}
@@ -254,7 +301,7 @@ public class DataFormatInstance implements Iterable<ColumnDescription> {
 	protected void createInputColumnDescriptions() {
 		inputColumnDescriptions = new TreeMap<String,ColumnDescription>();
 		for (ColumnDescription column : columnDescriptions) {
-			if (column.getCategory() == ColumnDescription.INPUT && column.getType() != ColumnDescription.IGNORE) { 
+			if (column.getCategory() == ColumnDescription.INPUT) { 
 				inputColumnDescriptions.put(column.getName(), column);
 			}
 		}
@@ -270,7 +317,8 @@ public class DataFormatInstance implements Iterable<ColumnDescription> {
 	protected void createIgnoreColumnDescriptions() {
 		ignoreColumnDescriptions = new TreeMap<String,ColumnDescription>();
 		for (ColumnDescription column : columnDescriptions) {
-			if (column.getType() == ColumnDescription.IGNORE) { 
+			if (column.getCategory() == ColumnDescription.IGNORE) { 
+//			if (column.getType() == ColumnDescription.IGNORE) { 
 				ignoreColumnDescriptions.put(column.getName(), column);
 			}
 		}
@@ -287,7 +335,7 @@ public class DataFormatInstance implements Iterable<ColumnDescription> {
 		if (headColumnDescriptionSet == null) {
 			headColumnDescriptionSet = new TreeSet<ColumnDescription>();
 			for (ColumnDescription column : columnDescriptions) {
-				if (column.getCategory() == ColumnDescription.HEAD && column.getType() != ColumnDescription.IGNORE) { 
+				if (column.getCategory() == ColumnDescription.HEAD) { 
 					headColumnDescriptionSet.add(column);
 				}
 			}
@@ -299,7 +347,7 @@ public class DataFormatInstance implements Iterable<ColumnDescription> {
 		if (dependencyEdgeLabelColumnDescriptionSet == null) {
 			dependencyEdgeLabelColumnDescriptionSet = new TreeSet<ColumnDescription>();
 			for (ColumnDescription column : columnDescriptions) {
-				if (column.getCategory() == ColumnDescription.DEPENDENCY_EDGE_LABEL && column.getType() != ColumnDescription.IGNORE) { 
+				if (column.getCategory() == ColumnDescription.DEPENDENCY_EDGE_LABEL) { 
 					dependencyEdgeLabelColumnDescriptionSet.add(column);
 				}
 			}
@@ -311,7 +359,7 @@ public class DataFormatInstance implements Iterable<ColumnDescription> {
 		if (phraseStructureEdgeLabelColumnDescriptionSet == null) {
 			phraseStructureEdgeLabelColumnDescriptionSet = new TreeSet<ColumnDescription>();
 			for (ColumnDescription column : columnDescriptions) {
-				if (column.getCategory() == ColumnDescription.PHRASE_STRUCTURE_EDGE_LABEL && column.getType() != ColumnDescription.IGNORE) { 
+				if (column.getCategory() == ColumnDescription.PHRASE_STRUCTURE_EDGE_LABEL) {  
 					phraseStructureEdgeLabelColumnDescriptionSet.add(column);
 				}
 			}
@@ -323,7 +371,7 @@ public class DataFormatInstance implements Iterable<ColumnDescription> {
 		if (phraseStructureNodeLabelColumnDescriptionSet == null) {
 			phraseStructureNodeLabelColumnDescriptionSet = new TreeSet<ColumnDescription>();
 			for (ColumnDescription column : columnDescriptions) {
-				if (column.getCategory() == ColumnDescription.PHRASE_STRUCTURE_NODE_LABEL && column.getType() != ColumnDescription.IGNORE) { 
+				if (column.getCategory() == ColumnDescription.PHRASE_STRUCTURE_NODE_LABEL) { 
 					phraseStructureNodeLabelColumnDescriptionSet.add(column);
 				}
 			}
@@ -335,7 +383,7 @@ public class DataFormatInstance implements Iterable<ColumnDescription> {
 		if (secondaryEdgeLabelColumnDescriptionSet == null) {
 			secondaryEdgeLabelColumnDescriptionSet = new TreeSet<ColumnDescription>();
 			for (ColumnDescription column : columnDescriptions) {
-				if (column.getCategory() == ColumnDescription.SECONDARY_EDGE_LABEL && column.getType() != ColumnDescription.IGNORE) { 
+				if (column.getCategory() == ColumnDescription.SECONDARY_EDGE_LABEL) { 
 					secondaryEdgeLabelColumnDescriptionSet.add(column);
 				}
 			}
@@ -347,7 +395,7 @@ public class DataFormatInstance implements Iterable<ColumnDescription> {
 		if (inputColumnDescriptionSet == null) {
 			inputColumnDescriptionSet = new TreeSet<ColumnDescription>();
 			for (ColumnDescription column : columnDescriptions) {
-				if (column.getCategory() == ColumnDescription.INPUT && column.getType() != ColumnDescription.IGNORE) { 
+				if (column.getCategory() == ColumnDescription.INPUT) { 
 					inputColumnDescriptionSet.add(column);
 				}
 			}
@@ -359,7 +407,7 @@ public class DataFormatInstance implements Iterable<ColumnDescription> {
 		if (ignoreColumnDescriptionSet == null) {
 			ignoreColumnDescriptionSet = new TreeSet<ColumnDescription>();
 			for (ColumnDescription column : columnDescriptions) {
-				if (column.getType() == ColumnDescription.IGNORE) { 
+				if (column.getCategory() == ColumnDescription.IGNORE) { 
 					ignoreColumnDescriptionSet.add(column);
 				}
 			}

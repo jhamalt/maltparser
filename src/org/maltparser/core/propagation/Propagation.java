@@ -5,9 +5,10 @@ import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 import org.maltparser.core.exception.MaltChainedException;
+import org.maltparser.core.io.dataformat.ColumnDescription;
+import org.maltparser.core.io.dataformat.DataFormatInstance;
 import org.maltparser.core.propagation.spec.PropagationSpec;
 import org.maltparser.core.symbol.SymbolTable;
-import org.maltparser.core.symbol.SymbolTableHandler;
 import org.maltparser.core.syntaxgraph.edge.Edge;
 import org.maltparser.core.syntaxgraph.node.DependencyNode;
 
@@ -33,18 +34,22 @@ public class Propagation {
 	 * Creates a propagation object based on the propagation specification
 	 * 
 	 * @param spec a propagation specification
-	 * @param symbolTables a symbol table
+	 * @param dataFormatInstance a data format instance
 	 * @throws MaltChainedException
 	 */
-	public Propagation(PropagationSpec spec, SymbolTableHandler symbolTables) throws MaltChainedException {
-		fromTable = symbolTables.getSymbolTable(spec.getFrom());
-		if (fromTable == null) {
+	public Propagation(PropagationSpec spec, DataFormatInstance dataFormatInstance) throws MaltChainedException {
+		ColumnDescription fromColumn = dataFormatInstance.getColumnDescriptionByName(spec.getFrom());
+		if (fromColumn == null) {
 			throw new PropagationException("The symbol table '"+spec.getFrom()+" does not exists.");
 		}
-		toTable = symbolTables.getSymbolTable(spec.getTo());
-		if (toTable == null) {
-			toTable = symbolTables.addSymbolTable(spec.getTo(), fromTable);
+		fromTable = fromColumn.getSymbolTable();
+
+		ColumnDescription toColumn = dataFormatInstance.getColumnDescriptionByName(spec.getTo());
+		if (toColumn == null) {
+			toColumn = dataFormatInstance.addInternalColumnDescription(spec.getTo(), fromColumn);
+			toTable = toColumn.getSymbolTable();
 		}
+
 		
 		forSet = new TreeSet<String>();
 		if (spec.getFor() != null && spec.getFor().length() > 0) {
@@ -64,7 +69,8 @@ public class Propagation {
 			}
 		}
 		
-		deprelTable = symbolTables.getSymbolTable("DEPREL");
+		ColumnDescription deprelColumn = dataFormatInstance.getColumnDescriptionByName("DEPREL");
+		deprelTable = deprelColumn.getSymbolTable();
 		symbolSeparator = Pattern.compile("\\|");
 	}
 

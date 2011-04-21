@@ -1,32 +1,31 @@
 package org.maltparser.core.symbol.trie;
 
-import java.util.HashMap;
+import org.maltparser.core.helper.HashMap;
 
 import org.maltparser.core.symbol.SymbolException;
 
 /**
 
 @author Johan Hall
-@since 1.0
 */
 public class TrieNode {
 	/**
 	 * Initial capacity of the hash maps.
 	 */
-	private final static int INITIAL_CAPACITY = 2;
+//	private final static int INITIAL_CAPACITY = 2;
 	/**
 	 * the character that corresponds to the trie node
 	 */
-	private char character;
+	private final char character;
 	/**
 	 * Maps a symbol table into an entry (if not cached)
 	 */
-	private HashMap<TrieSymbolTable,TrieEntry> entries;
+	private HashMap<TrieSymbolTable,Integer> entries;
 	/**
 	 * Maps a symbol table (cachedKeyEntry) into an entry (cachedValueEntry), caches only the first occurrence.
 	 */
 	private TrieSymbolTable cachedKeyEntry;
-	private TrieEntry cachedValueEntry;
+	private Integer cachedValueEntry;
 
 	/**
 	 * Maps a character into a child trie node (if not cached)
@@ -38,7 +37,7 @@ public class TrieNode {
 	/**
 	 * The parent trie node
 	 */
-	private TrieNode parent;
+	private final TrieNode parent;
 	
 	/**
 	 * Constructs a trie node
@@ -75,9 +74,10 @@ public class TrieNode {
 			} 
 			return cachedValueTrieNode;
 		} else {
-			TrieNode child = null; //table.getTrie().addTrieNodeChild(c, this);
+			TrieNode child = null; 
 			if (children == null) {
-				children = new HashMap<Character, TrieNode>(INITIAL_CAPACITY);
+				children = new HashMap<Character, TrieNode>();
+//				children = new HashMap<Character, TrieNode>(INITIAL_CAPACITY);
 				child = new TrieNode(c, this);
 				children.put(c,child);
 			} else {
@@ -107,22 +107,23 @@ public class TrieNode {
 		}
 		if (cachedValueEntry == null) {
 			if (code != -1) {
-				cachedValueEntry = new TrieEntry(code,true);
+				cachedValueEntry = code; //new TrieEntry(code,true);
 				table.updateValueCounter(code);
 			} else {
-				cachedValueEntry = new TrieEntry(table.increaseValueCounter(),false);
+				cachedValueEntry = table.increaseValueCounter(); //new TrieEntry(table.increaseValueCounter(),false);
 			}
 			cachedKeyEntry = table; 
 		} else if (!table.equals(cachedKeyEntry)) {
 			if (entries == null) {
-				entries = new HashMap<TrieSymbolTable, TrieEntry>(INITIAL_CAPACITY);
+				entries = new HashMap<TrieSymbolTable, Integer>();
+//				entries = new HashMap<TrieSymbolTable, TrieEntry>(INITIAL_CAPACITY);
 			}
 			if (!entries.containsKey(table)) {
 				if (code != -1) {
-					entries.put(table, new TrieEntry(code,true));
+					entries.put(table, code); //new TrieEntry(code,true));
 					table.updateValueCounter(code);
 				} else {
-					entries.put(table, new TrieEntry(table.increaseValueCounter(),false));
+					entries.put(table, table.increaseValueCounter()); //new TrieEntry(table.increaseValueCounter(),false));
 				}
 			}
 		}
@@ -151,7 +152,7 @@ public class TrieNode {
 	 * @param table	which symbol table
 	 * @return the entry of the symbol table 'table'
 	 */
-	public TrieEntry getEntry(TrieSymbolTable table) {
+	public Integer getEntry(TrieSymbolTable table) {
 		if (table != null) {
 			if (table.equals(cachedKeyEntry)) {
 				return cachedValueEntry;

@@ -1,13 +1,14 @@
 package org.maltparser.transform.pseudo;
 
+
 import org.maltparser.core.config.ConfigurationDir;
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.flow.FlowChartInstance;
 import org.maltparser.core.flow.item.ChartItem;
 import org.maltparser.core.flow.spec.ChartItemSpecification;
 import org.maltparser.core.helper.SystemLogger;
+import org.maltparser.core.io.dataformat.DataFormatInstance;
 import org.maltparser.core.options.OptionManager;
-import org.maltparser.core.symbol.SymbolTableHandler;
 import org.maltparser.core.syntaxgraph.DependencyStructure;
 import org.maltparser.core.syntaxgraph.TokenStructure;
 /**
@@ -68,13 +69,14 @@ public class PseudoProjChartItem extends ChartItem {
 	public int preprocess(int signal) throws MaltChainedException {
 		if (taskName.equals("init")) {
 			ConfigurationDir configDir = (ConfigurationDir)flowChartinstance.getFlowChartRegistry(org.maltparser.core.config.ConfigurationDir.class, idName);
-			SymbolTableHandler symbolTables = configDir.getSymbolTables();
+//			SymbolTableHandler symbolTables = configDir.getSymbolTables();
+			DataFormatInstance dataFormatInstance = configDir.getInputDataFormatInstance();
 			marking_strategy = OptionManager.instance().getOptionValue(getOptionContainerIndex(), "pproj", "marking_strategy").toString().trim();
 			covered_root = OptionManager.instance().getOptionValue(getOptionContainerIndex(), "pproj", "covered_root").toString().trim();
 			lifting_order = OptionManager.instance().getOptionValue(getOptionContainerIndex(), "pproj", "lifting_order").toString().trim();
 			
 			if (!marking_strategy.equalsIgnoreCase("none") || !covered_root.equalsIgnoreCase("none")) { 
-				pproj.initialize(marking_strategy, covered_root, lifting_order, SystemLogger.logger(), symbolTables);
+				pproj.initialize(marking_strategy, covered_root, lifting_order, SystemLogger.logger(), dataFormatInstance);
 			}
 			if (!marking_strategy.equalsIgnoreCase("none") || !covered_root.equalsIgnoreCase("none")) { 
 				pprojActive = true;

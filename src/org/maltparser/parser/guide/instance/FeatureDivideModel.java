@@ -69,10 +69,10 @@ public class FeatureDivideModel implements InstanceModel {
 		
 		divideFeature.update();
 		if (divideModels != null) { 
-			if (!divideModels.containsKey(((SingleFeatureValue)divideFeature.getFeatureValue()).getCode())) {
-				divideModels.put(((SingleFeatureValue)divideFeature.getFeatureValue()).getCode(), new AtomicModel(((SingleFeatureValue)divideFeature.getFeatureValue()).getCode(), divideFeatureVector, this));
+			if (!divideModels.containsKey(((SingleFeatureValue)divideFeature.getFeatureValue()).getIndexCode())) {
+				divideModels.put(((SingleFeatureValue)divideFeature.getFeatureValue()).getIndexCode(), new AtomicModel(((SingleFeatureValue)divideFeature.getFeatureValue()).getIndexCode(), divideFeatureVector, this));
 			}
-			divideModels.get(((SingleFeatureValue)divideFeature.getFeatureValue()).getCode()).addInstance(decision);
+			divideModels.get(((SingleFeatureValue)divideFeature.getFeatureValue()).getIndexCode()).addInstance(decision);
 		} else {
 			throw new GuideException("The feature divide models cannot be found. ");
 		}
@@ -84,7 +84,7 @@ public class FeatureDivideModel implements InstanceModel {
 //		}
 		
 		if (divideModels != null) {
-			divideFeature.updateCardinality();
+//			divideFeature.updateCardinality();
 			for (Integer index : divideModels.keySet()) {
 				divideModels.get(index).noMoreInstances();
 			}
@@ -127,13 +127,13 @@ public class FeatureDivideModel implements InstanceModel {
 		}
 		
 		//divideFeature.update();
-		if (divideModels != null && divideModels.containsKey(((SingleFeatureValue)divideFeature.getFeatureValue()).getCode())) {
-			return divideModels.get(((SingleFeatureValue)divideFeature.getFeatureValue()).getCode()).predict(decision);
+		if (divideModels != null && divideModels.containsKey(((SingleFeatureValue)divideFeature.getFeatureValue()).getIndexCode())) {
+			return divideModels.get(((SingleFeatureValue)divideFeature.getFeatureValue()).getIndexCode()).predict(decision);
 		} else if (masterModel != null && masterModel.getFrequency() > 0) {
 			return masterModel.predict(decision);
 		} else {
 			getGuide().getConfiguration().getConfigLogger().info("Could not predict the next parser decision because there is " +
-					"no divide or master model that covers the divide value '"+((SingleFeatureValue)divideFeature.getFeatureValue()).getCode()+"', as default" +
+					"no divide or master model that covers the divide value '"+((SingleFeatureValue)divideFeature.getFeatureValue()).getIndexCode()+"', as default" +
 							" class code '1' is used. ");
 			
 			decision.addDecision(1); // default prediction
@@ -157,13 +157,13 @@ public class FeatureDivideModel implements InstanceModel {
 			throw new GuideException("The divide feature does not have a single value. ");
 		}
 		
-		if (divideModels != null && divideModels.containsKey(((SingleFeatureValue)divideFeature.getFeatureValue()).getCode())) {
-			return divideModels.get(((SingleFeatureValue)divideFeature.getFeatureValue()).getCode());
+		if (divideModels != null && divideModels.containsKey(((SingleFeatureValue)divideFeature.getFeatureValue()).getIndexCode())) {
+			return divideModels.get(((SingleFeatureValue)divideFeature.getFeatureValue()).getIndexCode());
 		} else if (masterModel != null && masterModel.getFrequency() > 0) {
 			return masterModel;
 		} else {
 			getGuide().getConfiguration().getConfigLogger().info("Could not predict the next parser decision because there is " +
-					"no divide or master model that covers the divide value '"+((SingleFeatureValue)divideFeature.getFeatureValue()).getCode()+"', as default" +
+					"no divide or master model that covers the divide value '"+((SingleFeatureValue)divideFeature.getFeatureValue()).getIndexCode()+"', as default" +
 							" class code '1' is used. ");
 		}
 		return null;

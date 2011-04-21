@@ -11,7 +11,6 @@ import org.maltparser.parser.DependencyParserConfig;
 import org.maltparser.parser.guide.ClassifierGuide;
 import org.maltparser.parser.guide.GuideException;
 import org.maltparser.parser.guide.instance.AtomicModel;
-import org.maltparser.parser.guide.instance.DecisionTreeModel;
 import org.maltparser.parser.guide.instance.FeatureDivideModel;
 import org.maltparser.parser.guide.instance.InstanceModel;
 import org.maltparser.parser.history.action.GuideDecision;
@@ -63,9 +62,9 @@ public class SeqDecisionModel implements DecisionModel {
 		featureModel.update();
 	}
 	
-	public void updateCardinality() throws MaltChainedException {
-		featureModel.updateCardinality();
-	}
+//	public void updateCardinality() throws MaltChainedException {
+//		featureModel.updateCardinality();
+//	}
 	
 	public void finalizeSentence(DependencyStructure dependencyGraph) throws MaltChainedException {
 		if (instanceModel != null) {
@@ -80,7 +79,7 @@ public class SeqDecisionModel implements DecisionModel {
 		if (guide.getGuideMode() == ClassifierGuide.GuideMode.CLASSIFY) {
 			throw new GuideException("The decision model could not create it's model. ");
 		}
-		featureModel.updateCardinality();
+//		featureModel.updateCardinality();
 		if (instanceModel != null) {
 			instanceModel.noMoreInstances();
 			instanceModel.train();

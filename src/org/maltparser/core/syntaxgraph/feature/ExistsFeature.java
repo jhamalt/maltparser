@@ -5,7 +5,6 @@ import org.maltparser.core.feature.function.AddressFunction;
 import org.maltparser.core.feature.function.FeatureFunction;
 import org.maltparser.core.feature.value.FeatureValue;
 import org.maltparser.core.feature.value.SingleFeatureValue;
-import org.maltparser.core.io.dataformat.ColumnDescription;
 import org.maltparser.core.symbol.SymbolTable;
 import org.maltparser.core.symbol.SymbolTableHandler;
 import org.maltparser.core.syntaxgraph.SyntaxGraphException;
@@ -40,10 +39,10 @@ public class ExistsFeature implements FeatureFunction {
 		setAddressFunction((AddressFunction)arguments[0]);
 		
 		// Creates a symbol table called "EXISTS" using one null value
-		setSymbolTable(tableHandler.addSymbolTable("EXISTS", ColumnDescription.INPUT, "one"));
-		
-		table.addSymbol("TRUE"); // The address exists
-		table.addSymbol("FALSE"); // The address don't exists
+//		setSymbolTable(tableHandler.addSymbolTable("EXISTS", ColumnDescription.INPUT, "one"));
+//		
+//		table.addSymbol("TRUE"); // The address exists
+//		table.addSymbol("FALSE"); // The address don't exists
 	}
 	
 	/**
@@ -64,7 +63,7 @@ public class ExistsFeature implements FeatureFunction {
 	 * @throws MaltChainedException
 	 */
 	public String getSymbol(int code) throws MaltChainedException {
-		return table.getSymbolCodeToString(code);
+		return (code == 1)?"true":"false"; 
 	}
 	
 	/**
@@ -75,7 +74,7 @@ public class ExistsFeature implements FeatureFunction {
 	 * @throws MaltChainedException
 	 */
 	public int getCode(String symbol) throws MaltChainedException {
-		return table.getSymbolStringToCode(symbol);
+		return (symbol.equals("true"))?1:0;
 	}
 	
 	/**
@@ -84,7 +83,7 @@ public class ExistsFeature implements FeatureFunction {
 	 * @throws MaltChainedException
 	 */
 	public void updateCardinality() {
-		featureValue.setCardinality(table.getValueCounter()); 
+//		featureValue.setCardinality(table.getValueCounter()); 
 	}
 	
 	/**
@@ -93,16 +92,15 @@ public class ExistsFeature implements FeatureFunction {
 	 * @throws MaltChainedException
 	 */
 	public void update() throws MaltChainedException {
+//		featureValue.setKnown(true);
+		featureValue.setIndexCode(1);
+		featureValue.setNullValue(false);
 		if (addressFunction.getAddressValue().getAddress() != null) {
-			featureValue.setCode(table.getSymbolStringToCode("TRUE"));
-			featureValue.setSymbol("TRUE");
-			featureValue.setKnown(true);
-			featureValue.setNullValue(false);
+			featureValue.setSymbol("true");
+			featureValue.setValue(1);
 		} else {
-			featureValue.setCode(table.getSymbolStringToCode("FALSE"));
-			featureValue.setSymbol("FALSE");
-			featureValue.setKnown(true);
-			featureValue.setNullValue(false);
+			featureValue.setSymbol("false");
+			featureValue.setValue(0);
 		}
 	}
 	

@@ -20,7 +20,6 @@ import org.maltparser.core.syntaxgraph.TokenStructure;
 import org.maltparser.core.syntaxgraph.node.NonTerminalNode;
 import org.maltparser.core.syntaxgraph.node.PhraseStructureNode;
 import org.maltparser.core.syntaxgraph.node.TokenNode;
-import org.maltparser.ml.libsvm.LibsvmException;
 /**
 *
 *
@@ -282,7 +281,7 @@ public class BracketWriter implements SyntaxGraphWriter {
 				}
 				break;
 			default:
-				throw new LibsvmException("Unknown bracket writer option: '"+argv[i-1]+"' with value '"+argv[i]+"'. ");		
+				throw new DataFormatException("Unknown bracket writer option: '"+argv[i-1]+"' with value '"+argv[i]+"'. ");		
 			}
 		}	
 	}

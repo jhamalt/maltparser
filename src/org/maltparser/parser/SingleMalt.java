@@ -2,6 +2,7 @@ package org.maltparser.parser;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Formatter;
 import java.util.regex.Pattern;
 
@@ -36,6 +37,7 @@ public class SingleMalt implements DependencyParserConfig {
 	protected int mode;
 	protected ConfigurationRegistry registry;
 	protected SymbolTableHandler symbolTableHandler;
+	protected DataFormatInstance dataFormatInstance;
 	protected long startTime;
 	protected long endTime;
 	protected int nIterations = 0;
@@ -49,6 +51,7 @@ public class SingleMalt implements DependencyParserConfig {
 		startTime = System.currentTimeMillis();
 		configLogger = initConfigLogger(getOptionValue("config", "logfile").toString(), getOptionValue("config", "logging").toString());
 		registry = new ConfigurationRegistry();
+		this.dataFormatInstance = dataFormatInstance;
 		symbolTableHandler = dataFormatInstance.getSymbolTables();
 
 		if (mode == SingleMalt.LEARN) {
@@ -59,7 +62,33 @@ public class SingleMalt implements DependencyParserConfig {
 //		registry.put(org.maltparser.parser.DependencyParserConfig.class, this);
 		initPropagation();
 		initParsingAlgorithm(); 
-		
+		if (configLogger.isInfoEnabled()) {
+			URL inputFormatURL = configDir.getInputFormatURL(); 
+			URL outputFormatURL = configDir.getOutputFormatURL();
+			if (inputFormatURL != null) {
+				if (outputFormatURL == null || outputFormatURL.toString().equals(inputFormatURL.toString())) {
+					int index = inputFormatURL.toString().indexOf('!');
+					if (index == -1) {
+						configLogger.info("  Data Format          : "+inputFormatURL.toString()+"\n");
+					} else {
+						configLogger.info("  Data Format          : "+inputFormatURL.toString().substring(index+1)+"\n");
+					}
+				} else {
+					int indexIn = inputFormatURL.toString().indexOf('!');
+					int indexOut = outputFormatURL.toString().indexOf('!');
+					if (indexIn == -1) {
+						configLogger.info("  Input Data Format    : "+inputFormatURL.toString()+"\n");
+					} else {
+						configLogger.info("  Input Data Format    : "+inputFormatURL.toString().substring(indexIn+1)+"\n");
+					}
+					if (indexOut == -1) {
+						configLogger.info("  Output Data Format   : "+outputFormatURL.toString()+"\n");
+					} else {
+						configLogger.info("  Output Data Format   : "+outputFormatURL.toString().substring(indexOut+1)+"\n");
+					}
+				}
+			}
+		}
 	}
 	
 	private void initPropagation()  throws MaltChainedException {
@@ -67,7 +96,7 @@ public class SingleMalt implements DependencyParserConfig {
 		if (propagationSpecFileName == null || propagationSpecFileName.length() == 0) {
 			return;
 		}
-		propagationManager = new PropagationManager(configDir, symbolTableHandler);
+		propagationManager = new PropagationManager(configDir);
 		if (mode == SingleMalt.LEARN) {
 			propagationSpecFileName = configDir.copyToConfig(propagationSpecFileName);
 			OptionManager.instance().overloadOptionValue(optionContainerIndex, "singlemalt", "propagation", propagationSpecFileName);
@@ -265,7 +294,13 @@ public class SingleMalt implements DependencyParserConfig {
 				// use default feature model depending on the selected parser algorithm
 				OptionManager.instance().overloadOptionValue(optionContainerIndex, "guide", "features", getOptionValueString("singlemalt", "parsing_algorithm"));
 				featureModelFileName = getOptionValue("guide", "features").toString().trim();
-				featureModelFileName = featureModelFileName.replace("{learner}", getOptionValueString("guide", "learner"));
+				/* START: Temp fix during development of new liblinear and libsvm interface */
+				String learner = getOptionValueString("guide", "learner");
+				if (!learner.startsWith("lib")) {
+					learner = "lib"+learner;
+				}
+				/* END: Temp fix during development of new liblinear and libsvm interface */
+				featureModelFileName = featureModelFileName.replace("{learner}", learner);
 				featureModelFileName = configDir.copyToConfig(Util.findURLinJars(featureModelFileName));
 			} else {
 				featureModelFileName = configDir.copyToConfig(featureModelFileName);
@@ -294,9 +329,7 @@ public class SingleMalt implements DependencyParserConfig {
 			String markingStrategy = getOptionValue("pproj", "marking_strategy").toString().trim();
 			String coveredRoot = getOptionValue("pproj", "covered_root").toString().trim();
 			StringBuilder newDecisionSettings = new StringBuilder();
-//			if ((Boolean)getOptionValue("malt0.4", "behavior") == true) {
-//				decisionSettings = "T.TRANS+A.DEPREL";
-//			}
+
 			if (decisionSettings == null || decisionSettings.length() < 1 || decisionSettings.equals("default")) {
 				decisionSettings = "T.TRANS+A.DEPREL";
 			} else {

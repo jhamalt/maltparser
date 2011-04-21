@@ -1,7 +1,6 @@
 package org.maltparser.core.syntaxgraph.reader;
 
 import java.io.File;
-import java.util.HashMap;
 
 import org.maltparser.core.config.ConfigurationDir;
 import org.maltparser.core.exception.MaltChainedException;
@@ -26,7 +25,6 @@ public class ReadChartItem extends ChartItem {
 	private Class<? extends SyntaxGraphReader> graphReaderClass;
 	
 	private String nullValueStrategy;
-	private String rootLabels;
 	
 	private SyntaxGraphReader reader;
 	private String targetName;
@@ -69,10 +67,8 @@ public class ReadChartItem extends ChartItem {
 		setSyntaxGraphReaderClass((Class<?>)OptionManager.instance().getOptionValue(getOptionContainerIndex(), optiongroupName, "reader"));
 
 		setNullValueStrategy(OptionManager.instance().getOptionValue(getOptionContainerIndex(), "singlemalt", "null_value").toString());
-		setRootLabels(OptionManager.instance().getOptionValue(getOptionContainerIndex(), "graph", "root_label").toString());
 		
-		
-		initInput(getNullValueStrategy(), getRootLabels());
+		initInput(getNullValueStrategy());
 		initReader(getSyntaxGraphReaderClass(), getInputFileName(), getInputCharSet(), getReaderOptions(), iterations);
 	}
 	
@@ -86,8 +82,6 @@ public class ReadChartItem extends ChartItem {
 		}
 		int prevIterationCounter = reader.getIterationCounter();
 		boolean moreInput = reader.readSentence(cachedGraph);
-//		System.out.println(cachedGraph);
-//		System.exit(1);
 		if (!moreInput) {
 			return ChartItem.TERMINATE;
 		} else if (prevIterationCounter < reader.getIterationCounter()) {
@@ -188,18 +182,6 @@ public class ReadChartItem extends ChartItem {
 		this.nullValueStrategy = nullValueStrategy;
 	}
 
-	public String getRootLabels() {
-		if (nullValueStrategy == null) {
-			return "ROOT";
-		}
-		return rootLabels;
-	}
-
-	public void setRootLabels(String rootLabels) {
-		this.rootLabels = rootLabels;
-	}
-	
-
 	public String getTargetName() {
 		return targetName;
 	}
@@ -216,19 +198,13 @@ public class ReadChartItem extends ChartItem {
 		return inputDataFormatInstance;
 	}
 
-	public void initInput(String nullValueStategy, String rootLabels) throws MaltChainedException {
+	public void initInput(String nullValueStategy) throws MaltChainedException {
 		ConfigurationDir configDir = (ConfigurationDir)flowChartinstance.getFlowChartRegistry(org.maltparser.core.config.ConfigurationDir.class, idName);
 		DataFormatManager dataFormatManager = configDir.getDataFormatManager();
-//		DataFormatManager dataFormatManager = flowChartinstance.getDataFormatManager();
 		SymbolTableHandler symbolTables = configDir.getSymbolTables();
-//		SymbolTableHandler symbolTables = flowChartinstance.getSymbolTables();
-		HashMap<String, DataFormatInstance> dataFormatInstances = configDir.getDataFormatInstances();
-//		HashMap<String, DataFormatInstance> dataFormatInstances = flowChartinstance.getDataFormatInstances();
-		
-		inputDataFormatInstance = dataFormatManager.getInputDataFormatSpec().createDataFormatInstance(symbolTables, nullValueStategy, rootLabels);
-		if (!dataFormatInstances.containsKey(dataFormatManager.getInputDataFormatSpec().getDataFormatName())) {
-			dataFormatInstances.put(dataFormatManager.getInputDataFormatSpec().getDataFormatName(), inputDataFormatInstance);
-		}
+		inputDataFormatInstance = dataFormatManager.getInputDataFormatSpec().createDataFormatInstance(symbolTables, nullValueStategy);
+		configDir.addDataFormatInstance(dataFormatManager.getInputDataFormatSpec().getDataFormatName(), inputDataFormatInstance);
+
 	}
 	
 	public void initReader(Class<? extends SyntaxGraphReader> syntaxGraphReader, String inputFile, String inputCharSet, String readerOptions, int iterations) throws MaltChainedException {

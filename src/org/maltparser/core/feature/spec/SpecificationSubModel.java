@@ -1,18 +1,19 @@
 package org.maltparser.core.feature.spec;
 
 import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.regex.Pattern;
 
 /**
 *
 *
 * @author Johan Hall
 */
-public class SpecificationSubModel implements Iterable<String> {
-	private Map<String, Integer> featureSpec2IndexMap;
-	private int counter;
+public class SpecificationSubModel  implements Iterable<String> {
+	private Set<String> featureSpecSet;
 	private String name;
+	private final Pattern blanks = Pattern.compile("\\s+");
 	
 	public SpecificationSubModel() {
 		this("MAIN");
@@ -20,28 +21,14 @@ public class SpecificationSubModel implements Iterable<String> {
 	
 	public SpecificationSubModel(String name) {
 		setSubModelName(name);
-		featureSpec2IndexMap = new LinkedHashMap<String, Integer>();
-		counter = 0;
+		featureSpecSet = new TreeSet<String>();
 	}
 	
 	public void add(String featureSpec) {
-		if (!featureSpec2IndexMap.containsKey(featureSpec)) {
-			featureSpec2IndexMap.put(featureSpec, counter++);
+		if (featureSpec != null && featureSpec.trim().length() > 0) {
+			String strippedFeatureSpec = blanks.matcher(featureSpec).replaceAll("");
+			featureSpecSet.add(strippedFeatureSpec);
 		}
-	}
-	
-	public int getFeatureIndex(String featureSpec) {
-		if (featureSpec2IndexMap.containsKey(featureSpec)) {
-			return -1;
-		}
-		return featureSpec2IndexMap.get(featureSpec);
-	}
-	
-	public String getFeatureSpec(int featureId) {
-		if (featureId < 0 || featureId >= featureSpec2IndexMap.size()) {
-			return null;
-		}
-		return featureSpec2IndexMap.keySet().toArray(new String[]{})[featureId];
 	}
 
 	public String getSubModelName() {
@@ -53,13 +40,33 @@ public class SpecificationSubModel implements Iterable<String> {
 	}
 
 	public int size() {
-		return featureSpec2IndexMap.size();
+		return featureSpecSet.size();
 	}
 	
 	public Iterator<String> iterator() {
-		return featureSpec2IndexMap.keySet().iterator();
+		return featureSpecSet.iterator();
 	}
 	
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		for (String str : featureSpecSet) {
+			sb.append(str);
+			sb.append('\n');
+		}
+		return sb.toString();
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((featureSpecSet == null) ? 0 : featureSpecSet.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		return result;
+	}
+
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -67,23 +74,17 @@ public class SpecificationSubModel implements Iterable<String> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		if (featureSpec2IndexMap.size() != ((SpecificationSubModel)obj).size()) { return false; }
-		for (String str : this) {
-			if (!str.equals(((SpecificationSubModel)obj).getFeatureSpec(featureSpec2IndexMap.get(str)))) {
+		SpecificationSubModel other = (SpecificationSubModel) obj;
+		if (featureSpecSet == null) {
+			if (other.featureSpecSet != null)
 				return false;
-			}
-		}
+		} else if (!featureSpecSet.equals(other.featureSpecSet))
+			return false;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
 		return true;
-	}
-
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		for (String str : this) {
-			sb.append(featureSpec2IndexMap.get(str));
-			sb.append('\t');
-			sb.append(str);
-			sb.append('\n');
-		}
-		return sb.toString();
 	}
 }

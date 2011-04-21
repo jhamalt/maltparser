@@ -8,18 +8,15 @@ import org.maltparser.core.config.ConfigurationDir;
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.propagation.spec.PropagationSpecs;
 import org.maltparser.core.propagation.spec.PropagationSpecsReader;
-import org.maltparser.core.symbol.SymbolTableHandler;
 import org.maltparser.core.syntaxgraph.edge.Edge;
 
 public class PropagationManager {
 	private ConfigurationDir configDirectory;
 	private PropagationSpecs propagationSpecs;
 	private Propagations propagations;
-	private SymbolTableHandler symbolTables;
 	
-	public PropagationManager(ConfigurationDir configDirectory, SymbolTableHandler symbolTables) {
+	public PropagationManager(ConfigurationDir configDirectory) {
 		setConfigDirectory(configDirectory);
-		setSymbolTables(symbolTables);
 		propagationSpecs = new PropagationSpecs();
 		
 	}
@@ -42,7 +39,7 @@ public class PropagationManager {
 	public void loadSpecification(String propagationSpecFileName) throws MaltChainedException {
 		PropagationSpecsReader reader = new PropagationSpecsReader();
 		reader.load(findURL(propagationSpecFileName), propagationSpecs);
-		propagations = new Propagations(propagationSpecs, symbolTables);
+		propagations = new Propagations(propagationSpecs, configDirectory.getInputDataFormatInstance());
 	}
 	
 	public void propagate(Edge e) throws MaltChainedException {
@@ -61,14 +58,6 @@ public class PropagationManager {
 
 	public void setConfigDirectory(ConfigurationDir configDirectory) {
 		this.configDirectory = configDirectory;
-	}
-
-	public SymbolTableHandler getSymbolTables() {
-		return symbolTables;
-	}
-
-	public void setSymbolTables(SymbolTableHandler symbolTables) {
-		this.symbolTables = symbolTables;
 	}
 
 	public Propagations getPropagations() {

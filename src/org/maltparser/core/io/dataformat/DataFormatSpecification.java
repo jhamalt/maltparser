@@ -1,16 +1,15 @@
 package org.maltparser.core.io.dataformat;
 
 import java.net.URL;
-import java.util.HashSet;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.maltparser.core.exception.MaltChainedException;
-import org.maltparser.core.helper.SystemLogger;
+import org.maltparser.core.helper.HashSet;
 import org.maltparser.core.helper.Util;
 import org.maltparser.core.symbol.SymbolTableHandler;
 import org.w3c.dom.Element;
@@ -28,24 +27,24 @@ public class DataFormatSpecification {
 		DEPENDENCY,  // Dependency structure
 		PHRASE, // Phrase structure
 	};
-	private int entryPositionCounter;
+//	private int entryPositionCounter;
 	private String dataFormatName;
 	private DataStructure dataStructure;
-	private final SortedMap<String, DataFormatEntry> entries;
+	private final Map<String, DataFormatEntry> entries;
 	private final HashSet<Dependency> dependencies;
 //	private final HashSet<SyntaxGraphReader> supportedReaders;
 //	private final HashSet<SyntaxGraphWriter> supportedWriters;
 	
 	public DataFormatSpecification() {
-		entries = new TreeMap<String, DataFormatEntry>();
-		entryPositionCounter = 0;
+		entries = new LinkedHashMap<String, DataFormatEntry>();
+//		entryPositionCounter = 0;
 		dependencies = new HashSet<Dependency>();
 //		supportedReaders = new HashSet<SyntaxGraphReader>();
 //		supportedWriters = new HashSet<SyntaxGraphWriter>();
 	}
 	
-	public DataFormatInstance createDataFormatInstance(SymbolTableHandler symbolTables, String nullValueStrategy, String rootLabel) throws MaltChainedException {
-		return new DataFormatInstance(entries, symbolTables, nullValueStrategy, rootLabel, this);
+	public DataFormatInstance createDataFormatInstance(SymbolTableHandler symbolTables, String nullValueStrategy) throws MaltChainedException {
+		return new DataFormatInstance(entries, symbolTables, nullValueStrategy, this); //rootLabel, this);
 
 	}
 	
@@ -65,16 +64,7 @@ public class DataFormatSpecification {
 		if (url == null) {
 			throw new DataFormatException("The data format specifcation file cannot be found. ");
 		}
-		
-		if (SystemLogger.logger().isInfoEnabled()) {
-			int index = url.toString().indexOf('!');
-			if (index == -1) {
-				SystemLogger.logger().debug("  Data Format          : "+url.toString()+"\n");
-			} else {
-				SystemLogger.logger().debug("  Data Format          : "+url.toString().substring(index+1)+"\n");
-			}
-		}
-		
+				
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             DocumentBuilder db = dbf.newDocumentBuilder();
@@ -94,7 +84,7 @@ public class DataFormatSpecification {
             Element col = null;
             for (int i = 0, n = cols.getLength(); i < n; i++) {
             	col = (Element)cols.item(i);
-            	DataFormatEntry entry = new DataFormatEntry(i, col.getAttribute("name"), col.getAttribute("category"),col.getAttribute("type"), col.getAttribute("default"));
+            	DataFormatEntry entry = new DataFormatEntry(col.getAttribute("name"), col.getAttribute("category"),col.getAttribute("type"), col.getAttribute("default"));
             	entries.put(entry.getDataFormatEntryName(), entry);
             }
             NodeList deps = root.getElementsByTagName("dependencies");
@@ -115,7 +105,7 @@ public class DataFormatSpecification {
 	}
 	
 	public void addEntry(String dataFormatEntryName, String category, String type, String defaultOutput) {
-		DataFormatEntry entry = new DataFormatEntry(entryPositionCounter++, dataFormatEntryName, category, type, defaultOutput);
+		DataFormatEntry entry = new DataFormatEntry(dataFormatEntryName, category, type, defaultOutput);
 		entries.put(entry.getDataFormatEntryName(), entry);
 	}
 	
@@ -184,6 +174,12 @@ public class DataFormatSpecification {
 
 		public void setMapUrl(String mapUrl) {
 			this.mapUrl = mapUrl;
+		}
+
+		@Override
+		public String toString() {
+			return "Dependency [dependentOn=" + dependentOn + ", map=" + map
+					+ ", mapUrl=" + mapUrl + ", urlString=" + urlString + "]";
 		}
 	}
 }

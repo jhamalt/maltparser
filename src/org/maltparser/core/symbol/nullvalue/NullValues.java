@@ -1,10 +1,10 @@
 package org.maltparser.core.symbol.nullvalue;
 
-import java.util.HashMap;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.maltparser.core.exception.MaltChainedException;
+import org.maltparser.core.helper.HashMap;
 import org.maltparser.core.symbol.SymbolException;
 import org.maltparser.core.symbol.SymbolTable;
 /**
@@ -15,7 +15,7 @@ import org.maltparser.core.symbol.SymbolTable;
  */
 public abstract class NullValues {
 	protected enum NullValueDegree {
-		NONE, ONE, ROOTLABEL, ROOTNODE, NOVALUE
+		NONE, ONE, ROOTNODE, NOVALUE
 	};
 	public enum NullValueId {
 		NO_NODE, ROOT_NODE, NO_VALUE

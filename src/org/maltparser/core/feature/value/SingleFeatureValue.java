@@ -8,30 +8,37 @@ import org.maltparser.core.feature.function.Function;
  * @since 1.0
 **/
 public class SingleFeatureValue extends FeatureValue {
-	protected int code;
+	protected int indexCode;
 	protected String symbol;
-	protected boolean known;
+	protected double value;
 	
 	public SingleFeatureValue(Function function) {
 		super(function);
-		setCode(0);
+		setIndexCode(0);
 		setSymbol(null);
-		setKnown(true);
+		setValue(0);
 	}
 	
 	public void reset() {
 		super.reset();
-		setCode(0);
+		setIndexCode(0);
 		setSymbol(null);
-		setKnown(true);
+		setValue(0);
 	}
 	
-	public int getCode() {
-		return code;
+	public void update(int indexCode, String symbol, boolean nullValue, double value) {
+		this.indexCode = indexCode;
+		this.symbol = symbol;
+		this.nullValue = nullValue;
+		this.value = value;
+	}
+	
+	public int getIndexCode() {
+		return indexCode;
 	}
 
-	public void setCode(int code) {
-		this.code = code;
+	public void setIndexCode(int code) {
+		this.indexCode = code;
 	}
 
 	public String getSymbol() {
@@ -42,12 +49,12 @@ public class SingleFeatureValue extends FeatureValue {
 		this.symbol = symbol;
 	}
 
-	public boolean isKnown() {
-		return known;
+	public double getValue() {
+		return value;
 	}
 
-	public void setKnown(boolean known) {
-		this.known = known;
+	public void setValue(double value) {
+		this.value = value;
 	}
 	
 	public boolean equals(Object obj) {
@@ -57,14 +64,22 @@ public class SingleFeatureValue extends FeatureValue {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		if (!symbol.equals(((SingleFeatureValue)obj).symbol))
+		SingleFeatureValue v = (SingleFeatureValue)obj;
+		if (indexCode != v.indexCode)
 			return false;
-		if (code != ((SingleFeatureValue)obj).code)
+		if (!symbol.equals(v.symbol))
 			return false;
 		return super.equals(obj);
 	}
 	
 	public String toString() {
-		return super.toString()+ "{" + symbol + " -> " + code + ", known=" + known +"} ";
+		StringBuilder sb = new StringBuilder();
+		sb.append(super.toString());
+		sb.append('{');
+		sb.append(symbol);
+		sb.append("->");
+		sb.append(indexCode);
+		sb.append('}');
+		return sb.toString();
 	}
 }

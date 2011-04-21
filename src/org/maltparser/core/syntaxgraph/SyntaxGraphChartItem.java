@@ -1,14 +1,12 @@
 package org.maltparser.core.syntaxgraph;
 
-import java.util.HashMap;
-import java.util.HashSet;
-
 import org.maltparser.core.config.ConfigurationDir;
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.flow.FlowChartInstance;
 import org.maltparser.core.flow.FlowException;
 import org.maltparser.core.flow.item.ChartItem;
 import org.maltparser.core.flow.spec.ChartItemSpecification;
+import org.maltparser.core.helper.HashSet;
 import org.maltparser.core.io.dataformat.DataFormatInstance;
 import org.maltparser.core.io.dataformat.DataFormatManager;
 import org.maltparser.core.io.dataformat.DataFormatSpecification.DataStructure;
@@ -57,30 +55,28 @@ public class SyntaxGraphChartItem extends ChartItem {
 			ConfigurationDir configDir = (ConfigurationDir)flowChartinstance.getFlowChartRegistry(org.maltparser.core.config.ConfigurationDir.class, idName);
 			DataFormatInstance dataFormatInstance = null;
 			DataFormatManager dataFormatManager = configDir.getDataFormatManager();
-//			DataFormatManager dataFormatManager = flowChartinstance.getDataFormatManager();
 			SymbolTableHandler symbolTables = configDir.getSymbolTables();
-//			SymbolTableHandler symbolTables = flowChartinstance.getSymbolTables();
+
 			
-			HashMap<String, DataFormatInstance> dataFormatInstances = configDir.getDataFormatInstances();
-//			HashMap<String, DataFormatInstance> dataFormatInstances = flowChartinstance.getDataFormatInstances();
-			for (String key : dataFormatInstances.keySet()) {
-				if (dataFormatInstances.get(key).getDataFormarSpec().getDataStructure() == DataStructure.PHRASE) {
+
+			for (String key : configDir.getDataFormatInstanceKeys()) {
+				DataFormatInstance dfi = configDir.getDataFormatInstance(key);
+				if (dfi.getDataFormarSpec().getDataStructure() == DataStructure.PHRASE) {
 					phrase = true;
 				}
-				if (dataFormatInstances.get(key).getDataFormarSpec().getDataStructure() == DataStructure.DEPENDENCY) {
+				if (dfi.getDataFormarSpec().getDataStructure() == DataStructure.DEPENDENCY) {
 					dependency = true;
-					dataFormatInstance = dataFormatInstances.get(key);
+					dataFormatInstance = dfi;
 				}
 			}
-			
+
 			if (dependency == false && OptionManager.instance().getOptionValue(getOptionContainerIndex(), "config", "flowchart").toString().equals("learn")) {
 				dependency = true;
 				HashSet<Dependency> deps = dataFormatManager.getInputDataFormatSpec().getDependencies();
 				String nullValueStategy = OptionManager.instance().getOptionValue(getOptionContainerIndex(), "singlemalt", "null_value").toString();
-				String rootLabels = OptionManager.instance().getOptionValue(getOptionContainerIndex(), "graph", "root_label").toString();
 				for (Dependency dep : deps) {
-					dataFormatInstance = dataFormatManager.getDataFormatSpec(dep.getDependentOn()).createDataFormatInstance(symbolTables, nullValueStategy, rootLabels);
-					dataFormatInstances.put(dataFormatManager.getOutputDataFormatSpec().getDataFormatName(), dataFormatInstance);
+					dataFormatInstance = dataFormatManager.getDataFormatSpec(dep.getDependentOn()).createDataFormatInstance(symbolTables, nullValueStategy);
+					configDir.addDataFormatInstance(dataFormatManager.getOutputDataFormatSpec().getDataFormatName(), dataFormatInstance);
 				}
 			}
 
@@ -89,8 +85,8 @@ public class SyntaxGraphChartItem extends ChartItem {
 				flowChartinstance.addFlowChartRegistry(org.maltparser.core.syntaxgraph.DependencyStructure.class, structureName, graph);
 			} else if (dependency == true && phrase == true) {
 				graph = new MappablePhraseStructureGraph(symbolTables);
-				final DataFormatInstance inFormat = dataFormatInstances.get(dataFormatManager.getInputDataFormatSpec().getDataFormatName());
-				final DataFormatInstance outFormat = dataFormatInstances.get(dataFormatManager.getOutputDataFormatSpec().getDataFormatName());
+				final DataFormatInstance inFormat = configDir.getDataFormatInstance(dataFormatManager.getInputDataFormatSpec().getDataFormatName()); 
+				final DataFormatInstance outFormat = configDir.getDataFormatInstance(dataFormatManager.getOutputDataFormatSpec().getDataFormatName());
 
 				if (inFormat != null && outFormat != null) {
 					LosslessMapping mapping = null;

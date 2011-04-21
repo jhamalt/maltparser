@@ -24,6 +24,28 @@ public class DeterministicParser extends Parser {
 	}
 	
 	public DependencyStructure parse(DependencyStructure parseDependencyGraph) throws MaltChainedException {
+		if (diagnostics == true) {
+			return parseDiagnostic(parseDependencyGraph);
+		}
+		parserState.clear();
+		parserState.initialize(parseDependencyGraph);
+		currentParserConfiguration = parserState.getConfiguration();
+		parseCount++;
+
+		while (!parserState.isTerminalState()) {
+			GuideUserAction action = parserState.getTransitionSystem().getDeterministicAction(parserState.getHistory(), currentParserConfiguration);
+			if (action == null) {
+				action = predict();
+			}
+			parserState.apply(action);
+		} 
+		copyEdges(currentParserConfiguration.getDependencyGraph(), parseDependencyGraph);
+		copyDynamicInput(currentParserConfiguration.getDependencyGraph(), parseDependencyGraph);
+		parseDependencyGraph.linkAllTreesToRoot();
+		return parseDependencyGraph;
+	}
+	
+	private DependencyStructure parseDiagnostic(DependencyStructure parseDependencyGraph) throws MaltChainedException {
 		parserState.clear();
 		parserState.initialize(parseDependencyGraph);
 		currentParserConfiguration = parserState.getConfiguration();
@@ -51,6 +73,7 @@ public class DeterministicParser extends Parser {
 		}
 		return parseDependencyGraph;
 	}
+	
 	
 	private GuideUserAction predict() throws MaltChainedException {
 		GuideUserAction currentAction = parserState.getHistory().getEmptyGuideUserAction();

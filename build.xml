@@ -14,7 +14,7 @@
 	<!-- prefixed with "env". -->
 	<property environment="env"/>
 
-	<property name="version" value="1.4.1"/>
+	<property name="version" value="1.5"/>
 
 	<!-- The base directory relative to which most targets are built -->
 	<property name="base" value="."/>
@@ -162,7 +162,7 @@
 		<copy file="${jsr173_1.0_api.jar}" tofile="${jar.dest}/jsr173_1.0_api.jar"/>
 		<copy file="${log4j.jar}" tofile="${jar.dest}/log4j.jar"/>
 		<copy file="${libsvm.jar}" tofile="${jar.dest}/libsvm.jar"/>
-		<copy file="${liblinear.jar}" tofile="${jar.dest}/liblinear-1.51-with-deps.jar"/>
+		<copy file="${liblinear.jar}" tofile="${jar.dest}/liblinear-1.7-with-deps.jar"/>
 		<jar jarfile="${dist.dir}/${jar.filename}" basedir="${javac.dest}"
          includes="${stem}/**/*.class,appdata/**/*.*"
          manifest="${dist.dir}/MANIFEST.MF">
@@ -175,7 +175,7 @@
 		<mkdir dir="${jar.dest}"/>
 		<filter token="version" value="${version}" />
 		<manifest file="${dist.dir}/MANIFEST.MF">
-			<attribute name="Class-Path" value="lib/log4j.jar lib/stax-1.2.0.jar lib/jsr173_1.0_api.jar lib/libsvm.jar lib/liblinear-1.51-with-deps.jar  "/>
+			<attribute name="Class-Path" value="lib/log4j.jar lib/stax-1.2.0.jar lib/jsr173_1.0_api.jar lib/libsvm.jar lib/liblinear-1.7-with-deps.jar  "/>
 			<attribute name="Main-Class" value="org.maltparser.Malt"/>
 			<attribute name="Implementation-Title" value="MaltParser"/>
 			<attribute name="Implementation-Version" value="${version}"/>
@@ -196,6 +196,7 @@
              destdir="${javadoc.dest}"
              packagenames="org.maltparser,
 	    	org.maltparser.core.config,
+			org.maltparser.core.config.version,
 	    	org.maltparser.core.exception,
 			org.maltparser.core.feature,
 			org.maltparser.core.feature.function,
@@ -210,7 +211,6 @@
 			org.maltparser.core.flow.system,
 			org.maltparser.core.flow.system.elem,
 	    	org.maltparser.core.helper,
-			org.maltparser.core.io,
 		    org.maltparser.core.io.dataformat,
 	    	org.maltparser.core.options,
 	    	org.maltparser.core.options.option,
@@ -230,8 +230,7 @@
 			org.maltparser.core.syntaxgraph.reader,
 			org.maltparser.core.syntaxgraph.writer,
 	    	org.maltparser.ml,
-			org.maltparser.ml.liblinear,
-	    	org.maltparser.ml.libsvm,
+			org.maltparser.ml.lib,
 			org.maltparser.parser,
 	    	org.maltparser.parser.algorithm,
 	    	org.maltparser.parser.algorithm.covington,
@@ -256,7 +255,7 @@
              doctitle="MaltParser version ${version}&lt;br&gt;API Specification"
              windowtitle="MaltParser ${version}"
              header="&lt;b&gt;MaltParser ${version}&lt;/b&gt;"
-             bottom="Copyright 2007-2010 Johan Hall, Jens Nilsson and Joakim Nivre.">
+             bottom="Copyright 2007-2011 Johan Hall, Jens Nilsson and Joakim Nivre.">
 
 			<link href="http://java.sun.com/javase/6/docs/api/"/>
 			<classpath refid="compile.classpath"/>

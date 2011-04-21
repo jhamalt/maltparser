@@ -43,16 +43,14 @@ public abstract class GraphNode extends GraphElement implements Node {
 
 	public void removeIncomingEdge(Edge in) throws MaltChainedException {
 		if (in.getTarget() != this) {
-			System.out.println("The incoming edge's 'to' reference is not correct");
-			return;
+			throw new SyntaxGraphException("The incoming edge's 'to' reference is not correct");
 		}
 		incomingEdges.remove(in);
 	}
 
 	public void removeOutgoingEdge(Edge out) throws MaltChainedException {
 		if (out.getSource() != this) {
-			System.out.println("The outgoing edge's 'from' reference is not correct");
-			return;
+			throw new SyntaxGraphException("The outgoing edge's 'from' reference is not correct");
 		}
 		outgoingEdges.remove(out);
 	}

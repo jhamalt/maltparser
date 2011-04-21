@@ -95,12 +95,30 @@
 	
 	<flowchart name="convert">
 		<preprocess>
+			<chartitem item="configdir" id="singlemalt" task="createdir"/>
 			<chartitem item="graph" id="singlemalt" task="create" structure="input"/>
 		</preprocess>
 		<process>
 			<chartitem item="read" id="singlemalt" target="input"/>
 			<chartitem item="write" id="singlemalt" source="input"/>
 		</process>
+		<postprocess>
+			<chartitem item="configdir" id="singlemalt" task="deletedir"/>
+		</postprocess>
+	</flowchart>
+	
+	<flowchart name="analyze">
+		<preprocess>
+			<chartitem item="configdir" id="singlemalt" task="createdir"/>
+			<chartitem item="graph" id="singlemalt" task="create" structure="input"/>
+		</preprocess>
+		<process>
+			<chartitem item="read" id="singlemalt" target="input"/>
+			<chartitem item="analyzer" id="singlemalt" source="input"/>
+		</process>
+		<postprocess>
+			<chartitem item="configdir" id="singlemalt" task="deletedir"/>
+		</postprocess>
 	</flowchart>
 	
 	<flowchart name="proj">

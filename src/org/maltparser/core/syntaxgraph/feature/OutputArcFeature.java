@@ -82,7 +82,7 @@ public class OutputArcFeature implements FeatureFunction {
 
 
 	public void updateCardinality() throws MaltChainedException {
-		featureValue.setCardinality(table.getValueCounter());
+//		featureValue.setCardinality(table.getValueCounter());
 	}
 
 	public void update() throws MaltChainedException {
@@ -92,9 +92,8 @@ public class OutputArcFeature implements FeatureFunction {
 		try {
 
 			if (arg1.getAddress() == null || arg2.getAddress() == null) {
-				featureValue.setCode(table.getNullValueCode(NullValueId.NO_NODE));
+				featureValue.setIndexCode(table.getNullValueCode(NullValueId.NO_NODE));
 				featureValue.setSymbol(table.getNullValueSymbol(NullValueId.NO_NODE));
-				featureValue.setKnown(true);
 				featureValue.setNullValue(true); 
 			} else {
 				final DependencyNode node1 = (DependencyNode)arg1.getAddress();
@@ -118,25 +117,24 @@ public class OutputArcFeature implements FeatureFunction {
 					//	head2 = Integer.parseInt(node2.getHeadEdgeLabelSymbol(column.getSymbolTable()));
 				}
 				if (!node1.isRoot() && head1 == node2.getIndex()) {
-					featureValue.setCode(table.getSymbolStringToCode("LEFT"));
+					featureValue.setIndexCode(table.getSymbolStringToCode("LEFT"));
 					featureValue.setSymbol("LEFT");
-					featureValue.setKnown(true);
 					featureValue.setNullValue(false);
 				} else if (!node2.isRoot() && head2 == node1.getIndex()) {
-					featureValue.setCode(table.getSymbolStringToCode("RIGHT"));
+					featureValue.setIndexCode(table.getSymbolStringToCode("RIGHT"));
 					featureValue.setSymbol("RIGHT");
-					featureValue.setKnown(true);
 					featureValue.setNullValue(false);			
 				} else {
-					featureValue.setCode(table.getNullValueCode(NullValueId.NO_NODE));
+					featureValue.setIndexCode(table.getNullValueCode(NullValueId.NO_NODE));
 					featureValue.setSymbol(table.getNullValueSymbol(NullValueId.NO_NODE));
-					featureValue.setKnown(true);
 					featureValue.setNullValue(true);
 				}
 			}
 		} catch (NumberFormatException e) {
 			throw new FeatureException("The index of the feature must be an integer value. ", e);
 		}
+//		featureValue.setKnown(true);
+		featureValue.setValue(1);
 	}
 
 	public ColumnDescription getColumn() {

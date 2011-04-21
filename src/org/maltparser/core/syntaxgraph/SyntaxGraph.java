@@ -12,11 +12,11 @@ import org.maltparser.core.symbol.SymbolTableHandler;
 */
 public abstract class SyntaxGraph implements LabeledStructure, Structure, Observer {
 	protected SymbolTableHandler symbolTables;
-	protected ObjectPoolList<LabelSet> labelSetPool;
+	protected final ObjectPoolList<LabelSet> labelSetPool;
 	protected int numberOfComponents;
 	
 	public SyntaxGraph(SymbolTableHandler symbolTables) throws MaltChainedException  {
-		setSymbolTables(symbolTables);
+		this.symbolTables = symbolTables;
 		labelSetPool = new ObjectPoolList<LabelSet>() {
 			protected LabelSet create() { return new LabelSet(6); }
 			public void resetObject(LabelSet o) throws MaltChainedException { o.clear(); }

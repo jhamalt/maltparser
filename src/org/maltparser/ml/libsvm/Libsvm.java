@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.PrintStream;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
@@ -31,7 +30,6 @@ import org.maltparser.core.feature.function.FeatureFunction;
 import org.maltparser.core.feature.value.FeatureValue;
 import org.maltparser.core.feature.value.MultipleFeatureValue;
 import org.maltparser.core.feature.value.SingleFeatureValue;
-import org.maltparser.core.helper.NoPrintStream;
 import org.maltparser.core.syntaxgraph.DependencyStructure;
 import org.maltparser.ml.LearningMethod;
 import org.maltparser.ml.liblinear.LiblinearException;
@@ -62,7 +60,7 @@ public class Libsvm implements LearningMethod {
 	protected boolean saveInstanceFiles;
 	protected boolean excludeNullValues;
 	protected String pathExternalSVMTrain = null;
-	private int[] cardinalities;
+//	private int[] cardinalities;
 
 	/**
 	 * Instance output stream writer 
@@ -133,7 +131,7 @@ public class Libsvm implements LearningMethod {
 					instanceOutput.write("-1");
 				} else {
 					if (featureValue instanceof SingleFeatureValue) {
-						instanceOutput.write(((SingleFeatureValue)featureValue).getCode()+"");
+						instanceOutput.write(((SingleFeatureValue)featureValue).getIndexCode()+"");
 					} else if (featureValue instanceof MultipleFeatureValue) {
 						Set<Integer> values = ((MultipleFeatureValue)featureValue).getCodes();
 						int j=0;
@@ -178,110 +176,45 @@ public class Libsvm implements LearningMethod {
 		} else if (owner == null) {
 			throw new LibsvmException("The parent guide model cannot be found. ");
 		}
-		cardinalities = getCardinalities(featureVector);
-		if (pathExternalSVMTrain == null) {
-			try {
-				final svm_problem prob = readProblemMaltSVMFormat(getInstanceInputStreamReader(".ins"), cardinalities, svmParam);
-				if(svm.svm_check_parameter(prob, svmParam) != null) {
-					throw new LibsvmException(svm.svm_check_parameter(prob, svmParam));
-				}
-				owner.getGuide().getConfiguration().getConfigLogger().info("Creating LIBSVM model "+getFile(".mod").getName()+"\n");
-				final PrintStream out = System.out;
-				final PrintStream err = System.err;
-				System.setOut(NoPrintStream.NO_PRINTSTREAM);
-				System.setErr(NoPrintStream.NO_PRINTSTREAM);
-				
-				svm.svm_save_model(getFile(".mod").getAbsolutePath(), svm.svm_train(prob, svmParam));
-				System.setOut(err);
-				System.setOut(out);
-				if (!saveInstanceFiles) {
-					getFile(".ins").delete();
-				}
-			} catch (OutOfMemoryError e) {
-				throw new LibsvmException("Out of memory. Please increase the Java heap size (-Xmx<size>). ", e);
-			} catch (IllegalArgumentException e) {
-				throw new LibsvmException("The LIBSVM learner was not able to redirect Standard Error stream. ", e);
-			} catch (SecurityException e) {
-				throw new LibsvmException("The LIBSVM learner cannot remove the instance file. ", e);
-			} catch (IOException e) {
-				throw new LibsvmException("The LIBSVM learner cannot save the model file '"+getFile(".mod").getAbsolutePath()+"'. ", e);
-			}
-		} else {
-			trainExternal(featureVector);
-		}
-		saveCardinalities(getInstanceOutputStreamWriter(".car"), cardinalities);
+//		cardinalities = getCardinalities(featureVector);
+//		if (pathExternalSVMTrain == null) {
+//			try {
+//				final svm_problem prob = readProblemMaltSVMFormat(getInstanceInputStreamReader(".ins"), cardinalities, svmParam);
+//				if(svm.svm_check_parameter(prob, svmParam) != null) {
+//					throw new LibsvmException(svm.svm_check_parameter(prob, svmParam));
+//				}
+//				owner.getGuide().getConfiguration().getConfigLogger().info("Creating LIBSVM model "+getFile(".mod").getName()+"\n");
+//				final PrintStream out = System.out;
+//				final PrintStream err = System.err;
+//				System.setOut(NoPrintStream.NO_PRINTSTREAM);
+//				System.setErr(NoPrintStream.NO_PRINTSTREAM);
+//				
+//				svm.svm_save_model(getFile(".mod").getAbsolutePath(), svm.svm_train(prob, svmParam));
+//				System.setOut(err);
+//				System.setOut(out);
+//				if (!saveInstanceFiles) {
+//					getFile(".ins").delete();
+//				}
+//			} catch (OutOfMemoryError e) {
+//				throw new LibsvmException("Out of memory. Please increase the Java heap size (-Xmx<size>). ", e);
+//			} catch (IllegalArgumentException e) {
+//				throw new LibsvmException("The LIBSVM learner was not able to redirect Standard Error stream. ", e);
+//			} catch (SecurityException e) {
+//				throw new LibsvmException("The LIBSVM learner cannot remove the instance file. ", e);
+//			} catch (IOException e) {
+//				throw new LibsvmException("The LIBSVM learner cannot save the model file '"+getFile(".mod").getAbsolutePath()+"'. ", e);
+//			}
+//		} else {
+//			trainExternal(featureVector);
+//		}
+//		saveCardinalities(getInstanceOutputStreamWriter(".car"), cardinalities);
 	}
 	
 	
-	@Override
-	public double crossValidate(FeatureVector featureVector, int nrOfSplits)
-			throws MaltChainedException {
-		if (featureVector == null) {
-			throw new LibsvmException("The feature vector cannot be found. ");
-		} else if (owner == null) {
-			throw new LibsvmException("The parent guide model cannot be found. ");
-		}
-		cardinalities = getCardinalities(featureVector);
-		//TODO Implement support for externial SVM for cross validation  
-		//if (pathExternalSVMTrain == null) {
-		
-		double crossValidationAccuracy = 0.0;
-		
-			try {
-				final svm_problem prob = readProblemMaltSVMFormat(getInstanceInputStreamReader(".ins"), cardinalities, svmParam);
-				if(svm.svm_check_parameter(prob, svmParam) != null) {
-					throw new LibsvmException(svm.svm_check_parameter(prob, svmParam));
-				}
-				owner.getGuide().getConfiguration().getConfigLogger().info("Doing cross validation\n");
-				final PrintStream out = System.out;
-				final PrintStream err = System.err;
-				System.setOut(NoPrintStream.NO_PRINTSTREAM);
-				System.setErr(NoPrintStream.NO_PRINTSTREAM);
-				
-				//svm.svm_save_model(getFile(".mod").getAbsolutePath(), svm.svm_train(prob, svmParam));
-				
-				double[] target = new double[prob.l];
-				
-				svm.svm_cross_validation(prob, svmParam, nrOfSplits, target);				
-				
-				System.setOut(err);
-				System.setOut(out);
-				if (!saveInstanceFiles) {
-					getFile(".ins").delete();
-				}
-				
-				
-				double total_correct = 0.0;
-				
-				for(int i=0;i<prob.l;i++)
-					if(target[i] == prob.y[i])
-						++total_correct;
-				
-				if(total_correct>0)
-					crossValidationAccuracy = 100.0*total_correct/prob.l;
-				
-				
-			} catch (OutOfMemoryError e) {
-				throw new LibsvmException("Out of memory. Please increase the Java heap size (-Xmx<size>). ", e);
-			} catch (IllegalArgumentException e) {
-				throw new LibsvmException("The LIBSVM learner was not able to redirect Standard Error stream. ", e);
-			} catch (SecurityException e) {
-				throw new LibsvmException("The LIBSVM learner cannot remove the instance file. ", e);
-			}
-		//} else {
-		//	trainExternal(featureVector);
-		//}
-		//saveCardinalities(getInstanceOutputStreamWriter(".car"), cardinalities);
-		
 
-			
-		return crossValidationAccuracy;
-	}
-	
-	
 	private void trainExternal(FeatureVector featureVector) throws MaltChainedException {
 		try {		
-			maltSVMFormat2OriginalSVMFormat(getInstanceInputStreamReader(".ins"), getInstanceOutputStreamWriter(".ins.tmp"), cardinalities);
+//			maltSVMFormat2OriginalSVMFormat(getInstanceInputStreamReader(".ins"), getInstanceOutputStreamWriter(".ins.tmp"), cardinalities);
 			owner.getGuide().getConfiguration().getConfigLogger().info("Creating LIBSVM model (svm-train) "+getFile(".mod").getName());
 
 			final ArrayList<String> commands = new ArrayList<String>();
@@ -334,51 +267,51 @@ public class Libsvm implements LearningMethod {
 		}
 	}
 	
-	private int[] getCardinalities(FeatureVector featureVector) {
-		int[] cardinalities = new int[featureVector.size()];
-		int i = 0;
-		for (FeatureFunction feature : featureVector) {
-			cardinalities[i++] = feature.getFeatureValue().getCardinality();
-		}
-		return cardinalities;
-	}
-	
-	private void saveCardinalities(OutputStreamWriter osw, int[] cardinalities) throws MaltChainedException {
-		final BufferedWriter out = new BufferedWriter(osw);
-		try {
-			for (int i = 0, n = cardinalities.length; i < n; i++) {
-				out.write(Integer.toString(cardinalities[i]));
-				if (i < n - 1) {
-					out.write(',');
-				}
-			}
-			out.write('\n');
-			out.close();
-		} catch (IOException e) {
-			throw new LibsvmException("Couldn't save the cardinalities to file. ", e);
-		}
-	}
-	
-	private int[] loadCardinalities(InputStreamReader isr) throws MaltChainedException {
-		int[] cardinalities = null;
-		try {
-			final BufferedReader in = new BufferedReader(isr); 
-			String line;
-			if ((line = in.readLine()) != null) {
-				String[] items = line.split(",");
-				cardinalities = new int[items.length];
-				for (int i = 0; i < items.length; i++) {
-					cardinalities[i] = Integer.parseInt(items[i]);
-				}
- 			}
-			in.close();
-		} catch (IOException e) {
-			throw new LibsvmException("The cardinalities cannot be read because wrongly formatted. ", e);
-		} catch (NumberFormatException e) {
-			throw new LibsvmException("Couldn't load the cardinalities from file. ", e);
-		}
-		return cardinalities;
-	}
+//	private int[] getCardinalities(FeatureVector featureVector) {
+//		int[] cardinalities = new int[featureVector.size()];
+//		int i = 0;
+//		for (FeatureFunction feature : featureVector) {
+//			cardinalities[i++] = feature.getFeatureValue().getCardinality();
+//		}
+//		return cardinalities;
+//	}
+//	
+//	private void saveCardinalities(OutputStreamWriter osw, int[] cardinalities) throws MaltChainedException {
+//		final BufferedWriter out = new BufferedWriter(osw);
+//		try {
+//			for (int i = 0, n = cardinalities.length; i < n; i++) {
+//				out.write(Integer.toString(cardinalities[i]));
+//				if (i < n - 1) {
+//					out.write(',');
+//				}
+//			}
+//			out.write('\n');
+//			out.close();
+//		} catch (IOException e) {
+//			throw new LibsvmException("Couldn't save the cardinalities to file. ", e);
+//		}
+//	}
+//	
+//	private int[] loadCardinalities(InputStreamReader isr) throws MaltChainedException {
+//		int[] cardinalities = null;
+//		try {
+//			final BufferedReader in = new BufferedReader(isr); 
+//			String line;
+//			if ((line = in.readLine()) != null) {
+//				String[] items = line.split(",");
+//				cardinalities = new int[items.length];
+//				for (int i = 0; i < items.length; i++) {
+//					cardinalities[i] = Integer.parseInt(items[i]);
+//				}
+// 			}
+//			in.close();
+//		} catch (IOException e) {
+//			throw new LibsvmException("The cardinalities cannot be read because wrongly formatted. ", e);
+//		} catch (NumberFormatException e) {
+//			throw new LibsvmException("Couldn't load the cardinalities from file. ", e);
+//		}
+//		return cardinalities;
+//	}
 	
 	/* (non-Javadoc)
 	 * @see org.maltparser.ml.LearningMethod#moveAllInstances(org.maltparser.ml.LearningMethod, org.maltparser.core.feature.function.FeatureFunction, java.util.ArrayList)
@@ -406,7 +339,7 @@ public class Libsvm implements LearningMethod {
 				l = in.read();
 				if (c == '\t') {
 					if (divideFeatureIndexVector.contains(j-1)) {
-						out.write(Integer.toString(((SingleFeatureValue)divideFeature.getFeatureValue()).getCode()));
+						out.write(Integer.toString(((SingleFeatureValue)divideFeature.getFeatureValue()).getIndexCode()));
 						out.write('\t');
 					}
 					out.write(sb.toString());
@@ -421,7 +354,7 @@ public class Libsvm implements LearningMethod {
 						if (sb.length() > 0) { 
 							out.write('\t');
 						}
-						out.write(Integer.toString(((SingleFeatureValue)divideFeature.getFeatureValue()).getCode()));
+						out.write(Integer.toString(((SingleFeatureValue)divideFeature.getFeatureValue()).getIndexCode()));
 					}
 					out.write('\n');
 					sb.setLength(0);
@@ -456,13 +389,13 @@ public class Libsvm implements LearningMethod {
 				throw new LibsvmException("The model cannot be loaded. ", e);
 			}
 		}
-		if (cardinalities == null) {
-			if (getConfigFileEntry(".car") != null) {
-				cardinalities = loadCardinalities(getInstanceInputStreamReaderFromConfigFile(".car"));
-			} else {
-				cardinalities = getCardinalities(featureVector);
-			}
-		}
+//		if (cardinalities == null) {
+//			if (getConfigFileEntry(".car") != null) {
+//				cardinalities = loadCardinalities(getInstanceInputStreamReaderFromConfigFile(".car"));
+//			} else {
+//				cardinalities = getCardinalities(featureVector);
+//			}
+//		}
 		if (xlist == null) {
 			xlist = new ArrayList<svm_node>(featureVector.size()); 
 		}
@@ -471,55 +404,55 @@ public class Libsvm implements LearningMethod {
 		} else if (featureVector == null) {
 			throw new LibsvmException("The LIBSVM learner cannot predict the next class, because the feature vector cannot be found. ");
 		}
-		int j = 0;
-		int offset = 0;
-		int i = 0;
-		for (FeatureFunction feature : featureVector) {
-			final FeatureValue featureValue = feature.getFeatureValue();
-			if (!(excludeNullValues == true && featureValue.isNullValue())) {
-				if (featureValue instanceof SingleFeatureValue) {
-					if (((SingleFeatureValue)featureValue).getCode() < cardinalities[i]) {
-						if (j >= xlist.size()) {
-							svm_node x =  new svm_node();
-							x.value = 1;
-							xlist.add(j,x);
-						}
-						xlist.get(j++).index = ((SingleFeatureValue)featureValue).getCode() + offset;
-					}
-				} else if (featureValue instanceof MultipleFeatureValue) {
-					for (Integer value : ((MultipleFeatureValue)featureValue).getCodes()) {
-						if (value < cardinalities[i]) {
-//						if (((MultipleFeatureValue)featureValue).isKnown(value)) {
-							if (j >= xlist.size()) {
-								svm_node x =  new svm_node();
-								x.value = 1;
-								xlist.add(j,x);
-							}
-							xlist.get(j++).index = value + offset;
-						}
-					}
-				}
-			}
-			offset += cardinalities[i];
-			i++;
-		}
-
-		svm_node[] xarray = new svm_node[j];
-		for (int k = 0; k < j; k++) {
-			xarray[k] = xlist.get(k);
-		}
-		try {
-			if (decision.getKBestList().getK() == 1 || svm.svm_get_svm_type(model) == svm_parameter.ONE_CLASS ||
-					svm.svm_get_svm_type(model) == svm_parameter.EPSILON_SVR ||
-					svm.svm_get_svm_type(model) == svm_parameter.NU_SVR) {
-				decision.getKBestList().add((int)svm.svm_predict(model, xarray));
-			} else {
-				svm_predict_with_kbestlist(model, xarray, decision.getKBestList());
-			}
-
-		} catch (OutOfMemoryError e) {
-				throw new LibsvmException("Out of memory. Please increase the Java heap size (-Xmx<size>). ", e);
-		}
+//		int j = 0;
+//		int offset = 0;
+//		int i = 0;
+//		for (FeatureFunction feature : featureVector) {
+//			final FeatureValue featureValue = feature.getFeatureValue();
+//			if (!(excludeNullValues == true && featureValue.isNullValue())) {
+//				if (featureValue instanceof SingleFeatureValue) {
+//					if (((SingleFeatureValue)featureValue).getCode() < cardinalities[i]) {
+//						if (j >= xlist.size()) {
+//							svm_node x =  new svm_node();
+//							x.value = 1;
+//							xlist.add(j,x);
+//						}
+//						xlist.get(j++).index = ((SingleFeatureValue)featureValue).getCode() + offset;
+//					}
+//				} else if (featureValue instanceof MultipleFeatureValue) {
+//					for (Integer value : ((MultipleFeatureValue)featureValue).getCodes()) {
+//						if (value < cardinalities[i]) {
+////						if (((MultipleFeatureValue)featureValue).isKnown(value)) {
+//							if (j >= xlist.size()) {
+//								svm_node x =  new svm_node();
+//								x.value = 1;
+//								xlist.add(j,x);
+//							}
+//							xlist.get(j++).index = value + offset;
+//						}
+//					}
+//				}
+//			}
+//			offset += cardinalities[i];
+//			i++;
+//		}
+//
+//		svm_node[] xarray = new svm_node[j];
+//		for (int k = 0; k < j; k++) {
+//			xarray[k] = xlist.get(k);
+//		}
+//		try {
+//			if (decision.getKBestList().getK() == 1 || svm.svm_get_svm_type(model) == svm_parameter.ONE_CLASS ||
+//					svm.svm_get_svm_type(model) == svm_parameter.EPSILON_SVR ||
+//					svm.svm_get_svm_type(model) == svm_parameter.NU_SVR) {
+//				decision.getKBestList().add((int)svm.svm_predict(model, xarray));
+//			} else {
+//				svm_predict_with_kbestlist(model, xarray, decision.getKBestList());
+//			}
+//
+//		} catch (OutOfMemoryError e) {
+//				throw new LibsvmException("Out of memory. Please increase the Java heap size (-Xmx<size>). ", e);
+//		}
 
 		return true;
 	}
@@ -1155,141 +1088,4 @@ public class Libsvm implements LearningMethod {
 		sb.append(toStringParameters(svmParam));
 		return sb.toString();
 	}
-
-
-	@Override
-	public void divideByFeatureSet(
-			Set<Integer> featureIdsToCreateSeparateBranchesForSet, ArrayList<Integer> divideFeatureIndexVector, String otherId)  throws MaltChainedException {
-
-		
-		//Create a hash map that maps every feature id to a writer
-		HashMap<Integer, BufferedWriter>   featureIdToWriterMap = new HashMap<Integer, BufferedWriter>();
-		
-		for(int element:featureIdsToCreateSeparateBranchesForSet){
-		 
-
-			BufferedWriter outputWriter = new BufferedWriter(getConfiguration().getConfigurationDir().getOutputStreamWriter(owner.getModelName().replace('.','_') + element + "." + getLearningMethodName()+".ins"));
-			featureIdToWriterMap.put(element, outputWriter);
-		
-		}
-		
-		BufferedWriter otherOutputWriter = new BufferedWriter(getConfiguration().getConfigurationDir().getOutputStreamWriter(owner.getModelName().replace('.','_') + otherId + "." + getLearningMethodName()+".ins"));
-
-		
-		try {
-			final BufferedReader in = new BufferedReader(getInstanceInputStreamReader(".ins"));
-			//every line will be written to a separate file
-			String line = in.readLine();
-			final Pattern tabPattern = Pattern.compile("\t");
-			while(line!=null){
-				
-				//Find out which pot the line shall be put in
-				String[] lineArray = tabPattern.split(line);
-				
-				int id = new Integer(lineArray[divideFeatureIndexVector.get(0)+1]);
-				
-				if(!featureIdToWriterMap.containsKey(id)){
-					otherOutputWriter.write(line + "\n");
-				}else	 
-					featureIdToWriterMap.get(id).write(getLineToWrite(lineArray,divideFeatureIndexVector.get(0)+1));
-				
-				line = in.readLine();
-			}
-			
-			otherOutputWriter.close();
-			
-			in.close();
-			
-			for(BufferedWriter writer: featureIdToWriterMap.values())
-				writer.close();
-
-		} catch (SecurityException e) {
-			throw new LiblinearException("The Liblinear learner cannot remove the instance file. ", e);
-		} catch (NullPointerException  e) {
-			throw new LiblinearException("The instance file cannot be found. ", e);
-		} catch (FileNotFoundException e) {
-			throw new LiblinearException("The instance file cannot be found. ", e);
-		} catch (IOException e) {
-			throw new LiblinearException("The Liblinear learner read from the instance file. ", e);
-		}
-
-		
-
-	}
-
-
-	private String getLineToWrite(String[] lineArray, int excludeIndex) {
-		StringBuffer buf = new StringBuffer();
-		
-		for(int n = 0; n < lineArray.length; n++)
-			if(n != excludeIndex)
-				buf.append(lineArray[n] + "\t");
-		
-		
-		buf.append("\n");		
-
-		
-		return buf.toString();
-	}
-
-
-	@Override
-	public Map<Integer, Integer> createFeatureIdToCountMap(
-			ArrayList<Integer> divideFeatureIndexVector) throws MaltChainedException{
-
-		HashMap<Integer, Integer> featureIdToCountMap = new HashMap<Integer, Integer>();
-		
-		//Go trough the file and count all feature ids in the given column(s)
-		
-		try {
-			final BufferedReader in = new BufferedReader(getInstanceInputStreamReader(".ins"));
-			//every line will be written to a separate file
-			String line = in.readLine();
-			final Pattern tabPattern = Pattern.compile("\t");
-			while(line!=null){
-				
-				//Find out which pot the line shall be put in
-				String[] lineArray = tabPattern.split(line);
-				
-				for(int n = 0; n < divideFeatureIndexVector.size(); n++){
-					int id = new Integer(lineArray[divideFeatureIndexVector.get(n)+1]);
-					
-					
-					if (!featureIdToCountMap.containsKey(id)) {
-
-						featureIdToCountMap.put(id, 0);
-
-					}
-
-					int previousCount = featureIdToCountMap.get(id);
-					
-					featureIdToCountMap.put(id, previousCount + 1);
-					
-				}				
-				
-				line = in.readLine();
-			}
-			
-
-			
-			in.close();
-			
-
-		} catch (SecurityException e) {
-			throw new LiblinearException("The Libsvm learner cannot remove the instance file. ", e);
-		} catch (NullPointerException  e) {
-			throw new LiblinearException("The instance file cannot be found. ", e);
-		} catch (FileNotFoundException e) {
-			throw new LiblinearException("The instance file cannot be found. ", e);
-		} catch (IOException e) {
-			throw new LiblinearException("The Liblinear learner read from the instance file. ", e);
-		}
-		
-		
-		
-		return featureIdToCountMap;
-	}
-
-
-
 }

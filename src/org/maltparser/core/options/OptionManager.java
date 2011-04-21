@@ -13,7 +13,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 
 import java.util.Formatter;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -367,7 +367,11 @@ public class OptionManager {
 			return false;
 		}
 		int i = 0;
-
+		HashMap<String,String> oldFlags = new HashMap<String,String>();
+		oldFlags.put("llo", "lo"); oldFlags.put("lso", "lo"); 
+		oldFlags.put("lli", "li"); oldFlags.put("lsi", "li");
+		oldFlags.put("llx", "lx"); oldFlags.put("lsx", "lx");
+		oldFlags.put("llv", "lv"); oldFlags.put("lsv", "lv");
 		while (i < args.length) {
 			Option option = null;
 			String value = null;
@@ -415,7 +419,14 @@ public class OptionManager {
 				if (args[i].length() < 2) {
 					throw new OptionException("Wrong use of option flag '"+args[i]+"', please check the user guide to see the correct format. ");
 				}
-				option = optionDescriptions.getOption(args[i].substring(1));
+				String flag = "";
+				if (oldFlags.containsKey(args[i].substring(1))) {
+					flag = oldFlags.get(args[i].substring(1));
+				} else {
+					flag = args[i].substring(1);
+				}
+				
+			    option = optionDescriptions.getOption(flag);
 
 				if (option instanceof UnaryOption) {
 					value = "used";
@@ -520,7 +531,7 @@ public class OptionManager {
 	 * @return a string representation of all option value
 	 * @throws MaltChainedException
 	 */
-	public String toStringPrettyValues(int containerIndex, HashSet<String> excludeGroups) throws MaltChainedException {
+	public String toStringPrettyValues(int containerIndex, Set<String> excludeGroups) throws MaltChainedException {
 		int reservedSpaceForOptionName = 30;
 		OptionGroup.toStringSetting = OptionGroup.WITHGROUPNAME;
 		StringBuilder sb = new StringBuilder();

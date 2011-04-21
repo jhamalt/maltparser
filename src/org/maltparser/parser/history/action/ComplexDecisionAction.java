@@ -181,7 +181,7 @@ public class ComplexDecisionAction implements GuideUserAction, MultipleDecision 
 						return false;
 					}
 				} catch (MaltChainedException e) {
-					System.out.println("Error in equals. ");
+					System.err.println("Error in equals. ");
 				}
 			}
 		}

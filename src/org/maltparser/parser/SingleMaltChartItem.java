@@ -1,7 +1,6 @@
 package org.maltparser.parser;
 
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.maltparser.core.config.ConfigurationDir;
@@ -76,19 +75,16 @@ public class SingleMaltChartItem extends ChartItem {
 				OptionManager.instance().overloadOptionValue(getOptionContainerIndex(), "singlemalt", "mode", modeName);
 				ConfigurationDir configDir = (ConfigurationDir)flowChartinstance.getFlowChartRegistry(org.maltparser.core.config.ConfigurationDir.class, idName);
 				DataFormatManager dataFormatManager = configDir.getDataFormatManager();
-//				DataFormatManager dataFormatManager = flowChartinstance.getDataFormatManager();
-//				HashMap<String, DataFormatInstance> dataFormatInstances = flowChartinstance.getDataFormatInstances();
-				HashMap<String, DataFormatInstance> dataFormatInstances = configDir.getDataFormatInstances();
+				
 				if (modeName.equals("learn")) {
 					DataFormatInstance dataFormatInstance = null;
 					if (dataFormatManager.getInputDataFormatSpec().getDataStructure() == DataStructure.PHRASE) {
-						HashSet<Dependency> deps = dataFormatManager.getInputDataFormatSpec().getDependencies();
-//						String nullValueStategy = OptionManager.instance().getOptionValue(getOptionContainerIndex(), "singlemalt", "null_value").toString();
-//						String rootLabels = OptionManager.instance().getOptionValue(getOptionContainerIndex(), "graph", "root_label").toString();
-						for (Dependency dep : deps) {
-//							dataFormatInstance = dataFormatManager.getDataFormatSpec(dep.getDependentOn()).createDataFormatInstance(flowChartinstance.getSymbolTables(), nullValueStategy, rootLabels);
-//							flowChartinstance.getDataFormatInstances().put(flowChartinstance.getDataFormatManager().getOutputDataFormatSpec().getDataFormatName(), dataFormatInstance);
-							dataFormatInstance = dataFormatInstances.get(dataFormatManager.getOutputDataFormatSpec().getDataFormatName());
+						Set<Dependency> deps = dataFormatManager.getInputDataFormatSpec().getDependencies();
+						String nullValueStrategy = OptionManager.instance().getOptionValue(getOptionContainerIndex(), "singlemalt", "null_value").toString();
+
+						for (Dependency dep : dataFormatManager.getInputDataFormatSpec().getDependencies()) {
+							dataFormatInstance = dataFormatManager.getDataFormatSpec(dep.getDependentOn()).createDataFormatInstance(configDir.getSymbolTables(), nullValueStrategy);
+							configDir.addDataFormatInstance(dataFormatManager.getOutputDataFormatSpec().getDataFormatName(), dataFormatInstance);
 						}
 						
 						String decisionSettings = OptionManager.instance().getOptionValue(getOptionContainerIndex(),"guide", "decision_settings").toString().trim();
@@ -106,12 +102,12 @@ public class SingleMaltChartItem extends ChartItem {
 							OptionManager.instance().overloadOptionValue(getOptionContainerIndex(), "guide", "decision_settings", decisionSettings+newDecisionSettings.toString());
 						}
 					} else {
-						dataFormatInstance = dataFormatInstances.get(dataFormatManager.getInputDataFormatSpec().getDataFormatName());
+						dataFormatInstance = configDir.getDataFormatInstance(dataFormatManager.getInputDataFormatSpec().getDataFormatName());
 					}
 					singleMalt.initialize(getOptionContainerIndex(), dataFormatInstance, configDir, SingleMalt.LEARN);
 				} else if (modeName.equals("parse")) {
 					singleMalt.initialize(getOptionContainerIndex(), 
-							dataFormatInstances.get(dataFormatManager.getInputDataFormatSpec().getDataFormatName()), configDir, SingleMalt.PARSE);
+							configDir.getDataFormatInstance(dataFormatManager.getInputDataFormatSpec().getDataFormatName()), configDir, SingleMalt.PARSE);
 				} else {
 					return ChartItem.TERMINATE;
 				}
@@ -134,7 +130,9 @@ public class SingleMaltChartItem extends ChartItem {
 				singleMalt.oracleParse(cachedSourceGraph, cachedTargetGraph);
 			} else if (modeName.equals("parse")) {
 				singleMalt.parse(cachedSourceGraph);
+				
 				if (cachedSourceGraph instanceof MappablePhraseStructureGraph) {
+					System.out.println("MappablePhraseStructureGraph");
 					((MappablePhraseStructureGraph)cachedSourceGraph).getMapping().connectUnattachedSpines((MappablePhraseStructureGraph)cachedSourceGraph);
 				}
 				

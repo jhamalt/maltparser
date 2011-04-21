@@ -9,10 +9,13 @@ import org.maltparser.core.flow.FlowChartInstance;
 import org.maltparser.core.helper.SystemInfo;
 import org.maltparser.core.helper.Util;
 import org.maltparser.core.io.dataformat.ColumnDescription;
+import org.maltparser.core.io.dataformat.DataFormatException;
 import org.maltparser.core.io.dataformat.DataFormatInstance;
 import org.maltparser.core.options.OptionManager;
+import org.maltparser.core.symbol.SymbolTable;
 import org.maltparser.core.syntaxgraph.DependencyGraph;
 import org.maltparser.core.syntaxgraph.DependencyStructure;
+import org.maltparser.core.syntaxgraph.edge.Edge;
 import org.maltparser.core.syntaxgraph.node.DependencyNode;
 import org.maltparser.parser.SingleMalt;
 
@@ -93,8 +96,8 @@ public class MaltParserService {
 		singleMalt.getConfigurationDir().initDataFormat();
 		dataFormatInstance = singleMalt.getConfigurationDir().getDataFormatManager().getInputDataFormatSpec().createDataFormatInstance(
 				singleMalt.getSymbolTables(),
-				OptionManager.instance().getOptionValueString(optionContainer, "singlemalt", "null_value"), 
-				OptionManager.instance().getOptionValueString(optionContainer, "graph", "root_label"));
+				OptionManager.instance().getOptionValueString(optionContainer, "singlemalt", "null_value")); //, 
+//				OptionManager.instance().getOptionValueString(optionContainer, "graph", "root_label"));
 		initialized = true;
 	}
 	
@@ -134,6 +137,74 @@ public class MaltParserService {
 		// Invoke parse with the output graph
 		singleMalt.parse(outputGraph);
 		return outputGraph;
+	}
+	
+	/**
+	 * Converts an array of tokens to a dependency structure
+	 * 
+	 * @param tokens an array of tokens
+	 * @return a dependency structure
+	 * @throws MaltChainedException
+	 */
+	public DependencyStructure toDependencyStructure(String[] tokens) throws MaltChainedException {
+		if (tokens == null || tokens.length == 0) {
+			throw new MaltChainedException("Nothing to convert. ");
+		}
+		DependencyStructure outputGraph = new DependencyGraph(singleMalt.getSymbolTables());
+		
+		for (int i = 0; i < tokens.length; i++) {
+			Iterator<ColumnDescription> columns = dataFormatInstance.iterator();
+			DependencyNode node = outputGraph.addDependencyNode(i+1);
+			String[] items = tokens[i].split("\t");
+			Edge edge = null;
+			for (int j = 0; j < items.length; j++) {
+				if (columns.hasNext()) {
+					ColumnDescription column = columns.next();
+					if (column.getCategory() == ColumnDescription.INPUT && node != null) {
+						outputGraph.addLabel(node, column.getName(), items[j]);
+					} else if (column.getCategory() == ColumnDescription.HEAD) {
+						if (column.getCategory() != ColumnDescription.IGNORE && !items[j].equals("_")) {
+							edge = ((DependencyStructure)outputGraph).addDependencyEdge(Integer.parseInt(items[j]), i+1);
+						}
+					} else if (column.getCategory() == ColumnDescription.DEPENDENCY_EDGE_LABEL && edge != null) {
+						outputGraph.addLabel(edge, column.getName(), items[j]);
+					}
+				}
+			}
+		}
+		outputGraph.setDefaultRootEdgeLabel(outputGraph.getSymbolTables().getSymbolTable("DEPREL"), "ROOT");
+		return outputGraph;
+	}
+	
+	/**
+	 * Same as parse(String[] tokens), but instead it returns an array of tokens with a head index and a dependency type at the end of string
+	 * 
+	 * @param tokens an array of tokens to parse
+	 * @return an array of tokens with a head index and a dependency type at the end of string
+	 * @throws MaltChainedException
+	 */
+	public String[] parseTokens(String[] tokens) throws MaltChainedException {
+		DependencyStructure outputGraph = parse(tokens);
+		StringBuilder sb = new StringBuilder();
+		String[] outputTokens = new String[tokens.length];
+		SymbolTable deprelTable = outputGraph.getSymbolTables().getSymbolTable("DEPREL");
+		for (Integer index : outputGraph.getTokenIndices()) {
+			sb.setLength(0);
+			if (index <= tokens.length) {
+				DependencyNode node = outputGraph.getDependencyNode(index);
+				sb.append(tokens[index -1]);
+				sb.append('\t');
+				sb.append(node.getHead().getIndex());
+				sb.append('\t');
+				if (node.getHeadEdge().hasLabel(deprelTable)) {
+					sb.append(node.getHeadEdge().getLabelSymbol(deprelTable));
+				} else {
+					sb.append(outputGraph.getDefaultRootEdgeLabelSymbol(deprelTable));
+				}
+				outputTokens[index-1] = sb.toString();
+			}
+		}
+		return outputTokens;
 	}
 	
 	/**

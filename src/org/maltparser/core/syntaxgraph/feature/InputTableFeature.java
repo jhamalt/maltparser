@@ -42,60 +42,52 @@ public class InputTableFeature extends TableFeature {
 		
 		if (a.getAddress() == null) {
 			if (getSymbolTable() != null) {
-				featureValue.setCode(getSymbolTable().getNullValueCode(NullValueId.NO_NODE));
+				featureValue.setIndexCode(getSymbolTable().getNullValueCode(NullValueId.NO_NODE));
 				featureValue.setSymbol(getSymbolTable().getNullValueSymbol(NullValueId.NO_NODE));
 			} else {
-				featureValue.setCode(0);
+				featureValue.setIndexCode(0);
 				featureValue.setSymbol("#null");
 			}
-			featureValue.setKnown(true);
+//			featureValue.setKnown(true);
 			featureValue.setNullValue(true);			
 		} else {
-//			try { 
-//				a.getAddressClass().asSubclass(org.maltparser.core.syntaxgraph.node.DependencyNode.class);
-
-				final DependencyNode node = (DependencyNode)a.getAddress();
-				if (!node.isRoot()) {
-					if (getSymbolTable() != null && node.hasLabel(getSymbolTable())) {
-						featureValue.setCode(node.getLabelCode(getSymbolTable()));
-						featureValue.setSymbol(getSymbolTable().getSymbolCodeToString(node.getLabelCode(getSymbolTable())));
-						featureValue.setKnown(getSymbolTable().getKnown(node.getLabelCode(getSymbolTable())));
-						featureValue.setNullValue(false);
-					} else {
+			final DependencyNode node = (DependencyNode)a.getAddress();
+			if (!node.isRoot()) {
+				if (getSymbolTable() != null && node.hasLabel(getSymbolTable())) {
+					featureValue.setIndexCode(node.getLabelCode(getSymbolTable()));
+					featureValue.setSymbol(getSymbolTable().getSymbolCodeToString(node.getLabelCode(getSymbolTable())));
+//					featureValue.setKnown(getSymbolTable().getKnown(node.getLabelCode(getSymbolTable())));
+					featureValue.setNullValue(false);
+				} else {
 //						featureValue.setCode(0);
 //						featureValue.setSymbol("#null");
-						if (getSymbolTable() != null) {
-							featureValue.setCode(getSymbolTable().getNullValueCode(NullValueId.NO_VALUE));
-							featureValue.setSymbol(getSymbolTable().getNullValueSymbol(NullValueId.NO_VALUE));
-						} 
+					if (getSymbolTable() != null) {
+						featureValue.setIndexCode(getSymbolTable().getNullValueCode(NullValueId.NO_VALUE));
+						featureValue.setSymbol(getSymbolTable().getNullValueSymbol(NullValueId.NO_VALUE));
+					} 
 //						else {
 //							featureValue.setCode(0);
 //							featureValue.setSymbol("#null");
 //						}
-						featureValue.setKnown(true);
-						featureValue.setNullValue(true);
-					}	
-				} else {
-					if (getSymbolTable() != null) {
-						featureValue.setCode(getSymbolTable().getNullValueCode(NullValueId.ROOT_NODE));
-						featureValue.setSymbol(getSymbolTable().getNullValueSymbol(NullValueId.ROOT_NODE));
-					} 
+//					featureValue.setKnown(true);
+					featureValue.setNullValue(true);
+				}	
+			} else {
+				if (getSymbolTable() != null) {
+					featureValue.setIndexCode(getSymbolTable().getNullValueCode(NullValueId.ROOT_NODE));
+					featureValue.setSymbol(getSymbolTable().getNullValueSymbol(NullValueId.ROOT_NODE));
+				} 
 //					else {
 //						featureValue.setCode(0);
 //						featureValue.setSymbol("#null");
 //					}
 //					featureValue.setCode(0);
 //					featureValue.setSymbol("#null");
-					featureValue.setKnown(true);
-					featureValue.setNullValue(true);
-				}
-//			} catch (ClassCastException e) {
-//				featureValue.setCode(getSymbolTable().getNullValueCode(NullValueId.NO_NODE));
-//				featureValue.setSymbol(getSymbolTable().getNullValueSymbol(NullValueId.NO_NODE));
 //				featureValue.setKnown(true);
-//				featureValue.setNullValue(true);
-//			}
+				featureValue.setNullValue(true);
+			}
 		}
+		featureValue.setValue(1);
 	}
 	
 	public AddressFunction getAddressFunction() {

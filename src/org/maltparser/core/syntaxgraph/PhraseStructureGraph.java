@@ -229,7 +229,7 @@ public class PhraseStructureGraph extends Sentence implements PhraseStructure {
 				sb.append('\t');
 				sb.append(depnode.getHeadEdge().toString());
 			} catch (MaltChainedException e) {
-				System.out.println(e);
+				System.err.println(e);
 			}
 		}
 		sb.append('\n');
