@@ -485,18 +485,16 @@ The <b>column</b> elements have three attributes:
 
 <table class="bodyTable">
 <tr class="a"><th>Attribute</th><th>Description</th></tr>
-<tr class="b"><td align="left">name</td><td>The column name. Note that the column name can be used by an option and within 
-a feature model specification as an identifier of the column.</td></tr>
+<tr class="b"><td align="left">name</td><td>The column name. Note that the column name can be used by an option and within a feature model specification as an identifier of the column.</td></tr>
 <tr class="b"><td align="left">category</td><td>The column category, one of the following:
 <table>
 <tr><td>INPUT</td><td>Input data in both learning and parsing mode, such as part-of-speech tags or word forms.</td></tr>
-<tr><td>DEPENDENCY_EDGE_LABEL</td><td>Denote that the column contain a dependency label. If the parser is to learn 
-to produce labeled dependency graph, these must be present in learning mode.</td></tr>
+<tr><td>DEPENDENCY_EDGE_LABEL</td><td>Column containing a dependency label. If the parser is to learn to produce labeled dependency graphs, these must be present in learning mode.</td></tr>
 <tr><td>OUTPUT</td><td>Same as DEPENDENCY_EDGE_LABEL, used by MaltParser version 1.0-1.1</td></tr>
-<tr><td>PHRASE_STRUCTURE_EDGE_LABEL</td><td>Denote that the column contain a phrase structure edge label.</td></tr>
-<tr><td>PHRASE_STRUCTURE_NODE_LABEL</td><td>Denote that the column contain a phrase category label.</td></tr>
-<tr><td>SECONDARY_EDGE_LABEL</td><td>Denote that the column contain a secondary edge label.</td></tr>
-<tr><td>HEAD</td><td>The head column defines the unlabeled structure of a dependency graph and is also output data of the parser in parsing mode. </td></tr>
+<tr><td>PHRASE_STRUCTURE_EDGE_LABEL</td><td>Column containing a phrase structure edge label.</td></tr>
+<tr><td>PHRASE_STRUCTURE_NODE_LABEL</td><td>Column containing a phrase category label.</td></tr>
+<tr><td>SECONDARY_EDGE_LABEL</td><td>Column containing a secondary edge label.</td></tr>
+<tr><td>HEAD</td><td>The HEAD column defines the unlabeled structure of a dependency graph and is also output data of the parser in parsing mode. </td></tr>
 <tr><td>IGNORE</td><td>The column value will be ignored and therefore will not be present in the output file.</td></tr>
 </table>
 </td></tr>
@@ -504,8 +502,8 @@ to produce labeled dependency graph, these must be present in learning mode.</td
 <table>
 <tr><td>STRING</td><td>The column value will be used as a string value in the feature model.</td></tr>
 <tr><td>INTEGER</td><td>The column value will be used as an integer value in the feature model.</td></tr>
-<tr><td>BOOLEAN</td><td>The column value will be used as a boolean value in the feature model..</td></tr>
-<tr><td>REAL</td><td>The column value will be used as a real value in the feature model..</td></tr>
+<tr><td>BOOLEAN</td><td>The column value will be used as a boolean value in the feature model.</td></tr>
+<tr><td>REAL</td><td>The column value will be used as a real value in the feature model.</td></tr>
 </table>
 </td></tr>
 <tr class="b"><td align="left">default</td><td>The default output for columns that have the column type IGNORE.</td></tr>
@@ -930,6 +928,17 @@ Below you can see an example of a propagation specification file:</p>
 <p>The bottom half specifies that DEPREL values should be copied to the VALENCY field of the head, whenever an arc labeled by one of the labels listed in the FOR parameter is created. Provided that these labels denote valency-bound functions, this will have the effect of propagating information about satisfaction of valency constraints to the head.</p>
 
 <p>New columns introduced in the FROM attribute of a propagation specification can be referenced in feature specifications using the function InputTable, e.g. <i>&lt;feature&gt;InputTable(CJ-POSTAG, Stack[0])&lt;/feature&gt;</i>.
+
+<a name="phrase"></a>
+<h3>Phrase structure parsing</h3>
+<p>MaltParser 1.1 and MaltParser 1.2 can be turned into a phrase structure parser that recovers both continuous and discontinuous
+phrases with both phrase labels and grammatical functions. The parser induces a parser model from treebank data by automatically
+transforming the phrase structure representations into dependency representations with complex arc labels,
+which makes it possible to recover the phrase structure with both phrase labels and grammatical functions
+(See Hall (2008), Hall and Nivre (2008a) and Hall and Nivre (2008b) for more details).</p>
+
+<p>Note: The implementation of phrase structure parsing has been removed in later releases of MaltParser. Please
+download <a href="download.html">MaltParser 1.2</a> and read the offline user guide of this version to parse phrase structure with MaltParser 1.2.</p>
 
 <a name="api"></a>
 <h3>MaltParser API</h3>

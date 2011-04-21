@@ -325,13 +325,13 @@ otherwise all tokens in Left must be inspected before the next token is shifted.
 	<optiongroup groupname="lib">
 		<desc><![CDATA[ This group contains options that are specific for the liblinear and libsvm learner. ]]></desc>
 		<option type="string" name="options" flag="lo" default="" usage="save">
-			<desc><![CDATA[ There are many LIBSVM options (see <a href="http://www.csie.ntu.edu.tw/~cjlin/libsvm/" target="_blank">LIBSVM Documentation</a>). 
-			Note that all whitespace is replaced by underscore if this option is specified in the command-line prompt. 
-			For example, it could look like this: <code>-lo -s_0_-t_1_-d_2_-g_0.2_-c_1_-r_0_-e_1.0</code>. 
-			Liblinear have several options (see <a href="http://www.csie.ntu.edu.tw/~cjlin/liblinear/" target="_blank">liblinear Documentation</a>) that 
-			you can specify with this options. 
-			Note that all whitespace is replaced by underscore if this option is specified in the command-line prompt. 
-			For example, it could look like this: <code>-lo -s_4_-c_0.1</code> ]]></desc>
+			<desc><![CDATA[ There are many LIBSVM options (see <a href="http://www.csie.ntu.edu.tw/~cjlin/libsvm/" target="_blank">LIBSVM Documentation</a>).
+           Note that all whitespace is replaced by underscore if this option is specified in the command-line prompt.
+           For example, it could look like this: <code>-lo -s_0_-t_1_-d_2_-g_0.2_-c_1_-r_0_-e_1.0</code>.
+           Liblinear have several options (see <a href="http://www.csie.ntu.edu.tw/~cjlin/liblinear/" target="_blank">liblinear Documentation</a>) that
+           you can specify with this option.
+           Note that all whitespace is replaced by underscore if this option is specified in the command-line prompt.
+           For example, it could look like this: <code>-lo -s_4_-c_0.1</code> ]]></desc>
 			<shortdesc>LIBLINEAR options (see liblinear Documentation)</shortdesc>
 		</option>
 		<option type="string" name="external" flag="lx" default="" usage="train">
@@ -339,18 +339,19 @@ otherwise all tokens in Left must be inspected before the next token is shifted.
 			<shortdesc>Path to <code>train</code> or <code>svm-train</code></shortdesc>
 		</option>
 		<option type="bool" name="save_instance_files" flag="li" default="false" usage="save">
-			<desc><![CDATA[ If <b>save_instance_files=true</b>, training instance files are saved in the configuration, otherwise 
-			these files are deleted. The training instance files are not used during parsing. ]]></desc>
+			<desc><![CDATA[ If <b>save_instance_files=true</b>, training instance files are saved in the configuration, otherwise
+           these files are deleted. The training instance files are not used during parsing. ]]></desc>
 			<shortdesc>If <b>save_instance_files=true</b>, instance files are saved in the configuration.</shortdesc>
 		</option>
 		<option type="enum" name="verbosity" flag="lv" default="silent" usage="train">
-			<desc><![CDATA[ Verbosity of the liblinear or the libsvm package ]]></desc>
+		<desc><![CDATA[ Verbosity of the liblinear or the libsvm package ]]></desc>
 			<shortdesc>Verbosity of the liblinear or the libsvm package</shortdesc>
-			<legalvalue name="silent">No output from the liblinear or the libsvm package is logged</legalvalue>
-			<legalvalue name="error">Only the error stream of the liblinear or the libsvm package is logged</legalvalue>
-			<legalvalue name="all">All output of the liblinear or the libsvm package is logged</legalvalue>
+			<legalvalue name="silent">No output from the liblinear or the libsvm package is logged.</legalvalue>
+			<legalvalue name="error">Only the error stream of the liblinear or the libsvm package is logged.</legalvalue>
+			<legalvalue name="all">All output of the liblinear or the libsvm package is logged.</legalvalue>
 		</option>
 	</optiongroup>
+
 	<optiongroup groupname="guide">
 		<desc><![CDATA[ Contains options that are specific for the guide, which can be seen as an interface (or glue) between the parsing algorithm
 		and the learner. During learning, the parsing algorithm sends training instances to the guide, which prepares the corresponding feature vectors 
@@ -459,13 +460,6 @@ otherwise all tokens in Left must be inspected before the next token is shifted.
 			<shortdesc>Lifting order, in case a dependency graph contains multiple non-projective arcs</shortdesc>
 			<legalvalue name="shortest">Lift the shortest arcs first (break ties from left to right)</legalvalue>
 			<legalvalue name="deepest">Lift the most deeply nested arcs first (break ties from left to right)</legalvalue>
-		</option>
-	</optiongroup>
-	<optiongroup groupname="analyzer">
-		<option type="enum" name="task" flag="at" default="projectivity" usage="process">
-			<desc><![CDATA[ ]]></desc>
-			<shortdesc></shortdesc>
-			<legalvalue name="projectivity">Projectivity</legalvalue>
 		</option>
 	</optiongroup>
 </options>
