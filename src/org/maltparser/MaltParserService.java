@@ -11,8 +11,11 @@ import org.maltparser.core.helper.Util;
 import org.maltparser.core.io.dataformat.ColumnDescription;
 import org.maltparser.core.io.dataformat.DataFormatException;
 import org.maltparser.core.io.dataformat.DataFormatInstance;
+import org.maltparser.core.io.dataformat.DataFormatSpecification;
 import org.maltparser.core.options.OptionManager;
 import org.maltparser.core.symbol.SymbolTable;
+import org.maltparser.core.symbol.SymbolTableHandler;
+import org.maltparser.core.symbol.trie.TrieSymbolTableHandler;
 import org.maltparser.core.syntaxgraph.DependencyGraph;
 import org.maltparser.core.syntaxgraph.DependencyStructure;
 import org.maltparser.core.syntaxgraph.edge.Edge;
@@ -101,6 +104,8 @@ public class MaltParserService {
 		initialized = true;
 	}
 	
+
+	
 	/**
 	 * Parses an array of tokens and returns a dependency structure. 
 	 * 
@@ -151,6 +156,45 @@ public class MaltParserService {
 			throw new MaltChainedException("Nothing to convert. ");
 		}
 		DependencyStructure outputGraph = new DependencyGraph(singleMalt.getSymbolTables());
+		
+		for (int i = 0; i < tokens.length; i++) {
+			Iterator<ColumnDescription> columns = dataFormatInstance.iterator();
+			DependencyNode node = outputGraph.addDependencyNode(i+1);
+			String[] items = tokens[i].split("\t");
+			Edge edge = null;
+			for (int j = 0; j < items.length; j++) {
+				if (columns.hasNext()) {
+					ColumnDescription column = columns.next();
+					if (column.getCategory() == ColumnDescription.INPUT && node != null) {
+						outputGraph.addLabel(node, column.getName(), items[j]);
+					} else if (column.getCategory() == ColumnDescription.HEAD) {
+						if (column.getCategory() != ColumnDescription.IGNORE && !items[j].equals("_")) {
+							edge = ((DependencyStructure)outputGraph).addDependencyEdge(Integer.parseInt(items[j]), i+1);
+						}
+					} else if (column.getCategory() == ColumnDescription.DEPENDENCY_EDGE_LABEL && edge != null) {
+						outputGraph.addLabel(edge, column.getName(), items[j]);
+					}
+				}
+			}
+		}
+		outputGraph.setDefaultRootEdgeLabel(outputGraph.getSymbolTables().getSymbolTable("DEPREL"), "ROOT");
+		return outputGraph;
+	}
+	
+	public  DependencyStructure toDependencyStructure(String[] tokens, String dataFormatFileName) throws MaltChainedException {
+		// Creates a symbol table handler
+		SymbolTableHandler symbolTables = new TrieSymbolTableHandler();
+		
+		// Initialize data format instance of the CoNLL data format from conllx.xml (conllx.xml located in same directory)
+		DataFormatSpecification dataFormat = new DataFormatSpecification();
+		dataFormat.parseDataFormatXMLfile(dataFormatFileName);
+		DataFormatInstance dataFormatInstance = dataFormat.createDataFormatInstance(symbolTables, "none");
+
+		// Creates a dependency graph
+		if (tokens == null || tokens.length == 0) {
+			throw new MaltChainedException("Nothing to convert. ");
+		}
+		DependencyStructure outputGraph = new DependencyGraph(symbolTables);
 		
 		for (int i = 0; i < tokens.length; i++) {
 			Iterator<ColumnDescription> columns = dataFormatInstance.iterator();
