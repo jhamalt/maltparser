@@ -39,6 +39,12 @@ public class SystemInfo {
 							.getAbsolutePath());
 				}
 			}
+			if (maltJarPath == null || maltJarPath.length() == 0) {
+				String codeBasePath = SystemInfo.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+				if (MALTJAR.matcher(codeBasePath).matches()) {
+					maltJarPath = new File(new File(codeBasePath).getAbsolutePath());
+				}
+			}
 		} catch (MaltChainedException e) {
 			if (SystemLogger.logger().isDebugEnabled()) {
 				SystemLogger.logger().debug("", e);
