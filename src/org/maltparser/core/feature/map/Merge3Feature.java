@@ -73,7 +73,6 @@ public class Merge3Feature implements FeatureMapFunction {
 			String firstSymbol = ((SingleFeatureValue)firstValue).getSymbol();
 			if (((FeatureValue)firstValue).isNullValue() && ((FeatureValue)secondValue).isNullValue() && ((FeatureValue)thirdValue).isNullValue()) {
 				singleFeatureValue.setIndexCode(firstFeature.getSymbolTable().getSymbolStringToCode(firstSymbol));
-				singleFeatureValue.setKnown(firstFeature.getSymbolTable().getKnown(firstSymbol));
 				singleFeatureValue.setSymbol(firstSymbol);
 				singleFeatureValue.setNullValue(true);
 			} else {
@@ -85,7 +84,6 @@ public class Merge3Feature implements FeatureMapFunction {
 					mergedValue.append('~');
 					mergedValue.append(((SingleFeatureValue)thirdValue).getSymbol());
 					singleFeatureValue.setIndexCode(table.addSymbol(mergedValue.toString()));	
-					singleFeatureValue.setKnown(table.getKnown(mergedValue.toString()));
 					singleFeatureValue.setSymbol(mergedValue.toString());
 					singleFeatureValue.setNullValue(false);
 					singleFeatureValue.setValue(1);
@@ -95,7 +93,6 @@ public class Merge3Feature implements FeatureMapFunction {
 						table.addSymbol("#null#");
 						singleFeatureValue.setSymbol("#null#");
 						singleFeatureValue.setNullValue(true);
-						singleFeatureValue.setKnown(true);
 						singleFeatureValue.setIndexCode(1);
 					} else {
 						if (column.getType() == ColumnDescription.BOOLEAN) {
@@ -189,7 +186,6 @@ public class Merge3Feature implements FeatureMapFunction {
 							singleFeatureValue.setSymbol(result.toString());
 						}
 						singleFeatureValue.setNullValue(false);
-						singleFeatureValue.setKnown(true);
 						singleFeatureValue.setIndexCode(1);
 					}
 				}
@@ -219,10 +215,10 @@ public class Merge3Feature implements FeatureMapFunction {
 	}
 	
 	public void updateCardinality() throws MaltChainedException {
-		firstFeature.updateCardinality();
-		secondFeature.updateCardinality();
-		thirdFeature.updateCardinality();
-		singleFeatureValue.setCardinality(table.getValueCounter()); 
+//		firstFeature.updateCardinality();
+//		secondFeature.updateCardinality();
+//		thirdFeature.updateCardinality();
+//		singleFeatureValue.setCardinality(table.getValueCounter()); 
 	}
 	
 	public FeatureFunction getFirstFeature() {

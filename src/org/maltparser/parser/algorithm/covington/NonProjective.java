@@ -126,6 +126,6 @@ public class NonProjective extends TransitionSystem {
 	}
 	
 	public GuideUserAction defaultAction(GuideUserHistory history, ParserConfiguration configuration) throws MaltChainedException {
-		return updateActionContainers(history, NonProjective.NOARC, null);
+		return updateActionContainers(history, NonProjective.NOARC, null, null);
 	}
 }

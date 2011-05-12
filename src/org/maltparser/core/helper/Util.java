@@ -3,6 +3,7 @@ package org.maltparser.core.helper;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -13,7 +14,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.apache.log4j.Logger;
-import org.maltparser.core.config.ConfigurationException;
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.plugin.Plugin;
 import org.maltparser.core.plugin.PluginLoader;
@@ -213,4 +213,61 @@ public class Util {
 		}
 	}
 
+    /**
+	* @param s the string to parse for the double value
+	* @throws IllegalArgumentException if s is empty or represents NaN or Infinity
+	* @throws NumberFormatException see {@link Double#parseDouble(String)}
+	*/
+	public static double atof(String s) {
+        if (s == null || s.length() < 1) throw new IllegalArgumentException("Can't convert empty string to integer");
+        double d = Double.parseDouble(s);
+        if (Double.isNaN(d) || Double.isInfinite(d)) {
+            throw new IllegalArgumentException("NaN or Infinity in input: " + s);
+        }
+        return (d);
+    }
+
+	    /**
+	* @param s the string to parse for the integer value
+	* @throws IllegalArgumentException if s is empty
+	* @throws NumberFormatException see {@link Integer#parseInt(String)}
+	*/
+	public static int atoi(String s) throws NumberFormatException {
+        if (s == null || s.length() < 1) throw new IllegalArgumentException("Can't convert empty string to integer");
+        // Integer.parseInt doesn't accept '+' prefixed strings
+        if (s.charAt(0) == '+') s = s.substring(1);
+        return Integer.parseInt(s);
+    }
+	
+	public static void closeQuietly(Closeable c) {
+        if (c == null) return;
+        try {
+            c.close();
+        } catch (Throwable t) {}
+    }
+    
+    public static double[] copyOf(double[] original, int newLength) {
+        double[] copy = new double[newLength];
+        System.arraycopy(original, 0, copy, 0, Math.min(original.length, newLength));
+        return copy;
+    }
+
+    public static int[] copyOf(int[] original, int newLength) {
+        int[] copy = new int[newLength];
+        System.arraycopy(original, 0, copy, 0, Math.min(original.length, newLength));
+        return copy;
+    }
+    
+    public static boolean equals(double[] a, double[] a2) {
+        if (a == a2) return true;
+        if (a == null || a2 == null) return false;
+
+        int length = a.length;
+        if (a2.length != length) return false;
+
+        for (int i = 0; i < length; i++)
+            if (a[i] != a2[i]) return false;
+
+        return true;
+    }
 }

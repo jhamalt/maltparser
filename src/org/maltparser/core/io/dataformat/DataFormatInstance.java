@@ -106,9 +106,11 @@ public class DataFormatInstance implements Iterable<ColumnDescription> {
 				return column;
 			}
 		}
-		for (ColumnDescription internalColumn : internalColumnDescriptionSet) {
-			if (internalColumn.getName().equals(name)) {
-				return internalColumn;
+		if (internalColumnDescriptionSet != null) {
+			for (ColumnDescription internalColumn : internalColumnDescriptionSet) {
+				if (internalColumn.getName().equals(name)) {
+					return internalColumn;
+				}
 			}
 		}
 		return null;

@@ -86,7 +86,7 @@ public class ArcDirFeature implements FeatureFunction {
 	 * @throws MaltChainedException
 	 */
 	public void updateCardinality() {
-		featureValue.setCardinality(table.getValueCounter()); 
+//		featureValue.setCardinality(table.getValueCounter()); 
 	}
 	
 	/**
@@ -102,29 +102,26 @@ public class ArcDirFeature implements FeatureFunction {
 					featureValue.setIndexCode(table.getSymbolStringToCode("LEFT"));
 					featureValue.setValue(1);
 					featureValue.setSymbol("LEFT");
-					featureValue.setKnown(true);
 					featureValue.setNullValue(false);
 				} else {
 					featureValue.setIndexCode(table.getSymbolStringToCode("RIGHT"));
 					featureValue.setValue(1);
 					featureValue.setSymbol("RIGHT");
-					featureValue.setKnown(true);
 					featureValue.setNullValue(false);
 				}
 			} else { 
 				featureValue.setIndexCode(table.getNullValueCode(NullValueId.ROOT_NODE));
 				featureValue.setValue(1);
 				featureValue.setSymbol(table.getNullValueSymbol(NullValueId.ROOT_NODE));
-				featureValue.setKnown(true);
 				featureValue.setNullValue(true);
 			}
 		} else {
 			featureValue.setIndexCode(table.getNullValueCode(NullValueId.NO_NODE));
 			featureValue.setValue(1);
 			featureValue.setSymbol(table.getNullValueSymbol(NullValueId.NO_NODE));
-			featureValue.setKnown(true);
 			featureValue.setNullValue(true);
 		}
+//		featureValue.setKnown(true);
 	}
 	
 	/**

@@ -121,7 +121,7 @@ public class DistanceFeature implements FeatureFunction {
 	 * @throws MaltChainedException
 	 */
 	public void updateCardinality() {
-		featureValue.setCardinality(table.getValueCounter()); 
+//		featureValue.setCardinality(table.getValueCounter()); 
 	}
 	
 	/**
@@ -133,13 +133,13 @@ public class DistanceFeature implements FeatureFunction {
 		// Retrieve the address value 
 		final AddressValue arg1 = addressFunction1.getAddressValue();
 		final AddressValue arg2 = addressFunction2.getAddressValue();
-		
+//		featureValue.setKnown(true);
 		// if arg1 or arg2 is null, then set a NO_NODE null value as feature value
 		if (arg1.getAddress() == null || arg2.getAddress() == null) { 
 			featureValue.setIndexCode(table.getNullValueCode(NullValueId.NO_NODE));
 			featureValue.setSymbol(table.getNullValueSymbol(NullValueId.NO_NODE));
 			featureValue.setValue(1);
-			featureValue.setKnown(true);
+
 			featureValue.setNullValue(true);			
 		} else {
 			// Unfortunately this method takes a lot of time  arg1.getAddressClass().asSubclass(org.maltparser.core.syntaxgraph.node.DependencyNode.class);
@@ -173,7 +173,7 @@ public class DistanceFeature implements FeatureFunction {
 				}
 				
 				// Tells the feature value that the feature is known and is not a null value
-				featureValue.setKnown(true);
+				
 				featureValue.setNullValue(false);
 
 			} else { 
@@ -181,7 +181,6 @@ public class DistanceFeature implements FeatureFunction {
 				featureValue.setIndexCode(table.getNullValueCode(NullValueId.ROOT_NODE));
 				featureValue.setSymbol(table.getNullValueSymbol(NullValueId.ROOT_NODE));
 				featureValue.setValue(1);
-				featureValue.setKnown(true);
 				featureValue.setNullValue(true);
 			}
 		}

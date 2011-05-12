@@ -18,7 +18,7 @@ import org.maltparser.core.syntaxgraph.node.DependencyNode;
 
 public class NumOfFeature implements FeatureFunction {
 	public enum NumOfRelation {
-		LDEP, RDEP, DEP
+		LDEPS, RDEPS, DEPS
 	};
 	protected AddressFunction addressFunction;
 	protected SymbolTableHandler tableHandler;
@@ -125,7 +125,7 @@ public class NumOfFeature implements FeatureFunction {
 	 * @throws MaltChainedException
 	 */
 	public void updateCardinality() {
-		featureValue.setCardinality(table.getValueCounter()); 
+//		featureValue.setCardinality(table.getValueCounter()); 
 	}
 	
 	/**
@@ -146,11 +146,11 @@ public class NumOfFeature implements FeatureFunction {
 			// Cast the address arguments to dependency nodes
 			final DependencyNode node = (DependencyNode)arg1.getAddress();
 			int numof = 0;
-			if (numOfRelation == NumOfRelation.DEP) {
+			if (numOfRelation == NumOfRelation.DEPS) {
 				numof = node.getLeftDependentCount() +  node.getRightDependentCount();
-			} else if (numOfRelation == NumOfRelation.LDEP) {
+			} else if (numOfRelation == NumOfRelation.LDEPS) {
 				numof = node.getLeftDependentCount();
-			} else if (numOfRelation == NumOfRelation.RDEP) {
+			} else if (numOfRelation == NumOfRelation.RDEPS) {
 				numof = node.getRightDependentCount();
 			} 
 			int lower = -1;
@@ -172,7 +172,7 @@ public class NumOfFeature implements FeatureFunction {
 			featureValue.setNullValue(false);
 		}
 		featureValue.setValue(1);
-		featureValue.setKnown(true);
+//		featureValue.setKnown(true);
 	}
 	
 	public void setNumOfRelation(String numOfRelationName) {

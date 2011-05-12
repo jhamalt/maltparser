@@ -48,7 +48,7 @@ public class InputTableFeature extends TableFeature {
 				featureValue.setIndexCode(0);
 				featureValue.setSymbol("#null");
 			}
-			featureValue.setKnown(true);
+//			featureValue.setKnown(true);
 			featureValue.setNullValue(true);			
 		} else {
 			final DependencyNode node = (DependencyNode)a.getAddress();
@@ -56,7 +56,7 @@ public class InputTableFeature extends TableFeature {
 				if (getSymbolTable() != null && node.hasLabel(getSymbolTable())) {
 					featureValue.setIndexCode(node.getLabelCode(getSymbolTable()));
 					featureValue.setSymbol(getSymbolTable().getSymbolCodeToString(node.getLabelCode(getSymbolTable())));
-					featureValue.setKnown(getSymbolTable().getKnown(node.getLabelCode(getSymbolTable())));
+//					featureValue.setKnown(getSymbolTable().getKnown(node.getLabelCode(getSymbolTable())));
 					featureValue.setNullValue(false);
 				} else {
 //						featureValue.setCode(0);
@@ -69,7 +69,7 @@ public class InputTableFeature extends TableFeature {
 //							featureValue.setCode(0);
 //							featureValue.setSymbol("#null");
 //						}
-					featureValue.setKnown(true);
+//					featureValue.setKnown(true);
 					featureValue.setNullValue(true);
 				}	
 			} else {
@@ -83,7 +83,7 @@ public class InputTableFeature extends TableFeature {
 //					}
 //					featureValue.setCode(0);
 //					featureValue.setSymbol("#null");
-				featureValue.setKnown(true);
+//				featureValue.setKnown(true);
 				featureValue.setNullValue(true);
 			}
 		}

@@ -13,6 +13,7 @@ import org.maltparser.core.feature.spec.SpecificationModels;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 /**
 *
 *
@@ -37,10 +38,12 @@ public class XmlReader implements FeatureSpecReader{
             readFeatureModels(root, featureSpecModels);
         } catch (IOException e) {
         	throw new FeatureException("The feature specification file '"+specModelURL.getFile()+"' cannot be found. ", e);
+        } catch (SAXParseException e) {
+        	throw new FeatureException("Problem parsing the feature specification XML-file "+specModelURL.getFile()+". ", e);
         } catch (ParserConfigurationException e) {
-        	throw new FeatureException("Problem parsing the file "+specModelURL.getFile()+". ", e);
+        	throw new FeatureException("Problem parsing the feature specification XML-file "+specModelURL.getFile()+". ", e);
         } catch (SAXException e) {
-        	throw new FeatureException("Problem parsing the file "+specModelURL.getFile()+". ", e);
+        	throw new FeatureException("Problem parsing the feature specification XML-file "+specModelURL.getFile()+". ", e);
         }
 	}
 	

@@ -26,46 +26,48 @@ public class SwapLazyOracle extends Oracle {
 	}
 	
 	public GuideUserAction predict(DependencyStructure gold, ParserConfiguration configuration) throws MaltChainedException {
-		StackConfig config = (StackConfig)configuration;
-		Stack<DependencyNode> stack = config.getStack();
+		final StackConfig config = (StackConfig)configuration;
+		final Stack<DependencyNode> stack = config.getStack();
 
 		if (!swapArrayActive) {
 			createSwapArray(gold);
 			swapArrayActive = true;
 		}
 		if (stack.size() < 2) {
-			return updateActionContainers(NonProjective.SHIFT, null);
+			return updateActionContainers(NonProjective.SHIFT, null, null);
 		} else {
-			DependencyNode left = stack.get(stack.size()-2);
-			DependencyNode right = stack.get(stack.size()-1);
-			int leftIndex = left.getIndex();
-			int rightIndex = right.getIndex();
+			final DependencyNode left = stack.get(stack.size()-2);
+			final DependencyNode right = stack.get(stack.size()-1);
+			final int leftIndex = left.getIndex();
+			final int rightIndex = right.getIndex();
 			if (swapArray.get(leftIndex) > swapArray.get(rightIndex) && necessarySwap(gold, config.getDependencyGraph(), right, config.getInput())) {
-				return updateActionContainers(NonProjective.SWAP, null);
+				return updateActionContainers(NonProjective.SWAP, null, null);
 			} else if (!left.isRoot() && gold.getTokenNode(leftIndex).getHead().getIndex() == rightIndex 
 					&& nodeComplete(gold, config.getDependencyGraph(), leftIndex)) {
-				return updateActionContainers(NonProjective.LEFTARC, gold.getTokenNode(leftIndex).getHeadEdge().getLabelSet());
+				return updateActionContainers(NonProjective.LEFTARC, gold.getTokenNode(leftIndex).getHeadEdge().getLabelSet(), null);
 			} else if (gold.getTokenNode(rightIndex).getHead().getIndex() == leftIndex 
 					&& nodeComplete(gold, config.getDependencyGraph(), rightIndex)) {
-				return updateActionContainers(NonProjective.RIGHTARC, gold.getTokenNode(rightIndex).getHeadEdge().getLabelSet());
+				return updateActionContainers(NonProjective.RIGHTARC, gold.getTokenNode(rightIndex).getHeadEdge().getLabelSet(), null);
 			} else {
-				return updateActionContainers(NonProjective.SHIFT, null);
+				return updateActionContainers(NonProjective.SHIFT, null, null);
 			}
 		}
 	}
 	
 	private boolean nodeComplete(DependencyStructure gold, DependencyStructure parseDependencyGraph, int nodeIndex) {
-		if (gold.getTokenNode(nodeIndex).hasLeftDependent()) {
-			if (!parseDependencyGraph.getTokenNode(nodeIndex).hasLeftDependent()) {
+		final DependencyNode goldNode = gold.getTokenNode(nodeIndex);
+		final DependencyNode parseNode =  parseDependencyGraph.getTokenNode(nodeIndex);
+		if (goldNode.hasLeftDependent()) {
+			if (!parseNode.hasLeftDependent()) {
 				return false;
-			} else if (gold.getTokenNode(nodeIndex).getLeftmostDependent().getIndex() != parseDependencyGraph.getTokenNode(nodeIndex).getLeftmostDependent().getIndex()) {
+			} else if (goldNode.getLeftmostDependent().getIndex() != parseNode.getLeftmostDependent().getIndex()) {
 				return false;
 			}
 		}
-		if (gold.getTokenNode(nodeIndex).hasRightDependent()) {
-			if (!parseDependencyGraph.getTokenNode(nodeIndex).hasRightDependent()) {
+		if (goldNode.hasRightDependent()) {
+			if (!parseNode.hasRightDependent()) {
 				return false;
-			} else if (gold.getTokenNode(nodeIndex).getRightmostDependent().getIndex() != parseDependencyGraph.getTokenNode(nodeIndex).getRightmostDependent().getIndex()) {
+			} else if (goldNode.getRightmostDependent().getIndex() != parseNode.getRightmostDependent().getIndex()) {
 				return false;
 			}
 		}
@@ -108,8 +110,8 @@ public class SwapLazyOracle extends Oracle {
 	}
 	
 	private boolean projectiveInterval(DependencyStructure parse, DependencyNode left, DependencyNode right) throws MaltChainedException {
-		int l = swapArray.get(left.getIndex());
-		int r = swapArray.get(right.getIndex());
+		final int l = swapArray.get(left.getIndex());
+		final int r = swapArray.get(right.getIndex());
 		DependencyNode node = null;
 		if (l > r) {
 			return false;
@@ -133,11 +135,12 @@ public class SwapLazyOracle extends Oracle {
 	}
 	
 	private boolean leftComplete(DependencyStructure gold, DependencyNode right) throws MaltChainedException {
-		if (!gold.getDependencyNode(right.getIndex()).hasLeftDependent()) {
+		final DependencyNode goldNode = gold.getDependencyNode(right.getIndex());
+		if (!goldNode.hasLeftDependent()) {
 			return true;
 		} else if (!right.hasLeftDependent()) {
 			return false;
-		} else if (gold.getDependencyNode(right.getIndex()).getLeftmostDependent().getIndex() == right.getLeftmostDependent().getIndex()) {
+		} else if (goldNode.getLeftmostDependent().getIndex() == right.getLeftmostDependent().getIndex()) {
 			return true;
 		}
 		return false;
@@ -153,21 +156,22 @@ public class SwapLazyOracle extends Oracle {
 	
 	private void createSwapArray(DependencyStructure goldDependencyGraph) throws MaltChainedException {
 		swapArray.clear();
-		for (int i = 0; i <= goldDependencyGraph.getHighestDependencyNodeIndex(); i++) {
+		final int n = goldDependencyGraph.getHighestDependencyNodeIndex();
+		for (int i = 0; i <= n; i++) {
 			swapArray.add(new Integer(i));
 		}
 		createSwapArray(goldDependencyGraph.getDependencyRoot(), 0);
 	}
 	
-	private int createSwapArray(DependencyNode n, int order) {
+	private int createSwapArray(DependencyNode node, int order) {
 		int o = order; 
-		if (n != null) {
-			for (int i=0; i < n.getLeftDependentCount(); i++) {
-				o = createSwapArray(n.getLeftDependent(i), o);
+		if (node != null) {
+			for (int i=0; i < node.getLeftDependentCount(); i++) {
+				o = createSwapArray(node.getLeftDependent(i), o);
 			}
-			swapArray.set(n.getIndex(), o++);
-			for (int i=n.getRightDependentCount(); i >= 0; i--) {
-				o = createSwapArray(n.getRightDependent(i), o);
+			swapArray.set(node.getIndex(), o++);
+			for (int i=node.getRightDependentCount(); i >= 0; i--) {
+				o = createSwapArray(node.getRightDependent(i), o);
 			}
 		}
 		return o;

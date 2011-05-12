@@ -76,7 +76,7 @@ public class SuffixFeature implements FeatureMapFunction {
 		if (value instanceof SingleFeatureValue) {
 			String symbol = ((SingleFeatureValue)value).getSymbol();
 			if (((FeatureValue)value).isNullValue()) {
-				multipleFeatureValue.addFeatureValue(parentFeature.getSymbolTable().getSymbolStringToCode(symbol), symbol, true);
+				multipleFeatureValue.addFeatureValue(parentFeature.getSymbolTable().getSymbolStringToCode(symbol), symbol);
 				multipleFeatureValue.setNullValue(true);
 			} else {
 				String suffixStr;
@@ -86,13 +86,13 @@ public class SuffixFeature implements FeatureMapFunction {
 					suffixStr = symbol;
 				}
 				int code = table.addSymbol(suffixStr);
-				multipleFeatureValue.addFeatureValue(code, suffixStr, table.getKnown(suffixStr));
+				multipleFeatureValue.addFeatureValue(code, suffixStr);
 				multipleFeatureValue.setNullValue(false);
 			}
 		} else if (value instanceof MultipleFeatureValue) {
 			multipleFeatureValue.reset();
 			if (((MultipleFeatureValue)value).isNullValue()) {
-				multipleFeatureValue.addFeatureValue(parentFeature.getSymbolTable().getSymbolStringToCode(((MultipleFeatureValue)value).getFirstSymbol()), ((MultipleFeatureValue)value).getFirstSymbol(), true);
+				multipleFeatureValue.addFeatureValue(parentFeature.getSymbolTable().getSymbolStringToCode(((MultipleFeatureValue)value).getFirstSymbol()), ((MultipleFeatureValue)value).getFirstSymbol());
 				multipleFeatureValue.setNullValue(true);
 			} else {
 				for (String symbol : ((MultipleFeatureValue)value).getSymbols()) {
@@ -103,7 +103,7 @@ public class SuffixFeature implements FeatureMapFunction {
 						suffixStr = symbol;
 					}
 					int code = table.addSymbol(suffixStr);
-					multipleFeatureValue.addFeatureValue(code, suffixStr, table.getKnown(suffixStr));
+					multipleFeatureValue.addFeatureValue(code, suffixStr);
 					multipleFeatureValue.setNullValue(true);
 				}
 			}
@@ -111,8 +111,8 @@ public class SuffixFeature implements FeatureMapFunction {
 	}
 	
 	public void updateCardinality() throws MaltChainedException {
-		parentFeature.updateCardinality();
-		multipleFeatureValue.setCardinality(table.getValueCounter()); 
+//		parentFeature.updateCardinality();
+//		multipleFeatureValue.setCardinality(table.getValueCounter()); 
 	}
 	
 	public FeatureFunction getParentFeature() {

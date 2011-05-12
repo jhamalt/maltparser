@@ -30,7 +30,7 @@ public class ScoredKBestList extends KBestList{
 			super.add(actionCode);
 			return;
 		}
-		ScoredCandidate scand = (ScoredCandidate)kBestList.get(addCandidateIndex);
+		final ScoredCandidate scand = (ScoredCandidate)kBestList.get(addCandidateIndex);
 		scand.setActionCode(actionCode);
 		scand.setScore(score);
 		if (addCandidateIndex == 0) {

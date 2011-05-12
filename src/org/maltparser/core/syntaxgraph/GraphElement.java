@@ -108,7 +108,8 @@ public abstract class GraphElement extends Observable implements Element {
 	public int getLabelCode(SymbolTable table) throws MaltChainedException {
 		Integer code = labelSet.get(table);
 		if (code == null) {
-			throw new SyntaxGraphException("No label symbol available for label '"+table.getName()+"'.");
+			return -1;
+//			throw new SyntaxGraphException("No label symbol available for label '"+table.getName()+"'.");
 		}
 //		if (code != null) {
 //			return -1;

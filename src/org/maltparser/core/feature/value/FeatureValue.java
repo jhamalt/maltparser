@@ -10,12 +10,12 @@ import org.maltparser.core.feature.function.Function;
 **/
 public abstract class FeatureValue extends FunctionValue {
 	protected boolean nullValue;
-	protected int cardinality;
+//	protected int cardinality;
 	
 	public FeatureValue(Function function) {
 		super(function);
 		setNullValue(true);
-		setCardinality(0);
+//		setCardinality(0);
 	}
 	
 	public void reset() {
@@ -30,23 +30,23 @@ public abstract class FeatureValue extends FunctionValue {
 		this.nullValue = nullValue;
 	}
 
-	/**
-	 * Returns the cardinality (the number of distinct values) of the feature 
-	 * 
-	 * @return the cardinality (the number of distinct values) of the feature 
-	 */
-	public int getCardinality() {
-		return cardinality;
-	}
-
-	/**
-	 * Sets the cardinality (the number of distinct values) of the feature
-	 * 
-	 * @param cardinality  the cardinality (the number of distinct values)
-	 */
-	public void setCardinality(int cardinality) {
-		this.cardinality = cardinality;
-	}
+//	/**
+//	 * Returns the cardinality (the number of distinct values) of the feature 
+//	 * 
+//	 * @return the cardinality (the number of distinct values) of the feature 
+//	 */
+//	public int getCardinality() {
+//		return cardinality;
+//	}
+//
+//	/**
+//	 * Sets the cardinality (the number of distinct values) of the feature
+//	 * 
+//	 * @param cardinality  the cardinality (the number of distinct values)
+//	 */
+//	public void setCardinality(int cardinality) {
+//		this.cardinality = cardinality;
+//	}
 	
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -59,6 +59,11 @@ public abstract class FeatureValue extends FunctionValue {
 	}
 	
 	public String toString() {
-		return super.toString()+ "[ null=" + nullValue + ", ] ";// cardinality="+cardinality+" ] ";
+		StringBuilder sb = new StringBuilder();
+		sb.append(super.toString());
+		sb.append("[null=");
+		sb.append(nullValue);
+		sb.append("]");
+		return sb.toString();
 	}
 }

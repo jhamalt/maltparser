@@ -84,7 +84,7 @@ public class FeatureDivideModel implements InstanceModel {
 //		}
 		
 		if (divideModels != null) {
-			divideFeature.updateCardinality();
+//			divideFeature.updateCardinality();
 			for (Integer index : divideModels.keySet()) {
 				divideModels.get(index).noMoreInstances();
 			}

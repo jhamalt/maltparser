@@ -2,13 +2,13 @@ package org.maltparser.core.feature.spec;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.feature.FeatureException;
 import org.maltparser.core.feature.spec.reader.FeatureSpecReader;
 import org.maltparser.core.feature.spec.reader.ParReader;
+import org.maltparser.core.helper.HashMap;
 
 /**
 *

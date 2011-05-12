@@ -1,8 +1,8 @@
 package org.maltparser.core.pool;
 
-import java.util.HashSet;
 
 import org.maltparser.core.exception.MaltChainedException;
+import org.maltparser.core.helper.HashSet;
 
 
 public abstract class ObjectPoolSet<T> extends ObjectPool<T> {

@@ -35,6 +35,9 @@ public abstract class FunctionValue {
 	}
 	
 	public String toString() {
-		return function.toString() + ": ";
+		StringBuilder sb = new StringBuilder();
+		sb.append(function.toString());
+		sb.append(':');
+		return sb.toString();
 	}
 }

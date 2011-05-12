@@ -22,27 +22,31 @@ public class Projective extends TransitionSystem {
 	protected static final int SHIFT = 1;
 	protected static final int RIGHTARC = 2;
 	protected static final int LEFTARC = 3;
-	protected static final int POSTAG = 4;
-
+	protected static final int CPOSTAG = 4;
+	private SymbolTable cpostagTable;
 	
 	public Projective() throws MaltChainedException {
 		super();
 	}
 	
 	public void apply(GuideUserAction currentAction, ParserConfiguration configuration) throws MaltChainedException {
-		StackConfig config = (StackConfig)configuration;
-		Stack<DependencyNode> stack = config.getStack();
-		Stack<DependencyNode> input = config.getInput();
+
+		final StackConfig config = (StackConfig)configuration;
+		final Stack<DependencyNode> stack = config.getStack();
+		if (cpostagTable == null) {
+			cpostagTable = config.getDependencyStructure().getSymbolTables().getSymbolTable("CPOSTAG");
+		} 
 		currentAction.getAction(actionContainers);
 		Edge e = null;
 		DependencyNode head = null;
 		DependencyNode dep = null;
 		switch (transActionContainer.getActionCode()) {
-		case POSTAG:
+		case CPOSTAG:
 			DependencyNode top = stack.get(stack.size()-1);
-			if (arcLabelActionContainers.length > 0) {
-				top.addLabel((SymbolTable)arcLabelActionContainers[0].getTable(), arcLabelActionContainers[0].getActionCode());
-			}
+			addNodeLabels(top);
+//			if (arcLabelActionContainers.length > 0) {
+//				top.addLabel((SymbolTable)arcLabelActionContainers[0].getTable(), arcLabelActionContainers[0].getActionCode());
+//			}
 			break;
 		case LEFTARC:
 			head = stack.pop(); 
@@ -57,6 +61,7 @@ public class Projective extends TransitionSystem {
 			addEdgeLabels(e);
 			break;
 		default:
+			final Stack<DependencyNode> input = config.getInput();
 			if (input.isEmpty()) {
 				stack.pop();
 			} else {
@@ -68,19 +73,18 @@ public class Projective extends TransitionSystem {
 	}
 	
 	public boolean permissible(GuideUserAction currentAction, ParserConfiguration configuration) throws MaltChainedException {
-		StackConfig config = (StackConfig)configuration;
+		final StackConfig config = (StackConfig)configuration;
 		currentAction.getAction(actionContainers);
-		int trans = transActionContainer.getActionCode();
-		if ((trans == LEFTARC || trans == RIGHTARC || trans == POSTAG) && !isActionContainersLabeled()) {
+		final int trans = transActionContainer.getActionCode();
+		if ((trans == LEFTARC || trans == RIGHTARC || trans == CPOSTAG) && !isActionContainersLabeled()) {
 			return false;
 		}
-		Stack<DependencyNode> stack = config.getStack();
-		Stack<DependencyNode> input = config.getInput();
+		final Stack<DependencyNode> stack = config.getStack();
 		
-		if (stack.size() > 0 && trans != POSTAG && !stack.get(stack.size()-1).getLabelSet().containsKey("POSTAG")) {
+		if (stack.size() > 0 && trans != CPOSTAG && !stack.get(stack.size()-1).isRoot() && !stack.get(stack.size()-1).getLabelSet().containsKey(cpostagTable)) {
 			return false;
 		}
-		if (trans == POSTAG && (stack.size() == 0 || stack.get(stack.size()-1).getLabelSet().containsKey("POSTAG"))) {
+		if (trans == CPOSTAG && (stack.size() == 0 || (!stack.get(stack.size()-1).isRoot() && stack.get(stack.size()-1).getLabelSet().containsKey(cpostagTable)))) {
 			return false;
 		}
 		if ((trans == LEFTARC || trans == RIGHTARC) && stack.size() < 2) {
@@ -89,7 +93,7 @@ public class Projective extends TransitionSystem {
 		if (trans == LEFTARC && stack.get(stack.size()-2).isRoot()) { 
 			return false;
 		}
-		if (trans == SHIFT && input.isEmpty()) { 
+		if (trans == SHIFT && config.getInput().isEmpty()) { 
 			return false;
 		}
 		
@@ -104,7 +108,7 @@ public class Projective extends TransitionSystem {
 		ttable.addTransition(SHIFT, "SH", false, null);
 		ttable.addTransition(RIGHTARC, "RA", true, null);
 		ttable.addTransition(LEFTARC, "LA", true, null);
-		ttable.addTransition(POSTAG, "PT", true, null);
+		ttable.addTransition(CPOSTAG, "CT", true, null);
 	}
 	
 	protected void initWithDefaultTransitions(GuideUserHistory history) throws MaltChainedException {
@@ -124,8 +128,8 @@ public class Projective extends TransitionSystem {
 	public GuideUserAction defaultAction(GuideUserHistory history, ParserConfiguration configuration) throws MaltChainedException {
 		if (((StackConfig)configuration).getInput().isEmpty()) {
 			LabelSet labelSet = ((StackConfig)configuration).getDependencyGraph().getDefaultRootEdgeLabels();
-			return updateActionContainers(history, RIGHTARC, labelSet);
+			return updateActionContainers(history, RIGHTARC, labelSet, null);
 		}	
-		return updateActionContainers(history, SHIFT, null);
+		return updateActionContainers(history, SHIFT, null, null);
 	}
 }

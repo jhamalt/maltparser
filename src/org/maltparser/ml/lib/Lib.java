@@ -1,5 +1,6 @@
 package org.maltparser.ml.lib;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -11,12 +12,15 @@ import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
+
+import org.apache.log4j.Logger;
+
+import java.util.Formatter;
 import java.util.LinkedHashMap;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.jar.JarEntry;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -46,20 +50,21 @@ public abstract class Lib implements LearningMethod {
 	protected boolean saveInstanceFiles;
 	protected boolean excludeNullValues;
 	protected BufferedWriter instanceOutput = null; 
-	protected HashMap<Long,Integer> featureMap;
-	protected int featureCounter = 1;
-	protected TreeSet<XNode> featureSet;
+	protected FeatureMap featureMap;
 	protected String paramString;
 	protected String pathExternalTrain;
 	protected LinkedHashMap<String, String> libOptions;
 	protected String allowedLibOptionFlags;
+	protected Logger configLogger;
 	final Pattern tabPattern = Pattern.compile("\t");
 	final Pattern pipePattern = Pattern.compile("\\|");	
+	private StringBuilder sb = new StringBuilder();
+	protected MaltLibModel model = null;
 	/**
 	 * Constructs a Lib learner.
 	 * 
 	 * @param owner the guide model owner
-	 * @param learnerMode the mode of the learner TRAIN or CLASSIFY
+	 * @param learnerMode the mode of the learner BATCH or CLASSIFY
 	 */
 	public Lib(InstanceModel owner, Integer learnerMode, String learningMethodName) throws MaltChainedException {
 		setOwner(owner);
@@ -67,16 +72,17 @@ public abstract class Lib implements LearningMethod {
 		setNumberOfInstances(0);
 		setLearningMethodName(learningMethodName);
 		verbosity = Verbostity.SILENT;
-		
+		configLogger = owner.getGuide().getConfiguration().getConfigLogger();
 		initLibOptions();
 		initAllowedLibOptionFlags();
 		parseParameters(getConfiguration().getOptionValue("lib", "options").toString());
 		initSpecialParameters();
 		
-		featureSet = new TreeSet<XNode>();
 		if (learnerMode == BATCH) {
-			featureMap = new HashMap<Long, Integer>();
+			featureMap = new FeatureMap();
 			instanceOutput = new BufferedWriter(getInstanceOutputStreamWriter(".ins"));
+		} else if (learnerMode == CLASSIFY) {
+			featureMap = loadFeatureMap(getInputStreamFromConfigFileEntry(".map"));
 		}
 	}
 	
@@ -88,19 +94,18 @@ public abstract class Lib implements LearningMethod {
 			throw new LibException("The decision cannot be found");
 		}	
 		
-		StringBuilder sb = new StringBuilder();
 		try {
 			sb.append(decision.getDecisionCode()+"\t");
-			int n = featureVector.size();
+			final int n = featureVector.size();
 			for (int i = 0; i < n; i++) {
-				FeatureValue featureValue = featureVector.get(i).getFeatureValue();
-				if (excludeNullValues == true && featureValue.isNullValue()) {
+				FeatureValue featureValue = featureVector.getFeatureValue(i);
+				if (featureValue == null || (excludeNullValues == true && featureValue.isNullValue())) {
 					sb.append("-1");
 				} else {
 					if (featureValue instanceof SingleFeatureValue) {
 						SingleFeatureValue singleFeatureValue = (SingleFeatureValue)featureValue;
 						if (singleFeatureValue.getValue() == 1) {
-							sb.append(((SingleFeatureValue)featureValue).getIndexCode()+"");
+							sb.append(singleFeatureValue.getIndexCode());
 						} else if (singleFeatureValue.getValue() == 0) {
 							sb.append("-1");
 						} else {
@@ -128,6 +133,7 @@ public abstract class Lib implements LearningMethod {
 			instanceOutput.write(sb.toString());
 			instanceOutput.flush();
 			increaseNumberOfInstances();
+			sb.setLength(0);
 		} catch (IOException e) {
 			throw new LibException("The learner cannot write to the instance file. ", e);
 		}
@@ -206,36 +212,38 @@ public abstract class Lib implements LearningMethod {
 		if (featureVector == null) {
 			throw new LibException("The learner cannot predict the next class, because the feature vector cannot be found. ");
 		}
-		if (featureMap == null) {
-			featureMap = loadFeatureMap(getInputStreamFromConfigFileEntry(".map"));
-		}
-		int i = 1;
-		featureSet.clear();
-		for (FeatureFunction feature : featureVector) {
-			final FeatureValue featureValue = feature.getFeatureValue();
-			if (!(excludeNullValues == true && featureValue.isNullValue())) {
+
+		final FeatureList featureList = new FeatureList();
+		final int size = featureVector.size();
+		for (int i = 1; i <= size; i++) {
+			final FeatureValue featureValue = featureVector.getFeatureValue(i-1);	
+			if (featureValue != null && !(excludeNullValues == true && featureValue.isNullValue())) {
 				if (featureValue instanceof SingleFeatureValue) {
 					SingleFeatureValue singleFeatureValue = (SingleFeatureValue)featureValue;
-					int index = getFeatureMapValue(i, singleFeatureValue.getIndexCode());
+					int index = featureMap.getIndex(i, singleFeatureValue.getIndexCode());
 					if (index != -1 && singleFeatureValue.getValue() != 0) {
-						featureSet.add(new XNode(index,singleFeatureValue.getValue()));
+						featureList.add(index,singleFeatureValue.getValue());
 					}
 				} else if (featureValue instanceof MultipleFeatureValue) {
 					for (Integer value : ((MultipleFeatureValue)featureValue).getCodes()) {
-						int v = getFeatureMapValue(i, value);
+						int v = featureMap.getIndex(i, value);
 						if (v != -1) {
-							featureSet.add(new XNode(v,1));
+							featureList.add(v,1);
 						}
 					}
 				} 
 			}
-			i++;
 		}
-
-		return prediction(featureSet, decision);
+		try {
+			decision.getKBestList().addList(model.predict(featureList.toArray()));
+//			decision.getKBestList().addList(prediction(featureList));
+		} catch (OutOfMemoryError e) {
+			throw new LibException("Out of memory. Please increase the Java heap size (-Xmx<size>). ", e);
+		}
+		return true;
 	}
-	
-	protected abstract boolean prediction(TreeSet<XNode> featureSet, SingleDecision decision) throws MaltChainedException; 
+		
+//	protected abstract int[] prediction(FeatureList featureList) throws MaltChainedException;
 	
 	public void train(FeatureVector featureVector) throws MaltChainedException { 
 		if (featureVector == null) {
@@ -243,78 +251,40 @@ public abstract class Lib implements LearningMethod {
 		} else if (owner == null) {
 			throw new LibException("The parent guide model cannot be found. ");
 		}
+		long startTime = System.currentTimeMillis();
 		
+//		if (configLogger.isInfoEnabled()) {
+//			configLogger.info("\nStart training\n");
+//		}
 		if (pathExternalTrain != null) {
 			trainExternal(featureVector);
 		} else {
 			trainInternal(featureVector);
 		}
+//		long elapsed = System.currentTimeMillis() - startTime;
+//		if (configLogger.isInfoEnabled()) {
+//			configLogger.info("Time 1: " +new Formatter().format("%02d:%02d:%02d", elapsed/3600000, elapsed%3600000/60000, elapsed%60000/1000)+" ("+elapsed+" ms)\n");
+//		}
 		try {
-			saveFeatureMap(new FileOutputStream(getFile(".map").getAbsolutePath()), featureMap);
+//			if (configLogger.isInfoEnabled()) {
+//				configLogger.info("\nSaving feature map "+getFile(".map").getName()+"\n");
+//			}
+			saveFeatureMap(new BufferedOutputStream(new FileOutputStream(getFile(".map").getAbsolutePath())), featureMap);
 		} catch (FileNotFoundException e) {
 			throw new LibException("The learner cannot save the feature map file '"+getFile(".map").getAbsolutePath()+"'. ", e);
 		}
+//		elapsed = System.currentTimeMillis() - startTime;
+//		if (configLogger.isInfoEnabled()) {
+//			configLogger.info("Time 2: " +new Formatter().format("%02d:%02d:%02d", elapsed/3600000, elapsed%3600000/60000, elapsed%60000/1000)+" ("+elapsed+" ms)\n");
+//		}
 	}
-	
-	protected void trainExternal(FeatureVector featureVector) throws MaltChainedException {
-		try {		
-			binariesInstances2SVMFileFormat(getInstanceInputStreamReader(".ins"), getInstanceOutputStreamWriter(".ins.tmp"), featureSet);
-			owner.getGuide().getConfiguration().getConfigLogger().info("Creating learner model (external) "+getFile(".mod").getName());
-
-			final String[] params = getLibParamStringArray();
-			String[] arrayCommands = new String[params.length+3];
-			int i = 0;
-			arrayCommands[i++] = pathExternalTrain;
-			for (; i <= params.length; i++) {
-				arrayCommands[i] = params[i-1];
-			}
-			arrayCommands[i++] = getFile(".ins.tmp").getAbsolutePath();
-			arrayCommands[i++] = getFile(".mod").getAbsolutePath();
-			
-	        if (verbosity == Verbostity.ALL) {
-	        	owner.getGuide().getConfiguration().getConfigLogger().info('\n');
-	        }
-			final Process child = Runtime.getRuntime().exec(arrayCommands);
-	        final InputStream in = child.getInputStream();
-	        final InputStream err = child.getErrorStream();
-	        int c;
-	        while ((c = in.read()) != -1){
-	        	if (verbosity == Verbostity.ALL) {
-	        		owner.getGuide().getConfiguration().getConfigLogger().info((char)c);
-	        	}
-	        }
-	        while ((c = err.read()) != -1){
-	        	if (verbosity == Verbostity.ALL || verbosity == Verbostity.ERROR) {
-	        		owner.getGuide().getConfiguration().getConfigLogger().info((char)c);
-	        	}
-	        }
-            if (child.waitFor() != 0) {
-            	owner.getGuide().getConfiguration().getConfigLogger().info(" FAILED ("+child.exitValue()+")");
-            }
-	        in.close();
-	        err.close();
-	        if (!saveInstanceFiles) {
-				getFile(".ins").delete();
-				getFile(".ins.tmp").delete();
-	        }
-	        owner.getGuide().getConfiguration().getConfigLogger().info('\n');
-		} catch (InterruptedException e) {
-			 throw new LibException("Learner is interrupted. ", e);
-		} catch (IllegalArgumentException e) {
-			throw new LibException("The learner was not able to redirect Standard Error stream. ", e);
-		} catch (SecurityException e) {
-			throw new LibException("The learner cannot remove the instance file. ", e);
-		} catch (IOException e) {
-			throw new LibException("The learner cannot save the model file '"+getFile(".mod").getAbsolutePath()+"'. ", e);
-		} catch (OutOfMemoryError e) {
-			throw new LibException("Out of memory. Please increase the Java heap size (-Xmx<size>). ", e);
-		}
-	}
+	protected abstract void trainExternal(FeatureVector featureVector) throws MaltChainedException;
 	protected abstract void trainInternal(FeatureVector featureVector) throws MaltChainedException;
 	
 	public void terminate() throws MaltChainedException { 
 		closeInstanceWriter();
 		owner = null;
+		model = null;
 	}
 
 	public BufferedWriter getInstanceWriter() {
@@ -377,8 +347,6 @@ public abstract class Lib implements LearningMethod {
 		if(numberOfInstances!=0)
 			return numberOfInstances;
 		else{
-			//Do a line count of the instance file and return that
-			
 			BufferedReader reader = new BufferedReader( getInstanceInputStreamReader(".ins"));
 			try {
 				while(reader.readLine()!=null){
@@ -547,8 +515,9 @@ public abstract class Lib implements LearningMethod {
 		return sb.toString();
 	}
 
-	protected int binariesInstance(String line, TreeSet<XNode> featureSet) throws MaltChainedException {
+	protected int binariesInstance(String line, FeatureList featureList) throws MaltChainedException {
 		int y = -1; 
+		featureList.clear();
 		try {	
 			String[] columns = tabPattern.split(line);
 
@@ -567,20 +536,20 @@ public abstract class Lib implements LearningMethod {
 						int colon = items[k].indexOf(':');
 						if (colon == -1) {
 							if (Integer.parseInt(items[k]) != -1) {
-								int v = addFeatureMapValue(j, Integer.parseInt(items[k]));
+								int v = featureMap.addIndex(j, Integer.parseInt(items[k]));
 								if (v != -1) {
-									featureSet.add(new XNode(v,1));
+									featureList.add(v,1);
 								}
 							}
 						} else {
-							int index = addFeatureMapValue(j, Integer.parseInt(items[k].substring(0,colon)));
+							int index = featureMap.addIndex(j, Integer.parseInt(items[k].substring(0,colon)));
 							double value;
 							if (items[k].substring(colon+1).indexOf('.') != -1) {
 								value = Double.parseDouble(items[k].substring(colon+1));
 							} else {
 								value = Integer.parseInt(items[k].substring(colon+1));
 							}
-							featureSet.add(new XNode(index,value));
+							featureList.add(index,value);
 						}
 					} catch (NumberFormatException e) {
 						throw new LibException("The instance file contain a non-numeric value '"+items[k]+"'", e);
@@ -593,10 +562,11 @@ public abstract class Lib implements LearningMethod {
 		return y;
 	}
 
-	protected void binariesInstances2SVMFileFormat(InputStreamReader isr, OutputStreamWriter osw, TreeSet<XNode> featureSet) throws MaltChainedException {
+	protected void binariesInstances2SVMFileFormat(InputStreamReader isr, OutputStreamWriter osw) throws MaltChainedException {
 		try {
 			final BufferedReader in = new BufferedReader(isr);
 			final BufferedWriter out = new BufferedWriter(osw);
+			final FeatureList featureSet = new FeatureList();
 			while(true) {
 				String line = in.readLine();
 				if(line == null) break;
@@ -606,13 +576,13 @@ public abstract class Lib implements LearningMethod {
 				}
 				out.write(Integer.toString(y));
 				
-				for (XNode x : featureSet) {
+		        for (int k=0; k < featureSet.size(); k++) {
+		        	MaltFeatureNode x = featureSet.get(k);
 					out.write(' ');
 					out.write(Integer.toString(x.getIndex()));
 					out.write(':');
 					out.write(Double.toString(x.getValue()));         
 				}
-				featureSet.clear();
 				out.write('\n');
 			}			
 			in.close();	
@@ -624,40 +594,29 @@ public abstract class Lib implements LearningMethod {
 		}
 	}
 	
-	protected int addFeatureMapValue(int featurePosition, int code) {
-		long key = ((((long)featurePosition) << 48) | (long)code);
-		if (featureMap.containsKey(key)) {
-			return featureMap.get(key);
-		}
-		int value = featureCounter++;
-		featureMap.put(key, value);
-		return value;
-	}
-	
-	protected int getFeatureMapValue(int featurePosition, int code) {
-		long key = ((((long)featurePosition) << 48) | (long)code);
-		if (featureMap.containsKey(key)) {
-			return featureMap.get(key);
-		}
-		return -1;
-	}
-	
-	protected void saveFeatureMap(OutputStream os, HashMap<Long,Integer> map) throws MaltChainedException {
+	protected void saveFeatureMap(OutputStream os, FeatureMap map) throws MaltChainedException {
 		try {
-		    ObjectOutputStream obj_out_stream = new ObjectOutputStream (os);
-		    obj_out_stream.writeObject(map);
-		    obj_out_stream.close();
+		    ObjectOutputStream output = new ObjectOutputStream(os);
+	        try{
+	          output.writeObject(map);
+	        }
+	        finally{
+	          output.close();
+	        }
 		} catch (IOException e) {
 			throw new LibException("Save feature map error", e);
 		}
 	}
-	
-	protected HashMap<Long,Integer> loadFeatureMap(InputStream is) throws MaltChainedException {
-		HashMap<Long,Integer> map = new HashMap<Long,Integer>();
+
+	protected FeatureMap loadFeatureMap(InputStream is) throws MaltChainedException {
+		FeatureMap map = new FeatureMap();
 		try {
-		    ObjectInputStream obj_in_stream = new ObjectInputStream(is);
-		    map = (HashMap<Long,Integer>)obj_in_stream.readObject();
-		    obj_in_stream.close();
+		    ObjectInputStream input = new ObjectInputStream(is);
+		    try {
+		    	map = (FeatureMap)input.readObject();
+		    } finally {
+		    	input.close();
+		    }
 		} catch (ClassNotFoundException e) {
 			throw new LibException("Load feature map error", e);
 		} catch (IOException e) {

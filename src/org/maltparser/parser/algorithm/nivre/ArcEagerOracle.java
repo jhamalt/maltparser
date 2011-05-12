@@ -26,19 +26,19 @@ public class ArcEagerOracle extends Oracle {
 		int inputPeekIndex = nivreConfig.getInput().peek().getIndex();
 		
 		if (!stackPeek.isRoot() && gold.getTokenNode(stackPeekIndex).getHead().getIndex() == inputPeekIndex) {
-			return updateActionContainers(ArcEager.LEFTARC, gold.getTokenNode(stackPeekIndex).getHeadEdge().getLabelSet());
+			return updateActionContainers(ArcEager.LEFTARC, gold.getTokenNode(stackPeekIndex).getHeadEdge().getLabelSet(), null);
 		} else if (gold.getTokenNode(inputPeekIndex).getHead().getIndex() == stackPeekIndex) {
-			return updateActionContainers(ArcEager.RIGHTARC, gold.getTokenNode(inputPeekIndex).getHeadEdge().getLabelSet());
+			return updateActionContainers(ArcEager.RIGHTARC, gold.getTokenNode(inputPeekIndex).getHeadEdge().getLabelSet(), null);
 		} else if (nivreConfig.getRootHandling() == NivreConfig.STRICT && !stackPeek.hasHead()) {
-			return updateActionContainers(ArcEager.SHIFT, null);
+			return updateActionContainers(ArcEager.SHIFT, null, null);
 		} else if (gold.getTokenNode(inputPeekIndex).hasLeftDependent() &&
 				gold.getTokenNode(inputPeekIndex).getLeftmostDependent().getIndex() < stackPeekIndex) {
-			return updateActionContainers(ArcEager.REDUCE, null);
+			return updateActionContainers(ArcEager.REDUCE, null, null);
 		} else if (gold.getTokenNode(inputPeekIndex).getHead().getIndex() < stackPeekIndex && 
 				(!gold.getTokenNode(inputPeekIndex).getHead().isRoot() || nivreConfig.getRootHandling() == NivreConfig.NORMAL)) {
-			return updateActionContainers(ArcEager.REDUCE, null);
+			return updateActionContainers(ArcEager.REDUCE, null, null);
 		} else {
-			return updateActionContainers(ArcEager.SHIFT, null);
+			return updateActionContainers(ArcEager.SHIFT, null, null);
 		}
 	}
 	

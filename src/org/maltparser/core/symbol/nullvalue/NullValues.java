@@ -1,10 +1,10 @@
 package org.maltparser.core.symbol.nullvalue;
 
-import java.util.HashMap;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.maltparser.core.exception.MaltChainedException;
+import org.maltparser.core.helper.HashMap;
 import org.maltparser.core.symbol.SymbolException;
 import org.maltparser.core.symbol.SymbolTable;
 /**

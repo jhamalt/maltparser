@@ -69,7 +69,7 @@ public class InputArcDirFeature implements FeatureFunction {
 	}
 
 	public void updateCardinality() throws MaltChainedException {
-		featureValue.setCardinality(table.getValueCounter());
+//		featureValue.setCardinality(table.getValueCounter());
 	}
 
 	public void update() throws MaltChainedException {
@@ -104,7 +104,7 @@ public class InputArcDirFeature implements FeatureFunction {
 			featureValue.setNullValue(true);
 		}
 		featureValue.setValue(1);
-		featureValue.setKnown(true);
+//		featureValue.setKnown(true);
 	}
 
 	public AddressFunction getAddressFunction() {

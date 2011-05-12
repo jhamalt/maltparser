@@ -26,14 +26,14 @@ public class ArcStandardOracle extends Oracle {
 		int inputPeekIndex = nivreConfig.getInput().peek().getIndex();
 		
 		if (nivreConfig.getRootHandling() != NivreConfig.NORMAL && stackPeek.isRoot()) {
-			return updateActionContainers(ArcStandard.SHIFT, null);
+			return updateActionContainers(ArcStandard.SHIFT, null, null);
 		}
 		if (!stackPeek.isRoot() && gold.getTokenNode(stackPeekIndex).getHead().getIndex() == inputPeekIndex) {
-			return updateActionContainers(ArcStandard.LEFTARC, gold.getTokenNode(stackPeekIndex).getHeadEdge().getLabelSet());
+			return updateActionContainers(ArcStandard.LEFTARC, gold.getTokenNode(stackPeekIndex).getHeadEdge().getLabelSet(), null);
 		} else if (gold.getTokenNode(inputPeekIndex).getHead().getIndex() == stackPeekIndex && checkRightDependent(gold, nivreConfig.getDependencyGraph(), inputPeekIndex)) {
-			return updateActionContainers(ArcStandard.RIGHTARC, gold.getTokenNode(inputPeekIndex).getHeadEdge().getLabelSet());
+			return updateActionContainers(ArcStandard.RIGHTARC, gold.getTokenNode(inputPeekIndex).getHeadEdge().getLabelSet(), null);
 		} else {
-			return updateActionContainers(ArcStandard.SHIFT, null);
+			return updateActionContainers(ArcStandard.SHIFT, null, null);
 		}
 	}
 	

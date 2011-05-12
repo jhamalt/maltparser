@@ -34,7 +34,6 @@ Modified: @today@
 <tr><td><a href="#predstrate">Prediction strategy</a></td></tr>
 <tr><td><a href="#partial_trees">Parsing with partial trees</a></td></tr>
 <tr><td><a href="#propagation">Propagation</a></td></tr>
-<tr><td><a href="#phrase">Parsing phrase structure</a></td></tr>
 <tr><td><a href="#api">MaltParser API</a></td></tr>
 <tr><td><a href="#opt">MaltParser optimization</a></td></tr>
 <tr><td><a href="#ref">References</a></td></tr>
@@ -101,26 +100,26 @@ learning method (LIBSVM).
 <p>MaltParser outputs the following information:
 <pre>
 -----------------------------------------------------------------------------
-                          MaltParser 1.4                             
+                          MaltParser @version@                             
 -----------------------------------------------------------------------------
          MALT (Models and Algorithms for Language Technology) Group          
              Vaxjo University and Uppsala University                         
                              Sweden                                          
 -----------------------------------------------------------------------------
 
-Started: Sun Jun 27 15:58:46 CEST 2010
-  Data Format          : file:////home/jha/dev/eclipse/malt/MaltParser/test2/conllx.xml
+Started: Sun Apr 03 16:31:30 CEST 2011
   Transition system    : Arc-Eager
   Parser configuration : Nivre with NORMAL root handling
   Feature model        : NivreEager.xml
   Learner              : libsvm
   Oracle               : Arc-Eager
-.          	      1	      0s	      3MB
-.          	     10	      1s	      2MB
-           	     32	      1s	      3MB
-Creating LIBSVM model odm0.libsvm.mod
-Learning time: 00:00:03 (3500 ms)
-Finished: Sun Jun 27 15:58:50 CEST 2010
+  Data Format          : file:////home/jha/malt/dev/eclipse/malt/MaltParser-1.5/test/conllx.xml
+.          	      1	      0s	      7MB
+.          	     10	      0s	      9MB
+           	     32	      0s	     11MB
+Creating LIBSVM model odm0.libsvm.moo
+Learning time: 00:00:01 (1681 ms)
+Finished: Sun Apr 03 16:31:32 CEST 2011
 </pre>
 Most of the logging information is self-explaining: it tells you that the parser is started at a certain time and date and that it reads sentences 
 from a specified file containing 32 sentences. It continues with information about the learning models that are created, in this case only
@@ -278,22 +277,24 @@ This will output a lot of information about the configuration:
 CONFIGURATION
 Configuration name:   test
 Configuration type:   singlemalt
-Created:              Sun Jun 27 15:59:37 CEST 2010
+Created:              Sun Apr 03 16:31:30 CEST 2011
 
 SYSTEM
 Operating system architecture: amd64
 Operating system name:         Linux
 JRE vendor name:               Sun Microsystems Inc.
-JRE version number:            1.6.0_18
+JRE version number:            1.6.0_24
 
 MALTPARSER
-Version:                       1.4
-Build date:                    June 27 2010
+Version:                       @version@
+Build date:                    April 3 2011
 
 SETTINGS
 2planar
   reduceonswitch (-2pr)                 false
   planar_root_handling (-prh)           normal
+analyzer
+  task ( -at)                           projectivity
 config
   workingdir (  -w)                     user.dir
   name (  -c)                           test
@@ -327,10 +328,10 @@ input
   reader_options (-iro)                 
   format ( -if)                         /appdata/dataformat/conllx.xml
 lib
-  external (-lx)                 
-  save_instance_files (-li)             false
-  options (-lo)                         -s_0_-t_1_-d_2_-g_0.2_-c_1_-r_0_-e_1.0
-  verbosity (-lv)                       silent
+  save_instance_files ( -li)            false
+  external ( -lx)                       
+  verbosity ( -lv)                      silent
+  options ( -lo)                        
 nivre
   root_handling (  -r)                  normal
 output
@@ -362,36 +363,23 @@ DEPENDENCIES
 
 FEATURE MODEL
 MAIN
-0	InputColumn(POSTAG, Stack[0])
-1	InputColumn(POSTAG, Input[0])
-2	InputColumn(POSTAG, Input[1])
-3	InputColumn(POSTAG, Input[2])
-4	InputColumn(POSTAG, Input[3])
-5	InputColumn(POSTAG, Stack[1])
-6	OutputColumn(DEPREL, Stack[0])
-7	OutputColumn(DEPREL, ldep(Stack[0]))
-8	OutputColumn(DEPREL, rdep(Stack[0]))
-9	OutputColumn(DEPREL, ldep(Input[0]))
-10	InputColumn(FORM, Stack[0])
-11	InputColumn(FORM, Input[0])
-12	InputColumn(FORM, Input[1])
-13	InputColumn(FORM, head(Stack[0]))
+InputColumn(FORM,Input[0])
+InputColumn(FORM,Input[1])
+InputColumn(FORM,Stack[0])
+InputColumn(FORM,head(Stack[0]))
+InputColumn(POSTAG,Input[0])
+InputColumn(POSTAG,Input[1])
+InputColumn(POSTAG,Input[2])
+InputColumn(POSTAG,Input[3])
+InputColumn(POSTAG,Stack[0])
+InputColumn(POSTAG,Stack[1])
+OutputColumn(DEPREL,Stack[0])
+OutputColumn(DEPREL,ldep(Input[0]))
+OutputColumn(DEPREL,ldep(Stack[0]))
+OutputColumn(DEPREL,rdep(Stack[0]))
 
-LIBSVM INTERFACE
-  LIBSVM version: 2.91
-  SVM-param string: -s_0_-t_1_-d_2_-g_0.2_-c_1_-r_0_-e_1.0
-LIBSVM SETTINGS
-  SVM type      : C_SVC (0)
-  Kernel        : POLY (1)
-  Degree        : 2
-  Gamma         : 0.2
-  Coef0         : 0.0
-  Cache Size    : 100.0 MB
-  C             : 1.0
-  Eps           : 1.0
-  Shrinking     : 1
-  Probability   : 0
-  #Weight       : 0
+libsvm INTERFACE
+-s 0 -t 1 -d 2 -g 0.2 -r 0.0 -n 0.5 -m 100 -c 1.0 -e 1.0 -p 0.1 -h 1 -b 0
 </pre>
 The information is grouped into different categories:
 <table class="bodyTable">
@@ -497,18 +485,16 @@ The <b>column</b> elements have three attributes:
 
 <table class="bodyTable">
 <tr class="a"><th>Attribute</th><th>Description</th></tr>
-<tr class="b"><td align="left">name</td><td>The column name. Note that the column name can be used by an option and within 
-a feature model specification as an identifier of the column.</td></tr>
+<tr class="b"><td align="left">name</td><td>The column name. Note that the column name can be used by an option and within a feature model specification as an identifier of the column.</td></tr>
 <tr class="b"><td align="left">category</td><td>The column category, one of the following:
 <table>
 <tr><td>INPUT</td><td>Input data in both learning and parsing mode, such as part-of-speech tags or word forms.</td></tr>
-<tr><td>DEPENDENCY_EDGE_LABEL</td><td>Denote that the column contain a dependency label. If the parser is to learn 
-to produce labeled dependency graph, these must be present in learning mode.</td></tr>
+<tr><td>DEPENDENCY_EDGE_LABEL</td><td>Column containing a dependency label. If the parser is to learn to produce labeled dependency graphs, these must be present in learning mode.</td></tr>
 <tr><td>OUTPUT</td><td>Same as DEPENDENCY_EDGE_LABEL, used by MaltParser version 1.0-1.1</td></tr>
-<tr><td>PHRASE_STRUCTURE_EDGE_LABEL</td><td>Denote that the column contain a phrase structure edge label.</td></tr>
-<tr><td>PHRASE_STRUCTURE_NODE_LABEL</td><td>Denote that the column contain a phrase category label.</td></tr>
-<tr><td>SECONDARY_EDGE_LABEL</td><td>Denote that the column contain a secondary edge label.</td></tr>
-<tr><td>HEAD</td><td>The head column defines the unlabeled structure of a dependency graph and is also output data of the parser in parsing mode. </td></tr>
+<tr><td>PHRASE_STRUCTURE_EDGE_LABEL</td><td>Column containing a phrase structure edge label.</td></tr>
+<tr><td>PHRASE_STRUCTURE_NODE_LABEL</td><td>Column containing a phrase category label.</td></tr>
+<tr><td>SECONDARY_EDGE_LABEL</td><td>Column containing a secondary edge label.</td></tr>
+<tr><td>HEAD</td><td>The HEAD column defines the unlabeled structure of a dependency graph and is also output data of the parser in parsing mode. </td></tr>
 <tr><td>IGNORE</td><td>The column value will be ignored and therefore will not be present in the output file.</td></tr>
 </table>
 </td></tr>
@@ -516,8 +502,8 @@ to produce labeled dependency graph, these must be present in learning mode.</td
 <table>
 <tr><td>STRING</td><td>The column value will be used as a string value in the feature model.</td></tr>
 <tr><td>INTEGER</td><td>The column value will be used as an integer value in the feature model.</td></tr>
-<tr><td>BOOLEAN</td><td>The column value will be used as a boolean value in the feature model..</td></tr>
-<tr><td>REAL</td><td>The column value will be used as a real value in the feature model..</td></tr>
+<tr><td>BOOLEAN</td><td>The column value will be used as a boolean value in the feature model.</td></tr>
+<tr><td>REAL</td><td>The column value will be used as a real value in the feature model.</td></tr>
 </table>
 </td></tr>
 <tr class="b"><td align="left">default</td><td>The default output for columns that have the column type IGNORE.</td></tr>
@@ -945,126 +931,14 @@ Below you can see an example of a propagation specification file:</p>
 
 <a name="phrase"></a>
 <h3>Phrase structure parsing</h3>
-<p>MaltParser 1.1 and later versions can be turned into a phrase structure parser that recovers both continuous and discontinuous
+<p>MaltParser 1.1 and MaltParser 1.2 can be turned into a phrase structure parser that recovers both continuous and discontinuous
 phrases with both phrase labels and grammatical functions. The parser induces a parser model from treebank data by automatically
 transforming the phrase structure representations into dependency representations with complex arc labels,
-which makes it possible to recover the phrase structure with both phrase labels and grammatical functions (See Hall (2008), Hall and Nivre (2008a) and Hall and Nivre (2008b) for more details). 
-Each edge label in the dependency graph is a quadruple consisting of four sublabels (<b>DEPREL</b>, <b>HEADREL</b>, <b>PHRASE</b>, <b>ATTACH</b>). The meaning of each sublabel is following:
+which makes it possible to recover the phrase structure with both phrase labels and grammatical functions
+(See Hall (2008), Hall and Nivre (2008a) and Hall and Nivre (2008b) for more details).</p>
 
-<ul>
-<li>The dependency relation <b>DEPREL</b> is the grammatical function of the highest nonterminal of which the dependent is the lexical head.</li>
-<li>The head relations <b>HEADREL</b> encode the path of function labels from the dependent to the highest nonterminal of which is the lexical head (with path
-elements separated by |).</li>
-<li>The phrase labels <b>PHRASE</b> encode the path of phrase labels from the dependent to the highest nonterminal of which is the lexical head (with
-path elements separated by |).</li>
-<li>The attachment <b>ATTACH</b> is a non-negative integer that encodes the attachment level of the highest nonterminal of which it is the lexical head.</li>
-</ul>
-</p>
-
-<p>There are three different <a href="optiondesc.html#input-reader">readers</a> and <a href="optiondesc.html#output-writer">writers</a> for phrase structure parsing:
-
-<table class="bodyTable">
-<tr class="a"><th>Reader/Writer</th><th>Data format</th><th>Description</th></tr>
-<tr class="b"><td align="left">negra</td><td>negraps and negrads</td><td>Reading and writing phrase structures inspired by <a href="http://www.coli.uni-sb.de/~thorsten/publications/Brants-CLAUS98.ps.gz" target="_blank">the NEGRA export format</a></td></tr> 
-<tr class="b"><td align="left">tiger</td><td>tigerps and tigerds</td><td>Reading and writing phrase structures inspired by TigerXML</td></tr>
-</table>
-
- 
-<p>The following example is taken from the <a href="http://www.ims.uni-stuttgart.de/projekte/TIGER/TIGERCorpus/" target="_blank">TIGER Treebank (Version 2.1)</a> in NEGRA export format:
-
-<pre>
-%% word			lemma			tag	morph		edge	parent	secedge comment
-#BOS 1 0 1098266456 1 %% @SB2AV@
-``			--			$(	--		--	0
-Ross			Ross			NE	Nom.Sg.Masc	PNC	500
-Perot			Perot			NE	Nom.Sg.Masc	PNC	500
-w�re			sein			VAFIN	3.Sg.Past.Subj	HD	502
-vielleicht		vielleicht		ADV	--		MO	502
-ein			ein			ART	Nom.Sg.Masc	NK	501
-pr�chtiger		pr�chtig		ADJA	Pos.Nom.Sg.Masc	NK	501
-Diktator		Diktator		NN	Nom.Sg.Masc	NK	501
-''			--			$(	--		--	0
-#500			--			PN	--		SB	502
-#501			--			NP	--		PD	502
-#502			--			S	--		--	0
-#EOS 1
-</pre> 
-  
-<p>MaltParser ignores the header of the file, the information about secondary edges and the information after "#BOS 1", but the second column must include the lemma or 
-the dummy symbol "--". Given that you have training data in the file <b>train.negra</b> formatted as above and a feature specification file, type the following at the command line prompt:</p>
-<pre>
-prompt> java -jar malt.jar -c testps -i train.negra -if negraps -ir negra -ic ISO8859-1 -m learn \
-			-gds T.TRANS#A.DEPREL,A.HEADREL,A.PHRASE,A.ATTACH -grl DEPREL=--,HEADREL=*,PHRASE=VROOT,ATTACH=0  \
-			-F examples/covnonproj_ps.xml -a covnonproj -d POS -s Right[0] -T 1000
-</pre>
-<p>This command will create <b>testps.mco</b> containing a parser model for parsing phrase structure. MaltParser will transform the phrase structure
-into a dependency graph by using a very simple head-finding rule. It will perform a left-to-right search to find the leftmost lexical child. If
-no lexical child can be found, the head-child of the phrase will be the leftmost phrase child and the lexical head will be the lexical child of the head
-child recursively.</p>
-
-<p>The options <b>-if negraps -ir negra</b>
-informs MaltParser to use the Negra export format. The prediction strategy <b>-gds T.TRANS;A.DEPREL,A.HEADREL,A.PHRASE,A.ATTACH</b> tells the parser
-to first predict the transition T.TRANS and if it is a left or right arc transition it continues to predict the sublabels A.DEPREL, A.HEADREL, A.PHRASE and A.ATTACH
-in that order. There is a default root label for each sublabel: <b>-grl DEPREL=--,HEADREL=*,PHRASE=VROOT,ATTACH=0</b>. The prediction strategy allows
- the feature specification file to have nine submodels (one transition-model, two models for each sublabel). You can start to optimize the feature model by
- using this file <a href="covnonproj_ps.xml">examples/covnonproj_ps.xml</a>. We use the Covington non-projective parsing algorithm, because
- it is capable of parsing non-projective dependency graphs (a discontinuous phrase structure will result in a non-projective dependency graph). If you train a
- parser model based on the TIGER Treebank (Version 2.1), make sure that you also use the correct character encoding <b>ISO8859-1</b> (default is UTF-8). 
- To parse type the following:</p>
- <pre>
-prompt> java -jar malt.jar -c testps -i testps.tab -o out.negra -if negrads -ir tab -ic ISO8859-1 -of negraps -ow negra -oc ISO8859-1 -m parse
-</pre>
-<p>The input file must contain four columns: WORD, LEMMA, POS, MORPH. A test file can look like this:
-</p>
-<pre>
-``      --      $(      --
-Ross    Ross    NE      Nom.Sg.Masc
-Perot   Perot   NE      Nom.Sg.Masc
-w�re    sein    VAFIN   3.Sg.Past.Subj
-vielleicht      vielleicht      ADV     --
-ein     ein     ART     Nom.Sg.Masc
-pr�chtiger      pr�chtig        ADJA    Pos.Nom.Sg.Masc
-Diktator        Diktator        NN      Nom.Sg.Masc
-''      --      $(      --
-</pre>
-<a name="headfind"></a>
-<h4>Head-finding rules</h4>
-<p>It is possible to define your own head-finding rules in a file. The following head-finding rules can be used for the TIGER Treebank:</p>
-<pre>
-CAT:AA  r       r[LABEL:HD]
-CAT:AP  r       r[LABEL:HD]
-CAT:AVP r       r[LABEL:HD CAT:AVP]
-CAT:CAC l       l[LABEL:CJ]
-CAT:CAP l       l[LABEL:CJ]
-CAT:CAVP        l       l[LABEL:CJ]
-CAT:CH  l       *
-CAT:CNP l       l[LABEL:CJ]
-CAT:CO  l       l[LABEL:CJ]
-CAT:CPP l       l[LABEL:CJ]
-CAT:CS  l       l[LABEL:CJ]
-CAT:CVP l       l[LABEL:CJ]
-CAT:CCP l       l[LABEL:CJ]
-CAT:CVZ l       l[LABEL:CJ]
-CAT:DL  l       l[LABEL:DH]
-CAT:ISU l       *
-CAT:NM  r       *
-CAT:NP  r       r[LABEL:NK]
-CAT:PN  l       *
-CAT:PP  r       r[LABEL:NK]
-CAT:S   r       r[LABEL:HD]
-CAT:VROOT       l       *
-CAT:VP  r       r[LABEL:HD]
-</pre>
-<p>The file contains several head-finding rules (one per row). The first column states the phrase label of the parent nonterminal and the second
-column specifies the default direction (l = left-to-right search and r = right-to-left search). The third column is a priority list of children. For example the first row
-<b>CAT:AA  r       r[LABEL:HD]</b> indicates that the parser should first perform a right-to-left search for an outgoing edge with a 
-label HD if the parent nonterminal is labeled AA. If no child with incoming edge label HD can be found, then use the default direction r to 
-search for the rightmost lexical child. If no lexical child can be found, then take the rightmost nonterminal child. Another example is
- <b>CAT:AVP r       r[LABEL:HD CAT:AVP]</b>, which first searches for an outgoing edge label HD if the parent nonterminal is labeled AVP. 
- If this label cannot be found, then the search continues for a nonterminal child labeled AVP. Some of the head-finding rules have the sign *
- in the third column, which indicates that there is no priority list for the nonterminal. The <a href="optiondesc.html#graph-head_rules">--graph-head_rules</a> option (-ghr flag)
- specifies the URL or the path to a file that contains a list of head rules. 
-
+<p>Note: The implementation of phrase structure parsing has been removed in later releases of MaltParser. Please
+download <a href="download.html">MaltParser 1.2</a> and read the offline user guide of this version to parse phrase structure with MaltParser 1.2.</p>
 
 <a name="api"></a>
 <h3>MaltParser API</h3>

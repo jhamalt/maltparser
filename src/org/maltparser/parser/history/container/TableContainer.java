@@ -5,12 +5,11 @@ import org.maltparser.core.symbol.Table;
 /**
 *
 * @author Johan Hall
-* @since 1.1
 **/
 public class TableContainer {
-	public enum RelationToNextDecision { COMBINED, SEQUANTIAL, BRANCHED, SWITCHED, NONE }
+	public enum RelationToNextDecision { COMBINED, SEQUANTIAL, BRANCHED, SWITCHED, MULTIPLE_BRANCHED, MULTIPLE_BRANCHED_ITEM, NONE }
 	protected int cachedCode;
-	protected StringBuilder cachedSymbol;
+	protected final StringBuilder cachedSymbol;
 	protected Table table;
 	protected String name;
 	protected RelationToNextDecision relationToNextDecision;
@@ -120,6 +119,12 @@ public class TableContainer {
 			break;
 		case '?':
 			this.relationToNextDecision = RelationToNextDecision.SWITCHED;
+			break;
+		case '%':
+			this.relationToNextDecision = RelationToNextDecision.MULTIPLE_BRANCHED;
+			break;
+		case '|':
+			this.relationToNextDecision = RelationToNextDecision.MULTIPLE_BRANCHED_ITEM;
 			break;
 		default:
 			this.relationToNextDecision = RelationToNextDecision.NONE;

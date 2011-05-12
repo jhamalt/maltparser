@@ -10,7 +10,6 @@ import java.io.UnsupportedEncodingException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.util.HashMap;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -18,6 +17,7 @@ import java.util.regex.PatternSyntaxException;
 import org.apache.log4j.Logger;
 
 import org.maltparser.core.exception.MaltChainedException;
+import org.maltparser.core.helper.HashMap;
 import org.maltparser.core.symbol.SymbolException;
 import org.maltparser.core.symbol.SymbolTable;
 import org.maltparser.core.symbol.SymbolTableHandler;
@@ -29,8 +29,8 @@ import org.maltparser.core.symbol.SymbolTableHandler;
 @since 1.0
 */
 public class TrieSymbolTableHandler implements SymbolTableHandler {
-	private Trie trie;
-	private HashMap<String, TrieSymbolTable> symbolTables;
+	private final Trie trie;
+	private final HashMap<String, TrieSymbolTable> symbolTables;
 	
 	public TrieSymbolTableHandler() {
 		trie = new Trie();

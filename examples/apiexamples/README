@@ -9,3 +9,4 @@ java -cp classes:../../malt.jar org.maltparser.examples.TrainingExperiment
 java -cp classes:../../malt.jar org.maltparser.examples.ParsingExperiment
 java -cp classes:../../malt.jar org.maltparser.examples.ParseSentence1
 java -cp classes:../../malt.jar org.maltparser.examples.ParseSentence2
+java -cp classes:../../malt.jar org.maltparser.examples.ParseSentence3

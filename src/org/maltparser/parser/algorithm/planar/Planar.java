@@ -162,6 +162,6 @@ public class Planar extends TransitionSystem {
 	}
 	
 	public GuideUserAction defaultAction(GuideUserHistory history, ParserConfiguration configuration) throws MaltChainedException {
-		return updateActionContainers(history, Planar.SHIFT, null);
+		return updateActionContainers(history, Planar.SHIFT, null, null);
 	}
 }

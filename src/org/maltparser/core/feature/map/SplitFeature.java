@@ -81,7 +81,7 @@ public class SplitFeature implements FeatureMapFunction {
 		if (value instanceof SingleFeatureValue) {
 			String symbol = ((SingleFeatureValue)value).getSymbol();
 			if (((FeatureValue)value).isNullValue()) {
-				multipleFeatureValue.addFeatureValue(parentFeature.getSymbolTable().getSymbolStringToCode(symbol), symbol, true);
+				multipleFeatureValue.addFeatureValue(parentFeature.getSymbolTable().getSymbolStringToCode(symbol), symbol);
 				multipleFeatureValue.setNullValue(true);
 			} else {
 				String items[];
@@ -92,14 +92,14 @@ public class SplitFeature implements FeatureMapFunction {
 				}
 				for (int i = 0; i < items.length; i++) {
 					if (items[i].length() > 0) {
-						multipleFeatureValue.addFeatureValue(table.addSymbol(items[i]), items[i], table.getKnown(items[i]));
+						multipleFeatureValue.addFeatureValue(table.addSymbol(items[i]), items[i]);
 					}
 				}
 				multipleFeatureValue.setNullValue(false);
 			}
 		} else if (value instanceof MultipleFeatureValue) {
 			if (((MultipleFeatureValue)value).isNullValue()) {
-				multipleFeatureValue.addFeatureValue(parentFeature.getSymbolTable().getSymbolStringToCode(((MultipleFeatureValue)value).getFirstSymbol()), ((MultipleFeatureValue)value).getFirstSymbol(), true);
+				multipleFeatureValue.addFeatureValue(parentFeature.getSymbolTable().getSymbolStringToCode(((MultipleFeatureValue)value).getFirstSymbol()), ((MultipleFeatureValue)value).getFirstSymbol());
 				multipleFeatureValue.setNullValue(true);
 			} else {
 				for (String symbol : ((MultipleFeatureValue)value).getSymbols()) {
@@ -110,7 +110,7 @@ public class SplitFeature implements FeatureMapFunction {
 						throw new FeatureException("The split feature '"+this.toString()+"' could not split the value using the following separators '"+separators+"'", e);
 					}
 					for (int i = 0; i < items.length; i++) {
-						multipleFeatureValue.addFeatureValue(table.addSymbol(items[i]), items[i], table.getKnown(items[i]));
+						multipleFeatureValue.addFeatureValue(table.addSymbol(items[i]), items[i]);
 					}
 					multipleFeatureValue.setNullValue(false);
 				}
@@ -119,8 +119,8 @@ public class SplitFeature implements FeatureMapFunction {
 	}
 
 	public void updateCardinality() throws MaltChainedException {
-		parentFeature.updateCardinality();
-		multipleFeatureValue.setCardinality(table.getValueCounter()); 
+//		parentFeature.updateCardinality();
+//		multipleFeatureValue.setCardinality(table.getValueCounter()); 
 	}
 	
 	public boolean equals(Object obj) {

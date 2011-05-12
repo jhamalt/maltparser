@@ -19,28 +19,26 @@ import org.maltparser.parser.history.action.SingleDecision;
 * @since 1.1
 **/
 public class OneDecisionModel implements DecisionModel {
-	private ClassifierGuide guide;
-	private String modelName;
-	private FeatureModel featureModel;
+	private final ClassifierGuide guide;
+	private final String modelName;
+	private final FeatureModel featureModel;
+	private final int decisionIndex;
+	private final DecisionModel prevDecisionModel;
+	private final String branchedDecisionSymbols;
+//	private int nIteration;
 	private InstanceModel instanceModel;
-	private int decisionIndex;
-	private DecisionModel prevDecisionModel;
-	private String branchedDecisionSymbols;
-	private int nIteration;
-
 	
 	public OneDecisionModel(ClassifierGuide guide, FeatureModel featureModel) throws MaltChainedException {
 		this.branchedDecisionSymbols = "";
-		setGuide(guide);
-		setFeatureModel(featureModel);
-		setDecisionIndex(0);
+		this.guide = guide;
+		this.featureModel = featureModel;
+		this.decisionIndex = 0;
 		if (guide.getGuideName() == null || guide.getGuideName().equals("")) {
-			setModelName("odm"+decisionIndex);
+			this.modelName = "odm"+decisionIndex;
 		} else {
-			setModelName(guide.getGuideName()+".odm"+decisionIndex);
+			this.modelName = guide.getGuideName()+".odm"+decisionIndex;
 		}
-		
-		setPrevDecisionModel(null);
+		this.prevDecisionModel = null;
 	}
 	
 	public OneDecisionModel(ClassifierGuide guide, DecisionModel prevDecisionModel, String branchedDecisionSymbol) throws MaltChainedException {
@@ -49,25 +47,20 @@ public class OneDecisionModel implements DecisionModel {
 		} else {
 			this.branchedDecisionSymbols = "";
 		}
-		setGuide(guide);
-		setFeatureModel(prevDecisionModel.getFeatureModel());
-		setDecisionIndex(prevDecisionModel.getDecisionIndex() + 1);
-		setPrevDecisionModel(prevDecisionModel);
+		this.guide = guide;
+		this.featureModel = prevDecisionModel.getFeatureModel();
+		this.decisionIndex = prevDecisionModel.getDecisionIndex() + 1;
+		this.prevDecisionModel = prevDecisionModel;
 		if (branchedDecisionSymbols != null && branchedDecisionSymbols.length() > 0) {
-			setModelName("odm"+decisionIndex+branchedDecisionSymbols);
+			this.modelName = "odm"+decisionIndex+branchedDecisionSymbols;
 		} else {
-			setModelName("odm"+decisionIndex);
+			this.modelName = "odm"+decisionIndex;
 		}
 	}
 	
 	public void updateFeatureModel() throws MaltChainedException {
 		featureModel.update();
 	}
-	
-	public void updateCardinality() throws MaltChainedException {
-		featureModel.updateCardinality();
-	}
-	
 
 	public void finalizeSentence(DependencyStructure dependencyGraph) throws MaltChainedException {
 		if (instanceModel != null) {
@@ -79,7 +72,7 @@ public class OneDecisionModel implements DecisionModel {
 		if (guide.getGuideMode() == ClassifierGuide.GuideMode.CLASSIFY) {
 			throw new GuideException("The decision model could not create it's model. ");
 		}
-		featureModel.updateCardinality();
+
 		if (instanceModel != null) {
 			instanceModel.noMoreInstances();
 			instanceModel.train();
@@ -155,27 +148,7 @@ public class OneDecisionModel implements DecisionModel {
 	public DecisionModel getPrevDecisionModel() {
 		return prevDecisionModel;
 	}
-	
-	private void setPrevDecisionModel(DecisionModel prevDecisionModel) {
-		this.prevDecisionModel = prevDecisionModel;
-	}
 
-	private void setFeatureModel(FeatureModel featureModel) {
-		this.featureModel = featureModel;
-	}
-	
-	private void setDecisionIndex(int decisionIndex) {
-		this.decisionIndex = decisionIndex;
-	}
-
-	private void setModelName(String modelName) {
-		this.modelName = modelName;
-	}
-	
-	private void setGuide(ClassifierGuide guide) {
-		this.guide = guide;
-	}
-	
 	private final void initInstanceModel(String subModelName) throws MaltChainedException {
 		FeatureVector fv = featureModel.getFeatureVector(branchedDecisionSymbols+"."+subModelName);
 		if (fv == null) {
@@ -184,15 +157,7 @@ public class OneDecisionModel implements DecisionModel {
 		if (fv == null) {
 			fv = featureModel.getMainFeatureVector();
 		}
-		DependencyParserConfig c = guide.getConfiguration();
-		
-//		if (c.getOptionValue("guide", "tree_automatic_split_order").toString().equals("yes") ||
-//				(c.getOptionValue("guide", "tree_split_columns")!=null &&
-//			c.getOptionValue("guide", "tree_split_columns").toString().length() > 0) ||
-//			(c.getOptionValue("guide", "tree_split_structures")!=null &&
-//			c.getOptionValue("guide", "tree_split_structures").toString().length() > 0)) {
-//			instanceModel = new DecisionTreeModel(fv, this); 
-//		}else 
+		final DependencyParserConfig c = guide.getConfiguration();
 		if (c.getOptionValue("guide", "data_split_column").toString().length() == 0) {
 			instanceModel = new AtomicModel(-1, fv, this);
 		} else {

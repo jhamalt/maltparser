@@ -1,9 +1,9 @@
 package org.maltparser.parser.history;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import org.maltparser.core.exception.MaltChainedException;
+import org.maltparser.core.helper.HashMap;
 import org.maltparser.core.pool.ObjectPoolList;
 import org.maltparser.core.symbol.TableHandler;
 import org.maltparser.parser.history.action.ActionDecision;
@@ -70,10 +70,6 @@ public class History implements GuideUserHistory, GuideHistory {
 	public void clear() throws MaltChainedException {
 		actionPool.checkInAll();
 	}
-	
-//	public void clear() {
-//		currentAction = -1;
-//	}
 	
 	/* GuideHistory interface */
 	public GuideDecision getEmptyGuideDecision() throws MaltChainedException {
@@ -189,6 +185,12 @@ public class History implements GuideUserHistory, GuideHistory {
 			case ',':
 				state = 2;
 				break;
+			case '|':
+				state = 2;
+				break;
+			case '%':
+				state = 2;
+				break;
 			default:
 				if (state == 0) {
 					sbTableHandler.append(decisionSettings.charAt(i));
@@ -202,7 +204,9 @@ public class History implements GuideUserHistory, GuideHistory {
 					//decisionSeparator = ' ';
 					decisionSeparator = prevDecisionSeparator;
 				}
+				System.out.println("'" + decisionSeparator + "'");
 				tmp = new TableContainer(tableHandlers.get(sbTableHandler.toString()).getSymbolTable(sbTable.toString()), sbTableHandler.toString()+"."+sbTable.toString(), decisionSeparator);
+				System.out.println(sbTableHandler.toString()+"."+sbTable.toString());
 				actionTables.add(tmp);
 				k++;
 				if (k-start > 1) {

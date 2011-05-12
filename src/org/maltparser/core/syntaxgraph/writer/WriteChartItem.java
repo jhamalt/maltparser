@@ -1,8 +1,5 @@
 package org.maltparser.core.syntaxgraph.writer;
 
-
-import java.util.HashMap;
-
 import org.maltparser.core.config.ConfigurationDir;
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.flow.FlowChartInstance;
@@ -172,19 +169,13 @@ public class WriteChartItem extends ChartItem {
 	public void initOutput(String nullValueStategy) throws MaltChainedException {
 		ConfigurationDir configDir = (ConfigurationDir)flowChartinstance.getFlowChartRegistry(org.maltparser.core.config.ConfigurationDir.class, idName);
 		DataFormatManager dataFormatManager = configDir.getDataFormatManager();
-//		DataFormatManager dataFormatManager = flowChartinstance.getDataFormatManager();
 		SymbolTableHandler symbolTables = configDir.getSymbolTables();
-//		SymbolTableHandler symbolTables = flowChartinstance.getSymbolTables();
-		HashMap<String, DataFormatInstance> dataFormatInstances = configDir.getDataFormatInstances();
-//		HashMap<String, DataFormatInstance> dataFormatInstances = flowChartinstance.getDataFormatInstances();
 		
-		if (dataFormatInstances.size() == 0 || dataFormatManager.getInputDataFormatSpec() != dataFormatManager.getOutputDataFormatSpec()) {
+		if (configDir.sizeDataFormatInstance() == 0 || dataFormatManager.getInputDataFormatSpec() != dataFormatManager.getOutputDataFormatSpec()) {
 			outputDataFormatInstance = dataFormatManager.getOutputDataFormatSpec().createDataFormatInstance(symbolTables, nullValueStategy);
-			if (!dataFormatInstances.containsKey(dataFormatManager.getOutputDataFormatSpec().getDataFormatName())) {
-				dataFormatInstances.put(dataFormatManager.getOutputDataFormatSpec().getDataFormatName(), outputDataFormatInstance);
-			}
+			configDir.addDataFormatInstance(dataFormatManager.getInputDataFormatSpec().getDataFormatName(), outputDataFormatInstance);
 		} else {
-			outputDataFormatInstance = dataFormatInstances.get(dataFormatManager.getInputDataFormatSpec().getDataFormatName());
+			outputDataFormatInstance = configDir.getDataFormatInstance(dataFormatManager.getInputDataFormatSpec().getDataFormatName()); //dataFormatInstances.get(dataFormatManager.getInputDataFormatSpec().getDataFormatName());
 		}
 	}
 	

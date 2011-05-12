@@ -12,7 +12,7 @@ import org.maltparser.core.symbol.SymbolTable;
 */
 public class RootLabels {
 	public final static String DEFAULT_ROOTSYMBOL = "ROOT";
-	private LabelSet rootLabelCodes;
+	private final LabelSet rootLabelCodes;
 
 	public RootLabels() {
 		rootLabelCodes = new LabelSet();

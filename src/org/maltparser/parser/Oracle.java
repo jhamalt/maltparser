@@ -11,32 +11,54 @@ import org.maltparser.parser.history.container.ActionContainer;
  *
  */
 public abstract class Oracle implements OracleGuide {
-	private DependencyParserConfig manager;
-	private GuideUserHistory history;
+	private final DependencyParserConfig manager;
+	private final GuideUserHistory history;
 	private String name;
-	protected ActionContainer[] actionContainers;
+	protected final ActionContainer[] actionContainers;
 	protected ActionContainer transActionContainer;
-	protected ActionContainer[] arcLabelActionContainers;
+	protected final ActionContainer[] arcLabelActionContainers;
+	protected ActionContainer[] nodeLabelActionContainers;
 	protected ActionContainer[] tokenLabelActionContainers;
 	
 	public Oracle(DependencyParserConfig manager, GuideUserHistory history) throws MaltChainedException {
 		this.manager = manager;
 		this.history = history;
-		initActionContainers();
-	}
-	
-	public void setManager(DependencyParserConfig manager) {
-		this.manager = manager;
+		this.actionContainers = history.getActionContainerArray();
+		
+		if (actionContainers.length < 1) {
+			throw new ParsingException("Problem when initialize the history (sequence of actions). There are no action containers. ");
+		}
+		int nArcLabels = 0;
+		int nNodeLabels = 0;
+		for (int i = 0; i < actionContainers.length; i++) {
+			if (actionContainers[i].getTableContainerName().startsWith("A.")) {
+				nArcLabels++;
+			}
+		}
+		for (int i = 0; i < actionContainers.length; i++) {
+			if (actionContainers[i].getTableContainerName().startsWith("N.")) {
+				nNodeLabels++;
+			}
+		}
+		int j = 0;
+		int k = 0;
+		this.arcLabelActionContainers = new ActionContainer[nArcLabels];
+		this.nodeLabelActionContainers = new ActionContainer[nNodeLabels];
+		for (int i = 0; i < actionContainers.length; i++) {
+			if (actionContainers[i].getTableContainerName().equals("T.TRANS")) {
+				transActionContainer = actionContainers[i];
+			} else if (actionContainers[i].getTableContainerName().startsWith("A.")) {
+				arcLabelActionContainers[j++] = actionContainers[i];
+			} else if (actionContainers[i].getTableContainerName().startsWith("N.")) {
+				nodeLabelActionContainers[k++] = actionContainers[i];
+			}
+		}
 	}
 
 	public GuideUserHistory getHistory() {
 		return history;
 	}
-
-	public void setHistory(GuideUserHistory history) {
-		this.history = history;
-	}
-
+	
 	public DependencyParserConfig getConfiguration() {
 		return manager;
 	}
@@ -49,44 +71,61 @@ public abstract class Oracle implements OracleGuide {
 		this.name = guideName;
 	}
 	
-	protected GuideUserAction updateActionContainers(int transition, LabelSet arcLabels) throws MaltChainedException {	
+	protected GuideUserAction updateActionContainers(int transition, LabelSet arcLabels, LabelSet nodeLabels) throws MaltChainedException {	
 		transActionContainer.setAction(transition);
 
 		if (arcLabels == null) {
 			for (int i = 0; i < arcLabelActionContainers.length; i++) {
 				arcLabelActionContainers[i].setAction(-1);	
 			}
-		} else {
+		} 
+		if (nodeLabels == null) {
+			for (int i = 0; i < nodeLabelActionContainers.length; i++) {
+				nodeLabelActionContainers[i].setAction(-1);	
+			}
+		} 
+		
+		if (arcLabels != null) {
 			for (int i = 0; i < arcLabelActionContainers.length; i++) {
-				arcLabelActionContainers[i].setAction(arcLabels.get(arcLabelActionContainers[i].getTable()).shortValue());
-			}		
+				if (arcLabelActionContainers[i] == null) {
+					throw new MaltChainedException("arcLabelActionContainer " + i + " is null when doing transition " + transition);
+				}
+				
+				Integer code = arcLabels.get(arcLabelActionContainers[i].getTable());
+				if (code != null) {
+					arcLabelActionContainers[i].setAction(code.shortValue());
+				} else {
+					arcLabelActionContainers[i].setAction(-1);
+				}
+			}
 		}
+
+		if (nodeLabels != null) {
+			for (int i = 0; i < nodeLabelActionContainers.length; i++) {
+				if (nodeLabelActionContainers[i] == null) {
+					throw new MaltChainedException("nodeLabelActionContainers " + i + " is null when doing transition " + transition);
+				}
+				
+				Integer code = nodeLabels.get(nodeLabelActionContainers[i].getTable());
+				if (code != null) {
+					nodeLabelActionContainers[i].setAction(code.shortValue());
+				} else {
+					nodeLabelActionContainers[i].setAction(-1);
+				}
+			}
+		}
+		
+//		if (arcLabels == null) {
+//			for (int i = 0; i < arcLabelActionContainers.length; i++) {
+//				arcLabelActionContainers[i].setAction(-1);	
+//			}
+//		} else {
+//			for (int i = 0; i < arcLabelActionContainers.length; i++) {
+//				arcLabelActionContainers[i].setAction(arcLabels.get(arcLabelActionContainers[i].getTable()).shortValue());
+//			}		
+//		}
 		GuideUserAction oracleAction = history.getEmptyGuideUserAction();
 		oracleAction.addAction(actionContainers);
 		return oracleAction;
-	}
-	
-	public void initActionContainers() throws MaltChainedException {
-		this.actionContainers = history.getActionContainerArray();
-		if (actionContainers.length < 1) {
-			throw new ParsingException("Problem when initialize the history (sequence of actions). There are no action containers. ");
-		}
-		int nLabels = 0;
-		for (int i = 0; i < actionContainers.length; i++) {
-			if (actionContainers[i].getTableContainerName().startsWith("A.")) {
-				nLabels++;
-			}
-		}
-		int j = 0;
-		for (int i = 0; i < actionContainers.length; i++) {
-			if (actionContainers[i].getTableContainerName().equals("T.TRANS")) {
-				transActionContainer = actionContainers[i];
-			} else if (actionContainers[i].getTableContainerName().startsWith("A.")) {
-				if (arcLabelActionContainers == null) {
-					arcLabelActionContainers = new ActionContainer[nLabels];
-				}
-				arcLabelActionContainers[j++] = actionContainers[i];
-			}
-		}
 	}
 }

@@ -1,6 +1,8 @@
 package org.maltparser.core.symbol.nullvalue;
 
 import org.maltparser.core.symbol.SymbolTable;
+import org.maltparser.core.symbol.nullvalue.NullValues.NullValueDegree;
+import org.maltparser.core.symbol.nullvalue.NullValues.NullValueId;
 /**
 
 
@@ -19,32 +21,80 @@ public class InputNullValues extends NullValues {
 		if (nullValueEncoding == NullValueDegree.NONE || nullValueEncoding == NullValueDegree.ONE) {
 			nullValue2SymbolMap.put(NullValueId.NO_NODE, "#null#");
 			nullValue2SymbolMap.put(NullValueId.ROOT_NODE, "#null#");
+			nullValue2SymbolMap.put(NullValueId.NO_VALUE, "#null#");
 			nullValue2CodeMap.put(NullValueId.NO_NODE, 0);
 			nullValue2CodeMap.put(NullValueId.ROOT_NODE, 0);
+			nullValue2CodeMap.put(NullValueId.NO_VALUE, 0);
 			symbol2CodeMap.put("#null#", 0);
 			code2SymbolMap.put(0, "#null#");
 			setNextCode(1);
 		} else if (nullValueEncoding == NullValueDegree.ROOTNODE) {
 			nullValue2SymbolMap.put(NullValueId.NO_NODE, "#null#");
 			nullValue2SymbolMap.put(NullValueId.ROOT_NODE, "#rootnode#");
+			nullValue2SymbolMap.put(NullValueId.NO_VALUE, "#rootnode#"); // maybe #null#
 			nullValue2CodeMap.put(NullValueId.NO_NODE, 0);
 			nullValue2CodeMap.put(NullValueId.ROOT_NODE, 1);
+			nullValue2CodeMap.put(NullValueId.NO_VALUE, 1); // maybe 0
 			symbol2CodeMap.put("#null#", 0);
 			symbol2CodeMap.put("#rootnode#", 1);
 			code2SymbolMap.put(0, "#null#");
 			code2SymbolMap.put(1, "#rootnode#");
 			setNextCode(2);
-		} 
+		} else if (nullValueEncoding == NullValueDegree.NOVALUE) {
+			nullValue2SymbolMap.put(NullValueId.NO_NODE, "#null#");
+			nullValue2SymbolMap.put(NullValueId.ROOT_NODE, "#rootnode#");
+			nullValue2SymbolMap.put(NullValueId.NO_VALUE, "#novalue#"); 
+			nullValue2CodeMap.put(NullValueId.NO_NODE, 0);
+			nullValue2CodeMap.put(NullValueId.ROOT_NODE, 1);
+			nullValue2CodeMap.put(NullValueId.NO_VALUE, 2); 
+			symbol2CodeMap.put("#null#", 0);
+			symbol2CodeMap.put("#rootnode#", 1);
+			symbol2CodeMap.put("#novalue#", 2);
+			code2SymbolMap.put(0, "#null#");
+			code2SymbolMap.put(1, "#rootnode#");
+			code2SymbolMap.put(1, "#novalue#");
+			setNextCode(3);
+		}
+//		if (nullValueEncoding == NullValueDegree.NONE || nullValueEncoding == NullValueDegree.ONE) {
+//			nullValue2SymbolMap.put(NullValueId.NO_NODE, "#null#");
+//			nullValue2SymbolMap.put(NullValueId.ROOT_NODE, "#null#");
+//			nullValue2CodeMap.put(NullValueId.NO_NODE, 0);
+//			nullValue2CodeMap.put(NullValueId.ROOT_NODE, 0);
+//			symbol2CodeMap.put("#null#", 0);
+//			code2SymbolMap.put(0, "#null#");
+//			setNextCode(1);
+//		} else if (nullValueEncoding == NullValueDegree.ROOTNODE) {
+//			nullValue2SymbolMap.put(NullValueId.NO_NODE, "#null#");
+//			nullValue2SymbolMap.put(NullValueId.ROOT_NODE, "#rootnode#");
+//			nullValue2CodeMap.put(NullValueId.NO_NODE, 0);
+//			nullValue2CodeMap.put(NullValueId.ROOT_NODE, 1);
+//			symbol2CodeMap.put("#null#", 0);
+//			symbol2CodeMap.put("#rootnode#", 1);
+//			code2SymbolMap.put(0, "#null#");
+//			code2SymbolMap.put(1, "#rootnode#");
+//			setNextCode(2);
+//		} 
 	}
 	
 	protected void setNullValueEncoding(String nullValueStrategy) {
+//		setNullValueStrategy(nullValueStrategy);
+//		if (nullValueStrategy.equalsIgnoreCase("none")) {
+//			nullValueEncoding = NullValueDegree.NONE;
+//		} else if (nullValueStrategy.equalsIgnoreCase("rootnode")) {
+//			nullValueEncoding = NullValueDegree.ROOTNODE;
+//		} else if (nullValueStrategy.equalsIgnoreCase("novalue")) {
+//			nullValueEncoding = NullValueDegree.ROOTNODE;
+//		} else {
+//			nullValueEncoding = NullValueDegree.ONE;
+//		}
+		
 		setNullValueStrategy(nullValueStrategy);
 		if (nullValueStrategy.equalsIgnoreCase("none")) {
 			nullValueEncoding = NullValueDegree.NONE;
 		} else if (nullValueStrategy.equalsIgnoreCase("rootnode")) {
 			nullValueEncoding = NullValueDegree.ROOTNODE;
 		} else if (nullValueStrategy.equalsIgnoreCase("novalue")) {
-			nullValueEncoding = NullValueDegree.ROOTNODE;
+			nullValueEncoding = NullValueDegree.NOVALUE;
 		} else {
 			nullValueEncoding = NullValueDegree.ONE;
 		}

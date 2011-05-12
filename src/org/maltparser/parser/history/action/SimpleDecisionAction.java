@@ -62,6 +62,7 @@ public class SimpleDecisionAction implements  SingleDecision {
 	}
 
 	public String getDecisionSymbol() throws MaltChainedException {
+//		System.out.println(tableContainer.getTableContainerName());
 		return tableContainer.getSymbol(decision);
 	}
 	

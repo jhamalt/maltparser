@@ -7,6 +7,6 @@
 	<classpathentry kind="lib" path="lib/log4j.jar"/>
 	<classpathentry kind="lib" path="lib/stax-1.2.0.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/liblinear-1.51-with-deps.jar"/>
+	<classpathentry kind="lib" path="lib/liblinear-1.7-with-deps.jar"/>
 	<classpathentry kind="output" path="dist/classes"/>
 </classpath>

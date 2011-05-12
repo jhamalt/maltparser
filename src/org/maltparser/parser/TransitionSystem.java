@@ -1,8 +1,8 @@
 package org.maltparser.parser;
 
-import java.util.HashMap;
 
 import org.maltparser.core.exception.MaltChainedException;
+import org.maltparser.core.helper.HashMap;
 import org.maltparser.core.propagation.PropagationManager;
 import org.maltparser.core.symbol.SymbolTable;
 import org.maltparser.core.symbol.SymbolTableHandler;
@@ -10,6 +10,7 @@ import org.maltparser.core.symbol.TableHandler;
 import org.maltparser.core.syntaxgraph.DependencyGraph;
 import org.maltparser.core.syntaxgraph.LabelSet;
 import org.maltparser.core.syntaxgraph.edge.Edge;
+import org.maltparser.core.syntaxgraph.node.DependencyNode;
 import org.maltparser.parser.history.GuideUserHistory;
 import org.maltparser.parser.history.action.GuideUserAction;
 import org.maltparser.parser.history.container.ActionContainer;
@@ -25,6 +26,9 @@ public abstract class TransitionSystem {
 	protected ActionContainer[] actionContainers;
 	protected ActionContainer transActionContainer;
 	protected ActionContainer[] arcLabelActionContainers;
+	
+	protected ActionContainer[] nodeLabelActionContainers;
+	
 	protected PropagationManager propagationManager = null;
 	
 	public TransitionSystem() throws MaltChainedException {	}
@@ -37,14 +41,20 @@ public abstract class TransitionSystem {
 	public abstract String getName();
 	public abstract GuideUserAction defaultAction(GuideUserHistory history, ParserConfiguration configuration) throws MaltChainedException;
 	
-	protected GuideUserAction updateActionContainers(GuideUserHistory history, int transition, LabelSet arcLabels) throws MaltChainedException {	
+	protected GuideUserAction updateActionContainers(GuideUserHistory history, int transition, LabelSet arcLabels, LabelSet nodeLabels) throws MaltChainedException {	
 		transActionContainer.setAction(transition);
 
 		if (arcLabels == null) {
 			for (int i = 0; i < arcLabelActionContainers.length; i++) {
 				arcLabelActionContainers[i].setAction(-1);	
 			}
-		} else {
+		} 
+		if (nodeLabels == null) {
+			for (int i = 0; i < nodeLabelActionContainers.length; i++) {
+				nodeLabelActionContainers[i].setAction(-1);	
+			}
+		} 
+		if (arcLabels != null) {
 			for (int i = 0; i < arcLabelActionContainers.length; i++) {
 				if (arcLabelActionContainers[i] == null) {
 					throw new MaltChainedException("arcLabelActionContainer " + i + " is null when doing transition " + transition);
@@ -56,20 +66,48 @@ public abstract class TransitionSystem {
 				} else {
 					arcLabelActionContainers[i].setAction(-1);
 				}
-			}		
+			}
 		}
+
+		if (nodeLabels != null) {
+			for (int i = 0; i < nodeLabelActionContainers.length; i++) {
+				if (nodeLabelActionContainers[i] == null) {
+					throw new MaltChainedException("nodeLabelActionContainers " + i + " is null when doing transition " + transition);
+				}
+				
+				Integer code = nodeLabels.get(nodeLabelActionContainers[i].getTable());
+				if (code != null) {
+					nodeLabelActionContainers[i].setAction(code.shortValue());
+				} else {
+					nodeLabelActionContainers[i].setAction(-1);
+				}
+			}
+		}
+		
 		GuideUserAction oracleAction = history.getEmptyGuideUserAction();
 		oracleAction.addAction(actionContainers);
 		return oracleAction;
 	}
 	
 	protected boolean isActionContainersLabeled() {
+		boolean arcIsLabeled = true;
+		boolean nodeIsLabeled = true;
+		
 		for (int i = 0; i < arcLabelActionContainers.length; i++) {
 			if (arcLabelActionContainers[i].getActionCode() < 0) {
-				return false;
+				arcIsLabeled = false;
+				break;
 			}
 		}
-		return true;
+		if (nodeLabelActionContainers != null) {
+			for (int i = 0; i < nodeLabelActionContainers.length; i++) {
+				if (nodeLabelActionContainers[i].getActionCode() < 0) {
+					nodeIsLabeled = false;
+					break;
+				}
+			}
+		}
+		return arcIsLabeled || nodeIsLabeled;
 	}
 	
 	protected void addEdgeLabels(Edge e) throws MaltChainedException {
@@ -87,26 +125,44 @@ public abstract class TransitionSystem {
 		}
 	}
 	
+	protected void addNodeLabels(DependencyNode n) throws MaltChainedException {
+		if (n != null) {
+			for (int i = 0; i < nodeLabelActionContainers.length; i++) {
+				n.addLabel((SymbolTable)nodeLabelActionContainers[0].getTable(), nodeLabelActionContainers[0].getActionCode());
+			}
+		}
+	}
+	
 	public void initTransitionSystem(GuideUserHistory history) throws MaltChainedException {
 		this.actionContainers = history.getActionContainerArray();
 		if (actionContainers.length < 1) {
 			throw new ParsingException("Problem when initialize the history (sequence of actions). There are no action containers. ");
 		}
-		int nLabels = 0;
+		int nArcLabels = 0;
+		int nNodeLabels = 0;
 		for (int i = 0; i < actionContainers.length; i++) {
 			if (actionContainers[i].getTableContainerName().startsWith("A.")) {
-				nLabels++;
+				nArcLabels++;
+			}
+			if (actionContainers[i].getTableContainerName().startsWith("N.")) {
+				nNodeLabels++;
 			}
 		}
 		int j = 0;
+		int k = 0;
 		for (int i = 0; i < actionContainers.length; i++) {
 			if (actionContainers[i].getTableContainerName().equals("T.TRANS")) {
 				transActionContainer = actionContainers[i];
 			} else if (actionContainers[i].getTableContainerName().startsWith("A.")) {
 				if (arcLabelActionContainers == null) {
-					arcLabelActionContainers = new ActionContainer[nLabels];
+					arcLabelActionContainers = new ActionContainer[nArcLabels];
 				}
 				arcLabelActionContainers[j++] = actionContainers[i];
+			} else if (actionContainers[i].getTableContainerName().startsWith("N.")) {
+				if (nodeLabelActionContainers == null) {
+					nodeLabelActionContainers = new ActionContainer[nNodeLabels];
+				}
+				nodeLabelActionContainers[k++] = actionContainers[i];
 			}
 		}
 		initWithDefaultTransitions(history);
@@ -116,8 +172,7 @@ public abstract class TransitionSystem {
 		transitionTableHandler = new TransitionTableHandler();
 		tableHandlers = new HashMap<String, TableHandler>();
 		
-		final String[] decisionElements =  decisionSettings.split(",|#|;|\\+");
-		
+		final String[] decisionElements =  decisionSettings.split(",|#|;|\\+|\\||%");
 		int nTrans = 0;
 		for (int i = 0; i < decisionElements.length; i++) {
 			int index = decisionElements[i].indexOf('.');
@@ -141,13 +196,13 @@ public abstract class TransitionSystem {
 				if (!getTableHandlers().containsKey("A")) {
 					getTableHandlers().put("A", symbolTableHandler);
 				}
-			} else if (decisionElements[i].substring(0,index).equals("L")) {
-				if (!getTableHandlers().containsKey("L")) {
-					getTableHandlers().put("L", symbolTableHandler);
+			} else if (decisionElements[i].substring(0,index).equals("N")) {
+				if (!getTableHandlers().containsKey("N")) {
+					getTableHandlers().put("N", symbolTableHandler);
 				}
 			} else {
 				throw new ParsingException("The decision settings '"+decisionSettings+"' contains an unknown table handler '"+decisionElements[i].substring(0,index)+"'. " +
-						"Only T (Transition table handler) and A (ArcLabel table handler) is allowed. ");
+						"Only T (Transition table handler), A (ArcLabel table handler) and N (NodeLabel table handler) is allowed. ");
 			}
 		}
 	}
@@ -169,9 +224,6 @@ public abstract class TransitionSystem {
 		return propagationManager;
 	}
 
-//	protected void doPropagation(Edge e) throws MaltChainedException{
-//
-//	}
 	
 	public void setPropagationManager(PropagationManager propagationManager) {
 		this.propagationManager = propagationManager;
@@ -186,6 +238,12 @@ public abstract class TransitionSystem {
 			if (arcLabelActionContainers[i].getActionCode() != -1) {
 				sb.append("+");
 				sb.append(arcLabelActionContainers[i].getTable().getSymbolCodeToString(arcLabelActionContainers[i].getActionCode()));
+			}
+		}
+		for (int i = 0; i < nodeLabelActionContainers.length; i++) {
+			if (nodeLabelActionContainers[i].getActionCode() != -1) {
+				sb.append("+");
+				sb.append(nodeLabelActionContainers[i].getTable().getSymbolCodeToString(nodeLabelActionContainers[i].getActionCode()));
 			}
 		}
 		return sb.toString();

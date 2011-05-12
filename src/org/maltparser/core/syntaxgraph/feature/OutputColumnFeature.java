@@ -33,7 +33,11 @@ public class OutputColumnFeature extends ColumnFeature {
 		if (!(arguments[1] instanceof AddressFunction)) {
 			throw new SyntaxGraphException("Could not initialize OutputColumnFeature: the second argument is not an address function. ");
 		}
-		setColumn(dataFormatInstance.getColumnDescriptionByName((String)arguments[0]));
+		ColumnDescription column = dataFormatInstance.getColumnDescriptionByName((String)arguments[0]);
+		if (column == null) {
+			throw new SyntaxGraphException("Could not initialize OutputColumnFeature: the output column type '"+(String)arguments[0]+"' could not be found in the data format specification. ' ");
+		}
+		setColumn(column);
 		setAddressFunction((AddressFunction)arguments[1]);
 	}
 	
@@ -46,11 +50,8 @@ public class OutputColumnFeature extends ColumnFeature {
 		final AddressValue a = addressFunction.getAddressValue();
 		
 		if (a.getAddress() == null) {
-			featureValue.setIndexCode(column.getSymbolTable().getNullValueCode(NullValueId.NO_NODE));
-			featureValue.setSymbol(column.getSymbolTable().getNullValueSymbol(NullValueId.NO_NODE));
-			featureValue.setKnown(true);
-			featureValue.setNullValue(true);
-			featureValue.setValue(1);
+			featureValue.update(column.getSymbolTable().getNullValueCode(NullValueId.NO_NODE), 
+					column.getSymbolTable().getNullValueSymbol(NullValueId.NO_NODE), true, 1);
 		} else {
 			final DependencyNode node = (DependencyNode)a.getAddress();
 			if (!node.isRoot()) {
@@ -58,27 +59,17 @@ public class OutputColumnFeature extends ColumnFeature {
 					int indexCode = node.getHeadEdge().getLabelCode(column.getSymbolTable());
 					String symbol = column.getSymbolTable().getSymbolCodeToString(indexCode);
 					if (column.getType() == ColumnDescription.STRING) {
-						featureValue.setIndexCode(indexCode);
-						featureValue.setSymbol(symbol);
-						featureValue.setKnown(column.getSymbolTable().getKnown(indexCode));
-						featureValue.setNullValue(false);
-						featureValue.setValue(1);
+						featureValue.update(indexCode, symbol, false, 1);
 					} else {
 						castFeatureValue(symbol);
 					}
 				} else {
-					featureValue.setIndexCode(column.getSymbolTable().getNullValueCode(NullValueId.NO_VALUE));
-					featureValue.setSymbol(column.getSymbolTable().getNullValueSymbol(NullValueId.NO_VALUE));
-					featureValue.setKnown(true);
-					featureValue.setNullValue(true);
-					featureValue.setValue(1);
+					featureValue.update(column.getSymbolTable().getNullValueCode(NullValueId.NO_VALUE), 
+							column.getSymbolTable().getNullValueSymbol(NullValueId.NO_VALUE), true, 1);
 				}	
 			} else {
-				featureValue.setIndexCode(column.getSymbolTable().getNullValueCode(NullValueId.ROOT_NODE));
-				featureValue.setSymbol(column.getSymbolTable().getNullValueSymbol(NullValueId.ROOT_NODE));
-				featureValue.setKnown(true);
-				featureValue.setNullValue(true);
-				featureValue.setValue(1);
+				featureValue.update(column.getSymbolTable().getNullValueCode(NullValueId.ROOT_NODE), 
+						column.getSymbolTable().getNullValueSymbol(NullValueId.ROOT_NODE), true, 1);
 			}
 		}
 		

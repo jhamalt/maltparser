@@ -13,8 +13,8 @@ import org.maltparser.parser.history.action.GuideUserAction;
  *
  */
 public class ParserState {
-	private AbstractParserFactory factory;
-	private Algorithm algorithm;
+	private final AbstractParserFactory factory;
+	private final Algorithm algorithm;
 	private SymbolTableHandler symboltables;
 	private GuideUserHistory history;
 	private TransitionSystem transitionSystem;
@@ -26,8 +26,8 @@ public class ParserState {
 	}
 	
 	public ParserState(Algorithm algorithm, AbstractParserFactory factory, int k) throws MaltChainedException {
-		setAlgorithm(algorithm);
-		setFactory(factory);
+		this.algorithm = algorithm;
+		this.factory = factory;
 		setSymboltables(algorithm.getManager().getSymbolTables());
 //		setHistoryStructure(new HistoryList());
 		setTransitionSystem(factory.makeTransitionSystem());
@@ -46,10 +46,6 @@ public class ParserState {
 	
 	public Algorithm getAlgorithm() {
 		return algorithm;
-	}
-
-	public void setAlgorithm(Algorithm algorithm) {
-		this.algorithm = algorithm;
 	}
 
 	public SymbolTableHandler getSymboltables() {
@@ -112,9 +108,5 @@ public class ParserState {
 
 	public AbstractParserFactory getFactory() {
 		return factory;
-	}
-
-	public void setFactory(AbstractParserFactory factory) {
-		this.factory = factory;
 	}
 }

@@ -1,7 +1,6 @@
 package org.maltparser.core.syntaxgraph.reader;
 
 import java.io.File;
-import java.util.HashMap;
 
 import org.maltparser.core.config.ConfigurationDir;
 import org.maltparser.core.exception.MaltChainedException;
@@ -83,8 +82,6 @@ public class ReadChartItem extends ChartItem {
 		}
 		int prevIterationCounter = reader.getIterationCounter();
 		boolean moreInput = reader.readSentence(cachedGraph);
-//		System.out.println(cachedGraph);
-//		System.exit(1);
 		if (!moreInput) {
 			return ChartItem.TERMINATE;
 		} else if (prevIterationCounter < reader.getIterationCounter()) {
@@ -204,16 +201,10 @@ public class ReadChartItem extends ChartItem {
 	public void initInput(String nullValueStategy) throws MaltChainedException {
 		ConfigurationDir configDir = (ConfigurationDir)flowChartinstance.getFlowChartRegistry(org.maltparser.core.config.ConfigurationDir.class, idName);
 		DataFormatManager dataFormatManager = configDir.getDataFormatManager();
-//		DataFormatManager dataFormatManager = flowChartinstance.getDataFormatManager();
 		SymbolTableHandler symbolTables = configDir.getSymbolTables();
-//		SymbolTableHandler symbolTables = flowChartinstance.getSymbolTables();
-		HashMap<String, DataFormatInstance> dataFormatInstances = configDir.getDataFormatInstances();
-//		HashMap<String, DataFormatInstance> dataFormatInstances = flowChartinstance.getDataFormatInstances();
-		
 		inputDataFormatInstance = dataFormatManager.getInputDataFormatSpec().createDataFormatInstance(symbolTables, nullValueStategy);
-		if (!dataFormatInstances.containsKey(dataFormatManager.getInputDataFormatSpec().getDataFormatName())) {
-			dataFormatInstances.put(dataFormatManager.getInputDataFormatSpec().getDataFormatName(), inputDataFormatInstance);
-		}
+		configDir.addDataFormatInstance(dataFormatManager.getInputDataFormatSpec().getDataFormatName(), inputDataFormatInstance);
+
 	}
 	
 	public void initReader(Class<? extends SyntaxGraphReader> syntaxGraphReader, String inputFile, String inputCharSet, String readerOptions, int iterations) throws MaltChainedException {

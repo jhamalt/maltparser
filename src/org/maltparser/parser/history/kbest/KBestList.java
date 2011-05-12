@@ -7,10 +7,9 @@ import org.maltparser.parser.history.action.SingleDecision;
 /**
 *
 * @author Johan Hall
-* @since 1.1
 **/
 public class KBestList {
-	protected ArrayList<Candidate> kBestList;
+	protected final ArrayList<Candidate> kBestList;
 	protected int k = -1;
 	protected int topCandidateIndex;
 	protected int addCandidateIndex;
@@ -33,7 +32,7 @@ public class KBestList {
 	 */
 	public KBestList(Integer k, SingleDecision decision) {
 		setK(k.intValue());
-		setDecision(decision);
+		this.decision = decision;
 		if (this.k > 0) {
 			kBestList = new ArrayList<Candidate>(this.k);
 			initKBestList();
@@ -76,6 +75,12 @@ public class KBestList {
 		addCandidateIndex++;
 	}
 	
+	public void addList(int[] predictionList) throws MaltChainedException {
+		int n = (k != -1 && k <= predictionList.length-1)?k:predictionList.length - 1;
+		for (int i=0; i<n; i++) {
+			add(predictionList[i]);
+		}	
+	}
 	
 	/**
 	 * Adds a candidate to the k-best list
@@ -163,17 +168,7 @@ public class KBestList {
 	 */
 	public SingleDecision getDecision() {
 		return decision;
-	}
-
-	/**
-	 * Sets a reference to the decision that owns the k-best list.
-	 * 
-	 * @param decision a reference to the decision that owns the k-best list
-	 */
-	protected void setDecision(SingleDecision decision) {
-		this.decision = decision;
-	}
-	
+	}	
 	
 	public int getKBestListSize() {
 		return kBestList.size();

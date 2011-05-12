@@ -11,7 +11,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.SecureClassLoader;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Set;
 import java.util.TreeSet;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
@@ -21,6 +21,7 @@ import java.util.jar.Manifest;
 import java.util.regex.PatternSyntaxException;
 
 import org.maltparser.core.exception.MaltChainedException;
+import org.maltparser.core.helper.HashSet;
 import org.maltparser.core.options.OptionManager;
 
 
@@ -75,7 +76,7 @@ public class JarLoader extends SecureClassLoader {
 	public boolean readJarFile(URL jarUrl) throws MaltChainedException {
 		JarInputStream jis;
 		JarEntry je;
-		HashSet<URL> pluginXMLs = new HashSet<URL>();
+		Set<URL> pluginXMLs = new HashSet<URL>();
 		
 		/*if (logger.isDebugEnabled()) {
 			logger.debug("Loading jar " + jarUrl+"\n");

@@ -63,7 +63,7 @@ public class TwoPlanarArcEagerOracle extends Oracle {
 				propagatePlaneConstraint(gold.getTokenNode(activeStackPeekIndex).getHeadEdge(), SECOND_PLANE );
 			}
 			//System.out.println("From " + inputPeekIndex + " to " + activeStackPeekIndex);
-			return updateActionContainers(TwoPlanar.LEFTARC, gold.getTokenNode(activeStackPeekIndex).getHeadEdge().getLabelSet());	
+			return updateActionContainers(TwoPlanar.LEFTARC, gold.getTokenNode(activeStackPeekIndex).getHeadEdge().getLabelSet(), null);	
 		} 
 		
 		else if (gold.getTokenNode(inputPeekIndex).getHead().getIndex() == activeStackPeekIndex
@@ -77,7 +77,7 @@ public class TwoPlanarArcEagerOracle extends Oracle {
 				propagatePlaneConstraint(gold.getTokenNode(inputPeekIndex).getHeadEdge(), SECOND_PLANE );
 			}
 			//System.out.println("From " + activeStackPeekIndex + " to " + inputPeekIndex);
-			return updateActionContainers(TwoPlanar.RIGHTARC, gold.getTokenNode(inputPeekIndex).getHeadEdge().getLabelSet());
+			return updateActionContainers(TwoPlanar.RIGHTARC, gold.getTokenNode(inputPeekIndex).getHeadEdge().getLabelSet(), null);
 		}
 		
 		else if (!inactiveStackPeek.isRoot() && gold.getTokenNode(inactiveStackPeekIndex).getHead().getIndex() == inputPeekIndex
@@ -85,7 +85,7 @@ public class TwoPlanarArcEagerOracle extends Oracle {
 			//need to create link, but on the other plane!!
 			//TODO is this if branch really necessary? i.e. will this happen? (later branches already switch)
 			//System.out.println("Switch one");
-			return updateActionContainers(TwoPlanar.SWITCH, null);
+			return updateActionContainers(TwoPlanar.SWITCH, null, null);
 		}
 		
 		else if (gold.getTokenNode(inputPeekIndex).getHead().getIndex() == inactiveStackPeekIndex
@@ -93,19 +93,19 @@ public class TwoPlanarArcEagerOracle extends Oracle {
 			//need to create link, but on the other plane!!
 			//TODO is this if branch really necessary? i.e. will this happen? (later branches already switch)
 			//System.out.println("Switch two");
-			return updateActionContainers(TwoPlanar.SWITCH, null);
+			return updateActionContainers(TwoPlanar.SWITCH, null, null);
 		}
 		
 		else if ( getFirstPendingLinkOnActivePlane(planarConfig,gold) != null )
 		{
 			//System.out.println("Reduce one");
-			return updateActionContainers(TwoPlanar.REDUCE, null);
+			return updateActionContainers(TwoPlanar.REDUCE, null, null);
 		}
 		
 		else if ( getFirstPendingLinkOnInactivePlane(planarConfig,gold) != null )
 		{
 			//System.out.println("Switch for reducing");
-			return updateActionContainers(TwoPlanar.SWITCH, null);
+			return updateActionContainers(TwoPlanar.SWITCH, null, null);
 		}
 		
 		//TODO: double reduce somehow? (check if reduced node is not covered by links of the other plane, or something like that).
@@ -113,7 +113,7 @@ public class TwoPlanarArcEagerOracle extends Oracle {
 		else 
 		{
 			//System.out.println("Shift");
-			return updateActionContainers(TwoPlanar.SHIFT, null);
+			return updateActionContainers(TwoPlanar.SHIFT, null, null);
 		}
 		
 	}

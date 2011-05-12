@@ -1,10 +1,17 @@
 package org.maltparser.ml.lib;
 
-public class XNode implements Comparable<XNode> {
-	private int index;
-	private double value;
+
+public class MaltFeatureNode implements Comparable<MaltFeatureNode> {
+
+	int index;
+	double value;
 	
-	public XNode(int index, double value) {
+	public MaltFeatureNode() {
+		index = -1;
+		value = 0;
+	}
+	
+	public MaltFeatureNode(int index, double value) {
 		setIndex(index);
 		setValue(value);
 	}
@@ -25,12 +32,14 @@ public class XNode implements Comparable<XNode> {
 		this.value = value;
 	}
 
+	public void clear() {
+		index = -1;
+		value = 0;
+	}
 	public int hashCode() {
 		final int prime = 31;
-		int result = 1;
-		result = prime * result + index;
-		long temp;
-		temp = Double.doubleToLongBits(value);
+		final long temp = Double.doubleToLongBits(value);
+		int result = prime * 1 + index;
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		return result;
 	}
@@ -42,16 +51,15 @@ public class XNode implements Comparable<XNode> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		XNode other = (XNode) obj;
+		MaltFeatureNode other = (MaltFeatureNode) obj;
 		if (index != other.index)
 			return false;
-		if (Double.doubleToLongBits(value) != Double
-				.doubleToLongBits(other.value))
+		if (Double.doubleToLongBits(value) != Double.doubleToLongBits(other.value))
 			return false;
 		return true;
 	}
 	
-	public int compareTo(XNode aThat) {
+	public int compareTo(MaltFeatureNode aThat) {
 		final int BEFORE = -1;
 		final int EQUAL = 0;
 		final int AFTER = 1;

@@ -35,21 +35,21 @@ public class SwapEagerOracle extends Oracle {
 		}
 		GuideUserAction action = null;
 		if (stack.size() < 2) {
-			action = updateActionContainers(NonProjective.SHIFT, null);
+			action = updateActionContainers(NonProjective.SHIFT, null, null);
 		} else {
 			DependencyNode left = stack.get(stack.size()-2);
 			int leftIndex = left.getIndex();
 			int rightIndex = stack.get(stack.size()-1).getIndex();
 			if (swapArray.get(leftIndex) > swapArray.get(rightIndex)) {
-				action =  updateActionContainers(NonProjective.SWAP, null);
+				action =  updateActionContainers(NonProjective.SWAP, null, null);
 			} else if (!left.isRoot() && gold.getTokenNode(leftIndex).getHead().getIndex() == rightIndex
 					&& nodeComplete(gold, config.getDependencyGraph(), leftIndex)) {
-				action = updateActionContainers(NonProjective.LEFTARC, gold.getTokenNode(leftIndex).getHeadEdge().getLabelSet());
+				action = updateActionContainers(NonProjective.LEFTARC, gold.getTokenNode(leftIndex).getHeadEdge().getLabelSet(), null);
 			} else if (gold.getTokenNode(rightIndex).getHead().getIndex() == leftIndex
 					&& nodeComplete(gold, config.getDependencyGraph(), rightIndex)) {
-				action = updateActionContainers(NonProjective.RIGHTARC, gold.getTokenNode(rightIndex).getHeadEdge().getLabelSet());
+				action = updateActionContainers(NonProjective.RIGHTARC, gold.getTokenNode(rightIndex).getHeadEdge().getLabelSet(), null);
 			} else {
-				action = updateActionContainers(NonProjective.SHIFT, null);
+				action = updateActionContainers(NonProjective.SHIFT, null, null);
 			}
 		}
 		return action;

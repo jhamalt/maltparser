@@ -25,16 +25,16 @@ public class CovingtonOracle extends Oracle {
 		int rightTargetIndex = covingtonConfig.getRightTarget().getIndex();
 		
 		if (!leftTarget.isRoot() && gold.getTokenNode(leftTargetIndex).getHead().getIndex() == rightTargetIndex) {
-			return updateActionContainers(NonProjective.LEFTARC, gold.getTokenNode(leftTargetIndex).getHeadEdge().getLabelSet());
+			return updateActionContainers(NonProjective.LEFTARC, gold.getTokenNode(leftTargetIndex).getHeadEdge().getLabelSet(), null);
 		} else if (gold.getTokenNode(rightTargetIndex).getHead().getIndex() == leftTargetIndex) {
-			return updateActionContainers(NonProjective.RIGHTARC, gold.getTokenNode(rightTargetIndex).getHeadEdge().getLabelSet());
+			return updateActionContainers(NonProjective.RIGHTARC, gold.getTokenNode(rightTargetIndex).getHeadEdge().getLabelSet(), null);
 		} else if (covingtonConfig.isAllowShift() == true && (!(gold.getTokenNode(rightTargetIndex).hasLeftDependent() 
 				&& gold.getTokenNode(rightTargetIndex).getLeftmostDependent().getIndex() < leftTargetIndex)
 				&& !(gold.getTokenNode(rightTargetIndex).getHead().getIndex() < leftTargetIndex 
 						&& (!gold.getTokenNode(rightTargetIndex).getHead().isRoot() || covingtonConfig.getLeftstop() == 0)))) {
-			return updateActionContainers(NonProjective.SHIFT, null);
+			return updateActionContainers(NonProjective.SHIFT, null, null);
 		} else {
-			return updateActionContainers(NonProjective.NOARC, null);
+			return updateActionContainers(NonProjective.NOARC, null, null);
 		}
 	}
 	

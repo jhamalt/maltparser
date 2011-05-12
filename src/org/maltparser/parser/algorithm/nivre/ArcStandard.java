@@ -54,7 +54,7 @@ public class ArcStandard extends TransitionSystem {
 	public GuideUserAction getDeterministicAction(GuideUserHistory history, ParserConfiguration config) throws MaltChainedException {
 		NivreConfig nivreConfig = (NivreConfig)config;
 		if (nivreConfig.getRootHandling() != NivreConfig.NORMAL && nivreConfig.getStack().peek().isRoot()) {
-			return updateActionContainers(history, ArcStandard.SHIFT, null);
+			return updateActionContainers(history, ArcStandard.SHIFT, null, null);
 		}
 		return null;
 	}
@@ -96,6 +96,6 @@ public class ArcStandard extends TransitionSystem {
 	}
 	
 	public GuideUserAction defaultAction(GuideUserHistory history, ParserConfiguration configuration) throws MaltChainedException {
-		return updateActionContainers(history, ArcStandard.SHIFT, null);
+		return updateActionContainers(history, ArcStandard.SHIFT, null, null);
 	}
 }

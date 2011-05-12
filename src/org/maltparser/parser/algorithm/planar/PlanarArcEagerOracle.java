@@ -28,17 +28,17 @@ public class PlanarArcEagerOracle extends Oracle {
 		
 		if (!stackPeek.isRoot() && gold.getTokenNode(stackPeekIndex).getHead().getIndex() == inputPeekIndex
 				&& !checkIfArcExists ( dg , inputPeekIndex , stackPeekIndex ) )  {
-			return updateActionContainers(Planar.LEFTARC, gold.getTokenNode(stackPeekIndex).getHeadEdge().getLabelSet());	
+			return updateActionContainers(Planar.LEFTARC, gold.getTokenNode(stackPeekIndex).getHeadEdge().getLabelSet(), null);	
 		} else if (gold.getTokenNode(inputPeekIndex).getHead().getIndex() == stackPeekIndex
 				&& !checkIfArcExists ( dg , stackPeekIndex , inputPeekIndex ) ) {
-			return updateActionContainers(Planar.RIGHTARC, gold.getTokenNode(inputPeekIndex).getHeadEdge().getLabelSet());
+			return updateActionContainers(Planar.RIGHTARC, gold.getTokenNode(inputPeekIndex).getHeadEdge().getLabelSet(), null);
 		} else if (gold.getTokenNode(inputPeekIndex).hasLeftDependent() &&
 				gold.getTokenNode(inputPeekIndex).getLeftmostDependent().getIndex() < stackPeekIndex) {
-			return updateActionContainers(Planar.REDUCE, null);
+			return updateActionContainers(Planar.REDUCE, null, null);
 		} else if (gold.getTokenNode(inputPeekIndex).getHead().getIndex() < stackPeekIndex) {
-			return updateActionContainers(Planar.REDUCE, null);
+			return updateActionContainers(Planar.REDUCE, null, null);
 		} else {
-			return updateActionContainers(Planar.SHIFT, null);
+			return updateActionContainers(Planar.SHIFT, null, null);
 		}
 			
 	}

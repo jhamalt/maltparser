@@ -88,7 +88,7 @@ public class CopyChartItem extends ChartItem {
 			DependencyNode gnode = sourceGraph.getTokenNode(index);
 			DependencyNode pnode = targetGraph.addTokenNode(gnode.getIndex());
 			for (SymbolTable table : gnode.getLabelTypes()) {
-				if (table.getColumnCategory() == ColumnDescription.INPUT) {
+				if (table.getColumnCategory() == ColumnDescription.INPUT && !table.getName().equals("CPOSTAG")) {
 					pnode.addLabel(table, gnode.getLabelSymbol(table));
 				}
 			}

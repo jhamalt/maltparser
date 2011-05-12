@@ -83,7 +83,7 @@ public class ExistsFeature implements FeatureFunction {
 	 * @throws MaltChainedException
 	 */
 	public void updateCardinality() {
-		featureValue.setCardinality(table.getValueCounter()); 
+//		featureValue.setCardinality(table.getValueCounter()); 
 	}
 	
 	/**
@@ -92,18 +92,15 @@ public class ExistsFeature implements FeatureFunction {
 	 * @throws MaltChainedException
 	 */
 	public void update() throws MaltChainedException {
+//		featureValue.setKnown(true);
+		featureValue.setIndexCode(1);
+		featureValue.setNullValue(false);
 		if (addressFunction.getAddressValue().getAddress() != null) {
-			featureValue.setIndexCode(1);
 			featureValue.setSymbol("true");
 			featureValue.setValue(1);
-			featureValue.setKnown(true);
-			featureValue.setNullValue(false);
 		} else {
-			featureValue.setIndexCode(1);
 			featureValue.setSymbol("false");
 			featureValue.setValue(0);
-			featureValue.setKnown(true);
-			featureValue.setNullValue(false);
 		}
 	}
 	

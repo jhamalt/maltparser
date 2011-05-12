@@ -5,7 +5,6 @@ package org.maltparser.parser.history.kbest;
  * A candidate in the k-best list. 
  * 
  * @author Johan Hall
- * @since 1.1
 */
 public class Candidate  {
 	/**
@@ -47,7 +46,7 @@ public class Candidate  {
 
 	@Override
 	public int hashCode() {
-		return 31 * 1 + actionCode;
+		return 31 + actionCode;
 	}
 
 	@Override

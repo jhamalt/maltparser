@@ -14,7 +14,7 @@ public interface FeatureFunction extends Function {
 	 * 
 	 * @throws MaltChainedException
 	 */
-	public abstract void updateCardinality() throws MaltChainedException;
+//	public abstract void updateCardinality() throws MaltChainedException;
 	/**
 	 * Returns the string representation of the integer <code>code</code> according to the feature function. 
 	 * 

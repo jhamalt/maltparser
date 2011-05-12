@@ -142,7 +142,7 @@ public class Projective extends TransitionSystem {
 	}
 	
 	public GuideUserAction defaultAction(GuideUserHistory history, ParserConfiguration configuration) throws MaltChainedException {
-		return updateActionContainers(history, Projective.NOARC, null);
+		return updateActionContainers(history, Projective.NOARC, null, null);
 	}
 }
 

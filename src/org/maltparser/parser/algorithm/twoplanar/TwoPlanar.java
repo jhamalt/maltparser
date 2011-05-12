@@ -76,7 +76,7 @@ public class TwoPlanar extends TransitionSystem {
 	public GuideUserAction getDeterministicAction(GuideUserHistory history, ParserConfiguration config) throws MaltChainedException {
 		TwoPlanarConfig theConfig = (TwoPlanarConfig)config;
 		if (theConfig.getRootHandling() != TwoPlanarConfig.NORMAL && theConfig.getActiveStack().peek().isRoot()) {
-			return updateActionContainers(history, TwoPlanar.SHIFT, null);
+			return updateActionContainers(history, TwoPlanar.SHIFT, null, null);
 		}
 		return null;
 	}
@@ -219,7 +219,7 @@ public class TwoPlanar extends TransitionSystem {
 	}
 	
 	public GuideUserAction defaultAction(GuideUserHistory history, ParserConfiguration configuration) throws MaltChainedException {
-		return updateActionContainers(history, TwoPlanar.SHIFT, null);
+		return updateActionContainers(history, TwoPlanar.SHIFT, null, null);
 	}
 	
 	
