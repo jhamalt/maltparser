@@ -515,11 +515,11 @@ data format could look like this:</p>
 1	Den	_	PO	PO	DP	2	SS	_	_
 2	blir	_	V	BV	PS	0	ROOT	_	_
 3	gemensam	_	AJ	AJ	_	2	SP	_	_
-4	för	_	PR	PR	_	2	OA	_	_
+4	fÃ¶r	_	PR	PR	_	2	OA	_	_
 5	alla	_	PO	PO	TP	6	DT	_	_
 6	inkomsttagare	_	N	NN	HS	4	PA	_	_
 7	oavsett	_	PR	PR	_	2	AA	_	_
-8	civilstånd	_	N	NN	SS	7	PA	_	_
+8	civilstÃ¥nd	_	N	NN	SS	7	PA	_	_
 9	.	_	P	IP	_	2	IP	_	_
 </pre>
 <p>Finally, the character encoding can be specified with the <b>charset</b> option and this option is used by MaltParser to define the java class <a href="http://java.sun.com/javase/6/docs/api/" target="_blank">Charset</a>.</p>
@@ -849,7 +849,7 @@ LA the left arc model:
 <pre>
 &lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;featuremodels&gt;
-	&lt;featuremodel name="sequential"&gt;
+	&lt;featuremodel name="branched"&gt;
 		&lt;submodel name="T.TRANS"&gt;
 			&lt;feature&gt;InputColumn(POSTAG, Stack[0])&lt;/feature&gt;
 			&lt;feature&gt;InputColumn(POSTAG, Input[0])&lt;/feature&gt;
@@ -954,7 +954,7 @@ download <a href="download.html">MaltParser 1.2</a> and read the offline user gu
 
 <a name="opt"></a>
 <h3>MaltParser optimization</h3>
-<p>MaltParser is a fairly complex system with many parameters that need to be optimized. Simply using the system “out of the box” with default settings is therefore likely to result in suboptimal performance.</p>
+<p>MaltParser is a fairly complex system with many parameters that need to be optimized. Simply using the system â€œout of the boxâ€� with default settings is therefore likely to result in suboptimal performance.</p>
 
 <p>Please read "<a href="http://maltparser.org/guides/opt/quick-opt.pdf">A Quick Guide to MaltParser Optimization</a>" to get hints and tips to how you can optimize MaltParser.</p>
 
@@ -964,11 +964,11 @@ download <a href="download.html">MaltParser 1.2</a> and read the offline user gu
 <li class="pub">Chang, C.-C. and Lin, C.-J. (2001) LIBSVM : a library for support vector machines. Software available at http://www.csie.ntu.edu.tw/~cjlin/libsvm.</li>
 <li class="pub">Fan, R.-E., Chang, K.-W., Hsieh, C.-J., Wang, X.-R. and Lin, C.-J. (2008) LIBLINEAR: A library for large linear classification. <i>Journal of Machine Learning Research</i> 9, 1871-1874.</li> 
 <li class="pub">Hall, J. (2008) Transition-Based Natural Language Parsing with Dependency and Constituency Representations. Acta Wexionensia, 
-No 152/2008, Computer Science, Växjö University (PhD Thesis)</li>
+No 152/2008, Computer Science, VÃ¤xjÃ¶ University (PhD Thesis)</li>
 <li class="pub">Hall, J. and J. Nivre (2008a) A Dependency-Driven Parser for German Dependency and Constituency Representations.
 In <i>Proceedings of the ACL Workshop on Parsing German (PaGe08)</i>, June 20, 2008, Columbus, Ohio, US, pp. x-x. (to appear)</li>
 <li class="pub">Hall, J. and J. Nivre (2008b) Parsing Discontinuous Phrase Structure with Grammatical Functions.
-In Ranta, A. and Nordström, B. (eds.) In <i>Proceedings of the 6th International Conference on Natural Language Processing (GoTAL 2008)</i>, 
+In Ranta, A. and NordstrÃ¶m, B. (eds.) In <i>Proceedings of the 6th International Conference on Natural Language Processing (GoTAL 2008)</i>, 
 LNAI 5221, Springer-Verlag, August 25-27, 2008, Gothenburg, Sweden, pp. 169-180.</li>
 <li class="pub">Nivre, J. (2009) Non-Projective Dependency Parsing in Expected Linear Time. In <i>Proceedings of the Joint Conference of the 47th Annual Meeting of the ACL and the 4th International Joint Conference on Natural Language Processing of the AFNLP</i>, 351-359. </li>
 <li class="pub">Nivre, J., Kuhlmann, M. and Hall, J. (2009) An Improved Oracle for Dependency Parsing with Online Reordering. In <i>Proceedings of the 11th International Conference on Parsing

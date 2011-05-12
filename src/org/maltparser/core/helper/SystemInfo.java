@@ -25,13 +25,16 @@ public class SystemInfo {
 	private static File maltJarPath;
 
 	private SystemInfo() {
-		Pattern MALTJAR = Pattern.compile("^.*malt[^" + File.separator
-				+ "]*\\.jar$");
+		String separator = File.separator;
+		if (separator.equals("\\")) {
+			separator = "\\\\";
+		}
+		
+		Pattern MALTJAR = Pattern.compile("^.*malt[^" + separator + "]*\\.jar$");
 		try {
 			getManifestInfo();
 
-			String[] jarfiles = System.getProperty("java.class.path").split(
-					File.pathSeparator);
+			String[] jarfiles = System.getProperty("java.class.path").split(File.pathSeparator);
 			for (int i = 0; i < jarfiles.length; i++) {
 
 				if (MALTJAR.matcher(jarfiles[i]).matches()) {
