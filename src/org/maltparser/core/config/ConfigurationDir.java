@@ -33,7 +33,7 @@ import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.helper.HashSet;
 import org.maltparser.core.helper.SystemInfo;
 import org.maltparser.core.helper.SystemLogger;
-import org.maltparser.core.helper.Util;
+import org.maltparser.core.helper.URLFinder;
 import org.maltparser.core.io.dataformat.DataFormatInstance;
 import org.maltparser.core.io.dataformat.DataFormatManager;
 import org.maltparser.core.io.dataformat.DataFormatSpecification.DataStructure;
@@ -102,23 +102,24 @@ public class ConfigurationDir  {
 	public void initDataFormat() throws MaltChainedException {
 		String inputFormatName = OptionManager.instance().getOptionValue(containerIndex, "input", "format").toString().trim();
 		String outputFormatName = OptionManager.instance().getOptionValue(containerIndex, "output", "format").toString().trim();
+		final URLFinder f = new URLFinder();
 
 		if (configDirectory != null && configDirectory.exists()) {
 			if (outputFormatName.length() == 0 || inputFormatName.equals(outputFormatName)) {
-				URL inputFormatURL = Util.findURLinJars(inputFormatName);
+				URL inputFormatURL = f.findURLinJars(inputFormatName);
 				if (inputFormatURL != null) {
 					outputFormatName = inputFormatName = this.copyToConfig(inputFormatURL);
 				} else {
 					outputFormatName = inputFormatName = this.copyToConfig(inputFormatName);
 				}
 			} else {
-				URL inputFormatURL = Util.findURLinJars(inputFormatName);
+				URL inputFormatURL = f.findURLinJars(inputFormatName);
 				if (inputFormatURL != null) {
 					inputFormatName = this.copyToConfig(inputFormatURL);
 				} else {
 					inputFormatName = this.copyToConfig(inputFormatName);
 				}
-				URL outputFormatURL = Util.findURLinJars(outputFormatName);
+				URL outputFormatURL = f.findURLinJars(outputFormatName);
 				if (inputFormatURL != null) {
 					outputFormatName = this.copyToConfig(outputFormatURL);
 				} else {
@@ -139,12 +140,12 @@ public class ConfigurationDir  {
 			try {
 				InputStream is = outputFormatURL.openStream();
 			} catch (FileNotFoundException e) {
-				outputFormatURL = Util.findURL(outputFormatName);
+				outputFormatURL = f.findURL(outputFormatName);
 			} catch (IOException e) {
-				outputFormatURL = Util.findURL(outputFormatName);
+				outputFormatURL = f.findURL(outputFormatName);
 			}
 		} else {
-			outputFormatURL = Util.findURL(outputFormatName);
+			outputFormatURL = f.findURL(outputFormatName);
 		}
 		dataFormatManager = new DataFormatManager(inputFormatURL, outputFormatURL);
 		symbolTables = new TrieSymbolTableHandler();
@@ -154,7 +155,7 @@ public class ConfigurationDir  {
 			if (mode.equals("learn")) {
 				Set<Dependency> deps = dataFormatManager.getInputDataFormatSpec().getDependencies();
 				for (Dependency dep : deps) {
-					URL depFormatURL = Util.findURLinJars(dep.getUrlString());
+					URL depFormatURL = f.findURLinJars(dep.getUrlString());
 					if (depFormatURL != null) {
 						this.copyToConfig(depFormatURL);
 					} else {
@@ -166,7 +167,7 @@ public class ConfigurationDir  {
 				Set<Dependency> deps = dataFormatManager.getInputDataFormatSpec().getDependencies();
 				String nullValueStategy = OptionManager.instance().getOptionValue(containerIndex, "singlemalt", "null_value").toString();
 				for (Dependency dep : deps) {
-//					URL depFormatURL = Util.findURLinJars(dep.getUrlString());
+//					URL depFormatURL = f.findURLinJars(dep.getUrlString());
 					DataFormatInstance dataFormatInstance = dataFormatManager.getDataFormatSpec(dep.getDependentOn()).createDataFormatInstance(symbolTables, nullValueStategy);
 					addDataFormatInstance(dataFormatManager.getDataFormatSpec(dep.getDependentOn()).getDataFormatName(), dataFormatInstance);
 					dataFormatManager.setInputDataFormatSpec(dataFormatManager.getDataFormatSpec(dep.getDependentOn()));
@@ -395,7 +396,8 @@ public class ConfigurationDir  {
     
 
     public String copyToConfig(String fileUrl) throws MaltChainedException {
-    	URL url = Util.findURL(fileUrl);
+    	final URLFinder f = new URLFinder();
+    	URL url = f.findURL(fileUrl);
     	if (url == null) {
     		throw new ConfigurationException("The file or URL '"+fileUrl+"' could not be found. ");
     	}
@@ -604,6 +606,7 @@ public class ConfigurationDir  {
 	        byte[] buffer = new byte[BUFFER];
 	        int bytesRead;
 	        StringBuilder sb = new StringBuilder();
+	        final URLFinder f = new URLFinder();
 
 	        for (Enumeration<JarEntry> entries = jar.entries(); entries.hasMoreElements(); ) {
 	            JarEntry inEntry = (JarEntry) entries.nextElement();
@@ -630,7 +633,7 @@ public class ConfigurationDir  {
 	        }
 	        if (versioning.getFeatureModelXML() != null && versioning.getFeatureModelXML().startsWith("/appdata")) {
 	        	int index = versioning.getFeatureModelXML().lastIndexOf('/');
-    	    	BufferedInputStream bis = new BufferedInputStream(Util.findURLinJars(versioning.getFeatureModelXML()).openStream());
+    	    	BufferedInputStream bis = new BufferedInputStream(f.findURLinJars(versioning.getFeatureModelXML()).openStream());
     	    	tempJar.putNextEntry(new JarEntry(versioning.getNewConfigName()+"/" +versioning.getFeatureModelXML().substring(index+1)));
     	        int n = 0;
     		    while ((n = bis.read(buffer, 0, BUFFER)) != -1) {
@@ -640,7 +643,7 @@ public class ConfigurationDir  {
 	        }
 	        if (versioning.getInputFormatXML() != null && versioning.getInputFormatXML().startsWith("/appdata")) {
 	        	int index = versioning.getInputFormatXML().lastIndexOf('/');
-    	    	BufferedInputStream bis = new BufferedInputStream(Util.findURLinJars(versioning.getInputFormatXML()).openStream());
+    	    	BufferedInputStream bis = new BufferedInputStream(f.findURLinJars(versioning.getInputFormatXML()).openStream());
     	    	tempJar.putNextEntry(new JarEntry(versioning.getNewConfigName()+"/" +versioning.getInputFormatXML().substring(index+1)));
     	        int n = 0;
     		    while ((n = bis.read(buffer, 0, BUFFER)) != -1) {

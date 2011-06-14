@@ -14,7 +14,7 @@ import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.feature.FeatureException;
 import org.maltparser.core.flow.FlowException;
 import org.maltparser.core.flow.system.elem.ChartElement;
-import org.maltparser.core.helper.Util;
+import org.maltparser.core.helper.URLFinder;
 import org.maltparser.core.plugin.Plugin;
 import org.maltparser.core.plugin.PluginLoader;
 import org.w3c.dom.Element;
@@ -33,7 +33,8 @@ public class FlowChartSystem {
 	}
 	
 	public void load(String urlstring) throws MaltChainedException {
-		load(Util.findURL(urlstring));
+		final URLFinder f = new URLFinder();
+		load(f.findURL(urlstring));
 	}
 	
 	public void load(PluginLoader plugins) throws MaltChainedException {

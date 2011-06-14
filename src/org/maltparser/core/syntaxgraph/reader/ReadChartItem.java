@@ -7,7 +7,7 @@ import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.flow.FlowChartInstance;
 import org.maltparser.core.flow.item.ChartItem;
 import org.maltparser.core.flow.spec.ChartItemSpecification;
-import org.maltparser.core.helper.Util;
+import org.maltparser.core.helper.URLFinder;
 import org.maltparser.core.io.dataformat.DataFormatException;
 import org.maltparser.core.io.dataformat.DataFormatInstance;
 import org.maltparser.core.io.dataformat.DataFormatManager;
@@ -208,7 +208,8 @@ public class ReadChartItem extends ChartItem {
 	}
 	
 	public void initReader(Class<? extends SyntaxGraphReader> syntaxGraphReader, String inputFile, String inputCharSet, String readerOptions, int iterations) throws MaltChainedException {
-		try {	
+		try {
+			final URLFinder f = new URLFinder();
 			reader = syntaxGraphReader.newInstance();
 			if (inputFile == null || inputFile.length() == 0 || inputFile.equals("/dev/stdin")) {
 				reader.open(System.in, inputCharSet);
@@ -217,7 +218,7 @@ public class ReadChartItem extends ChartItem {
 				reader.open(inputFile, inputCharSet);
 			} else {
 				reader.setNIterations(iterations);
-				reader.open(Util.findURL(inputFile), inputCharSet);
+				reader.open(f.findURL(inputFile), inputCharSet);
 			}
 			reader.setDataFormatInstance(inputDataFormatInstance); 
 			reader.setOptions(readerOptions);

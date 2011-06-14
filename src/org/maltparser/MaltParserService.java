@@ -7,7 +7,7 @@ import java.util.Iterator;
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.flow.FlowChartInstance;
 import org.maltparser.core.helper.SystemInfo;
-import org.maltparser.core.helper.Util;
+import org.maltparser.core.helper.URLFinder;
 import org.maltparser.core.io.dataformat.ColumnDescription;
 import org.maltparser.core.io.dataformat.DataFormatException;
 import org.maltparser.core.io.dataformat.DataFormatInstance;
@@ -274,7 +274,8 @@ public class MaltParserService {
 		if (maltpath == null) {
 			throw new MaltChainedException("malt.jar could not be found. ");
 		}
-		urlMaltJar = Util.findURL(maltpath);
+		final URLFinder f = new URLFinder();
+		urlMaltJar = f.findURL(maltpath);
 		try {
 			OptionManager.instance().loadOptionDescriptionFile(new URL("jar:"+urlMaltJar.toString()+"!/appdata/options.xml"));
 			

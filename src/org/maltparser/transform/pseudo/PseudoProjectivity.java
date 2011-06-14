@@ -86,7 +86,7 @@ public class PseudoProjectivity {
 //		this.deprelSymbolTable = dataFormatInstance.getSymbolTables().getSymbolTable("DEPREL");
 		if (markingStrategy == PseudoProjectiveEncoding.HEAD || markingStrategy == PseudoProjectiveEncoding.PATH
 				|| markingStrategy == PseudoProjectiveEncoding.HEADPATH) {
-			this.ppliftedColumn = dataFormatInstance.addInternalColumnDescription("PPLIFTED", "DEPENDENCY_EDGE_LABEL", "BOOLEAN", deprelColumn.getNullValueStrategy());
+			this.ppliftedColumn = dataFormatInstance.addInternalColumnDescription("PPLIFTED", "DEPENDENCY_EDGE_LABEL", "BOOLEAN", "", deprelColumn.getNullValueStrategy());
 			this.ppliftedSymbolTable = ppliftedColumn.getSymbolTable();
 //			this.ppliftedSymbolTable = dataFormatInstance.getSymbolTables().addSymbolTable("PPLIFTED", deprelSymbolTable);
 			if (this.markingStrategy == PseudoProjectiveEncoding.PATH) {
@@ -98,7 +98,7 @@ public class PseudoProjectivity {
 		}
 
 		if (markingStrategy == PseudoProjectiveEncoding.PATH || markingStrategy == PseudoProjectiveEncoding.HEADPATH) {
-			this.pppathColumn = dataFormatInstance.addInternalColumnDescription("PPPATH", "DEPENDENCY_EDGE_LABEL", "BOOLEAN", deprelColumn.getNullValueStrategy());
+			this.pppathColumn = dataFormatInstance.addInternalColumnDescription("PPPATH", "DEPENDENCY_EDGE_LABEL", "BOOLEAN", "", deprelColumn.getNullValueStrategy());
 			this.pppathSymbolTable = pppathColumn.getSymbolTable();
 			pppathSymbolTable.addSymbol("#true#");
 			pppathSymbolTable.addSymbol("#false#");
@@ -117,7 +117,7 @@ public class PseudoProjectivity {
 		}
 
 		if (this.rootAttachment != CoveredRootAttachment.NONE) {
-			this.ppcoveredRootColumn = dataFormatInstance.addInternalColumnDescription("PPCOVERED", "DEPENDENCY_EDGE_LABEL", "BOOLEAN", deprelColumn.getNullValueStrategy());
+			this.ppcoveredRootColumn = dataFormatInstance.addInternalColumnDescription("PPCOVERED", "DEPENDENCY_EDGE_LABEL", "BOOLEAN", "", deprelColumn.getNullValueStrategy());
 			this.ppcoveredRootSymbolTable = ppcoveredRootColumn.getSymbolTable();
 			ppcoveredRootSymbolTable.addSymbol("#true#");
 			ppcoveredRootSymbolTable.addSymbol("#false#");

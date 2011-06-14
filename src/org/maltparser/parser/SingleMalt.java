@@ -15,7 +15,7 @@ import org.maltparser.core.config.ConfigurationException;
 import org.maltparser.core.config.ConfigurationRegistry;
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.helper.SystemLogger;
-import org.maltparser.core.helper.Util;
+import org.maltparser.core.helper.URLFinder;
 import org.maltparser.core.io.dataformat.DataFormatInstance;
 import org.maltparser.core.options.OptionManager;
 import org.maltparser.core.propagation.PropagationManager;
@@ -301,7 +301,8 @@ public class SingleMalt implements DependencyParserConfig {
 				}
 				/* END: Temp fix during development of new liblinear and libsvm interface */
 				featureModelFileName = featureModelFileName.replace("{learner}", learner);
-				featureModelFileName = configDir.copyToConfig(Util.findURLinJars(featureModelFileName));
+				final URLFinder f = new URLFinder();
+				featureModelFileName = configDir.copyToConfig(f.findURLinJars(featureModelFileName));
 			} else {
 				featureModelFileName = configDir.copyToConfig(featureModelFileName);
 			}

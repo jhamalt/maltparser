@@ -4,6 +4,7 @@ import java.net.URL;
 
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.helper.HashMap;
+import org.maltparser.core.helper.URLFinder;
 import org.maltparser.core.helper.Util;
 import org.maltparser.core.io.dataformat.DataFormatSpecification.Dependency;
 
@@ -30,9 +31,10 @@ public class DataFormatManager {
 			dataFormat.parseDataFormatXMLfile(dataFormatUrl);
 			fileNameDataFormatSpecs.put(dataFormatUrl.toString(), dataFormat);
 			nameDataFormatSpecs.put(dataFormat.getDataFormatName(), dataFormat);
+			final URLFinder f = new URLFinder();
 			
 			for (Dependency dep : dataFormat.getDependencies()) {
-				loadDataFormat(Util.findURLinJars(dep.getUrlString()));
+				loadDataFormat(f.findURLinJars(dep.getUrlString()));
 			}
 		}
 		return dataFormat;

@@ -31,6 +31,8 @@ public class ColumnDescription implements Comparable<ColumnDescription> {
 	private String name;
 	private int category;
 	private int type;
+	private String categoryName;
+	private String typeName;
 	private String defaultOutput;
 	private SymbolTable symbolTable;
 	private String nullValueStrategy;
@@ -74,14 +76,6 @@ public class ColumnDescription implements Comparable<ColumnDescription> {
 	public String getName() {
 		return name;
 	}
-
-	public int getCategory() {
-		return category;
-	}
-	
-	public int getType() {
-		return type;
-	}
 	
 	public String getDefaultOutput() {
 		return defaultOutput;
@@ -120,21 +114,22 @@ public class ColumnDescription implements Comparable<ColumnDescription> {
 	}
 	
 	private void setCategory(String category) throws MaltChainedException {
-		if (category.toUpperCase().equals("INPUT")) {
+		categoryName = category.toUpperCase();
+		if (categoryName.equals("INPUT")) {
 			this.category = ColumnDescription.INPUT;
-		} else if (category.toUpperCase().equals("HEAD")) {
+		} else if (categoryName.equals("HEAD")) {
 			this.category = ColumnDescription.HEAD;
-		} else if (category.toUpperCase().equals("OUTPUT")) {
+		} else if (categoryName.equals("OUTPUT")) {
 			this.category = ColumnDescription.DEPENDENCY_EDGE_LABEL;
-		} else if (category.toUpperCase().equals("DEPENDENCY_EDGE_LABEL")) {
+		} else if (categoryName.equals("DEPENDENCY_EDGE_LABEL")) {
 			this.category = ColumnDescription.DEPENDENCY_EDGE_LABEL;
-		} else if (category.toUpperCase().equals("PHRASE_STRUCTURE_EDGE_LABEL")) {
+		} else if (categoryName.equals("PHRASE_STRUCTURE_EDGE_LABEL")) {
 			this.category = ColumnDescription.PHRASE_STRUCTURE_EDGE_LABEL;
-		} else if (category.toUpperCase().equals("PHRASE_STRUCTURE_NODE_LABEL")) {
+		} else if (categoryName.equals("PHRASE_STRUCTURE_NODE_LABEL")) {
 			this.category = ColumnDescription.PHRASE_STRUCTURE_NODE_LABEL;
-		} else if (category.toUpperCase().equals("SECONDARY_EDGE_LABEL")) {
+		} else if (categoryName.equals("SECONDARY_EDGE_LABEL")) {
 			this.category = ColumnDescription.SECONDARY_EDGE_LABEL;
-		} else if (category.toUpperCase().equals("IGNORE")) {
+		} else if (categoryName.equals("IGNORE")) {
 			this.category = ColumnDescription.IGNORE;
 		} else {
 			throw new DataFormatException("The category '"+category+"' is not allowed. ");
@@ -149,28 +144,42 @@ public class ColumnDescription implements Comparable<ColumnDescription> {
 		}
 	}
 	
+	public int getCategory() {
+		return category;
+	}
+	
+	public String getCategoryName() {
+		return categoryName;
+	}
+	
+	public int getType() {
+		return type;
+	}
+
+	public String getTypeName() {
+		return typeName;
+	}
+	
 	private void setType(String type) throws MaltChainedException {
-		if (type.toUpperCase().equals("STRING")) {
+		this.typeName = type.toUpperCase();
+		if (typeName.equals("STRING")) {
 			this.type = ColumnDescription.STRING;
-		} else if (type.toUpperCase().equals("INTEGER")) {
+		} else if (typeName.equals("INTEGER")) {
 			this.type = ColumnDescription.INTEGER;
-		} else if (type.toUpperCase().equals("BOOLEAN")) {
+		} else if (typeName.equals("BOOLEAN")) {
 			this.type = ColumnDescription.BOOLEAN;
-		} else if (type.toUpperCase().equals("REAL")) {
+		} else if (typeName.equals("REAL")) {
 			this.type = ColumnDescription.REAL;
-		} else if (type.toUpperCase().equals("ECHO")) {
+		} else if (typeName.equals("ECHO")) {
 			// ECHO is removed, but if it occurs in the data format file it will be interpreted as an integer instead.
 			this.type = ColumnDescription.INTEGER;
-//			this.type = ColumnDescription.ECHO;
-//		} else if (type.toUpperCase().equals("IGNORE")) {
-//			this.type = ColumnDescription.IGNORE;
 		} else {
 			throw new DataFormatException("The column type '"+type+"' is not allowed. ");
 		}	
 	}
 
 	private void setType(int type) throws MaltChainedException {
-		if (category >= STRING && category <= REAL) {
+		if (type >= STRING && type <= REAL) {
 			this.type = type;
 		} else {
 			throw new DataFormatException("The column type '"+type+"' is not allowed. ");

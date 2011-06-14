@@ -137,6 +137,14 @@ public abstract class ColumnFeature implements FeatureFunction, Modifiable {
 		return column.getSymbolTable();
 	}
 	
+	public  int getType() {
+		return column.getType();
+	}
+	
+	public String getMapIdentifier() {
+		return getSymbolTable().getName();
+	}
+	
 	public String toString() {
 		return column.getName();
 	}

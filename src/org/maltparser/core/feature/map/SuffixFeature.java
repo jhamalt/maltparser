@@ -109,12 +109,7 @@ public class SuffixFeature implements FeatureMapFunction {
 			}
 		}
 	}
-	
-	public void updateCardinality() throws MaltChainedException {
-//		parentFeature.updateCardinality();
-//		multipleFeatureValue.setCardinality(table.getValueCounter()); 
-	}
-	
+
 	public FeatureFunction getParentFeature() {
 		return parentFeature;
 	} 
@@ -157,6 +152,14 @@ public class SuffixFeature implements FeatureMapFunction {
 	
 	protected void setColumn(ColumnDescription column) {
 		this.column = column;
+	}
+	
+	public  int getType() {
+		return column.getType();
+	}
+	
+	public String getMapIdentifier() {
+		return getSymbolTable().getName();
 	}
 	
 	public boolean equals(Object obj) {

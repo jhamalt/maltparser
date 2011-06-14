@@ -58,10 +58,10 @@ public class NumOfFeature implements FeatureFunction {
 		}
 		setAddressFunction((AddressFunction)arguments[0]);
 		setNumOfRelation((String)arguments[1]);
-		
-		// Creates a symbol table called "NUMOF" using one null value
-		setSymbolTable(tableHandler.addSymbolTable("NUMOF", ColumnDescription.INPUT, "one"));
 		normalizationString = (String)arguments[2];
+		// Creates a symbol table called "NUMOF" using one null value
+		setSymbolTable(tableHandler.addSymbolTable("NUMOF"+normalizationString, ColumnDescription.INPUT, "one"));
+		
 		String[] items  = normalizationString.split("\\|");
 		
 		if (items.length <= 0 || !items[0].equals("0")) {
@@ -237,6 +237,14 @@ public class NumOfFeature implements FeatureFunction {
 	 */
 	public void setSymbolTable(SymbolTable table) {
 		this.table = table;
+	}
+	
+	public  int getType() {
+		return ColumnDescription.STRING;
+	}
+	
+	public String getMapIdentifier() {
+		return getSymbolTable().getName();
 	}
 	
 	public boolean equals(Object obj) {

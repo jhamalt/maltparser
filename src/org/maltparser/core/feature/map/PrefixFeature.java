@@ -158,6 +158,14 @@ public class PrefixFeature implements FeatureMapFunction {
 		this.column = column;
 	}
 	
+	public  int getType() {
+		return column.getType();
+	}
+	
+	public String getMapIdentifier() {
+		return getSymbolTable().getName();
+	}
+	
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;

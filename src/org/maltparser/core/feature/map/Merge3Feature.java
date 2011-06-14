@@ -50,13 +50,16 @@ public class Merge3Feature implements FeatureMapFunction {
 		ColumnDescription firstColumn = dataFormatInstance.getColumnDescriptionByName(firstFeature.getSymbolTable().getName());
 		ColumnDescription secondColumn = dataFormatInstance.getColumnDescriptionByName(secondFeature.getSymbolTable().getName());
 		ColumnDescription thirdColumn = dataFormatInstance.getColumnDescriptionByName(thirdFeature.getSymbolTable().getName());
-		if (firstColumn.getType() != secondColumn.getType() || firstColumn.getType() != thirdColumn.getType()) {
+		if (firstFeature.getType() != secondFeature.getType() || firstFeature.getType() != thirdFeature.getType()) {
 			throw new FeatureException("Could not initialize MergeFeature: the arguments are not of the same type.");
 		}
-//		setSymbolTable(tableHandler.addSymbolTable("MERGE3_"+firstFeature.getSymbolTable().getName()+"_"+secondFeature.getSymbolTable().getName()+"_"+thirdFeature.getSymbolTable().getName(), 
-//				firstFeature.getSymbolTable()));
-		
-		setColumn(dataFormatInstance.addInternalColumnDescription("MERGE3_"+firstFeature.getSymbolTable().getName()+"_"+secondFeature.getSymbolTable().getName()+"_"+thirdFeature.getSymbolTable().getName(), firstColumn));
+		if (firstColumn != null || secondColumn != null || thirdColumn != null) {
+			setColumn(dataFormatInstance.addInternalColumnDescription("MERGE3_"+firstFeature.getMapIdentifier()+"_"+secondFeature.getMapIdentifier()+"_"+thirdFeature.getMapIdentifier(), 
+					(firstColumn!=null)?firstColumn:((secondColumn!=null)?secondColumn:thirdColumn)));
+		} else {
+			setColumn(dataFormatInstance.addInternalColumnDescription("MERGE3_"+firstFeature.getMapIdentifier()+"_"+secondFeature.getMapIdentifier()+"_"+thirdFeature.getMapIdentifier(), 
+					ColumnDescription.INPUT, firstFeature.getType(), "", "One"));
+		}
 		setSymbolTable(column.getSymbolTable());
 	}
 	
@@ -271,6 +274,14 @@ public class Merge3Feature implements FeatureMapFunction {
 
 	public void setDataFormatInstance(DataFormatInstance dataFormatInstance) {
 		this.dataFormatInstance = dataFormatInstance;
+	}
+	
+	public  int getType() {
+		return column.getType();
+	}
+	
+	public String getMapIdentifier() {
+		return getSymbolTable().getName();
 	}
 	
 	public boolean equals(Object obj) {

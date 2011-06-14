@@ -55,9 +55,10 @@ public class DistanceFeature implements FeatureFunction {
 		setAddressFunction1((AddressFunction)arguments[0]);
 		setAddressFunction2((AddressFunction)arguments[1]);
 		
-		// Creates a symbol table called "DISTANCE" using one null value
-		setSymbolTable(tableHandler.addSymbolTable("DISTANCE", ColumnDescription.INPUT, "one"));
 		normalizationString = (String)arguments[2];
+		// Creates a symbol table called "DISTANCE" using one null value
+		setSymbolTable(tableHandler.addSymbolTable("DISTANCE_"+normalizationString, ColumnDescription.INPUT, "one"));
+		
 		String[] items  = normalizationString.split("\\|");
 		
 		if (items.length <= 0 || !items[0].equals("0")) {
@@ -266,6 +267,14 @@ public class DistanceFeature implements FeatureFunction {
 	 */
 	public void setSymbolTable(SymbolTable table) {
 		this.table = table;
+	}
+	
+	public  int getType() {
+		return ColumnDescription.STRING;
+	}
+	
+	public String getMapIdentifier() {
+		return getSymbolTable().getName();
 	}
 	
 	public boolean equals(Object obj) {

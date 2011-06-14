@@ -10,7 +10,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.helper.HashSet;
-import org.maltparser.core.helper.Util;
+import org.maltparser.core.helper.URLFinder;
 import org.maltparser.core.symbol.SymbolTableHandler;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -49,7 +49,8 @@ public class DataFormatSpecification {
 	}
 	
 	public void parseDataFormatXMLfile(String fileName) throws MaltChainedException {
-		URL url = Util.findURL(fileName);
+		final URLFinder f = new URLFinder();
+		URL url = f.findURL(fileName);
 		if (url == null) {
 			throw new DataFormatException("The data format specifcation file '"+fileName+"'cannot be found. ");
 		}

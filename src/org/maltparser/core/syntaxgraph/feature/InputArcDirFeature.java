@@ -154,6 +154,14 @@ public class InputArcDirFeature implements FeatureFunction {
 		this.tableHandler = tableHandler;
 	}
 	
+	public  int getType() {
+		return ColumnDescription.STRING;
+	}
+	
+	public String getMapIdentifier() {
+		return getSymbolTable().getName();
+	}
+	
 	public boolean equals(Object obj) {
 		if (!(obj instanceof InputArcDirFeature)) {
 			return false;

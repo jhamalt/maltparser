@@ -3,6 +3,7 @@ package org.maltparser.core.syntaxgraph.feature;
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.feature.function.AddressFunction;
 import org.maltparser.core.feature.value.AddressValue;
+import org.maltparser.core.io.dataformat.ColumnDescription;
 import org.maltparser.core.io.dataformat.DataFormatInstance;
 import org.maltparser.core.symbol.SymbolTableHandler;
 import org.maltparser.core.symbol.TableFeature;
@@ -35,6 +36,7 @@ public class OutputTableFeature extends TableFeature {
 		}
 		setSymbolTable(tableHandler.getSymbolTable((String)arguments[0]));
 		setAddressFunction((AddressFunction)arguments[1]);
+		setType(ColumnDescription.STRING); // TODO Probably it could possible to vary the type
 	}
 	
 	public Class<?>[] getParameterTypes() {

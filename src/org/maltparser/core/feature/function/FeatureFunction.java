@@ -43,4 +43,7 @@ public interface FeatureFunction extends Function {
 	 * @return the feature value
 	 */
 	public abstract FeatureValue getFeatureValue(); 
+	
+	public abstract int getType();
+	public abstract String getMapIdentifier();
 }

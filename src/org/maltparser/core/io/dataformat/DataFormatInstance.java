@@ -55,40 +55,40 @@ public class DataFormatInstance implements Iterable<ColumnDescription> {
 		setDataFormarSpec(spec);
 	}
 
-	public ColumnDescription addInternalColumnDescription(String name, String category, String type,  String nullValueStrategy) throws MaltChainedException {
+	public ColumnDescription addInternalColumnDescription(String name, String category, String type,  String defaultOutput, String nullValueStrategy) throws MaltChainedException {
 		if (internalColumnDescriptions == null) {
 			internalColumnDescriptions = new TreeMap<String,ColumnDescription>();
 			internalColumnDescriptionSet = new TreeSet<ColumnDescription>();
 		}
 		
 		if (!internalColumnDescriptions.containsKey(name)) {
-			ColumnDescription internalColumn = new ColumnDescription(name, category, type, "", symbolTables, nullValueStrategy, true);
+			ColumnDescription internalColumn = new ColumnDescription(name, category, type, defaultOutput, symbolTables, nullValueStrategy, true);
 			internalColumnDescriptions.put(name, internalColumn);
 			internalColumnDescriptionSet.add(internalColumn);
 			return internalColumn;
 		} else {
 			return internalColumnDescriptions.get(name);
 		}
-		
-		
 	}
 	
-	public ColumnDescription addInternalColumnDescription(String name, ColumnDescription parentColumn) throws MaltChainedException {
+	public ColumnDescription addInternalColumnDescription(String name, int category, int type,  String defaultOutput, String nullValueStrategy) throws MaltChainedException {
 		if (internalColumnDescriptions == null) {
 			internalColumnDescriptions = new TreeMap<String,ColumnDescription>();
 			internalColumnDescriptionSet = new TreeSet<ColumnDescription>();
 		}
 		
 		if (!internalColumnDescriptions.containsKey(name)) {
-			ColumnDescription internalColumn = new ColumnDescription(name, parentColumn.getCategory(), parentColumn.getType(), parentColumn.getDefaultOutput(), symbolTables, parentColumn.getNullValueStrategy(), true);
+			ColumnDescription internalColumn = new ColumnDescription(name, category, type, defaultOutput, symbolTables, nullValueStrategy, true);
 			internalColumnDescriptions.put(name, internalColumn);
 			internalColumnDescriptionSet.add(internalColumn);
 			return internalColumn;
 		} else {
 			return internalColumnDescriptions.get(name);
 		}
-		
-		
+	}
+	
+	public ColumnDescription addInternalColumnDescription(String name, ColumnDescription column) throws MaltChainedException {
+		return addInternalColumnDescription(name, column.getCategory(), column.getType(), column.getDefaultOutput(), column.getNullValueStrategy());
 	}
 	
 	private void createColumnDescriptions(Map<String, DataFormatEntry> entries, String nullValueStrategy) throws MaltChainedException {

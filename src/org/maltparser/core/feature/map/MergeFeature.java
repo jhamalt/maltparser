@@ -24,6 +24,7 @@ public class MergeFeature implements FeatureMapFunction {
 	protected SymbolTable table;
 	protected ColumnDescription column;
 	protected SingleFeatureValue singleFeatureValue;
+//	protected int type;
 	
 	public MergeFeature(DataFormatInstance dataFormatInstance) throws MaltChainedException {
 		super();
@@ -45,10 +46,19 @@ public class MergeFeature implements FeatureMapFunction {
 		setSecondFeature((FeatureFunction)arguments[1]);
 		ColumnDescription firstColumn = dataFormatInstance.getColumnDescriptionByName(firstFeature.getSymbolTable().getName());
 		ColumnDescription secondColumn = dataFormatInstance.getColumnDescriptionByName(secondFeature.getSymbolTable().getName());
-		if (firstColumn.getType() != secondColumn.getType()) {
+//		if (firstColumn.getType() != secondColumn.getType()) {
+//			throw new FeatureException("Could not initialize MergeFeature: the first and the second arguments are not of the same type.");
+//		}
+//		setColumn(dataFormatInstance.addInternalColumnDescription("MERGE2_"+firstFeature.getSymbolTable().getName()+"_"+secondFeature.getSymbolTable().getName(), firstColumn));
+
+		if (firstFeature.getType() != secondFeature.getType()) {
 			throw new FeatureException("Could not initialize MergeFeature: the first and the second arguments are not of the same type.");
 		}
-		setColumn(dataFormatInstance.addInternalColumnDescription("MERGE2_"+firstFeature.getSymbolTable().getName()+"_"+secondFeature.getSymbolTable().getName(), firstColumn));
+		if (firstColumn != null || secondColumn != null) {
+			setColumn(dataFormatInstance.addInternalColumnDescription("MERGE2_"+firstFeature.getMapIdentifier()+"_"+secondFeature.getMapIdentifier(), (firstColumn != null)?firstColumn:secondColumn));
+		} else {
+			setColumn(dataFormatInstance.addInternalColumnDescription("MERGE2_"+firstFeature.getMapIdentifier()+"_"+secondFeature.getMapIdentifier(), ColumnDescription.INPUT, firstFeature.getType(), "", "One"));
+		}
 		setSymbolTable(column.getSymbolTable());
 	}
 	
@@ -62,7 +72,6 @@ public class MergeFeature implements FeatureMapFunction {
 			String firstSymbol = ((SingleFeatureValue)firstValue).getSymbol();
 			if (((FeatureValue)firstValue).isNullValue() && ((FeatureValue)secondValue).isNullValue()) {
 				singleFeatureValue.setIndexCode(firstFeature.getSymbolTable().getSymbolStringToCode(firstSymbol));
-//				singleFeatureValue.setKnown(firstFeature.getSymbolTable().getKnown(firstSymbol));
 				singleFeatureValue.setSymbol(firstSymbol);
 				singleFeatureValue.setNullValue(true);
 			} else {
@@ -72,7 +81,6 @@ public class MergeFeature implements FeatureMapFunction {
 					mergedValue.append('~');
 					mergedValue.append(((SingleFeatureValue)secondValue).getSymbol());
 					singleFeatureValue.setIndexCode(table.addSymbol(mergedValue.toString()));
-//					singleFeatureValue.setKnown(table.getKnown(mergedValue.toString()));
 					singleFeatureValue.setSymbol(mergedValue.toString());
 					singleFeatureValue.setNullValue(false);
 					singleFeatureValue.setValue(1);
@@ -82,7 +90,6 @@ public class MergeFeature implements FeatureMapFunction {
 						table.addSymbol("#null#");
 						singleFeatureValue.setSymbol("#null#");
 						singleFeatureValue.setNullValue(true);
-//						singleFeatureValue.setKnown(true);
 						singleFeatureValue.setIndexCode(1);
 					} else {
 						if (column.getType() == ColumnDescription.BOOLEAN) {
@@ -152,7 +159,6 @@ public class MergeFeature implements FeatureMapFunction {
 							singleFeatureValue.setSymbol(result.toString());
 						}
 						singleFeatureValue.setNullValue(false);
-//						singleFeatureValue.setKnown(true);
 						singleFeatureValue.setIndexCode(1);
 					}
 				}
@@ -169,7 +175,6 @@ public class MergeFeature implements FeatureMapFunction {
 
 	public FeatureValue getFeatureValue() {
 		return singleFeatureValue;
-//		return multipleFeatureValue;
 	}
 
 	public String getSymbol(int code) throws MaltChainedException {
@@ -178,14 +183,6 @@ public class MergeFeature implements FeatureMapFunction {
 	
 	public int getCode(String symbol) throws MaltChainedException {
 		return table.getSymbolStringToCode(symbol);
-	}
-	
-	public void updateCardinality() throws MaltChainedException {
-//		firstFeature.updateCardinality();
-//		secondFeature.updateCardinality();
-//		singleFeatureValue.setCardinality(table.getValueCounter());
-		
-//		multipleFeatureValue.setCardinality(table.getValueCounter()); 
 	}
 	
 	public FeatureFunction getFirstFeature() {
@@ -230,6 +227,19 @@ public class MergeFeature implements FeatureMapFunction {
 
 	public void setDataFormatInstance(DataFormatInstance dataFormatInstance) {
 		this.dataFormatInstance = dataFormatInstance;
+	}
+	
+	public int getType() {
+//		return type;
+		return column.getType();
+	}
+	 
+//	public void setType(int type) {
+//		this.type = type;
+//	}
+
+	public String getMapIdentifier() {
+		return getSymbolTable().getName();
 	}
 	
 	public boolean equals(Object obj) {

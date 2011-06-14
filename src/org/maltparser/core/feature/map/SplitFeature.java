@@ -178,6 +178,14 @@ public class SplitFeature implements FeatureMapFunction {
 		this.column = column;
 	}
 
+	public  int getType() {
+		return column.getType();
+	}
+	
+	public String getMapIdentifier() {
+		return getSymbolTable().getName();
+	}
+	
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
 		sb.append("Split(");

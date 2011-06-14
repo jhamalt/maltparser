@@ -178,6 +178,13 @@ public class ArcDirFeature implements FeatureFunction {
 		this.tableHandler = tableHandler;
 	}
 
+	public  int getType() {
+		return ColumnDescription.STRING;
+	}
+	
+	public String getMapIdentifier() {
+		return getSymbolTable().getName();
+	}
 	/**
 	 * Sets the symbol table used by the exists feature function
 	 * 

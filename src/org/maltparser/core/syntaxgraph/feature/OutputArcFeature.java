@@ -213,6 +213,14 @@ public class OutputArcFeature implements FeatureFunction {
 		this.tableHandler = tableHandler;
 	}
 	
+	public  int getType() {
+		return ColumnDescription.STRING;
+	}
+	
+	public String getMapIdentifier() {
+		return getSymbolTable().getName();
+	}
+	
 	public boolean equals(Object obj) {
 		if (!(obj instanceof InputArcFeature)) {
 			return false;

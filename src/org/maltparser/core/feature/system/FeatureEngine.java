@@ -14,7 +14,7 @@ import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.feature.FeatureException;
 import org.maltparser.core.feature.function.Function;
 import org.maltparser.core.helper.HashMap;
-import org.maltparser.core.helper.Util;
+import org.maltparser.core.helper.URLFinder;
 import org.maltparser.core.plugin.Plugin;
 import org.maltparser.core.plugin.PluginLoader;
 import org.w3c.dom.Element;
@@ -51,7 +51,8 @@ public class FeatureEngine extends HashMap<String, FunctionDescription> {
 	}
 	
 	public void load(String urlstring) throws MaltChainedException {
-		load(Util.findURL(urlstring));
+		final URLFinder f = new URLFinder();
+		load(f.findURL(urlstring));
 	}
 	
 	public void load(PluginLoader plugins) throws MaltChainedException {

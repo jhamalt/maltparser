@@ -5,6 +5,7 @@ import org.maltparser.core.feature.function.AddressFunction;
 import org.maltparser.core.feature.function.FeatureFunction;
 import org.maltparser.core.feature.value.FeatureValue;
 import org.maltparser.core.feature.value.SingleFeatureValue;
+import org.maltparser.core.io.dataformat.ColumnDescription;
 import org.maltparser.core.symbol.SymbolTable;
 import org.maltparser.core.symbol.SymbolTableHandler;
 import org.maltparser.core.syntaxgraph.SyntaxGraphException;
@@ -92,7 +93,6 @@ public class ExistsFeature implements FeatureFunction {
 	 * @throws MaltChainedException
 	 */
 	public void update() throws MaltChainedException {
-//		featureValue.setKnown(true);
 		featureValue.setIndexCode(1);
 		featureValue.setNullValue(false);
 		if (addressFunction.getAddressValue().getAddress() != null) {
@@ -165,6 +165,14 @@ public class ExistsFeature implements FeatureFunction {
 	 */
 	public void setSymbolTable(SymbolTable table) {
 		this.table = table;
+	}
+	
+	public  int getType() {
+		return ColumnDescription.BOOLEAN;
+	}
+	
+	public String getMapIdentifier() {
+		return "EXISTS";
 	}
 	
 	public boolean equals(Object obj) {

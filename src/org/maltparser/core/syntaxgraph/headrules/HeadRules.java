@@ -8,7 +8,7 @@ import java.net.URL;
 import org.apache.log4j.Logger;
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.helper.HashMap;
-import org.maltparser.core.helper.Util;
+import org.maltparser.core.helper.URLFinder;
 import org.maltparser.core.io.dataformat.DataFormatInstance;
 import org.maltparser.core.symbol.SymbolTable;
 import org.maltparser.core.syntaxgraph.node.NonTerminalNode;
@@ -35,7 +35,8 @@ public class HeadRules extends HashMap<String,HeadRule> {
 	}
 	
 	public void parseHeadRules(String fileName) throws MaltChainedException {
-		parseHeadRules(Util.findURL(fileName));
+		final URLFinder f = new URLFinder();
+		parseHeadRules(f.findURL(fileName));
 	}
 	
 	public void parseHeadRules(URL url) throws MaltChainedException {

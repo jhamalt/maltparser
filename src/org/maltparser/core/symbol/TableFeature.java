@@ -12,6 +12,7 @@ public abstract class TableFeature implements FeatureFunction, Modifiable {
 	protected SymbolTable table;
 	protected String tableName;
 	protected SymbolTableHandler tableHandler;
+	protected int type;
 	
 	public TableFeature() throws MaltChainedException {
 		featureValue = new SingleFeatureValue(this);
@@ -101,6 +102,18 @@ public abstract class TableFeature implements FeatureFunction, Modifiable {
 	
 	public String getTableName() {
 		return tableName;
+	}
+	
+	public  int getType() {
+		return type;
+	}
+	
+	public void setType(int type) {
+		this.type = type;
+	}
+	
+	public String getMapIdentifier() {
+		return getSymbolTable().getName();
 	}
 	
 	public String toString() {
