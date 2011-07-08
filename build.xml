@@ -14,7 +14,7 @@
 	<!-- prefixed with "env". -->
 	<property environment="env"/>
 
-	<property name="version" value="1.5.2b2"/>
+	<property name="version" value="1.5.2"/>
 
 	<!-- The base directory relative to which most targets are built -->
 	<property name="base" value="."/>
@@ -23,7 +23,7 @@
 
 	<property name="javac.target" value="1.5"/>
 
-	<property name="javac.debug" value="on"/>
+	<property name="javac.debug" value="off"/>
 	
 	<!-- The directory where source files are stored. -->
 	<property name="java.source.dir" value="src/"/>

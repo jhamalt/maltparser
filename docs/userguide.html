@@ -732,9 +732,9 @@ Distance(Stack[0], Input[0], 0|1|2|5)
 </pre>
 This feature function returns the number of words occurring between the token on top of the stack and the first token in the input buffer, with discrete categories 0, 1, 2-4 and 5-.
 </td></tr>
-<tr><td  width="15%">NumOf</td><td>Takes three arguments, an address function, a relation name, and a normalization string, and returns the number of nodes having the specified relation to the node identified by the address function. Valid relation names are <b>ldep</b>, <b>rdep</b> and <b>dep</b> (for left dependent, right dependent and dependent, respectively). The normalization string is a list of integers (separated by "|") specifying the intervals used to discretize the metric. The list must start with 0 and be sorted in ascending order. The value returned is (a category corresponding to) the greatest integer in the normalization string that is smaller than or equal to the exact number. Example:
+<tr><td  width="15%">NumOf</td><td>Takes three arguments, an address function, a relation name, and a normalization string, and returns the number of nodes having the specified relation to the node identified by the address function. Valid relation names are <b>ldeps</b> and <b>rdeps</b> and <b>deps</b> (for left dependent, right dependent and dependent, respectively). The normalization string is a list of integers (separated by "|") specifying the intervals used to discretize the metric. The list must start with 0 and be sorted in ascending order. The value returned is (a category corresponding to) the greatest integer in the normalization string that is smaller than or equal to the exact number. Example:
 <pre>
-NumOf(Stack[0], ldep, 0|1|2|5)
+NumOf(Stack[0], ldeps, 0|1|2|5)
 </pre>
 This feature function returns the number of left dependents of the token on top of the stack, with discrete categories 0, 1, 2-4 and 5-.
 </td></tr>

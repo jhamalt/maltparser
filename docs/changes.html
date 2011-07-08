@@ -28,7 +28,8 @@ Modified: @today@
 
 <table class="bodyTable">
 <tr class="a"><th>Version</th><th>Date</th><th>Description</th></tr>
-<tr class="b"><td><a href="#1.5">1.5.1</a></td><td>@today@</td><td>Fixed a bug that cause MaltParser to crash under Windows</td></tr>
+<tr class="b"><td><a href="#1.5">1.5.2</a></td><td>@today@</td><td>Fixed a bug that cause MaltParser to crash under Windows</td></tr>
+<tr class="b"><td><a href="#1.5">1.5.1</a></td><td>May 12 2011</td><td>Fixed a bug that cause MaltParser to crash under Windows</td></tr>
 <tr class="b"><td><a href="#1.5">1.5</a></td><td>April 21 2011</td><td>Large update and requires that a parser model is retrained.</td></tr>
 <tr class="b"><td><a href="#1.4.1">1.4.1</a></td><td>July 15 2010</td><td>Some minor bug fixes</td></tr>
 <tr class="b"><td><a href="#1.4">1.4</a></td><td>July 2 2010</td><td>New parsing algorithms, new functionality and some other changes and bugfixes</td></tr>
@@ -43,6 +44,15 @@ Modified: @today@
 <tr class="b"><td><a href="#1.0.0">1.0.0</a></td><td>November 9 2007</td><td>First release</td></tr>
 </table>
 
+<a name="1.5.2"></a>
+<h3>MaltParser 1.5.2</h3>
+<table class="bodyTable">
+<tr class="a"><th>Changes</th></tr>
+<tr class="b"><td>Problem when using MaltParser within a servlet. By making Util.findURL() and Util.findURLinJars() non-static and using getClass().getResource() instead resolves the problem. Thanks Adriane Boyd.</td></tr>
+<tr class="b"><td>Fixed a bug when merging Distance, NumOf and Exists features.</td></tr>
+<tr class="b"><td>Fixed some minor errors in the User guide. Legal values of the second arguments of the NumOf feature are LDEPS, RDEPS, DEPS.</td></tr>
+<tr class="b"><td>Some minor changes throughout the code.</td></tr>
+</table>
 
 <a name="1.5.1"></a>
 <h3>MaltParser 1.5.1</h3>
