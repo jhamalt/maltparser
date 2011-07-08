@@ -172,7 +172,7 @@ public class FeatureEngine extends HashMap<String, FunctionDescription> {
 	}
 
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		for (String name : keySet()) {
 			sb.append(name);
 			sb.append('\t');

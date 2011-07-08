@@ -140,7 +140,7 @@ public abstract class NullValues {
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		sb.append("Null-values:\n");
 		sb.append("  Strategy: "+ nullValueStrategy);
 		sb.append("  NO_NODE -> "+ nullValue2CodeMap.get(NullValueId.NO_NODE) + " " + nullValue2SymbolMap.get(NullValueId.NO_NODE)+"\n");

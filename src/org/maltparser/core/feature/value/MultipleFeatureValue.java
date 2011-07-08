@@ -49,6 +49,10 @@ public class MultipleFeatureValue extends FeatureValue {
 		return featureValues.get(featureValues.firstKey());
 	}	
 	
+	public boolean isMultiple() {
+		return true;
+	}
+	
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;

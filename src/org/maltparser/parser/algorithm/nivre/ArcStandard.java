@@ -26,9 +26,9 @@ public class ArcStandard extends TransitionSystem {
 	}
 	
 	public void apply(GuideUserAction currentAction, ParserConfiguration config) throws MaltChainedException {
-		NivreConfig nivreConfig = (NivreConfig)config;
-		Stack<DependencyNode> stack = nivreConfig.getStack();
-		Stack<DependencyNode> input = nivreConfig.getInput();
+		final NivreConfig nivreConfig = (NivreConfig)config;
+		final Stack<DependencyNode> stack = nivreConfig.getStack();
+		final Stack<DependencyNode> input = nivreConfig.getInput();
 		currentAction.getAction(actionContainers);
 		Edge e = null;
 		switch (transActionContainer.getActionCode()) {

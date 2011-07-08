@@ -18,13 +18,14 @@ import org.maltparser.core.symbol.SymbolTableHandler;
 * @author Johan Hall
 */
 public class MergeFeature implements FeatureMapFunction {
-	protected FeatureFunction firstFeature;
-	protected FeatureFunction secondFeature;
-	protected DataFormatInstance dataFormatInstance;
-	protected SymbolTable table;
-	protected ColumnDescription column;
-	protected SingleFeatureValue singleFeatureValue;
+	private FeatureFunction firstFeature;
+	private FeatureFunction secondFeature;
+	private DataFormatInstance dataFormatInstance;
+	private SymbolTable table;
+	private ColumnDescription column;
+	private final SingleFeatureValue singleFeatureValue;
 //	protected int type;
+	
 	
 	public MergeFeature(DataFormatInstance dataFormatInstance) throws MaltChainedException {
 		super();
@@ -44,8 +45,8 @@ public class MergeFeature implements FeatureMapFunction {
 		}
 		setFirstFeature((FeatureFunction)arguments[0]);
 		setSecondFeature((FeatureFunction)arguments[1]);
-		ColumnDescription firstColumn = dataFormatInstance.getColumnDescriptionByName(firstFeature.getSymbolTable().getName());
-		ColumnDescription secondColumn = dataFormatInstance.getColumnDescriptionByName(secondFeature.getSymbolTable().getName());
+		ColumnDescription firstColumn = (firstFeature.getSymbolTable() != null)?dataFormatInstance.getColumnDescriptionByName(firstFeature.getSymbolTable().getName()):null;
+		ColumnDescription secondColumn = (secondFeature.getSymbolTable() != null)?dataFormatInstance.getColumnDescriptionByName(secondFeature.getSymbolTable().getName()):null;
 //		if (firstColumn.getType() != secondColumn.getType()) {
 //			throw new FeatureException("Could not initialize MergeFeature: the first and the second arguments are not of the same type.");
 //		}

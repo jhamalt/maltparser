@@ -17,14 +17,15 @@ import org.maltparser.parser.history.kbest.KBestList;
 * @since 1.1
 **/
 public class SimpleDecisionAction implements  SingleDecision {
-	protected History history;
-	protected int decision;
-	protected KBestList kBestList;
-	protected TableContainer tableContainer;
+	private History history;
+	private TableContainer tableContainer;
+	private int decision;
+	private KBestList kBestList;
+	
 	
 	public SimpleDecisionAction(History history, TableContainer tableContainer) throws MaltChainedException {
-		setHistory(history);
-		setTableContainer(tableContainer);
+		this.history = history;
+		this.tableContainer = tableContainer;
 		createKBestList();
 		clear();
 	}
@@ -85,10 +86,6 @@ public class SimpleDecisionAction implements  SingleDecision {
 		return history;
 	}
 
-	protected void setHistory(History history) {
-		this.history = history;
-	}
-
 	public TableContainer getTableContainer() {
 		return tableContainer;
 	}
@@ -100,11 +97,6 @@ public class SimpleDecisionAction implements  SingleDecision {
 	public RelationToNextDecision getRelationToNextDecision() {
 		return tableContainer.getRelationToNextDecision();
 	}
-	
-	protected void setTableContainer(TableContainer tableContainer) {
-		this.tableContainer = tableContainer;
-	}
-	
 	
 	private void createKBestList() throws MaltChainedException {
 		final Class<?> kBestListClass = history.getKBestListClass();

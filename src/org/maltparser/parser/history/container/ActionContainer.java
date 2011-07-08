@@ -8,14 +8,14 @@ import org.maltparser.core.symbol.Table;
 * @author Johan Hall
 **/
 public class ActionContainer {
-	protected int actionCode;
-	protected String actionSymbol;
-	protected Table table;
-	protected String name;
+	private int actionCode;
+	private String actionSymbol;
+	private Table table;
+	private String name;
 	
 	public ActionContainer(TableContainer tableContainer) {
-		setTable(tableContainer.getTable());
-		setName(tableContainer.getTableContainerName());
+		this.table = tableContainer.getTable();
+		this.name = tableContainer.getTableContainerName();
 		clear();
 	}
 	
@@ -77,13 +77,7 @@ public class ActionContainer {
 		return name;
 	}
 
-	public void setTable(Table table) {
-		this.table = table;
-	}
-	
-	protected void setName(String name) {
-		this.name = name;
-	} 
+
 	
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();

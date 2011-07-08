@@ -41,13 +41,23 @@ public class AddressValue extends FunctionValue {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		if (!address.equals(((AddressValue)obj).address)) {
+		AddressValue other = (AddressValue) obj;
+		if (address == null) {
+			if (other.address != null)
+				return false;
+		} else if (!address.equals(other.address))
 			return false;
-		}
 		return super.equals(obj);
 	}
 	
+	public int hashCode() {
+		return 31 + ((address == null) ? 0 : address.hashCode());
+	}
+
 	public String toString() {
-		return super.toString() + address.toString();
+		final StringBuilder sb = new StringBuilder();
+		sb.append(super.toString());
+		sb.append(address.toString());
+		return sb.toString();
 	}
 }

@@ -258,7 +258,7 @@ public class MaltLiblinearModel implements Serializable, MaltLibModel {
     }
     
     public String toString() {
-        StringBuilder sb = new StringBuilder("Model");
+        final StringBuilder sb = new StringBuilder("Model");
         sb.append(" bias=").append(bias);
         sb.append(" nr_class=").append(nr_class);
         sb.append(" nr_feature=").append(nr_feature);

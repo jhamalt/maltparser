@@ -14,7 +14,6 @@ import org.maltparser.core.syntaxgraph.node.DependencyNode;
  * This class contains methods for projectivizing and deprojectivizing
  * 
  * @author Jens Nilsson
- * @since 1.0
  */
 public class PseudoProjectivity {
 	static int id = 0;

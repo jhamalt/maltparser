@@ -14,7 +14,7 @@ import org.maltparser.core.helper.HashMap;
  */
 public class FeatureMap  implements Serializable {
 	private static final long serialVersionUID = 7526471155622776147L;
-	private HashMap<Long,Integer> map;
+	private final HashMap<Long,Integer> map;
 	private int featureCounter;
 	
 	/**
@@ -34,7 +34,7 @@ public class FeatureMap  implements Serializable {
 	 * @return the index value 
 	 */
 	public int addIndex(int featurePosition, int code) {
-		long key = ((((long)featurePosition) << 48) | (long)code);
+		final long key = ((((long)featurePosition) << 48) | (long)code);
 		Integer index = map.get(key);
 		if (index == null) {
 			index = featureCounter++;
@@ -51,14 +51,14 @@ public class FeatureMap  implements Serializable {
 	 * @return the index value if it exists, otherwise -1
 	 */
 	public int getIndex(int featurePosition, int code) {
-		long key = ((((long)featurePosition) << 48) | (long)code);
-		Integer index = map.get(key);
+		final long key = ((((long)featurePosition) << 48) | (long)code);
+		final Integer index = map.get(key);
 		return (index == null)?-1:index;
 	}
 	
 	
 	public int addIndex(int featurePosition, int code1, int code2) {
-		long key = ((((long)featurePosition) << 48) | (((long)code1) << 24) | (long)code2);
+		final long key = ((((long)featurePosition) << 48) | (((long)code1) << 24) | (long)code2);
 		Integer index = map.get(key);
 		if (index == null) {
 			index = featureCounter++;
@@ -68,8 +68,8 @@ public class FeatureMap  implements Serializable {
 	}
 	
 	public int getIndex(int featurePosition, int code1, int code2) {
-		long key = ((((long)featurePosition) << 48) | (((long)code1) << 24) | (long)code2);
-		Integer index = map.get(key);
+		final long key = ((((long)featurePosition) << 48) | (((long)code1) << 24) | (long)code2);
+		final Integer index = map.get(key);
 		return (index == null)?-1:index;
 	}
 		

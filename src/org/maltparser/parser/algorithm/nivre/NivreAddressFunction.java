@@ -14,10 +14,10 @@ public class NivreAddressFunction extends AddressFunction {
 	public enum NivreSubFunction {
 		STACK, INPUT
 	};
-	protected String subFunctionName;
-	protected NivreSubFunction subFunction;
-	protected Algorithm parsingAlgorithm;
-	protected int index;
+	private String subFunctionName;
+	private NivreSubFunction subFunction;
+	private Algorithm parsingAlgorithm;
+	private int index;
 	
 	public NivreAddressFunction(String subFunctionName, Algorithm parsingAlgorithm) {
 		super();
@@ -120,7 +120,7 @@ public class NivreAddressFunction extends AddressFunction {
 	}
 	
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		sb.append(subFunctionName);
 		sb.append('[');
 		sb.append(index);

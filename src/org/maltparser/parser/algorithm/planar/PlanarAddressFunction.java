@@ -14,10 +14,10 @@ public class PlanarAddressFunction extends AddressFunction {
 	public enum PlanarSubFunction {
 		STACK, INPUT
 	};
-	protected String subFunctionName;
-	protected PlanarSubFunction subFunction;
-	protected Algorithm parsingAlgorithm;
-	protected int index;
+	private String subFunctionName;
+	private PlanarSubFunction subFunction;
+	private Algorithm parsingAlgorithm;
+	private int index;
 	
 	public PlanarAddressFunction(String subFunctionName, Algorithm parsingAlgorithm) {
 		super();

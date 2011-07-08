@@ -2,7 +2,6 @@ package org.maltparser.ml.lib;
 
 
 public class MaltFeatureNode implements Comparable<MaltFeatureNode> {
-
 	int index;
 	double value;
 	
@@ -36,12 +35,11 @@ public class MaltFeatureNode implements Comparable<MaltFeatureNode> {
 		index = -1;
 		value = 0;
 	}
+	
 	public int hashCode() {
 		final int prime = 31;
 		final long temp = Double.doubleToLongBits(value);
-		int result = prime * 1 + index;
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		return result;
+		return prime * (prime  + index) + (int) (temp ^ (temp >>> 32));
 	}
 
 	public boolean equals(Object obj) {
@@ -81,6 +79,12 @@ public class MaltFeatureNode implements Comparable<MaltFeatureNode> {
 	}
 
 	public String toString() {
-		return "XNode [index=" + index + ", value=" + value + "]";
+		final StringBuilder sb = new StringBuilder();
+		sb.append("MaltFeatureNode [index=");
+		sb.append(index);
+		sb.append(", value=");
+		sb.append(value);
+		sb.append("]");
+		return sb.toString();
 	}
 }

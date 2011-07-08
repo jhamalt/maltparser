@@ -58,6 +58,7 @@ public class Engine  {
 			int sentenceCounter = 0;
 			int nIteration = 1;
 			flowChartInstance.setEngineRegistry("iterations", nIteration);
+			System.gc();
 			while (signal != ChartItem.TERMINATE) {
 				signal = flowChartInstance.process();
 				if (signal == ChartItem.CONTINUE) {
@@ -67,7 +68,6 @@ public class Engine  {
 					nIteration++;
 					flowChartInstance.setEngineRegistry("iterations", nIteration);
 				}
-//				System.out.println(sentenceCounter);
 				if (sentenceCounter < 101 && sentenceCounter == 1 || sentenceCounter == 10 || sentenceCounter == 100) {
 					Util.startTicer(SystemLogger.logger(), startTime, 10, sentenceCounter);
 				} 

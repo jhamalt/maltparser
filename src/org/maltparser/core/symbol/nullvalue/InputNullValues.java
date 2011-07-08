@@ -51,7 +51,7 @@ public class InputNullValues extends NullValues {
 	}
 	
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		
 		return sb.toString();
 	}

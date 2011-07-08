@@ -175,13 +175,6 @@ public class AtomicModel implements InstanceModel {
 	 */
 	public void initMethod() throws MaltChainedException {
 		Class<?> clazz = (Class<?>)getGuide().getConfiguration().getOptionValue("guide", "learner");
-//		if (clazz == org.maltparser.ml.libsvm.Libsvm.class && (Boolean)getGuide().getConfiguration().getOptionValue("malt0.4", "behavior") == true) {
-//			try {
-//				clazz = Class.forName("org.maltparser.ml.libsvm.malt04.LibsvmMalt04");
-//			} catch (ClassNotFoundException e) {
-//				throw new GuideException("Could not find the class 'org.maltparser.ml.libsvm.malt04.LibsvmMalt04'. ", e);
-//			}
-//		}
 		Class<?>[] argTypes = { org.maltparser.parser.guide.instance.InstanceModel.class, java.lang.Integer.class };
 		Object[] arguments = new Object[2];
 		arguments[0] = this;

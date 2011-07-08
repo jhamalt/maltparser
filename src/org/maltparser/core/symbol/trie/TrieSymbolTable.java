@@ -286,7 +286,7 @@ public class TrieSymbolTable implements SymbolTable {
 
 	public int hashCode() {
 		if (cachedHash == 0) {
-			cachedHash = 31 * 7 + (null == name ? 0 : name.hashCode());
+			cachedHash = 217 + (null == name ? 0 : name.hashCode());
 		}
 		return cachedHash;
 	}
@@ -294,7 +294,7 @@ public class TrieSymbolTable implements SymbolTable {
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
 		sb.append(name);
-		sb.append(" ");
+		sb.append(' ');
 		sb.append(valueCounter);
 		return sb.toString();
 	}

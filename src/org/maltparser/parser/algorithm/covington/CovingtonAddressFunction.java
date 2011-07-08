@@ -13,10 +13,10 @@ public class CovingtonAddressFunction extends AddressFunction {
 	public enum CovingtonSubFunction {
 		LEFT, RIGHT, LEFTCONTEXT, RIGHTCONTEXT
 	};
-	protected String subFunctionName;
-	protected CovingtonSubFunction subFunction;
-	protected Algorithm parsingAlgorithm;
-	protected int index;
+	private String subFunctionName;
+	private CovingtonSubFunction subFunction;
+	private Algorithm parsingAlgorithm;
+	private int index;
 	
 	public CovingtonAddressFunction(String subFunctionName, Algorithm parsingAlgorithm) {
 		super();
@@ -123,7 +123,7 @@ public class CovingtonAddressFunction extends AddressFunction {
 	}
 	
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		sb.append(subFunctionName);
 		sb.append('[');
 		sb.append(index);

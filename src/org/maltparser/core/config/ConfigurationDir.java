@@ -605,7 +605,7 @@ public class ConfigurationDir  {
 			JarOutputStream tempJar = new JarOutputStream(new FileOutputStream(out));
 	        byte[] buffer = new byte[BUFFER];
 	        int bytesRead;
-	        StringBuilder sb = new StringBuilder();
+	        final StringBuilder sb = new StringBuilder();
 	        final URLFinder f = new URLFinder();
 
 	        for (Enumeration<JarEntry> entries = jar.entries(); entries.hasMoreElements(); ) {

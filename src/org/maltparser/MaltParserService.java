@@ -9,7 +9,6 @@ import org.maltparser.core.flow.FlowChartInstance;
 import org.maltparser.core.helper.SystemInfo;
 import org.maltparser.core.helper.URLFinder;
 import org.maltparser.core.io.dataformat.ColumnDescription;
-import org.maltparser.core.io.dataformat.DataFormatException;
 import org.maltparser.core.io.dataformat.DataFormatInstance;
 import org.maltparser.core.io.dataformat.DataFormatSpecification;
 import org.maltparser.core.options.OptionManager;

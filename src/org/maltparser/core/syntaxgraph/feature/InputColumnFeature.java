@@ -15,14 +15,14 @@ import org.maltparser.core.syntaxgraph.node.DependencyNode;
 * @author Johan Hall
 */
 public final class InputColumnFeature extends ColumnFeature {
-	protected AddressFunction addressFunction;
-	protected DataFormatInstance dataFormatInstance;
+	private final DataFormatInstance dataFormatInstance;
+	private AddressFunction addressFunction;
 	
 	public InputColumnFeature(DataFormatInstance dataFormatInstance) throws MaltChainedException {
 		super();
-		setDataFormatInstance(dataFormatInstance);
+		this.dataFormatInstance = dataFormatInstance;
 	}
-	
+
 	public void initialize(Object[] arguments) throws MaltChainedException {
 		if (arguments.length != 2) {
 			throw new SyntaxGraphException("Could not initialize InputColumnFeature: number of arguments are not correct. ");
@@ -81,10 +81,6 @@ public final class InputColumnFeature extends ColumnFeature {
 
 	public DataFormatInstance getDataFormatInstance() {
 		return dataFormatInstance;
-	}
-
-	public void setDataFormatInstance(DataFormatInstance dataFormatInstance) {
-		this.dataFormatInstance = dataFormatInstance;
 	}
 	
 	public boolean equals(Object obj) {

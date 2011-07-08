@@ -135,7 +135,7 @@ public class FunctionDescription {
 	}
 
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		sb.append(name);
 		sb.append("->");
 		sb.append(functionClass.getName());

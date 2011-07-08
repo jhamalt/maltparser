@@ -56,7 +56,7 @@ public class Versioning {
 			return sb.toString();
 		}
 		if (in.getName().endsWith(".info")) {
-			StringBuilder outString = new StringBuilder();
+			final StringBuilder outString = new StringBuilder();
 			String[] lines = sb.toString().split("\\n");
 			for (int i = 0; i < lines.length; i++) {
 				if (lines[i].startsWith("Configuration name:")) {
@@ -104,7 +104,7 @@ public class Versioning {
 			}
 			return outString.toString();
 		} else if (in.getName().endsWith(".sop")) {
-			StringBuilder outString = new StringBuilder();
+			final StringBuilder outString = new StringBuilder();
 			String[] lines = sb.toString().split("\\n");
 			for (int i = 0; i < lines.length; i++) {
 				int index = lines[i].indexOf('\t');

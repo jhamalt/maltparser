@@ -50,7 +50,7 @@ public class MaltChainedException extends Exception {
 	 * @return a string representation of the exception chain
 	 */
 	public String getMessageChain() {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 	    Throwable t = this;
 	    
 	    while (t != null) {

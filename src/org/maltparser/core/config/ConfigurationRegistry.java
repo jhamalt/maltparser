@@ -14,15 +14,11 @@ public class ConfigurationRegistry extends HashMap<Class<?>, Object> {
 
 	@Override
 	public Object get(Object key) {
-		// TODO Auto-generated method stub
 		return super.get(key);
 	}
 
 	@Override
 	public Object put(Class<?> key, Object value) {
-		// TODO Auto-generated method stub
 		return super.put(key, value);
 	}
-	
-	
 }

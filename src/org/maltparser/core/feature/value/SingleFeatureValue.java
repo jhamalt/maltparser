@@ -57,6 +57,16 @@ public class SingleFeatureValue extends FeatureValue {
 		this.value = value;
 	}
 	
+	public boolean isMultiple() {
+		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		return prime * (prime + indexCode) + ((symbol == null) ? 0 : symbol.hashCode());
+	}
+
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -64,14 +74,16 @@ public class SingleFeatureValue extends FeatureValue {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		SingleFeatureValue v = (SingleFeatureValue)obj;
-		if (indexCode != v.indexCode)
+		SingleFeatureValue other = (SingleFeatureValue) obj;
+		if (indexCode != other.indexCode)
 			return false;
-		if (!symbol.equals(v.symbol))
+		if (symbol == null) {
+			if (other.symbol != null)
+				return false;
+		} else if (!symbol.equals(other.symbol))
 			return false;
 		return super.equals(obj);
 	}
-	
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(super.toString());

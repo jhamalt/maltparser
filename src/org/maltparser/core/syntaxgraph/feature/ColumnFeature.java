@@ -17,7 +17,7 @@ import org.maltparser.core.symbol.nullvalue.NullValues.NullValueId;
 */
 public abstract class ColumnFeature implements FeatureFunction, Modifiable {
 	protected ColumnDescription column;
-	protected SingleFeatureValue featureValue;
+	protected final SingleFeatureValue featureValue;
 	
 	public ColumnFeature() throws MaltChainedException {
 		featureValue = new SingleFeatureValue(this);
@@ -43,10 +43,6 @@ public abstract class ColumnFeature implements FeatureFunction, Modifiable {
 		this.column = column;
 	}
 	
-	public void updateCardinality() {
-//		featureValue.setCardinality(column.getSymbolTable().getValueCounter()); 
-	}
-	
 	public void setFeatureValue(int indexCode) throws MaltChainedException {
 		final String symbol = column.getSymbolTable().getSymbolCodeToString(indexCode);
 		
@@ -63,7 +59,7 @@ public abstract class ColumnFeature implements FeatureFunction, Modifiable {
 	}
 	
 	public void setFeatureValue(String symbol) throws MaltChainedException {
-		int indexCode = column.getSymbolTable().getSymbolStringToCode(symbol);
+		final int indexCode = column.getSymbolTable().getSymbolStringToCode(symbol);
 		if (indexCode < 0) {
 			featureValue.update(column.getSymbolTable().getNullValueCode(NullValueId.NO_NODE), symbol, true, 1);
 		} else {
@@ -79,7 +75,7 @@ public abstract class ColumnFeature implements FeatureFunction, Modifiable {
 	protected void castFeatureValue(String symbol) throws MaltChainedException {
 		if (column.getType() == ColumnDescription.INTEGER) {
 			try {
-				int dotIndex = symbol.indexOf('.');
+				final int dotIndex = symbol.indexOf('.');
 				if (dotIndex == -1) {
 					featureValue.setValue(Integer.parseInt(symbol));
 					featureValue.setSymbol(symbol);
@@ -91,7 +87,7 @@ public abstract class ColumnFeature implements FeatureFunction, Modifiable {
 				throw new FeatureException("Could not cast the feature value '"+symbol+"' to integer value.", e);
 			}
 		} else if (column.getType() == ColumnDescription.BOOLEAN) {
-			int dotIndex = symbol.indexOf('.');
+			final int dotIndex = symbol.indexOf('.');
 			if (symbol.equals("1") || symbol.equals("true") ||  symbol.equals("#true#") || (dotIndex != -1 && symbol.substring(0,dotIndex).equals("1"))) {
 				featureValue.setValue(1);
 				featureValue.setSymbol("true");

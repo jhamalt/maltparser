@@ -112,12 +112,6 @@ public class FeatureModel extends HashMap<String, FeatureVector> {
 		}
 	}
 	
-//	public void updateCardinality() throws MaltChainedException {
-//		for (int i = 0, n = featureFunctionCache.size(); i < n; i++) {
-//			featureFunctionCache.get(i).updateCardinality();
-//		}
-//	}
-	
 	public FeatureFunction identifyFeature(String spec) throws MaltChainedException {
 		String[] items =splitPattern.split(spec);
 		Stack<Object> objects = new Stack<Object>();

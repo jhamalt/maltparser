@@ -72,17 +72,6 @@ public class FeatureVector extends ArrayList<FeatureFunction> implements Seriali
 		}
 	}
 	
-	/**
-	 * Updates the cardinality (number of distinct values) of a feature value associated with the feature function 
-	 * 
-	 * @throws MaltChainedException
-	 */
-//	public void updateCardinality() throws MaltChainedException {
-//		final int size =  size();
-//		for (int i = 0; i < size; i++) {
-//			get(i).updateCardinality();
-//		}
-//	}
 	
 	public FeatureValue getFeatureValue(int index) {
 		if (index < 0 || index >= size()) {
@@ -91,11 +80,20 @@ public class FeatureVector extends ArrayList<FeatureFunction> implements Seriali
 		return get(index).getFeatureValue();
 	}
 	
+	public FeatureValue[] getFeatureValues() {
+		final int size = size();
+		FeatureValue[] featureValues = new FeatureValue[size];
+		for (int i = 0; i < size; i++) {
+			featureValues[i] = get(i).getFeatureValue();
+		}
+		return featureValues;
+	}
+	
 	/* (non-Javadoc)
 	 * @see java.util.AbstractCollection#toString()
 	 */
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		for (FeatureFunction function : this) {
 			if (function != null) {
 				sb.append(function.getFeatureValue().toString());

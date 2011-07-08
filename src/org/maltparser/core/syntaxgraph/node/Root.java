@@ -827,7 +827,7 @@ public class Root extends GraphNode implements DependencyNode, PhraseStructureNo
 	}
 	
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		sb.append(super.toString());
 		return sb.toString();
 	}

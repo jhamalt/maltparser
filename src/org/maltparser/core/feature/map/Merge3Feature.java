@@ -17,13 +17,13 @@ import org.maltparser.core.symbol.SymbolTableHandler;
 * @author Johan Hall
 */
 public class Merge3Feature implements FeatureMapFunction {
-	protected FeatureFunction firstFeature;
-	protected FeatureFunction secondFeature;
-	protected FeatureFunction thirdFeature;
-	protected DataFormatInstance dataFormatInstance;
-	protected SymbolTable table;
-	protected ColumnDescription column;
-	protected SingleFeatureValue singleFeatureValue;
+	private FeatureFunction firstFeature;
+	private FeatureFunction secondFeature;
+	private FeatureFunction thirdFeature;
+	private DataFormatInstance dataFormatInstance;
+	private SymbolTable table;
+	private ColumnDescription column;
+	private final SingleFeatureValue singleFeatureValue;
 	
 	public Merge3Feature(DataFormatInstance dataFormatInstance) throws MaltChainedException {
 		super();
@@ -47,9 +47,9 @@ public class Merge3Feature implements FeatureMapFunction {
 		setFirstFeature((FeatureFunction)arguments[0]);
 		setSecondFeature((FeatureFunction)arguments[1]);
 		setThirdFeature((FeatureFunction)arguments[2]);
-		ColumnDescription firstColumn = dataFormatInstance.getColumnDescriptionByName(firstFeature.getSymbolTable().getName());
-		ColumnDescription secondColumn = dataFormatInstance.getColumnDescriptionByName(secondFeature.getSymbolTable().getName());
-		ColumnDescription thirdColumn = dataFormatInstance.getColumnDescriptionByName(thirdFeature.getSymbolTable().getName());
+		ColumnDescription firstColumn = (firstFeature.getSymbolTable() != null)?dataFormatInstance.getColumnDescriptionByName(firstFeature.getSymbolTable().getName()):null;
+		ColumnDescription secondColumn = (secondFeature.getSymbolTable() != null)?dataFormatInstance.getColumnDescriptionByName(secondFeature.getSymbolTable().getName()):null;
+		ColumnDescription thirdColumn =  (thirdFeature.getSymbolTable() != null)?dataFormatInstance.getColumnDescriptionByName(thirdFeature.getSymbolTable().getName()):null;
 		if (firstFeature.getType() != secondFeature.getType() || firstFeature.getType() != thirdFeature.getType()) {
 			throw new FeatureException("Could not initialize MergeFeature: the arguments are not of the same type.");
 		}

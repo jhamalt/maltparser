@@ -27,9 +27,9 @@ public class ArcEager extends TransitionSystem {
 	}
 	
 	public void apply(GuideUserAction currentAction, ParserConfiguration config) throws MaltChainedException {
-		NivreConfig nivreConfig = (NivreConfig)config;
-		Stack<DependencyNode> stack = nivreConfig.getStack();
-		Stack<DependencyNode> input = nivreConfig.getInput();
+		final NivreConfig nivreConfig = (NivreConfig)config;
+		final Stack<DependencyNode> stack = nivreConfig.getStack();
+		final Stack<DependencyNode> input = nivreConfig.getInput();
 		currentAction.getAction(actionContainers);
 		Edge e = null;
 		switch (transActionContainer.getActionCode()) {
@@ -55,7 +55,7 @@ public class ArcEager extends TransitionSystem {
 	}
 	
 	public GuideUserAction getDeterministicAction(GuideUserHistory history, ParserConfiguration config) throws MaltChainedException {
-		NivreConfig nivreConfig = (NivreConfig)config;
+		final NivreConfig nivreConfig = (NivreConfig)config;
 		if (nivreConfig.getRootHandling() != NivreConfig.NORMAL && nivreConfig.getStack().peek().isRoot()) {
 			return updateActionContainers(history, ArcEager.SHIFT, null);
 		}
@@ -86,8 +86,8 @@ public class ArcEager extends TransitionSystem {
 
 	public boolean permissible(GuideUserAction currentAction, ParserConfiguration config) throws MaltChainedException {
 		currentAction.getAction(actionContainers);
-		int trans = transActionContainer.getActionCode();
-		DependencyNode stackPeek = ((NivreConfig)config).getStack().peek();
+		final int trans = transActionContainer.getActionCode();
+		final DependencyNode stackPeek = ((NivreConfig)config).getStack().peek();
 		int rootHandling = ((NivreConfig)config).getRootHandling();
 		if ((trans == LEFTARC || trans == RIGHTARC) && !isActionContainersLabeled()) {
 			return false;

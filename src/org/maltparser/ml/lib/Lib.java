@@ -18,7 +18,6 @@ import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 
-import java.util.Formatter;
 import java.util.LinkedHashMap;
 import java.util.Set;
 import java.util.jar.JarEntry;
@@ -56,9 +55,9 @@ public abstract class Lib implements LearningMethod {
 	protected LinkedHashMap<String, String> libOptions;
 	protected String allowedLibOptionFlags;
 	protected Logger configLogger;
-	final Pattern tabPattern = Pattern.compile("\t");
-	final Pattern pipePattern = Pattern.compile("\\|");	
-	private StringBuilder sb = new StringBuilder();
+	protected final Pattern tabPattern = Pattern.compile("\t");
+	protected final Pattern pipePattern = Pattern.compile("\\|");	
+	private final StringBuilder sb = new StringBuilder();
 	protected MaltLibModel model = null;
 	/**
 	 * Constructs a Lib learner.
@@ -102,7 +101,7 @@ public abstract class Lib implements LearningMethod {
 				if (featureValue == null || (excludeNullValues == true && featureValue.isNullValue())) {
 					sb.append("-1");
 				} else {
-					if (featureValue instanceof SingleFeatureValue) {
+					if (!featureValue.isMultiple()) {
 						SingleFeatureValue singleFeatureValue = (SingleFeatureValue)featureValue;
 						if (singleFeatureValue.getValue() == 1) {
 							sb.append(singleFeatureValue.getIndexCode());
@@ -113,7 +112,7 @@ public abstract class Lib implements LearningMethod {
 							sb.append(":");
 							sb.append(singleFeatureValue.getValue());
 						}
-					} else if (featureValue instanceof MultipleFeatureValue) {
+					} else { //if (featureValue instanceof MultipleFeatureValue) {
 						Set<Integer> values = ((MultipleFeatureValue)featureValue).getCodes();
 						int j=0;
 						for (Integer value : values) {
@@ -123,9 +122,10 @@ public abstract class Lib implements LearningMethod {
 							}
 							j++;
 						}
-					} else {
-						throw new LibException("Don't recognize the type of feature value: "+featureValue.getClass());
 					}
+//					else {
+//						throw new LibException("Don't recognize the type of feature value: "+featureValue.getClass());
+//					}
 				}
 				sb.append('\t');
 			}
@@ -212,19 +212,19 @@ public abstract class Lib implements LearningMethod {
 		if (featureVector == null) {
 			throw new LibException("The learner cannot predict the next class, because the feature vector cannot be found. ");
 		}
-
 		final FeatureList featureList = new FeatureList();
 		final int size = featureVector.size();
 		for (int i = 1; i <= size; i++) {
 			final FeatureValue featureValue = featureVector.getFeatureValue(i-1);	
 			if (featureValue != null && !(excludeNullValues == true && featureValue.isNullValue())) {
-				if (featureValue instanceof SingleFeatureValue) {
+				if (!featureValue.isMultiple()) {
 					SingleFeatureValue singleFeatureValue = (SingleFeatureValue)featureValue;
 					int index = featureMap.getIndex(i, singleFeatureValue.getIndexCode());
 					if (index != -1 && singleFeatureValue.getValue() != 0) {
 						featureList.add(index,singleFeatureValue.getValue());
 					}
-				} else if (featureValue instanceof MultipleFeatureValue) {
+				} 
+				else { //if (featureValue instanceof MultipleFeatureValue) {
 					for (Integer value : ((MultipleFeatureValue)featureValue).getCodes()) {
 						int v = featureMap.getIndex(i, value);
 						if (v != -1) {
@@ -236,7 +236,6 @@ public abstract class Lib implements LearningMethod {
 		}
 		try {
 			decision.getKBestList().addList(model.predict(featureList.toArray()));
-//			decision.getKBestList().addList(prediction(featureList));
 		} catch (OutOfMemoryError e) {
 			throw new LibException("Out of memory. Please increase the Java heap size (-Xmx<size>). ", e);
 		}
@@ -443,7 +442,7 @@ public abstract class Lib implements LearningMethod {
 	}
 	
 	public String getLibOptions() {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		for (String key : libOptions.keySet()) {
 			sb.append('-');
 			sb.append(key);

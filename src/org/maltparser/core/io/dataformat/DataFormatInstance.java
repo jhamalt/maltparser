@@ -49,7 +49,7 @@ public class DataFormatInstance implements Iterable<ColumnDescription> {
 	private DataFormatSpecification dataFormarSpec;
 	
 	public DataFormatInstance(Map<String, DataFormatEntry> entries, SymbolTableHandler symbolTables, String nullValueStrategy, DataFormatSpecification spec) throws MaltChainedException {
-		columnDescriptions = new TreeSet<ColumnDescription>();
+		this.columnDescriptions = new TreeSet<ColumnDescription>();
 		this.symbolTables = symbolTables;
 		createColumnDescriptions(entries, nullValueStrategy);
 		setDataFormarSpec(spec);

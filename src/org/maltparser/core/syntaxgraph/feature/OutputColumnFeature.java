@@ -15,12 +15,13 @@ import org.maltparser.core.syntaxgraph.node.DependencyNode;
  * @author Johan Hall
  */
 public class OutputColumnFeature extends ColumnFeature {
-	protected AddressFunction addressFunction;
-	protected DataFormatInstance dataFormatInstance;
+	private final DataFormatInstance dataFormatInstance;
+	private AddressFunction addressFunction;
+	
 	
 	public OutputColumnFeature(DataFormatInstance dataFormatInstance) throws MaltChainedException {
 		super();
-		setDataFormatInstance(dataFormatInstance);
+		this.dataFormatInstance = dataFormatInstance;
 	}
 	
 	public void initialize(Object[] arguments) throws MaltChainedException {
@@ -87,11 +88,6 @@ public class OutputColumnFeature extends ColumnFeature {
 		return dataFormatInstance;
 	}
 
-	public void setDataFormatInstance(DataFormatInstance dataFormatInstance) {
-		this.dataFormatInstance = dataFormatInstance;
-	}
-
-	
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;

@@ -67,9 +67,10 @@ public class KBestList {
 		if (addCandidateIndex >= kBestList.size()) { kBestList.add(new Candidate()); }
 		kBestList.get(addCandidateIndex).setActionCode(actionCode);
 		if (addCandidateIndex == 0) {
-			if (decision instanceof SingleDecision) {
-				((SingleDecision)decision).addDecision(actionCode);
-			}
+//			if (decision instanceof SingleDecision) {
+//				((SingleDecision)decision).addDecision(actionCode);
+//			}
+			decision.addDecision(actionCode);
 			topCandidateIndex++;
 		}
 		addCandidateIndex++;
@@ -89,9 +90,10 @@ public class KBestList {
 	 * @throws MaltChainedException
 	 */
 	public void add(String symbol) throws MaltChainedException {
-		if (decision instanceof SingleDecision) {
-			this.add(((SingleDecision)decision).getDecisionCode(symbol));
-		}
+//		if (decision instanceof SingleDecision) {
+//			this.add(((SingleDecision)decision).getDecisionCode(symbol));
+//		}
+		this.add(decision.getDecisionCode(symbol));
 	}
 	
 
@@ -185,7 +187,7 @@ public class KBestList {
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		sb.append("[ ");
 		for (int i = 0; i < addCandidateIndex; i++) {
 			sb.append(kBestList.get(i));

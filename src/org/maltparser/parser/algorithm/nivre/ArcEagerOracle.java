@@ -20,10 +20,10 @@ public class ArcEagerOracle extends Oracle {
 	}
 	
 	public GuideUserAction predict(DependencyStructure gold, ParserConfiguration config) throws MaltChainedException {
-		NivreConfig nivreConfig = (NivreConfig)config;
-		DependencyNode stackPeek = nivreConfig.getStack().peek();
-		int stackPeekIndex = stackPeek.getIndex();
-		int inputPeekIndex = nivreConfig.getInput().peek().getIndex();
+		final NivreConfig nivreConfig = (NivreConfig)config;
+		final DependencyNode stackPeek = nivreConfig.getStack().peek();
+		final int stackPeekIndex = stackPeek.getIndex();
+		final int inputPeekIndex = nivreConfig.getInput().peek().getIndex();
 		
 		if (!stackPeek.isRoot() && gold.getTokenNode(stackPeekIndex).getHead().getIndex() == inputPeekIndex) {
 			return updateActionContainers(ArcEager.LEFTARC, gold.getTokenNode(stackPeekIndex).getHeadEdge().getLabelSet());

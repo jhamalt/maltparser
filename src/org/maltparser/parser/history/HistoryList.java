@@ -10,7 +10,7 @@ import org.maltparser.parser.history.action.GuideUserAction;
  * @author Johan Hall
 */
 public class HistoryList extends HistoryStructure {
-	protected ArrayList<HistoryNode> list;
+	protected final ArrayList<HistoryNode> list;
 	protected final ObjectPoolList<HistoryNode> nodePool;
 //	protected BufferedWriter writer;
 	
@@ -48,7 +48,7 @@ public class HistoryList extends HistoryStructure {
 	public int hashCode() {
 		return super.hashCode();
 	}
-	
+
 	public void toFile() throws MaltChainedException {
 //		try {
 //			for (int i = 0; i < list.size(); i++) {

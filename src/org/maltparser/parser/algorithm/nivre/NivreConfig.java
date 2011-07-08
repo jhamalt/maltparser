@@ -21,9 +21,9 @@ public class NivreConfig extends ParserConfiguration {
 	public static final int RELAXED = 2; //root tokens unattached, Reduce permissible
 	public static final int NORMAL = 3; //root tokens attached to Root with RightArc
 	
-	private Stack<DependencyNode> stack;
-	private Stack<DependencyNode> input;
-	private DependencyStructure dependencyGraph;
+	private final Stack<DependencyNode> stack;
+	private final Stack<DependencyNode> input;
+	private final DependencyStructure dependencyGraph;
 	private int rootHandling;
 
 	
@@ -74,15 +74,15 @@ public class NivreConfig extends ParserConfiguration {
 	public void setDependencyGraph(DependencyStructure source) throws MaltChainedException {
 		dependencyGraph.clear();
 		for (int index : source.getTokenIndices()) {
-			DependencyNode gnode = source.getTokenNode(index);
-			DependencyNode pnode = dependencyGraph.addTokenNode(gnode.getIndex());
+			final DependencyNode gnode = source.getTokenNode(index);
+			final DependencyNode pnode = dependencyGraph.addTokenNode(gnode.getIndex());
 			for (SymbolTable table : gnode.getLabelTypes()) {
 				pnode.addLabel(table, gnode.getLabelSymbol(table));
 			}
 			
 			if (gnode.hasHead()) {
-				Edge s = gnode.getHeadEdge();
-				Edge t = dependencyGraph.addDependencyEdge(s.getSource().getIndex(), s.getTarget().getIndex());
+				final Edge s = gnode.getHeadEdge();
+				final Edge t = dependencyGraph.addDependencyEdge(s.getSource().getIndex(), s.getTarget().getIndex());
 				
 				for (SymbolTable table : s.getLabelTypes()) {
 					t.addLabel(table, s.getLabelSymbol(table));
@@ -100,9 +100,9 @@ public class NivreConfig extends ParserConfiguration {
 	
 	public void initialize(ParserConfiguration parserConfiguration) throws MaltChainedException {
 		if (parserConfiguration != null) {
-			NivreConfig nivreConfig = (NivreConfig)parserConfiguration;
-			Stack<DependencyNode> sourceStack = nivreConfig.getStack();
-			Stack<DependencyNode> sourceInput = nivreConfig.getInput();
+			final NivreConfig nivreConfig = (NivreConfig)parserConfiguration;
+			final Stack<DependencyNode> sourceStack = nivreConfig.getStack();
+			final Stack<DependencyNode> sourceInput = nivreConfig.getInput();
 			setDependencyGraph(nivreConfig.getDependencyGraph());
 			for (int i = 0, n = sourceStack.size(); i < n; i++) {
 				stack.add(dependencyGraph.getDependencyNode(sourceStack.get(i).getIndex()));

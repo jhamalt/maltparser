@@ -11,13 +11,20 @@ import java.util.ArrayList;
  */
 public class FeatureList  {
 	private static final long serialVersionUID = 7526471155622776147L;
-	private ArrayList<MaltFeatureNode> list;
+	private final ArrayList<MaltFeatureNode> list;
 	
 	/**
 	 * Creates a feature list of MaltFeatureNode objects
 	 */
 	public FeatureList() {
 		list = new ArrayList<MaltFeatureNode>();
+	}
+	
+	/**
+	 * Creates a feature list of MaltFeatureNode objects
+	 */
+	public FeatureList(int size) {
+		list = new ArrayList<MaltFeatureNode>(size);
 	}
 	
 	/**
@@ -86,7 +93,7 @@ public class FeatureList  {
 	
 	public MaltFeatureNode[] toArray() {
 		final MaltFeatureNode[] nodes = new MaltFeatureNode[list.size()];
-		int len = nodes.length;
+		final int len = nodes.length;
 		for (int i = 0; i < len; i++) {
 			nodes[i] = list.get(i);
 		}

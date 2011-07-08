@@ -12,15 +12,34 @@ public class TableContainer {
 	protected final StringBuilder cachedSymbol;
 	protected Table table;
 	protected String name;
-	protected RelationToNextDecision relationToNextDecision;
+	private RelationToNextDecision relationToNextDecision;
 	
 	public TableContainer(Table table, String name, char decisionSeparator) {
-		setTable(table);
-		setName(name);
-		setRelationToNextDecision(decisionSeparator);
+		this.table = table;
+		this.name = name;
+		switch (decisionSeparator) {
+		case '+':
+			this.relationToNextDecision = RelationToNextDecision.COMBINED;
+			break;
+		case ',':
+			this.relationToNextDecision = RelationToNextDecision.SEQUANTIAL;
+			break;
+		case ';':
+			this.relationToNextDecision = RelationToNextDecision.BRANCHED;
+			break;
+		case '#':
+			this.relationToNextDecision = RelationToNextDecision.BRANCHED;
+			break;
+		case '?':
+			this.relationToNextDecision = RelationToNextDecision.SWITCHED;
+			break;
+		default:
+			this.relationToNextDecision = RelationToNextDecision.NONE;
+		}
 		cachedSymbol = new StringBuilder();
 		cachedCode = -1;
 	}
+
 	
 	public void clearCache() {
 		cachedCode = -1;
@@ -103,42 +122,21 @@ public class TableContainer {
 		return relationToNextDecision;
 	}
 
-	protected void setRelationToNextDecision(char decisionSeparator) {
-		switch (decisionSeparator) {
-		case '+':
-			this.relationToNextDecision = RelationToNextDecision.COMBINED;
-			break;
-		case ',':
-			this.relationToNextDecision = RelationToNextDecision.SEQUANTIAL;
-			break;
-		case ';':
-			this.relationToNextDecision = RelationToNextDecision.BRANCHED;
-			break;
-		case '#':
-			this.relationToNextDecision = RelationToNextDecision.BRANCHED;
-			break;
-		case '?':
-			this.relationToNextDecision = RelationToNextDecision.SWITCHED;
-			break;
-		default:
-			this.relationToNextDecision = RelationToNextDecision.NONE;
-		}
-	}
 
 	protected void setTable(Table table) {
 		this.table = table;
 	}
-	
+
 	protected void setName(String name) {
 		this.name = name;
-	} 
+	}
 	
 	public int size() {
 		return table.size();
 	}
 	
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		sb.append(name);
 		sb.append(" -> " );
 		sb.append(cachedSymbol);

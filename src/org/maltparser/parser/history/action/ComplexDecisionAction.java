@@ -17,17 +17,19 @@ import org.maltparser.parser.history.kbest.ScoredKBestList;
 * @since 1.1
 **/
 public class ComplexDecisionAction implements GuideUserAction, MultipleDecision {
-	protected History history;
-	protected ArrayList<SimpleDecisionAction> decisions;
+	private History history;
+	private ArrayList<SimpleDecisionAction> decisions;
 	
 	public ComplexDecisionAction(History history) throws MaltChainedException {
-		setHistory(history);
-		initDecisions();
+		this.history = history;
+		decisions = new ArrayList<SimpleDecisionAction>(history.getDecisionTables().size());
+		for (int i=0, n = history.getDecisionTables().size(); i < n; i++) {
+			decisions.add(new SimpleDecisionAction(history, history.getDecisionTables().get(i)));
+		}
 	}
 	
 	public ComplexDecisionAction(GuideHistory history) throws MaltChainedException {
-		setHistory((History)history);
-		initDecisions();
+		this((History)history);
 	}
 	
 	/* GuideUserAction interface */
@@ -148,19 +150,6 @@ public class ComplexDecisionAction implements GuideUserAction, MultipleDecision 
 		return (GuideHistory)history;
 	}
 	
-	/* Initializer */
-	protected void initDecisions() throws MaltChainedException {
-		decisions = new ArrayList<SimpleDecisionAction>(history.getDecisionTables().size());
-		for (int i=0, n = history.getDecisionTables().size(); i < n; i++) {
-			decisions.add(new SimpleDecisionAction(history, history.getDecisionTables().get(i)));
-		}
-	}
-	
-	/* Getters and Setters */
-	protected void setHistory(History history) {
-		this.history = history;
-	}
-
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;

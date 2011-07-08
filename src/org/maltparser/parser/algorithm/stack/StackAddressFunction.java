@@ -13,10 +13,10 @@ public class StackAddressFunction extends AddressFunction {
 	public enum StackSubFunction {
 		STACK, INPUT, LOOKAHEAD
 	};
-	protected String subFunctionName;
-	protected StackSubFunction subFunction;
-	protected Algorithm parsingAlgorithm;
-	protected int index;
+	private String subFunctionName;
+	private StackSubFunction subFunction;
+	private Algorithm parsingAlgorithm;
+	private int index;
 	
 	public StackAddressFunction(String subFunctionName, Algorithm parsingAlgorithm) {
 		super();
@@ -121,7 +121,7 @@ public class StackAddressFunction extends AddressFunction {
 	}
 	
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		sb.append(subFunctionName);
 		sb.append('[');
 		sb.append(index);

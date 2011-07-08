@@ -20,7 +20,7 @@ import org.maltparser.parser.transition.TransitionTableHandler;
  *
  */
 public abstract class TransitionSystem {
-	protected HashMap<String, TableHandler> tableHandlers;
+	private HashMap<String, TableHandler> tableHandlers;
 	protected TransitionTableHandler transitionTableHandler;
 	protected ActionContainer[] actionContainers;
 	protected ActionContainer transActionContainer;
@@ -164,17 +164,13 @@ public abstract class TransitionSystem {
 	public PropagationManager getPropagationManager() {
 		return propagationManager;
 	}
-
-//	protected void doPropagation(Edge e) throws MaltChainedException{
-//
-//	}
 	
 	public void setPropagationManager(PropagationManager propagationManager) {
 		this.propagationManager = propagationManager;
 	}
 
 	public String getActionString(GuideUserAction action) throws MaltChainedException {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		action.getAction(actionContainers);
 		TransitionTable ttable = (TransitionTable)getTransitionTableHandler().getSymbolTable("TRANS");
 		sb.append(ttable.getSymbolCodeToString(transActionContainer.getActionCode()));
