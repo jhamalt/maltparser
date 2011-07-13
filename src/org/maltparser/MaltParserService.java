@@ -276,8 +276,7 @@ public class MaltParserService {
 		final URLFinder f = new URLFinder();
 		urlMaltJar = f.findURL(maltpath);
 		try {
-			OptionManager.instance().loadOptionDescriptionFile(new URL("jar:"+urlMaltJar.toString()+"!/appdata/options.xml"));
-			
+			OptionManager.instance().loadOptionDescriptionFile(new URL("jar:"+urlMaltJar.toString()+"!/appdata/options.xml"));			
 		} catch (MalformedURLException e) {
 			throw new MaltChainedException("MaltParser couldn't find its options 'malt.jar!/appdata/options.xml'", e);
 		}
