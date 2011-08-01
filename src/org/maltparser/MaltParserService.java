@@ -182,7 +182,7 @@ public class MaltParserService {
 	
 	public  DependencyStructure toDependencyStructure(String[] tokens, String dataFormatFileName) throws MaltChainedException {
 		// Creates a symbol table handler
-		SymbolTableHandler symbolTables = new TrieSymbolTableHandler();
+		SymbolTableHandler symbolTables = new TrieSymbolTableHandler(TrieSymbolTableHandler.ADD_NEW_TO_TRIE);
 		
 		// Initialize data format instance of the CoNLL data format from conllx.xml (conllx.xml located in same directory)
 		DataFormatSpecification dataFormat = new DataFormatSpecification();

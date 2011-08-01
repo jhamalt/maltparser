@@ -13,6 +13,7 @@ public interface SymbolTableHandler extends TableHandler {
 	public SymbolTable addSymbolTable(String tableName, int columnCategory, String nullValueStrategy) throws MaltChainedException;
 	public SymbolTable getSymbolTable(String tableName) throws MaltChainedException;
 	public Set<String> getSymbolTableNames();
+	public void cleanUp();
 	public void save(OutputStreamWriter osw) throws MaltChainedException;
 	public void save(String fileName, String charSet) throws MaltChainedException;
 	public void load(InputStreamReader isr) throws MaltChainedException;

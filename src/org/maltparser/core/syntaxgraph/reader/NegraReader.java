@@ -121,6 +121,7 @@ public class NegraReader implements SyntaxGraphReader {
 		currentHeaderTable = NegraTables.UNDEF;
 		String line = null;
 		syntaxGraph.clear();
+		syntaxGraph.getSymbolTables().cleanUp();
 		nonterminals.clear();
 		try {
 			while (true) {

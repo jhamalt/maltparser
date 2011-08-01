@@ -124,6 +124,7 @@ public class TigerXMLReader implements SyntaxGraphReader {
 			return false;
 		}
 		syntaxGraph.clear();
+		syntaxGraph.getSymbolTables().cleanUp();
 		final PhraseStructure phraseStructure = (PhraseStructure)syntaxGraph;
 		PhraseStructureNode parent = null;
 		PhraseStructureNode child = null;

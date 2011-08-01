@@ -8,6 +8,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
+import org.maltparser.core.helper.HashMap;
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.io.dataformat.ColumnDescription;
 import org.maltparser.core.symbol.SymbolException;
@@ -31,10 +32,17 @@ public class TrieSymbolTable implements SymbolTable {
     /** Cache the hash code for the symbol table */
     private int cachedHash;
     
-	public TrieSymbolTable(String name, Trie trie, int columnCategory, String nullValueStrategy) throws MaltChainedException {
+	/** Special treatment during parsing */
+	private final int symbolTableMode;
+	private HashMap<String, Integer> tmpStorageStrIntMap;
+	private HashMap<Integer, String> tmpStorageIntStrMap;
+	private int tmpStorageValueCounter;
+    
+	public TrieSymbolTable(String name, Trie trie, int columnCategory, String nullValueStrategy, int symbolTableMode) throws MaltChainedException {
 		this.name = name;
 		this.trie = trie;
 		this.columnCategory = columnCategory;
+		
 		codeTable = new TreeMap<Integer, TrieNode>();
 		if (columnCategory == ColumnDescription.INPUT) {
 			nullValues = new InputNullValues(nullValueStrategy, this);
@@ -44,14 +52,27 @@ public class TrieSymbolTable implements SymbolTable {
 			nullValues = new InputNullValues(nullValueStrategy, this);
 		}
 		valueCounter = nullValues.getNextCode();
+		
+		this.symbolTableMode = symbolTableMode;
+		if (this.symbolTableMode == TrieSymbolTableHandler.ADD_NEW_TO_TMP_STORAGE) {
+			tmpStorageStrIntMap = new HashMap<String, Integer>();
+			tmpStorageIntStrMap = new HashMap<Integer, String>();
+			tmpStorageValueCounter = -1;
+		}
 	}
 	
-	public TrieSymbolTable(String name, Trie trie) {
+	public TrieSymbolTable(String name, Trie trie, int symbolTableMode) {
 		this.name = name;
 		this.trie = trie;
 		codeTable = new TreeMap<Integer, TrieNode>();
 		nullValues = new InputNullValues("one", this);
 		valueCounter = 1;
+		this.symbolTableMode = symbolTableMode;
+		if (this.symbolTableMode == TrieSymbolTableHandler.ADD_NEW_TO_TMP_STORAGE) {
+			tmpStorageStrIntMap = new HashMap<String, Integer>();
+			tmpStorageIntStrMap = new HashMap<Integer, String>();
+			tmpStorageValueCounter = -1;
+		}
 	}
 	
 	public int addSymbol(String symbol) throws MaltChainedException {
@@ -59,12 +80,33 @@ public class TrieSymbolTable implements SymbolTable {
 			if (symbol == null || symbol.length() == 0) {
 				throw new SymbolException("Symbol table error: empty string cannot be added to the symbol table");
 			}
-			final TrieNode node = trie.addValue(symbol, this, -1);
-			final int code = node.getEntry(this); 
-			if (!codeTable.containsKey(code)) {
-				codeTable.put(code, node);
-			}
-			return code;
+			
+			if (this.symbolTableMode == TrieSymbolTableHandler.ADD_NEW_TO_TRIE) {
+				final TrieNode node = trie.addValue(symbol, this, -1);
+				final int code = node.getEntry(this); 
+				if (!codeTable.containsKey(code)) {
+					codeTable.put(code, node);
+				}
+				return code;
+			} else { // this.symbolTableMode == ADD_NEW_TO_TMP_STORAGE	
+				Integer entry = trie.getEntry(symbol, this);
+				if (entry != null) {
+					return entry.intValue();
+				}
+				if (!tmpStorageStrIntMap.containsKey(symbol)) {
+//					System.out.println("!tmpStorageStrIntMap.containsKey(symbol) : " + this.getName() + ": " + symbol.toString());
+					if (tmpStorageValueCounter == -1) {
+						tmpStorageValueCounter = valueCounter + 1;
+					} else {
+						tmpStorageValueCounter++;
+					}
+					tmpStorageStrIntMap.put(symbol, tmpStorageValueCounter);
+					tmpStorageIntStrMap.put(tmpStorageValueCounter, symbol);
+					return tmpStorageValueCounter;
+				} else {
+					return tmpStorageStrIntMap.get(symbol);
+				}
+			} 
 		} else {
 			return nullValues.symbolToCode(symbol);
 		}
@@ -75,12 +117,33 @@ public class TrieSymbolTable implements SymbolTable {
 			if (symbol == null || symbol.length() == 0) {
 				throw new SymbolException("Symbol table error: empty string cannot be added to the symbol table");
 			}
-			final TrieNode node = trie.addValue(symbol, this, -1);
-			final int code = node.getEntry(this);
-			if (!codeTable.containsKey(code)) {
-				codeTable.put(code, node);
+			
+			if (this.symbolTableMode == TrieSymbolTableHandler.ADD_NEW_TO_TRIE) {
+				final TrieNode node = trie.addValue(symbol, this, -1);
+				final int code = node.getEntry(this);
+				if (!codeTable.containsKey(code)) {
+					codeTable.put(code, node);
+				}
+				return code;
+			} else { // this.symbolTableMode == ADD_NEW_TO_TMP_STORAGE
+				Integer entry = trie.getEntry(symbol.toString(), this);
+				
+				if (entry != null) {
+					return entry.intValue();
+				}
+				if (!tmpStorageStrIntMap.containsKey(symbol)) {
+					if (tmpStorageValueCounter == -1) {
+						tmpStorageValueCounter = valueCounter + 1;
+					} else {
+						tmpStorageValueCounter++;
+					}
+					tmpStorageStrIntMap.put(symbol.toString(), tmpStorageValueCounter);
+					tmpStorageIntStrMap.put(tmpStorageValueCounter, symbol.toString());
+					return tmpStorageValueCounter;
+				} else {
+					return tmpStorageStrIntMap.get(symbol);
+				}
 			}
-			return code;
 		} else {
 			return nullValues.symbolToCode(symbol);
 		}
@@ -92,7 +155,16 @@ public class TrieSymbolTable implements SymbolTable {
 				if (trie == null) {
 					throw new SymbolException("The symbol table is corrupt. ");
 				}
-				return trie.getValue(codeTable.get(code), this);
+				if (this.symbolTableMode == TrieSymbolTableHandler.ADD_NEW_TO_TRIE) {
+					return trie.getValue(codeTable.get(code), this);
+				} else {
+					TrieNode node = codeTable.get(code);
+					if (node != null) {
+						return trie.getValue(node, this);
+					} else {
+						return tmpStorageIntStrMap.get(code);
+					}
+				}
 			} else {
 				return nullValues.codeToSymbol(code);
 			}
@@ -107,11 +179,24 @@ public class TrieSymbolTable implements SymbolTable {
 				if (trie == null) {
 					throw new SymbolException("The symbol table is corrupt. ");
 				} 
-				final Integer entry = trie.getEntry(symbol, this);
-				if (entry == null) {
-					throw new SymbolException("Could not find the symbol '"+symbol+"' in the symbol table. ");
+				if (this.symbolTableMode == TrieSymbolTableHandler.ADD_NEW_TO_TRIE) {
+					final Integer entry = trie.getEntry(symbol, this);
+					if (entry == null) {
+						throw new SymbolException("Could not find the symbol '"+symbol+"' in the symbol table. ");
+					}
+					return entry.intValue(); 
+				} else {
+					final Integer entry = trie.getEntry(symbol, this);
+					if (entry != null) {
+						return entry.intValue(); 
+					} else {
+						Integer tmpEntry = tmpStorageStrIntMap.get(symbol);
+						if (tmpEntry == null) {
+							throw new SymbolException("Could not find the symbol '"+symbol+"' in the symbol table. "); 
+						} 
+						return tmpEntry.intValue();
+					}
 				}
-				return entry; //.getCode();				
 			} else {
 				return nullValues.symbolToCode(symbol);
 			}
@@ -120,6 +205,13 @@ public class TrieSymbolTable implements SymbolTable {
 		}
 	}
 
+	public void clearTmpStorage() {
+		if (symbolTableMode == TrieSymbolTableHandler.ADD_NEW_TO_TMP_STORAGE) {
+			tmpStorageIntStrMap.clear();
+			tmpStorageStrIntMap.clear();
+			tmpStorageValueCounter = -1;
+		}
+	}
 	public String getNullValueStrategy() {
 		if (nullValues == null) {
 			return null;
@@ -155,6 +247,7 @@ public class TrieSymbolTable implements SymbolTable {
 	public int size() {
 		return codeTable.size();
 	}
+	
 	
 	public void save(BufferedWriter out) throws MaltChainedException  {
 		try {

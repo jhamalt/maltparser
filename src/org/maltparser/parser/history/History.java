@@ -34,7 +34,7 @@ public class History implements GuideUserHistory, GuideHistory {
 		setTableHandlers(tableHandlers);
 		setSeparator(separator);
 		initDecisionSettings(decisionSettings);
-		actionPool = new ObjectPoolList<ComplexDecisionAction>() {
+		actionPool = new ObjectPoolList<ComplexDecisionAction>(200) {
 			protected ComplexDecisionAction create() throws MaltChainedException { return new ComplexDecisionAction(getThis()); }
 			public void resetObject(ComplexDecisionAction o) throws MaltChainedException { o.clear(); }
 		};

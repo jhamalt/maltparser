@@ -148,10 +148,15 @@ public class ConfigurationDir  {
 			outputFormatURL = f.findURL(outputFormatName);
 		}
 		dataFormatManager = new DataFormatManager(inputFormatURL, outputFormatURL);
-		symbolTables = new TrieSymbolTableHandler();
-
+		
+		String mode = OptionManager.instance().getOptionValue(containerIndex, "config", "flowchart").toString().trim();
+		if (mode.equals("parse")) {
+			symbolTables = new TrieSymbolTableHandler(TrieSymbolTableHandler.ADD_NEW_TO_TMP_STORAGE);
+//			symbolTables = new TrieSymbolTableHandler(TrieSymbolTableHandler.ADD_NEW_TO_TRIE);
+		} else {
+			symbolTables = new TrieSymbolTableHandler(TrieSymbolTableHandler.ADD_NEW_TO_TRIE);
+		}
 		if (dataFormatManager.getInputDataFormatSpec().getDataStructure() == DataStructure.PHRASE) {
-			String mode = OptionManager.instance().getOptionValue(containerIndex, "config", "flowchart").toString().trim();
 			if (mode.equals("learn")) {
 				Set<Dependency> deps = dataFormatManager.getInputDataFormatSpec().getDependencies();
 				for (Dependency dep : deps) {

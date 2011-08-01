@@ -115,6 +115,7 @@ public class BracketReader implements SyntaxGraphReader {
 			return false;
 		}
 		syntaxGraph.clear();
+		syntaxGraph.getSymbolTables().cleanUp();
 		int brackets = 0;
 		try {
 			int l = reader.read();

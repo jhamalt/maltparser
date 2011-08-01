@@ -111,6 +111,7 @@ public class TabReader implements SyntaxGraphReader {
 		int terminalCounter = 0;
 		int nNewLines = 0;
 		syntaxGraph.clear();
+		syntaxGraph.getSymbolTables().cleanUp();
 		Iterator<ColumnDescription> columns = dataFormatInstance.iterator();
 		while (true) {
 			int c;
