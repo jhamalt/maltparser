@@ -32,15 +32,20 @@ public class TrieSymbolTableHandler implements SymbolTableHandler {
 	private final Trie trie;
 	private final HashMap<String, TrieSymbolTable> symbolTables;
 	
-	public TrieSymbolTableHandler() {
+	public final static int ADD_NEW_TO_TRIE = 1;
+	public final static int ADD_NEW_TO_TMP_STORAGE = 2;
+	private final int symbolTableMode;
+
+	public TrieSymbolTableHandler(int symbolTableMode) {
 		trie = new Trie();
 		symbolTables = new HashMap<String, TrieSymbolTable>();
+		this.symbolTableMode = symbolTableMode;
 	}
 
 	public TrieSymbolTable addSymbolTable(String tableName) throws MaltChainedException {
 		TrieSymbolTable symbolTable = symbolTables.get(tableName);
 		if (symbolTable == null) {
-			symbolTable = new TrieSymbolTable(tableName, trie);
+			symbolTable = new TrieSymbolTable(tableName, trie, symbolTableMode);
 			symbolTables.put(tableName, symbolTable);
 		}
 		return symbolTable;
@@ -50,7 +55,7 @@ public class TrieSymbolTableHandler implements SymbolTableHandler {
 		TrieSymbolTable symbolTable = symbolTables.get(tableName);
 		if (symbolTable == null) {
 			TrieSymbolTable trieParentTable = (TrieSymbolTable)parentTable;
-			symbolTable = new TrieSymbolTable(tableName, trie, trieParentTable.getColumnCategory(), trieParentTable.getNullValueStrategy());
+			symbolTable = new TrieSymbolTable(tableName, trie, trieParentTable.getColumnCategory(), trieParentTable.getNullValueStrategy(), symbolTableMode);
 			symbolTables.put(tableName, symbolTable);
 		}
 		return symbolTable;
@@ -59,7 +64,7 @@ public class TrieSymbolTableHandler implements SymbolTableHandler {
 	public TrieSymbolTable addSymbolTable(String tableName, int columnCategory, String nullValueStrategy) throws MaltChainedException {
 		TrieSymbolTable symbolTable = symbolTables.get(tableName);
 		if (symbolTable == null) {
-			symbolTable = new TrieSymbolTable(tableName, trie, columnCategory, nullValueStrategy);
+			symbolTable = new TrieSymbolTable(tableName, trie, columnCategory, nullValueStrategy, symbolTableMode);
 			symbolTables.put(tableName, symbolTable);
 		}
 		return symbolTable;
@@ -71,6 +76,14 @@ public class TrieSymbolTableHandler implements SymbolTableHandler {
 	
 	public Set<String> getSymbolTableNames() {
 		return symbolTables.keySet();
+	}
+	
+	public void cleanUp() {
+		if (symbolTableMode == TrieSymbolTableHandler.ADD_NEW_TO_TMP_STORAGE) {
+			for (TrieSymbolTable table : symbolTables.values()) {
+				table.clearTmpStorage();
+			}
+		}
 	}
 	
 	public void save(OutputStreamWriter osw) throws MaltChainedException  {
