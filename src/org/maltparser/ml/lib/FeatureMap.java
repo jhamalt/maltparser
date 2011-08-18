@@ -2,6 +2,7 @@ package org.maltparser.ml.lib;
 
 import java.io.Serializable;
 
+
 import org.maltparser.core.helper.HashMap;
 
 /**
@@ -67,6 +68,26 @@ public class FeatureMap  implements Serializable {
 		return index.intValue();
 	}
 	
+	public int setIndex(long key, int index) {
+		return map.put(key, index);
+	}
+	
+	public int decrementIndex(Long key) {
+		Integer index = map.get(key);
+		if (index != null) {
+			map.put(key, index - 1);
+		}
+		return (index != null)?index - 1 : -1;
+	}
+	
+	public void decrementfeatureCounter() {
+		featureCounter--;
+	}
+	
+	public Integer removeIndex(long key) {
+		return map.remove(key);
+	}
+	
 	public int getIndex(int featurePosition, int code1, int code2) {
 		final long key = ((((long)featurePosition) << 48) | (((long)code1) << 24) | (long)code2);
 		final Integer index = map.get(key);
@@ -80,6 +101,23 @@ public class FeatureMap  implements Serializable {
 		return map.size();
 	}
 	
+	
+	public Long[] reverseMap() {
+		Long[] reverseMap = new Long[map.size() +1];
+
+		for (Long key : map.keySet()) {
+			reverseMap[map.get(key)] = key;
+
+		}
+		return reverseMap;
+	}
+	
+	
+	
+	public void setFeatureCounter(int featureCounter) {
+		this.featureCounter = featureCounter;
+	}
+
 	/**
 	 * @return the current value of the feature counter.
 	 */

@@ -21,6 +21,7 @@ import liblinear.SolverType;
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.feature.FeatureVector;
 import org.maltparser.core.helper.NoPrintStream;
+import org.maltparser.core.helper.Util;
 import org.maltparser.parser.guide.instance.InstanceModel;
 
 public class LibLinear extends Lib {
@@ -58,7 +59,10 @@ public class LibLinear extends Lib {
 			Model model = Linear.train(problem, parameter);
 			System.setOut(err);
 			System.setOut(out);
-			MaltLiblinearModel xmodel = new MaltLiblinearModel(model, parameter.getSolverType());
+//			System.out.println(" model.getNrFeature():" +  model.getNrFeature());
+//			System.out.println(" model.getFeatureWeights().length:" +  model.getFeatureWeights().length);
+			double[][] wmatrix = convert(model.getFeatureWeights(), model.getNrClass(), model.getNrFeature());
+			MaltLiblinearModel xmodel = new MaltLiblinearModel(model.getLabels(), model.getNrClass(), wmatrix.length, wmatrix, parameter.getSolverType());
 		    ObjectOutputStream output = new ObjectOutputStream (new BufferedOutputStream(new FileOutputStream(getFile(".moo").getAbsolutePath())));
 	        try{
 	          output.writeObject(xmodel);
@@ -79,6 +83,73 @@ public class LibLinear extends Lib {
 		}
 	}
 	
+    private double[][] convert(double[] w, int nr_class, int nr_feature) {
+        double[][] wmatrix = new double[nr_feature][];
+        boolean reuse = false;
+        int ne = 0;
+        int nr = 0;
+        int no = 0;
+        int n = 0;
+
+        Long[] reverseMap = featureMap.reverseMap();
+        for (int i = 0; i < nr_feature; i++) {
+        	reuse = false;
+        	int k = nr_class;
+        	for (int t = i * nr_class; (t + (k - 1)) >= t; k--) {
+        		if (w[t + k - 1] != 0.0) {
+        			break;
+        		}
+        	}
+        	double[] copy = new double[k];
+            System.arraycopy(w, i * nr_class, copy, 0,k);
+            if (eliminate(copy)) {
+            	ne++;
+            	featureMap.removeIndex(reverseMap[i + 1]);
+            	featureMap.decrementfeatureCounter();
+            	reverseMap[i + 1] = null;
+            	wmatrix[i] = null;
+            } else {
+            	featureMap.setIndex(reverseMap[i + 1], i + 1 - ne);
+	            for (int j = 0; j < i; j++) {
+	            	if (Util.equals(copy, wmatrix[j])) {
+	            		wmatrix[i] = wmatrix[j];
+	            		reuse = true;
+	            		nr++;
+	            		break;
+	            	}
+	            }
+	            if (reuse == false) {
+	            	no++;
+	            	wmatrix[i] = copy;
+	            }
+            }
+            n++;
+        }
+        double[][] wmatrix_reduced = new double[nr_feature-ne][];
+        for (int i = 0, j = 0; i < wmatrix.length; i++) {
+        	if (wmatrix[i] != null) {
+        		wmatrix_reduced[j++] = wmatrix[i];
+        	}
+        }
+//        System.out.println("NE:"+ne);
+//        System.out.println("NR:"+nr);
+//        System.out.println("NO:"+no);
+//        System.out.println("N :"+n);
+        return wmatrix_reduced;
+    }
+    
+    public static boolean eliminate(double[] a) {
+    	if (a.length == 0) {
+    		return true;
+    	}
+    	for (int i = 1; i < a.length; i++) {
+    		if (a[i] != a[i-1]) {
+    			return false;
+    		}
+    	}
+    	return true;
+    }
+    
 	protected void trainExternal(FeatureVector featureVector) throws MaltChainedException {
 		try {		
 			

@@ -30,22 +30,37 @@ public class SystemInfo {
 			separator = "\\\\";
 		}
 		
-		Pattern MALTJAR = Pattern.compile("^.*malt[^" + separator + "]*\\.jar$");
 		try {
 			getManifestInfo();
-
+			
+			String maltJarSimpleName = "malt.jar";
+			String maltJarVersionName = (version != null && version.length() > 0) ? "malt-" + version + ".jar" : "";
+			Pattern MALTJAR = Pattern.compile("^.*malt[^" + separator + "]*\\.jar$");
+			
 			String[] jarfiles = System.getProperty("java.class.path").split(File.pathSeparator);
 			for (int i = 0; i < jarfiles.length; i++) {
-
-				if (MALTJAR.matcher(jarfiles[i]).matches()) {
+				if (jarfiles[i].endsWith(maltJarSimpleName) || jarfiles[i].endsWith(maltJarVersionName)) {
 					maltJarPath = new File(new File(jarfiles[i])
 							.getAbsolutePath());
 				}
 			}
 			if (maltJarPath == null || maltJarPath.length() == 0) {
+				for (int i = 0; i < jarfiles.length; i++) {
+					if (MALTJAR.matcher(jarfiles[i]).matches()) {
+						maltJarPath = new File(new File(jarfiles[i])
+								.getAbsolutePath());
+					}
+				}
+			}
+			if (maltJarPath == null || maltJarPath.length() == 0) {
 				String codeBasePath = SystemInfo.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-				if (MALTJAR.matcher(codeBasePath).matches()) {
+				if (codeBasePath.endsWith(maltJarSimpleName) || codeBasePath.endsWith(maltJarVersionName)) {
 					maltJarPath = new File(new File(codeBasePath).getAbsolutePath());
+				}
+				if (maltJarPath == null || maltJarPath.length() == 0) {
+					if (MALTJAR.matcher(codeBasePath).matches()) {
+						maltJarPath = new File(new File(codeBasePath).getAbsolutePath());
+					}
 				}
 			}
 		} catch (MaltChainedException e) {

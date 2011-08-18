@@ -16,7 +16,6 @@ import java.util.regex.Pattern;
 
 import org.maltparser.core.helper.Util;
 
-import liblinear.Model;
 import liblinear.SolverType;
 
 /**
@@ -38,14 +37,14 @@ public class MaltLiblinearModel implements Serializable, MaltLibModel {
 	private int nr_feature;
 	private SolverType solverType;
 	/** feature weight array */
-	private double[] w;
+	private double[][] w;
 
-    public MaltLiblinearModel(Model model, SolverType solverType) {
-    	labels = model.getLabels();
-    	nr_class = model.getNrClass();
-    	nr_feature = model.getNrFeature();
-    	this.solverType = solverType;
-    	w = model.getFeatureWeights();
+    public MaltLiblinearModel(int[] labels, int nr_class, int nr_feature, double[][] w, SolverType solverType) {
+    	this.labels = labels;
+    	this.nr_class = nr_class;
+    	this.nr_feature = nr_feature;
+    	this.w = w;
+    	this.solverType = solverType;	
     }
     
     public MaltLiblinearModel(Reader inputReader) throws IOException {
@@ -94,9 +93,9 @@ public class MaltLiblinearModel implements Serializable, MaltLibModel {
     * @see #getBias()
     * @return a <b>copy of</b> the feature weight array as described
     */
-    public double[] getFeatureWeights() {
-        return Util.copyOf(w, w.length);
-    }
+//    public double[] getFeatureWeights() {
+//        return Util.copyOf(w, w.length);
+//    }
 
     /**
     * @return true for logistic regression solvers
@@ -118,13 +117,15 @@ public class MaltLiblinearModel implements Serializable, MaltLibModel {
         for (i = 0; i < nr_w; i++) {
             dec_values[i] = 0;   
         }
-
+        
         for (i=0; i < xlen; i++) {
             if (x[i].index <= n) {
-            	int t = (x[i].index - 1) * nr_w;
-                for (int j = 0; j < nr_w; j++) {
-                    dec_values[j] += w[t + j] * x[i].value;
-                }
+            	int t = (x[i].index - 1);
+            	if (w[t] != null) {
+	                for (int j = 0; j < w[t].length; j++) {
+	                    dec_values[j] += w[t][j] * x[i].value;
+	                }
+            	}
             }
         }
 
@@ -202,8 +203,7 @@ public class MaltLiblinearModel implements Serializable, MaltLibModel {
 
             int nr_w = nr_class;
             if (nr_class == 2 && solverType != SolverType.MCSVM_CS) nr_w = 1;
-
-            w = new double[w_size * nr_w];
+            w = new double[w_size][nr_w];
             int[] buffer = new int[128];
 
             for (int i = 0; i < w_size; i++) {
@@ -215,7 +215,7 @@ public class MaltLiblinearModel implements Serializable, MaltLibModel {
                             throw new EOFException("unexpected EOF");
                         }
                         if (ch == ' ') {
-                            w[i * nr_w + j] = Util.atof(new String(buffer, 0, b));
+                        	w[i][j] = Util.atof(new String(buffer, 0, b));
                             break;
                         } else {
                             buffer[b++] = ch;
@@ -237,7 +237,9 @@ public class MaltLiblinearModel implements Serializable, MaltLibModel {
         result = prime * result + nr_class;
         result = prime * result + nr_feature;
         result = prime * result + ((solverType == null) ? 0 : solverType.hashCode());
-        result = prime * result + Arrays.hashCode(w);
+        for (int i = 0; i < w.length; i++) {
+        	result = prime * result + Arrays.hashCode(w[i]);
+        }
         return result;
     }
 
@@ -253,7 +255,10 @@ public class MaltLiblinearModel implements Serializable, MaltLibModel {
         if (solverType == null) {
             if (other.solverType != null) return false;
         } else if (!solverType.equals(other.solverType)) return false;
-        if (!Util.equals(w, other.w)) return false;
+        for (int i = 0; i < w.length; i++) {
+        	if (other.w.length <= i) return false;
+        	if (!Util.equals(w[i], other.w[i])) return false;
+        }    
         return true;
     }
     
