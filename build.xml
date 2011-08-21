@@ -14,14 +14,14 @@
 	<!-- prefixed with "env". -->
 	<property environment="env"/>
 
-	<property name="version" value="1.5.3rfu"/>
+	<property name="version" value="1.6"/>
 
 	<!-- The base directory relative to which most targets are built -->
 	<property name="base" value="."/>
 
 	<property name="deprecation" value="on"/>
 
-	<property name="javac.target" value="1.5"/>
+	<property name="javac.target" value="1.6"/>
 
 	<property name="javac.debug" value="on"/>
 	

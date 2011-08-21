@@ -96,7 +96,7 @@ public class ConfigDirChartItem extends ChartItem {
 				System.exit(1);
 			} else if (!configDir.getCreatedByMaltParserVersion().substring(0,3).equals(SystemInfo.getVersion().substring(0,3))) {
 				SystemLogger.logger().error("The parser model '"+ configDirName+ ".mco' is created by MaltParser "+configDir.getCreatedByMaltParserVersion()+".\n");
-				SystemLogger.logger().error("You have re-train the parser model to be able to parse with current version of MaltParser.");
+				SystemLogger.logger().error("You have to re-train the parser model to be able to parse with current version of MaltParser.\n");
 				System.exit(1);
 			}
 			OptionManager.instance().loadOptions(getOptionContainerIndex(), configDir.getInputStreamReaderFromConfigFile("savedoptions.sop"));

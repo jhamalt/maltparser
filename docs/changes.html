@@ -28,8 +28,10 @@ Modified: @today@
 
 <table class="bodyTable">
 <tr class="a"><th>Version</th><th>Date</th><th>Description</th></tr>
-<tr class="b"><td><a href="#1.5">1.5.2</a></td><td>@today@</td><td>Fixed a bug that cause MaltParser to crash under Windows</td></tr>
-<tr class="b"><td><a href="#1.5">1.5.1</a></td><td>May 12 2011</td><td>Fixed a bug that cause MaltParser to crash under Windows</td></tr>
+<tr class="b"><td><a href="#1.6">1.6</a></td><td>@today@</td><td>More sparse representation of the liblinear model, this change requires that a parser model is retrained.</td></tr>
+<tr class="b"><td><a href="#1.5.3">1.5.3</a></td><td>August 1 2011</td><td>Fixed problem that the symbol table is increasing during parsing.</td></tr>
+<tr class="b"><td><a href="#1.5.2">1.5.2</a></td><td>July 8 2011</td><td>Minor fixes</td></tr>
+<tr class="b"><td><a href="#1.5.1">1.5.1</a></td><td>May 12 2011</td><td>Fixed a bug that cause MaltParser to crash under Windows</td></tr>
 <tr class="b"><td><a href="#1.5">1.5</a></td><td>April 21 2011</td><td>Large update and requires that a parser model is retrained.</td></tr>
 <tr class="b"><td><a href="#1.4.1">1.4.1</a></td><td>July 15 2010</td><td>Some minor bug fixes</td></tr>
 <tr class="b"><td><a href="#1.4">1.4</a></td><td>July 2 2010</td><td>New parsing algorithms, new functionality and some other changes and bugfixes</td></tr>
@@ -42,6 +44,28 @@ Modified: @today@
 <tr class="b"><td><a href="#1.0.2">1.0.2</a></td><td>January 10 2008</td><td>Some minor bug fixes</td></tr>
 <tr class="b"><td><a href="#1.0.1">1.0.1</a></td><td>November 13 2007</td><td>Binaries built with JDK1.5, instead of JDK1.6.</td></tr>
 <tr class="b"><td><a href="#1.0.0">1.0.0</a></td><td>November 9 2007</td><td>First release</td></tr>
+</table>
+
+<a name="1.6"></a>
+<h3>MaltParser 1.6</h3>
+<table class="bodyTable">
+<tr class="a"><th>Changes</th></tr>
+<tr class="b"><td>This update address the problem that the liblinear model use a lot of memory.
+<ul>
+	<li>First, all features that have zero weights for all candidates are now removed during training.</li>
+	<li>Second, all features that have the same weights for all candidates shares the weight array.</li>
+	<li>Third, all ending zeros in the weight array are removed.</li>
+</ul>
+</td></tr>
+<tr class="b"><td>Build target (javac.target) are now 1.6. If you want to run MaltParser with Java 5 you have to change javac.target to 1.5 and rebuild MaltParser. We have also tested MaltParser with Java 7 and it works fine.</td></tr>
+</table>
+
+<a name="1.5.3"></a>
+<h3>MaltParser 1.5.3</h3>
+<table class="bodyTable">
+<tr class="a"><th>Changes</th></tr>
+<tr class="b"><td>Fixed a problem with identifying the correct version of malt-<version>.jar when there are several malt-<version>.jar</td></tr>
+<tr class="b"><td>Fixed a problem that the symbol table is increasing with new strings during parsing time.</td></tr>
 </table>
 
 <a name="1.5.2"></a>
