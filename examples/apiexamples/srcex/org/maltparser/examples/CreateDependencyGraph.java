@@ -20,7 +20,7 @@ public class CreateDependencyGraph {
 	
 	public DependencyGraph run() throws MaltChainedException {
 		// Creates a symbol table handler
-		SymbolTableHandler symbolTables = new TrieSymbolTableHandler();
+		SymbolTableHandler symbolTables = new TrieSymbolTableHandler(TrieSymbolTableHandler.ADD_NEW_TO_TRIE);
 		
 		// Adds three symbol tables (FORM, POSTAG and DEPREL)
 		SymbolTable formTable = symbolTables.addSymbolTable("FORM");

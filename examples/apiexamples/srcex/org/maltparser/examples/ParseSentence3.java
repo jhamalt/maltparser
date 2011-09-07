@@ -2,7 +2,6 @@ package org.maltparser.examples;
 
 import org.maltparser.MaltParserService;
 import org.maltparser.core.exception.MaltChainedException;
-import org.maltparser.core.syntaxgraph.DependencyStructure;
 
 /**
  * This example shows how to parse a sentence with MaltParser by first initialize a parser model. This example is the same as ParseSentence1 

@@ -19,7 +19,7 @@ public class CreatePhraseStructureGraph {
 	
 	public PhraseStructureGraph run() throws MaltChainedException {
 		// Creates a symbol table handler
-		SymbolTableHandler symbolTables = new TrieSymbolTableHandler();
+		SymbolTableHandler symbolTables = new TrieSymbolTableHandler(TrieSymbolTableHandler.ADD_NEW_TO_TRIE);
 		
 		// Adds three symbol tables (FORM, POSTAG, CAT, EDGELABEL)
 		SymbolTable formTable = symbolTables.addSymbolTable("FORM");

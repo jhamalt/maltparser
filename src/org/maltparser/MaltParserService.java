@@ -60,8 +60,24 @@ public class MaltParserService {
 	 * @throws MaltChainedException
 	 */
 	public MaltParserService(int optionContainer) throws MaltChainedException {
-		initialize();
 		setOptionContainer(optionContainer);
+		initialize();
+	}
+	
+	/**
+	 * Use this constructor only when you want a MaltParserService without an option manager. Without the option manager MaltParser cannot
+	 * load or create a parser model. 
+	 * 
+	 * @param optionFreeInitialization true, means that MaltParserService is created without an option manager, false will do the same as MaltParserService(). 
+	 * @throws MaltChainedException
+	 */
+	public MaltParserService(boolean optionFreeInitialization) throws MaltChainedException {
+		if (optionFreeInitialization == false) {
+			setOptionContainer(0);
+			initialize();
+		} else {
+			setOptionContainer(-1);
+		}
 	}
 	
 	/**
@@ -85,6 +101,9 @@ public class MaltParserService {
 	 * @throws MaltChainedException
 	 */
 	public void initializeParserModel(String commandLine) throws MaltChainedException {
+		if (optionContainer == -1) {
+			throw new MaltChainedException("MaltParserService has been initialized as an option free initialization and therefore no parser model can be initialized.");
+		}
 		OptionManager.instance().parseCommandLine(commandLine, optionContainer);
 		// Creates an engine
 		engine = new Engine();
@@ -98,8 +117,7 @@ public class MaltParserService {
 		singleMalt.getConfigurationDir().initDataFormat();
 		dataFormatInstance = singleMalt.getConfigurationDir().getDataFormatManager().getInputDataFormatSpec().createDataFormatInstance(
 				singleMalt.getSymbolTables(),
-				OptionManager.instance().getOptionValueString(optionContainer, "singlemalt", "null_value")); //, 
-//				OptionManager.instance().getOptionValueString(optionContainer, "graph", "root_label"));
+				OptionManager.instance().getOptionValueString(optionContainer, "singlemalt", "null_value")); 
 		initialized = true;
 	}
 	
@@ -144,13 +162,24 @@ public class MaltParserService {
 	}
 	
 	/**
-	 * Converts an array of tokens to a dependency structure
+	 * Converts an array of tokens to a dependency structure. 
+	 * 
+	 * Note that this method uses the same data format specification and symbol table as the parser engine. This can cause problem in multi-threaded 
+	 * environment. 
+	 * 
+	 * Please use (in multi-threaded environment)
+	 * toDependencyStructure(String[] tokens, DataFormatSpecification dataFormatSpecification)
+	 * or
+	 * toDependencyStructure(String[] tokens, String dataFormatFileName)
 	 * 
 	 * @param tokens an array of tokens
 	 * @return a dependency structure
 	 * @throws MaltChainedException
 	 */
 	public DependencyStructure toDependencyStructure(String[] tokens) throws MaltChainedException {
+		if (!initialized) {
+			throw new MaltChainedException("No parser model has been initialized. Please use the method initializeParserModel() before invoking this method.");
+		}
 		if (tokens == null || tokens.length == 0) {
 			throw new MaltChainedException("Nothing to convert. ");
 		}
@@ -180,14 +209,33 @@ public class MaltParserService {
 		return outputGraph;
 	}
 	
-	public  DependencyStructure toDependencyStructure(String[] tokens, String dataFormatFileName) throws MaltChainedException {
+	/**
+	 * Reads the data format specification file
+	 * 
+	 * @param dataFormatFileName the path to the data format specification file
+	 * @return a data format specification
+	 * @throws MaltChainedException
+	 */
+	public DataFormatSpecification readDataFormatSpecification(String dataFormatFileName) throws MaltChainedException {
+		DataFormatSpecification dataFormat = new DataFormatSpecification();
+		dataFormat.parseDataFormatXMLfile(dataFormatFileName);
+		return dataFormat;
+	}
+	
+	/**
+	 * Converts an array of tokens to a dependency structure
+	 * 
+	 * @param tokens tokens an array of tokens
+	 * @param dataFormatSpecification a data format specification
+	 * @return a dependency structure
+	 * @throws MaltChainedException
+	 */
+	public DependencyStructure toDependencyStructure(String[] tokens, DataFormatSpecification dataFormatSpecification) throws MaltChainedException {
 		// Creates a symbol table handler
 		SymbolTableHandler symbolTables = new TrieSymbolTableHandler(TrieSymbolTableHandler.ADD_NEW_TO_TRIE);
 		
-		// Initialize data format instance of the CoNLL data format from conllx.xml (conllx.xml located in same directory)
-		DataFormatSpecification dataFormat = new DataFormatSpecification();
-		dataFormat.parseDataFormatXMLfile(dataFormatFileName);
-		DataFormatInstance dataFormatInstance = dataFormat.createDataFormatInstance(symbolTables, "none");
+		// Initialize data format instance
+		DataFormatInstance dataFormatInstance = dataFormatSpecification.createDataFormatInstance(symbolTables, "none");
 
 		// Creates a dependency graph
 		if (tokens == null || tokens.length == 0) {
@@ -217,6 +265,18 @@ public class MaltParserService {
 		}
 		outputGraph.setDefaultRootEdgeLabel(outputGraph.getSymbolTables().getSymbolTable("DEPREL"), "ROOT");
 		return outputGraph;
+	}
+	
+	/**
+	 * Converts an array of tokens to a dependency structure
+	 * 
+	 * @param tokens an array of tokens
+	 * @param dataFormatFileName the path to the data format file
+	 * @return a dependency structure
+	 * @throws MaltChainedException
+	 */
+	public DependencyStructure toDependencyStructure(String[] tokens, String dataFormatFileName) throws MaltChainedException {
+		return toDependencyStructure(tokens, readDataFormatSpecification(dataFormatFileName));
 	}
 	
 	/**
@@ -256,6 +316,9 @@ public class MaltParserService {
 	 * @throws MaltChainedException
 	 */
 	public void terminateParserModel() throws MaltChainedException {
+		if (!initialized) {
+			throw new MaltChainedException("No parser model has been initialized. Please use the method initializeParserModel() before invoking this method.");
+		}
 		// Runs the postprocess chart items of the "parse" flow chart
 		if (flowChartInstance.hasPostProcessChartItems()) {
 			flowChartInstance.postprocess();
