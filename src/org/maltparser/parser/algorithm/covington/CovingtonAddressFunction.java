@@ -45,9 +45,9 @@ public class CovingtonAddressFunction extends AddressFunction {
 	}
 	
 	public void update(Object[] arguments) throws MaltChainedException {
-		if (arguments.length != 1 || !(arguments[0] instanceof CovingtonConfig)) {
-			throw new ParsingException("Number of arguments to the Covington address function is not correct. ");
-		}
+//		if (arguments.length != 1 || !(arguments[0] instanceof CovingtonConfig)) {
+//			throw new ParsingException("Number of arguments to the Covington address function is not correct. ");
+//		}
 		update((CovingtonConfig)arguments[0]);
 	}
 	

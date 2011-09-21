@@ -67,11 +67,11 @@ public class MergeFeature implements FeatureMapFunction {
 		singleFeatureValue.reset();
 		firstFeature.update();
 		secondFeature.update();
-		FunctionValue firstValue = firstFeature.getFeatureValue();
-		FunctionValue secondValue = secondFeature.getFeatureValue();
+		FeatureValue firstValue = firstFeature.getFeatureValue();
+		FeatureValue secondValue = secondFeature.getFeatureValue();
 		if (firstValue instanceof SingleFeatureValue && secondValue instanceof SingleFeatureValue) {
 			String firstSymbol = ((SingleFeatureValue)firstValue).getSymbol();
-			if (((FeatureValue)firstValue).isNullValue() && ((FeatureValue)secondValue).isNullValue()) {
+			if (firstValue.isNullValue() && secondValue.isNullValue()) {
 				singleFeatureValue.setIndexCode(firstFeature.getSymbolTable().getSymbolStringToCode(firstSymbol));
 				singleFeatureValue.setSymbol(firstSymbol);
 				singleFeatureValue.setNullValue(true);
@@ -86,7 +86,7 @@ public class MergeFeature implements FeatureMapFunction {
 					singleFeatureValue.setNullValue(false);
 					singleFeatureValue.setValue(1);
 				} else {
-					if (((FeatureValue)firstValue).isNullValue() || ((FeatureValue)secondValue).isNullValue()) {
+					if (firstValue.isNullValue() || secondValue.isNullValue()) {
 						singleFeatureValue.setValue(0);
 						table.addSymbol("#null#");
 						singleFeatureValue.setSymbol("#null#");

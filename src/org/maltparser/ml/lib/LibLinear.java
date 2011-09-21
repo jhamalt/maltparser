@@ -61,8 +61,14 @@ public class LibLinear extends Lib {
 			System.setOut(out);
 //			System.out.println(" model.getNrFeature():" +  model.getNrFeature());
 //			System.out.println(" model.getFeatureWeights().length:" +  model.getFeatureWeights().length);
+			if (configLogger.isInfoEnabled()) {
+				configLogger.info("Optimize memory usage for the Liblinear model "+getFile(".moo").getName()+"\n");
+			}
 			double[][] wmatrix = convert(model.getFeatureWeights(), model.getNrClass(), model.getNrFeature());
 			MaltLiblinearModel xmodel = new MaltLiblinearModel(model.getLabels(), model.getNrClass(), wmatrix.length, wmatrix, parameter.getSolverType());
+			if (configLogger.isInfoEnabled()) {
+				configLogger.info("Save the Liblinear model "+getFile(".moo").getName()+"\n");
+			}
 		    ObjectOutputStream output = new ObjectOutputStream (new BufferedOutputStream(new FileOutputStream(getFile(".moo").getAbsolutePath())));
 	        try{
 	          output.writeObject(xmodel);
@@ -85,11 +91,12 @@ public class LibLinear extends Lib {
 	
     private double[][] convert(double[] w, int nr_class, int nr_feature) {
         double[][] wmatrix = new double[nr_feature][];
+        double[] wsignature = new double[nr_feature];
         boolean reuse = false;
         int ne = 0;
-        int nr = 0;
-        int no = 0;
-        int n = 0;
+//        int nr = 0;
+//        int no = 0;
+//        int n = 0;
 
         Long[] reverseMap = featureMap.reverseMap();
         for (int i = 0; i < nr_feature; i++) {
@@ -105,26 +112,29 @@ public class LibLinear extends Lib {
             if (eliminate(copy)) {
             	ne++;
             	featureMap.removeIndex(reverseMap[i + 1]);
-            	featureMap.decrementfeatureCounter();
             	reverseMap[i + 1] = null;
             	wmatrix[i] = null;
             } else {
             	featureMap.setIndex(reverseMap[i + 1], i + 1 - ne);
+            	for (int j=0; j<copy.length; j++) wsignature[i] += copy[j];
 	            for (int j = 0; j < i; j++) {
-	            	if (Util.equals(copy, wmatrix[j])) {
-	            		wmatrix[i] = wmatrix[j];
-	            		reuse = true;
-	            		nr++;
-	            		break;
+	            	if (wsignature[j] == wsignature[i]) {
+		            	if (Util.equals(copy, wmatrix[j])) {
+		            		wmatrix[i] = wmatrix[j];
+		            		reuse = true;
+//		            		nr++;
+		            		break;
+		            	}
 	            	}
 	            }
 	            if (reuse == false) {
-	            	no++;
+//	            	no++;
 	            	wmatrix[i] = copy;
 	            }
             }
-            n++;
+//            n++;
         }
+        featureMap.setFeatureCounter(featureMap.getFeatureCounter()- ne);
         double[][] wmatrix_reduced = new double[nr_feature-ne][];
         for (int i = 0, j = 0; i < wmatrix.length; i++) {
         	if (wmatrix[i] != null) {
@@ -135,6 +145,7 @@ public class LibLinear extends Lib {
 //        System.out.println("NR:"+nr);
 //        System.out.println("NO:"+no);
 //        System.out.println("N :"+n);
+
         return wmatrix_reduced;
     }
     

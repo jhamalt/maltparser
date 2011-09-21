@@ -62,10 +62,6 @@ public class SeqDecisionModel implements DecisionModel {
 		featureModel.update();
 	}
 	
-//	public void updateCardinality() throws MaltChainedException {
-//		featureModel.updateCardinality();
-//	}
-	
 	public void finalizeSentence(DependencyStructure dependencyGraph) throws MaltChainedException {
 		if (instanceModel != null) {
 			instanceModel.finalizeSentence(dependencyGraph);
@@ -79,7 +75,6 @@ public class SeqDecisionModel implements DecisionModel {
 		if (guide.getGuideMode() == ClassifierGuide.GuideMode.CLASSIFY) {
 			throw new GuideException("The decision model could not create it's model. ");
 		}
-//		featureModel.updateCardinality();
 		if (instanceModel != null) {
 			instanceModel.noMoreInstances();
 			instanceModel.train();
@@ -104,7 +99,7 @@ public class SeqDecisionModel implements DecisionModel {
 		if (decision instanceof SingleDecision) {
 			throw new GuideException("A sequantial decision model expect a sequence of decisions, not a single decision. ");
 		}
-		updateFeatureModel();
+		featureModel.update();
 		final SingleDecision singleDecision = ((MultipleDecision)decision).getSingleDecision(decisionIndex);
 		if (instanceModel == null) {
 			initInstanceModel(singleDecision.getTableContainer().getTableContainerName());
@@ -122,7 +117,7 @@ public class SeqDecisionModel implements DecisionModel {
 		if (decision instanceof SingleDecision) {
 			throw new GuideException("A sequantial decision model expect a sequence of decisions, not a single decision. ");
 		}
-		updateFeatureModel();
+		featureModel.update();
 		final SingleDecision singleDecision = ((MultipleDecision)decision).getSingleDecision(decisionIndex);
 		if (instanceModel == null) {
 			initInstanceModel(singleDecision.getTableContainer().getTableContainerName());
@@ -142,7 +137,7 @@ public class SeqDecisionModel implements DecisionModel {
 		if (decision instanceof SingleDecision) {
 			throw new GuideException("A sequantial decision model expect a sequence of decisions, not a single decision. ");
 		}
-		updateFeatureModel();
+		featureModel.update();
 		final SingleDecision singleDecision = ((MultipleDecision)decision).getSingleDecision(decisionIndex);
 		if (instanceModel == null) {
 			initInstanceModel(singleDecision.getTableContainer().getTableContainerName());
@@ -159,7 +154,7 @@ public class SeqDecisionModel implements DecisionModel {
 	}
 	
 	public FeatureVector extract() throws MaltChainedException {
-		updateFeatureModel();
+		featureModel.update();
 		return instanceModel.extract(); // TODO handle many feature vectors
 	}
 	
@@ -246,13 +241,6 @@ public class SeqDecisionModel implements DecisionModel {
 		
 		DependencyParserConfig c = guide.getConfiguration();
 		
-//		if (c.getOptionValue("guide", "tree_automatic_split_order").toString().equals("yes") ||
-//				(c.getOptionValue("guide", "tree_split_columns")!=null &&
-//			c.getOptionValue("guide", "tree_split_columns").toString().length() > 0) ||
-//			(c.getOptionValue("guide", "tree_split_structures")!=null &&
-//			c.getOptionValue("guide", "tree_split_structures").toString().length() > 0)) {
-//			instanceModel = new DecisionTreeModel(fv, this); 
-//		}else 
 		if (c.getOptionValue("guide", "data_split_column").toString().length() == 0) {
 			instanceModel = new AtomicModel(-1, fv, this);
 		} else {

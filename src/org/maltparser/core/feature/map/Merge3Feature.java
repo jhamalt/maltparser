@@ -68,13 +68,13 @@ public class Merge3Feature implements FeatureMapFunction {
 		firstFeature.update();
 		secondFeature.update();
 		thirdFeature.update();
-		FunctionValue firstValue = firstFeature.getFeatureValue();
-		FunctionValue secondValue = secondFeature.getFeatureValue();
-		FunctionValue thirdValue = thirdFeature.getFeatureValue();
+		FeatureValue firstValue = firstFeature.getFeatureValue();
+		FeatureValue secondValue = secondFeature.getFeatureValue();
+		FeatureValue thirdValue = thirdFeature.getFeatureValue();
 
 		if (firstValue instanceof SingleFeatureValue && secondValue instanceof SingleFeatureValue && thirdValue instanceof SingleFeatureValue) {
 			String firstSymbol = ((SingleFeatureValue)firstValue).getSymbol();
-			if (((FeatureValue)firstValue).isNullValue() && ((FeatureValue)secondValue).isNullValue() && ((FeatureValue)thirdValue).isNullValue()) {
+			if (firstValue.isNullValue() && secondValue.isNullValue() && thirdValue.isNullValue()) {
 				singleFeatureValue.setIndexCode(firstFeature.getSymbolTable().getSymbolStringToCode(firstSymbol));
 				singleFeatureValue.setSymbol(firstSymbol);
 				singleFeatureValue.setNullValue(true);
@@ -91,7 +91,7 @@ public class Merge3Feature implements FeatureMapFunction {
 					singleFeatureValue.setNullValue(false);
 					singleFeatureValue.setValue(1);
 				} else {
-					if (((FeatureValue)firstValue).isNullValue() || ((FeatureValue)secondValue).isNullValue() || ((FeatureValue)thirdValue).isNullValue()) {
+					if (firstValue.isNullValue() || secondValue.isNullValue() || thirdValue.isNullValue()) {
 						singleFeatureValue.setValue(0);
 						table.addSymbol("#null#");
 						singleFeatureValue.setSymbol("#null#");

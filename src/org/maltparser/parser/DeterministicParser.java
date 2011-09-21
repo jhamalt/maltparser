@@ -31,9 +31,9 @@ public class DeterministicParser extends Parser {
 		parserState.initialize(parseDependencyGraph);
 		currentParserConfiguration = parserState.getConfiguration();
 		parseCount++;
-
+		TransitionSystem ts = parserState.getTransitionSystem();
 		while (!parserState.isTerminalState()) {
-			GuideUserAction action = parserState.getTransitionSystem().getDeterministicAction(parserState.getHistory(), currentParserConfiguration);
+			GuideUserAction action = ts.getDeterministicAction(parserState.getHistory(), currentParserConfiguration);
 			if (action == null) {
 				action = predict();
 			}

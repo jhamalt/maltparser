@@ -45,19 +45,29 @@ public class StackAddressFunction extends AddressFunction {
 	}
 	
 	public void update(Object[] arguments) throws MaltChainedException {
-		if (arguments.length != 1 || !(arguments[0] instanceof StackConfig)) {
-			throw new ParsingException("Arguments to the Stack address function is not correct. ");
+//		if (arguments.length != 1 || !(arguments[0] instanceof StackConfig)) {
+//			throw new ParsingException("Arguments to the Stack address function is not correct. ");
+//		}
+//		update((StackConfig)arguments[0]);
+		
+		if (subFunction == StackSubFunction.STACK) {
+			address.setAddress(((StackConfig)arguments[0]).getStackNode(index));
+		} else if (subFunction == StackSubFunction.LOOKAHEAD) {
+			address.setAddress(((StackConfig)arguments[0]).getLookaheadNode(index));
+		} else if (subFunction == StackSubFunction.INPUT) {
+			address.setAddress(((StackConfig)arguments[0]).getInputNode(index));
+		} else {
+			address.setAddress(null);
 		}
-		update((StackConfig)arguments[0]);
 	}
 	
 	private void update(StackConfig config) throws MaltChainedException {
 		if (subFunction == StackSubFunction.STACK) {
 			address.setAddress(config.getStackNode(index));
-		} else if (subFunction == StackSubFunction.INPUT) {
-			address.setAddress(config.getInputNode(index));
 		} else if (subFunction == StackSubFunction.LOOKAHEAD) {
 			address.setAddress(config.getLookaheadNode(index));
+		} else if (subFunction == StackSubFunction.INPUT) {
+			address.setAddress(config.getInputNode(index));
 		} else {
 			address.setAddress(null);
 		}

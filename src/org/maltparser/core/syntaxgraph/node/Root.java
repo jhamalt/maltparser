@@ -391,12 +391,12 @@ public class Root extends GraphNode implements DependencyNode, PhraseStructureNo
 	public DependencyNode getLeftDependent(int index) {
 		if (0 <= index && index < leftDependents.size()) {
 			int i = 0;
-			DependencyNode candidate = null;
+//			DependencyNode candidate = null;
 			
 			for (DependencyNode node : leftDependents) {
-				candidate = node;
+//				candidate = node;
 				if (i == index) {
-					return candidate;
+					return node;
 				}
 				i++;
 			}

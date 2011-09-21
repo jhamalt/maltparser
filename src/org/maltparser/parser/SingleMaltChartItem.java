@@ -130,12 +130,10 @@ public class SingleMaltChartItem extends ChartItem {
 				singleMalt.oracleParse(cachedSourceGraph, cachedTargetGraph);
 			} else if (modeName.equals("parse")) {
 				singleMalt.parse(cachedSourceGraph);
-				
-				if (cachedSourceGraph instanceof MappablePhraseStructureGraph) {
-					System.out.println("MappablePhraseStructureGraph");
-					((MappablePhraseStructureGraph)cachedSourceGraph).getMapping().connectUnattachedSpines((MappablePhraseStructureGraph)cachedSourceGraph);
-				}
-				
+//				if (cachedSourceGraph instanceof MappablePhraseStructureGraph) {
+//					System.out.println("MappablePhraseStructureGraph");
+//					((MappablePhraseStructureGraph)cachedSourceGraph).getMapping().connectUnattachedSpines((MappablePhraseStructureGraph)cachedSourceGraph);
+//				}	
 			}
 		}
 		return signal;

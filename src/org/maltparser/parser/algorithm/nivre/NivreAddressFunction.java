@@ -46,10 +46,17 @@ public class NivreAddressFunction extends AddressFunction {
 	}
 	
 	public void update(Object[] arguments) throws MaltChainedException {
-		if (arguments.length != 1 || !(arguments[0] instanceof NivreConfig)) {
-			throw new ParsingException("Arguments to the Nivre address function is not correct. ");
+//		if (arguments.length != 1 || !(arguments[0] instanceof NivreConfig)) {
+//			throw new ParsingException("Arguments to the Nivre address function is not correct. ");
+//		}
+//		update((NivreConfig)arguments[0]);
+		if (subFunction == NivreSubFunction.STACK) {
+			address.setAddress(((NivreConfig)arguments[0]).getStackNode(index));
+		} else if (subFunction == NivreSubFunction.INPUT) {
+			address.setAddress(((NivreConfig)arguments[0]).getInputNode(index));
+		} else {
+			address.setAddress(null);
 		}
-		update((NivreConfig)arguments[0]);
 	}
 	
 	private void update(NivreConfig config) throws MaltChainedException {

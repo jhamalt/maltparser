@@ -89,9 +89,9 @@ public class AtomicModel implements InstanceModel {
 
 	public boolean predict(SingleDecision decision) throws MaltChainedException {
 		try {
-			if (getGuide().getGuideMode() == ClassifierGuide.GuideMode.BATCH) {
-				throw new GuideException("Cannot predict during batch training. ");
-			}
+//			if (getGuide().getGuideMode() == ClassifierGuide.GuideMode.BATCH) {
+//				throw new GuideException("Cannot predict during batch training. ");
+//			}
 			return method.predict(featureVector, decision);
 		} catch (NullPointerException e) {
 			throw new GuideException("The learner cannot be found. ", e);
@@ -100,9 +100,9 @@ public class AtomicModel implements InstanceModel {
 
 	public FeatureVector predictExtract(SingleDecision decision) throws MaltChainedException {
 		try {
-			if (getGuide().getGuideMode() == ClassifierGuide.GuideMode.BATCH) {
-				throw new GuideException("Cannot predict during batch training. ");
-			}
+//			if (getGuide().getGuideMode() == ClassifierGuide.GuideMode.BATCH) {
+//				throw new GuideException("Cannot predict during batch training. ");
+//			}
 			if (method.predict(featureVector, decision)) {
 				return featureVector;
 			}

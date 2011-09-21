@@ -432,16 +432,20 @@ public class Token extends GraphNode implements TokenNode, DependencyNode, Phras
 	}
 	
 	public DependencyNode getHead() throws MaltChainedException {
-		if (!hasHead()) {
+		if (heads.size() == 0) {
 			return null;
 		}
+		if (heads.size() == 1) {
+			for (DependencyNode head : heads) {
+				return head;
+			}
+		}
+
 		if (heads.size() > 1) {
 			throw new SyntaxGraphException("The dependency node is multi-headed and it is ambigious to return a single-head dependency node. ");
 		}
 		// heads.first();
-		for (DependencyNode head : heads) {
-			return head;
-		}
+
 		return null;
 	}
 	
@@ -542,12 +546,12 @@ public class Token extends GraphNode implements TokenNode, DependencyNode, Phras
 	public DependencyNode getLeftDependent(int index) {
 		if (0 <= index && index < leftDependents.size()) {
 			int i = 0;
-			DependencyNode candidate = null;
+//			DependencyNode candidate = null;
 			
 			for (DependencyNode node : leftDependents) {
-				candidate = node;
+//				candidate = node;
 				if (i == index) {
-					return candidate;
+					return node;
 				}
 				i++;
 			}

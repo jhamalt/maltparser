@@ -85,7 +85,6 @@ public class BranchedDecisionModel implements DecisionModel {
 		if (guide.getGuideMode() == ClassifierGuide.GuideMode.CLASSIFY) {
 			throw new GuideException("The decision model could not create it's model. ");
 		}
-//		featureModel.updateCardinality();
 		if (instanceModel != null) {
 			instanceModel.noMoreInstances();
 			instanceModel.train();
@@ -113,7 +112,7 @@ public class BranchedDecisionModel implements DecisionModel {
 		if (decision instanceof SingleDecision) {
 			throw new GuideException("A branched decision model expect more than one decisions. ");
 		}
-		updateFeatureModel();
+		featureModel.update();
 		final SingleDecision singleDecision = ((MultipleDecision)decision).getSingleDecision(decisionIndex);
 		if (instanceModel == null) {
 			initInstanceModel(singleDecision.getTableContainer().getTableContainerName());
@@ -137,10 +136,10 @@ public class BranchedDecisionModel implements DecisionModel {
 	}
 	
 	public boolean predict(GuideDecision decision) throws MaltChainedException {
-		if (decision instanceof SingleDecision) {
-			throw new GuideException("A branched decision model expect more than one decisions. ");
-		}
-		updateFeatureModel();
+//		if (decision instanceof SingleDecision) {
+//			throw new GuideException("A branched decision model expect more than one decisions. ");
+//		}
+		featureModel.update();
 		final SingleDecision singleDecision = ((MultipleDecision)decision).getSingleDecision(decisionIndex);
 		if (instanceModel == null) {
 			initInstanceModel(singleDecision.getTableContainer().getTableContainerName());
@@ -168,7 +167,7 @@ public class BranchedDecisionModel implements DecisionModel {
 		if (decision instanceof SingleDecision) {
 			throw new GuideException("A branched decision model expect more than one decisions. ");
 		}
-		updateFeatureModel();
+		featureModel.update();
 		final SingleDecision singleDecision = ((MultipleDecision)decision).getSingleDecision(decisionIndex);
 		if (instanceModel == null) {
 			initInstanceModel(singleDecision.getTableContainer().getTableContainerName());
@@ -193,7 +192,7 @@ public class BranchedDecisionModel implements DecisionModel {
 	}
 	
 	public FeatureVector extract() throws MaltChainedException {
-		updateFeatureModel();
+		featureModel.update();
 		return instanceModel.extract(); // TODO handle many feature vectors
 	}
 	

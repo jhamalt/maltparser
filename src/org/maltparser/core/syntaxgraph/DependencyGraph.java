@@ -74,7 +74,7 @@ public class DependencyGraph extends Sentence implements DependencyStructure {
 		DependencyNode dependent = null;
 		if (headIndex == 0) {
 			head = root;
-		} else if (headIndex > 0) {
+		} else { // if (headIndex > 0) {
 			head = getOrAddTerminalNode(headIndex);
 		}
 		

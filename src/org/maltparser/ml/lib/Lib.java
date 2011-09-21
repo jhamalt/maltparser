@@ -209,9 +209,9 @@ public abstract class Lib implements LearningMethod {
 	}
 
 	public boolean predict(FeatureVector featureVector, SingleDecision decision) throws MaltChainedException {
-		if (featureVector == null) {
-			throw new LibException("The learner cannot predict the next class, because the feature vector cannot be found. ");
-		}
+//		if (featureVector == null) {
+//			throw new LibException("The learner cannot predict the next class, because the feature vector cannot be found. ");
+//		}
 		final FeatureList featureList = new FeatureList();
 		final int size = featureVector.size();
 		for (int i = 1; i <= size; i++) {
@@ -219,14 +219,14 @@ public abstract class Lib implements LearningMethod {
 			if (featureValue != null && !(excludeNullValues == true && featureValue.isNullValue())) {
 				if (!featureValue.isMultiple()) {
 					SingleFeatureValue singleFeatureValue = (SingleFeatureValue)featureValue;
-					int index = featureMap.getIndex(i, singleFeatureValue.getIndexCode());
+					final int index = featureMap.getIndex(i, singleFeatureValue.getIndexCode());
 					if (index != -1 && singleFeatureValue.getValue() != 0) {
 						featureList.add(index,singleFeatureValue.getValue());
 					}
 				} 
 				else { //if (featureValue instanceof MultipleFeatureValue) {
 					for (Integer value : ((MultipleFeatureValue)featureValue).getCodes()) {
-						int v = featureMap.getIndex(i, value);
+						final int v = featureMap.getIndex(i, value);
 						if (v != -1) {
 							featureList.add(v,1);
 						}

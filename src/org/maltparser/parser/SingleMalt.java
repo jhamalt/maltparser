@@ -42,6 +42,8 @@ public class SingleMalt implements DependencyParserConfig {
 	protected long endTime;
 	protected int nIterations = 0;
 	protected PropagationManager propagationManager;
+	private Parser parser;
+	private Trainer trainer;
 	
 	public void initialize(int containerIndex, DataFormatInstance dataFormatInstance, ConfigurationDir configDir, int mode) throws MaltChainedException {
 
@@ -112,9 +114,9 @@ public class SingleMalt implements DependencyParserConfig {
 	 */
 	protected void initParsingAlgorithm() throws MaltChainedException {
 		if (mode == LEARN) {
-			parsingAlgorithm = new BatchTrainer(this);
+			parsingAlgorithm = trainer = new BatchTrainer(this);
 		} else if (mode == PARSE) {
-			parsingAlgorithm = new DeterministicParser(this);
+			parsingAlgorithm = parser = new DeterministicParser(this);
 		}
 	}
 	
@@ -138,23 +140,25 @@ public class SingleMalt implements DependencyParserConfig {
 			}
 			DependencyStructure processGraph = (DependencyStructure)arguments[0];
 			if (processGraph.hasTokens()) {
-				((Parser)getAlgorithm()).parse(processGraph);
+				parser.parse(processGraph);
+//				((Parser)getAlgorithm()).parse(processGraph);
 			}
 		}
 	}
 	
 	public void parse(DependencyStructure graph) throws MaltChainedException {
 		if (graph.hasTokens()) {
-			((Parser)getAlgorithm()).parse(graph);
+//			((Parser)getAlgorithm()).parse(graph);
+			parser.parse(graph);
 		}
 	}
 	
 	public void oracleParse(DependencyStructure goldGraph, DependencyStructure oracleGraph) throws MaltChainedException {
 		if (oracleGraph.hasTokens()) {
 			if (getGuide() != null) {
-				getGuide().finalizeSentence(((Trainer)getAlgorithm()).parse(goldGraph, oracleGraph));
+				getGuide().finalizeSentence(trainer.parse(goldGraph, oracleGraph));
 			} else {
-				((Trainer)getAlgorithm()).parse(goldGraph, oracleGraph);
+				trainer.parse(goldGraph, oracleGraph);
 			}
 		}
 	}

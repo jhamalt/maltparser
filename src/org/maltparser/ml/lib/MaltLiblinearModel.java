@@ -110,17 +110,18 @@ public class MaltLiblinearModel implements Serializable, MaltLibModel {
         
     public int[] predict(MaltFeatureNode[] x) { 
 		final double[] dec_values = new double[nr_class];
+		final int[] predictionList = Util.copyOf(labels, nr_class); 
         final int n = (bias >= 0)?nr_feature + 1:nr_feature;
-        final int nr_w = (nr_class == 2 && solverType != SolverType.MCSVM_CS)?1:nr_class;
+//        final int nr_w = (nr_class == 2 && solverType != SolverType.MCSVM_CS)?1:nr_class;
         final int xlen = x.length;
-        int i;
-        for (i = 0; i < nr_w; i++) {
-            dec_values[i] = 0;   
-        }
+//        int i;
+//        for (i = 0; i < nr_w; i++) {
+//            dec_values[i] = 0;   
+//        }
         
-        for (i=0; i < xlen; i++) {
+        for (int i=0; i < xlen; i++) {
             if (x[i].index <= n) {
-            	int t = (x[i].index - 1);
+            	final int t = (x[i].index - 1);
             	if (w[t] != null) {
 	                for (int j = 0; j < w[t].length; j++) {
 	                    dec_values[j] += w[t][j] * x[i].value;
@@ -129,12 +130,12 @@ public class MaltLiblinearModel implements Serializable, MaltLibModel {
             }
         }
 
-		final int[] predictionList = Util.copyOf(labels, nr_class); 
+		
 		double tmpDec;
 		int tmpObj;
 		int lagest;
 		final int nc =  nr_class-1;
-		for (i=0; i < nc; i++) {
+		for (int i=0; i < nc; i++) {
 			lagest = i;
 			for (int j=i; j < nr_class; j++) {
 				if (dec_values[j] > dec_values[lagest]) {

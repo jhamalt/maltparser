@@ -65,10 +65,13 @@ public class DGraphAddressFunction extends AddressFunction {
 					address.setAddress(node.getSameSideLeftSibling());
 				} else if (subFunction == DGraphSubFunction.RSIB) {
 					address.setAddress(node.getSameSideRightSibling());
-				} else if (node instanceof TokenNode && subFunction == DGraphSubFunction.PRED) {
-					address.setAddress(((TokenNode)node).getPredecessor());
-				} else if (node instanceof TokenNode && subFunction == DGraphSubFunction.SUCC) {
-					address.setAddress(((TokenNode)node).getSuccessor());
+				} else if ((subFunction == DGraphSubFunction.PRED || subFunction == DGraphSubFunction.SUCC) && node instanceof TokenNode) {
+					final TokenNode tokenNode = (TokenNode)node;
+					if (subFunction == DGraphSubFunction.PRED) {
+						address.setAddress(tokenNode.getPredecessor());
+					} else if (subFunction == DGraphSubFunction.SUCC) {
+						address.setAddress(tokenNode.getSuccessor());
+					}
 				} else if (subFunction == DGraphSubFunction.ANC) {
 					address.setAddress(node.getAncestor());
 				} else if (subFunction == DGraphSubFunction.PANC) {

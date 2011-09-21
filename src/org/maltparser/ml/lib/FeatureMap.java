@@ -52,8 +52,7 @@ public class FeatureMap  implements Serializable {
 	 * @return the index value if it exists, otherwise -1
 	 */
 	public int getIndex(int featurePosition, int code) {
-		final long key = ((((long)featurePosition) << 48) | (long)code);
-		final Integer index = map.get(key);
+		final Integer index = map.get(((((long)featurePosition) << 48) | (long)code));
 		return (index == null)?-1:index;
 	}
 	
@@ -89,8 +88,7 @@ public class FeatureMap  implements Serializable {
 	}
 	
 	public int getIndex(int featurePosition, int code1, int code2) {
-		final long key = ((((long)featurePosition) << 48) | (((long)code1) << 24) | (long)code2);
-		final Integer index = map.get(key);
+		final Integer index = map.get(((((long)featurePosition) << 48) | (((long)code1) << 24) | (long)code2));
 		return (index == null)?-1:index;
 	}
 		
@@ -107,7 +105,6 @@ public class FeatureMap  implements Serializable {
 
 		for (Long key : map.keySet()) {
 			reverseMap[map.get(key)] = key;
-
 		}
 		return reverseMap;
 	}

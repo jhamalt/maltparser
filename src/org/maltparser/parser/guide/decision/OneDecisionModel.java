@@ -87,7 +87,7 @@ public class OneDecisionModel implements DecisionModel {
 	}
 	
 	public void addInstance(GuideDecision decision) throws MaltChainedException {
-		updateFeatureModel();
+		featureModel.update();
 		final SingleDecision singleDecision = (decision instanceof SingleDecision)?(SingleDecision)decision:((MultipleDecision)decision).getSingleDecision(decisionIndex);
 		
 		if (instanceModel == null) {
@@ -97,7 +97,7 @@ public class OneDecisionModel implements DecisionModel {
 	}
 	
 	public boolean predict(GuideDecision decision) throws MaltChainedException {
-		updateFeatureModel();
+		featureModel.update();
 		final SingleDecision singleDecision = (decision instanceof SingleDecision)?(SingleDecision)decision:((MultipleDecision)decision).getSingleDecision(decisionIndex);
 
 		if (instanceModel == null) {
@@ -107,7 +107,7 @@ public class OneDecisionModel implements DecisionModel {
 	}
 	
 	public FeatureVector predictExtract(GuideDecision decision) throws MaltChainedException {
-		updateFeatureModel();
+		featureModel.update();
 		final SingleDecision singleDecision = (decision instanceof SingleDecision)?(SingleDecision)decision:((MultipleDecision)decision).getSingleDecision(decisionIndex);
 
 		if (instanceModel == null) {
@@ -117,7 +117,7 @@ public class OneDecisionModel implements DecisionModel {
 	}
 	
 	public FeatureVector extract() throws MaltChainedException {
-		updateFeatureModel();
+		featureModel.update();
 		return instanceModel.extract();
 	}
 	

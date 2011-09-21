@@ -57,8 +57,9 @@ public class Sentence extends SyntaxGraph implements TokenStructure {
 	
 	
 	protected Token getOrAddTerminalNode(int index) throws MaltChainedException {
-		Token node = null;
-		if (!terminalNodes.containsKey(index)) {
+		Token node = terminalNodes.get(index);
+		if (node == null) {
+//		if (!terminalNodes.containsKey(index)) {
 			if (index > 0){
 				node = terminalPool.checkOut();
 				node.setIndex(index);
@@ -96,9 +97,10 @@ public class Sentence extends SyntaxGraph implements TokenStructure {
 			}
 			terminalNodes.put(index,node);
 			numberOfComponents++;
-		} else {
-			node = terminalNodes.get(index);
-		}
+		} 
+//		else {
+//			node = terminalNodes.get(index);
+//		}
 		return node;
 	}
 	
