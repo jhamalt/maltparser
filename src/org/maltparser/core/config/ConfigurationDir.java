@@ -96,7 +96,34 @@ public class ConfigurationDir  {
 		} else {
 			throw new ConfigurationException("The configuration name is not specified. ");
 		}
+
 		setConfigDirectory(new File(workingDirectory.getPath()+File.separator+getName()));
+		
+		String mode = OptionManager.instance().getOptionValue(containerIndex, "config", "flowchart").toString().trim();
+		if (mode.equals("parse")) {
+			// During parsing also search for the MaltParser configuration file in the class path
+			File mcoPath = new File(workingDirectory.getPath()+File.separator+getName()+".mco");
+			if (!mcoPath.exists()) {
+				String classpath = System.getProperty("java.class.path");
+				String[] items = classpath.split(System.getProperty("path.separator"));
+				boolean found = false;
+				for (String item : items) {
+					File candidateDir = new File(item);
+					if (candidateDir.exists() && candidateDir.isDirectory()) {
+						File candidateConfigFile = new File(candidateDir.getPath()+File.separator+getName()+".mco");
+						if (candidateConfigFile.exists()) {
+							initWorkingDirectory(candidateDir.getPath());
+							setConfigDirectory(new File(workingDirectory.getPath()+File.separator+getName()));
+							found = true;
+							break;
+						}
+					}
+				}
+				if (found == false) {
+					throw new ConfigurationException("Couldn't find the MaltParser configuration file: " + getName()+".mco");
+				}
+			}
+		}
 	}
 	
 	public void initDataFormat() throws MaltChainedException {

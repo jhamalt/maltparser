@@ -12,10 +12,11 @@
 			<option name="infile" value="examples/data/talbanken05_train.conll"/>
 		</optiongroup>
 		<optiongroup groupname="nivre">
-			<option name="root_handling" value="strict"/>
+			<option name="allow_root" value="false"/>
+			<option name="allow_reduce" value="false"/>
 		</optiongroup>
-		<optiongroup groupname="libsvm">
-			<option name="libsvm_options" value="-s_0_-t_1_-d_2_-g_0.2_-c_1.0_-r_0.4_-e_0.1"/>
+		<optiongroup groupname="lib">
+		    <option name="options" value="-s_0_-t_1_-d_2_-g_0.2_-c_1.0_-r_0.4_-e_0.1"/>
 		</optiongroup>
 		<optiongroup groupname="guide">
 			<option name="data_split_column" value="POSTAG"/>

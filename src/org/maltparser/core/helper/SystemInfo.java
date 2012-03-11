@@ -107,8 +107,8 @@ public class SystemInfo {
 		StringBuilder sb = new StringBuilder();
 		sb.append("\n"
 				+ "Usage: \n"
-				+ "   java -jar malt.jar -f <path to option file> <options>\n"
-				+ "   java -jar malt.jar -h for more help and options\n\n"
+				+ "   java -jar maltparser-"+version+".jar -f <path to option file> <options>\n"
+				+ "   java -jar maltparser-"+version+".jar -h for more help and options\n\n"
 				+ OptionManager.instance().getOptionDescriptions()
 						.toStringOptionGroup("system")
 				+ "Documentation: docs/index.html\n");

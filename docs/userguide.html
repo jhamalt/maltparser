@@ -49,34 +49,34 @@ Modified: @today@
 <a name="startusing"></a>
 <h3>Start using MaltParser</h3>
 <p>This section contains a short guide to get familiar with MaltParser. We start by running MaltParser without any arguments 
-by typing the following at the command line prompt (it is important that you are in the malt-@version@ directory):
+by typing the following at the command line prompt (it is important that you are in the maltparser-@version@ directory):
 <pre>
-prompt> java -jar malt.jar
+prompt> java -jar maltparser-@version@.jar
 </pre>
 This command will display the following output:
 <pre>
 -----------------------------------------------------------------------------
-                          MaltParser @version@
+                          MaltParser @version@                             
 -----------------------------------------------------------------------------
-         MALT (Models and Algorithms for Language Technology) Group
-             Vaxjo University and Uppsala University
-                             Sweden
+         MALT (Models and Algorithms for Language Technology) Group          
+             Vaxjo University and Uppsala University                         
+                             Sweden                                          
 -----------------------------------------------------------------------------
 
-Usage:
-   java -jar malt.jar -f <path to option file> <options>
-   java -jar malt.jar -h for more help and options
+Usage: 
+   java -jar maltparser-@version@.jar -f <path to option file> <options>
+   java -jar maltparser-@version@.jar -h for more help and options
 
-help                  (  -h) : Show options
+help                  (  -h) : Show options                                 
 -----------------------------------------------------------------------------
-option_file           (  -f) : Path to option file
+option_file           (  -f) : Path to option file                          
 -----------------------------------------------------------------------------
-verbosity            *(  -v) : Verbosity level
+verbosity            *(  -v) : Verbosity level                              
   debug      - Logging of debugging messages
   error      - Logging of error events
   fatal      - Logging of very severe error events
   info       - Logging of informational messages
-  off        - Logging turned off
+  off        - Logging turned off  
   warn       - Logging of harmful situations
 -----------------------------------------------------------------------------
 
@@ -84,7 +84,7 @@ Documentation: docs/index.html
 </pre>
 Here you can see the basic usage and options. To get all available options:
 <pre>
-prompt> java -jar malt.jar -h
+prompt> java -jar maltparser-@version@.jar -h
 </pre> 
 All these options are also described in a <a href="options.html">short documentation</a> and in a <a href="optiondesc.html">full documentation</a>. 
 </p>
@@ -96,7 +96,7 @@ The example data sets are formatted according to the <a href="http://nextens.uvt
 these data sets are very small and that you need more training data to create a useful parsing model.</p>
 <p>To train a default parsing model with MaltParser type the following at the command line prompt:
 <pre>
-prompt> java -jar malt.jar -c test -i examples/data/talbanken05_train.conll -m learn
+prompt> java -jar maltparser-@version@.jar -c test -i examples/data/talbanken05_train.conll -m learn
 </pre>
 This line tells MaltParser to create a parsing model named <b>test.mco</b> (also know as a Single Malt configuration file) from the data 
 in the file <b>examples/data/talbanken05_train.conll</b>. The parsing model gets its name from the configuration name, which is specified 
@@ -114,19 +114,19 @@ learning method (LIBSVM).
                              Sweden                                          
 -----------------------------------------------------------------------------
 
-Started: Sun Apr 03 16:31:30 CEST 2011
+Started: Sun Mar 11 12:31:34 CET 2012
   Transition system    : Arc-Eager
-  Parser configuration : Nivre with NORMAL root handling
+  Parser configuration : Nivre with with allow_root=true and allow_reduce=false
   Feature model        : NivreEager.xml
   Learner              : libsvm
   Oracle               : Arc-Eager
-  Data Format          : file:////home/jha/malt/dev/eclipse/malt/MaltParser-1.5/test/conllx.xml
-.          	      1	      0s	      7MB
-.          	     10	      0s	      9MB
-           	     32	      0s	     11MB
+  Data Format          : file:////mnt/malt/exp/test/1.7/maltparser-1.7/test/conllx.xml
+.          	      1	      0s	      3MB
+.          	     10	      0s	      4MB
+           	     32	      0s	      7MB
 Creating LIBSVM model odm0.libsvm.moo
-Learning time: 00:00:01 (1681 ms)
-Finished: Sun Apr 03 16:31:32 CEST 2011
+Learning time: 00:00:00 (728 ms)
+Finished: Sun Mar 11 12:31:35 CET 2012
 </pre>
 Most of the logging information is self-explaining: it tells you that the parser is started at a certain time and date and that it reads sentences 
 from a specified file containing 32 sentences. It continues with information about the learning models that are created, in this case only
@@ -138,7 +138,7 @@ named <b>test.mco</b>. Finally, the parser informs you about the learning time.<
 formatted according to the format that was used during training (except that the output columns for head and dependency relation are missing).
 In this case tokens are represented by the first six columns of the CoNLL data format. To parse type the following:
 <pre>
-prompt> $ java -jar malt.jar -c test -i examples/data/talbanken05_test.conll -o out.conll -m parse
+prompt> $ java -jar maltparser-@version@.jar -c test -i examples/data/talbanken05_test.conll -o out.conll -m parse
 </pre>
 where <b>-c test</b> is the name of the configuration (the prefix file name of <b>test.mco</b>), <b>-i examples/data/talbanken05_test.conll</b> tells 
 the parser where to find the input data, <b>-o out.conll</b> is the output file name, and finally <b>-m parse</b> specifies that the parser should be 
@@ -207,10 +207,11 @@ two attributes: <b>name</b> that corresponds to an option name and <b>value</b> 
 			&lt;option name="infile" value="examples/data/talbanken05_train.conll"/&gt;
 		&lt;/optiongroup&gt;
 		&lt;optiongroup groupname="nivre"&gt;
-			&lt;option name="root_handling" value="strict"/&gt;
+		    &lt;option name="allow_root" value="false"/&gt;
+			&lt;option name="allow_reduce" value="false"/&gt;
 		&lt;/optiongroup&gt;
 		&lt;optiongroup groupname="lib"&gt;
-			&lt;option name="lib_options" value="-s_0_-t_1_-d_2_-g_0.2_-c_1.0_-r_0.4_-e_0.1"/&gt;
+			&lt;option name="options" value="-s_0_-t_1_-d_2_-g_0.2_-c_1.0_-r_0.4_-e_0.1"/&gt;
 		&lt;/optiongroup&gt;
 		&lt;optiongroup groupname="guide"&gt;
 			&lt;option name="data_split_column" value="POSTAG"/&gt;
@@ -223,30 +224,27 @@ two attributes: <b>name</b> that corresponds to an option name and <b>value</b> 
 <p>
 To run MaltParser with the above option file type:
 <pre>
-prompt> java -jar malt.jar -f examples/optionexample.xml
+prompt> java -jar maltparser-@version@.jar  -f examples/optionexample.xml
 </pre>
 This command will create a configuration file <b>example1.mco</b> based on the settings in the option file. It is possible to override the options by
 command-line options, for example:
 <pre>
-prompt> java -jar malt.jar -f examples/optionexample.xml -a nivreeager
+prompt> java -jar maltparser-@version@.jar -f examples/optionexample.xml -a nivreeager
 </pre>
 which will create a configuration based on the same setting except the parsing algorithm is now <b>nivreeager</b> instead of <b>nivrestandard</b>. If you
 want to create a configuration that has the same settings as the option file with command-line options, you need to type:
 <pre>
-prompt> java -jar malt.jar -c example1 -m learn 
+prompt> java -jar maltparser-@version@.jar -c example1 -m learn 
                            -i examples/data/talbanken05_train.conll -a nivrestandard 
-                           -r strict -lo -s_0_-t_1_-d_2_-g_0.2_-c_1.0_-r_0.4_-e_0.1 
+                           -ne false -nr false -lo -s_0_-t_1_-d_2_-g_0.2_-c_1.0_-r_0.4_-e_0.1 
                            -d POSTAG -s Input[0] -T 100
 </pre>
 To parse using one of the three configurations you simply type:
 <pre>
-prompt> java -jar malt.jar -c example1 -m parse 
+prompt> java -jar maltparser-@version@.jar -c example1 -m parse 
                            -i examples/data/talbanken05_test.conll -o out1.conll
 </pre> 
 </p>
-
-
-
 
 <a name="config"></a>
 <h3>Configuration</h3>
@@ -277,31 +275,38 @@ Potentially there can be several types of configuration, but MaltParser @version
 <p>Sometimes it is useful to get information about a configuration, for instance, to know which settings have been used when creating the 
 configuration. To get this information you type:
 <pre>
-prompt> java -jar malt.jar -c test -m info
+prompt> java -jar maltparser-@version@.jar -c test -m info
 </pre>
 This will output a lot of information about the configuration:
 <pre>
+-----------------------------------------------------------------------------
+                          MaltParser @version@                             
+-----------------------------------------------------------------------------
+         MALT (Models and Algorithms for Language Technology) Group          
+             Vaxjo University and Uppsala University                         
+                             Sweden                                          
+-----------------------------------------------------------------------------
+
+Started: Sun Mar 11 12:48:36 CET 2012
 CONFIGURATION
 Configuration name:   test
 Configuration type:   singlemalt
-Created:              Sun Apr 03 16:31:30 CEST 2011
+Created:              Sun Mar 11 12:48:16 CET 2012
 
 SYSTEM
 Operating system architecture: amd64
 Operating system name:         Linux
 JRE vendor name:               Sun Microsystems Inc.
-JRE version number:            1.6.0_24
+JRE version number:            1.6.0_26
 
 MALTPARSER
 Version:                       @version@
-Build date:                    April 3 2011
+Build date:                    March 11 2012
 
 SETTINGS
 2planar
   reduceonswitch (-2pr)                 false
   planar_root_handling (-prh)           normal
-analyzer
-  task ( -at)                           projectivity
 config
   workingdir (  -w)                     user.dir
   name (  -c)                           test
@@ -340,7 +345,8 @@ lib
   verbosity ( -lv)                      silent
   options ( -lo)                        
 nivre
-  root_handling (  -r)                  normal
+  allow_root ( -nr)                     true
+  allow_reduce ( -ne)                   false
 output
   charset ( -oc)                        UTF-8
   writer_options (-owo)                 
@@ -407,12 +413,14 @@ In the example above the feature specification file is not specified and the par
 <h4>Unpack a configuration</h4>
 <p>It is possible to unpack the configuration file <b>test.mco</b> by typing:
 <pre>
-prompt> java -jar malt.jar -c test -m unpack
+prompt> java -jar maltparser-@version@.jar -c test -m unpack
 </pre>
 This command will create a new directory <b>test</b> containing the following files:
 <table class="bodyTable">
 <tr class="a"><th>File</th><th>Description</th></tr>
-<tr class="b"><td align="left">libsvm.mod</td><td align="left">The LIBSVM model that is used for predicting the next parsing action.</td></tr>
+<tr class="b"><td align="left">conllx.xml</td><td align="left">XML document describing the data format.</td></tr>
+<tr class="b"><td align="left">NivreEager.xml</td><td align="left">XML document containing the feature model specification.</td></tr>
+<tr class="b"><td align="left">odm0.libsvm.moo, odm0.libsvm.map</td><td align="left">The LIBSVM model that is used for predicting the next parsing action.</td></tr>
 <tr class="b"><td align="left">savedoptions.sop</td><td align="left">All option settings that cannot be changed during parsing.</td></tr>
 <tr class="b"><td align="left">symboltables.sym</td><td align="left">All distinct symbols in the training data, divided into different columns. 
 For example, the column POSTAG in the CoNLL format has its own symbol table with all distinct values occurring in the training data. </td></tr>
@@ -430,7 +438,7 @@ dependency labels of the lifted arcs. The encoding scheme can be varied using th
 currently five of them: <b>none</b>, <b>baseline</b>, <b>head</b>, <b>path</b> and <b>head+path</b>. (See Nivre & Nilsson (2005) for 
 more details concerning the encoding schemes.) A dependency file can be projectivized using the <b>head</b> encoding by typing: 
 <pre>
-prompt> java -jar malt.jar -c pproj -m proj
+prompt> java -jar maltparser-@version@.jar -c pproj -m proj
                            -i examples/data/talbanken05_test.conll 
                            -o projectivized.conll
                            -pp head
@@ -448,15 +456,14 @@ This will prevent all the unnecessary lifts.
 <p>
 The projecitivization and deprojectivization (below), including the encoding schemes, are know as pseudo-projective transformations and are
 described in more detail in Nivre & Nilsson (2005). The only difference compared to Nivre & Nilsson is that it is the most deeply nested 
-non-projective arc that is lifted first, not the shortest one. Lifting the most deeply nested arc first is likely to result in fewer lifts when 
-two or more non-projective arcs interact. In practice, however, this will probably have little impact for the parsing accuracy.
+non-projective arc that is lifted first, not the shortest one.
 </p>
 <a name="singlemalt_deproj"></a>
 <h4>Deprojectivize output data</h4>
 MaltParser can also be used to deprojectivize a projective file containing pseudo-projective encoding, with or without involving parsing, 
 where it is assumed that the configuration <b>pproj</b> contains the same encoding scheme as during projectivization. It could look like this:
 <pre>
-prompt> java -jar malt.jar -c pproj -m deproj
+prompt> java -jar maltparser-@version@.jar -c pproj -m deproj
                            -i projectivized.conll
                            -o deprojectivized.conll
 </pre>
@@ -469,7 +476,7 @@ The file <b>deprojectivized.conll</b> will contain the deprojectivized data. Not
 in the <b>input</b> and <b>output</b> option group. The <a href="http://nextens.uvt.nl/depparse-wiki/DataFormat" target="_blank">CoNLL</a>,
 <a href="http://w3.msi.vxu.se/~nivre/research/MaltXML.html" target="_blank">Malt-TAB</a> and simplified version of 
 <a href="http://www.coli.uni-sb.de/~thorsten/publications/Brants-CLAUS98.ps.gz" target="_blank">Negra</a> data format specification files are already included in 
-the MaltParser jar-file (malt.jar) in the <b>appdata/dataformat</b> directory. The CoNLL data format specification file looks like this:</p>
+the MaltParser jar-file (maltparser-@version@.jar) in the <b>appdata/dataformat</b> directory. The CoNLL data format specification file looks like this:</p>
 <pre>
 &lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;dataformat name="conllx"&gt;
@@ -536,15 +543,27 @@ data format could look like this:</p>
 <p>Any deterministic parsing algorithm compatible with the MaltParser architecture can be implemented in the MaltParser package. MaltParser @version@
 contains three families of parsing algorithms: <b>Nivre</b>, <b>Covington</b> and <b>Stack</b>.
 
-<a name="nivre"></a>
+
 <h4>Nivre</h4>
 <p> Nivre's algorithm (Nivre 2003, Nivre 2004) is a linear-time algorithm limited to projective dependency structures. It can 
-be run in arc-eager (<b>-a nivreeager</b>) or arc-standard (<b>-a nivrestandard</b>) mode. In addition, the <a href="optiondesc.html#nivre-root_handling">root handling</a> option can be used to change the algorithm's behavior with respect to root tokens, i.e., tokens of the input sentence that are not dependent on another token.</p>
+be run in arc-eager (<b>-a nivreeager</b>) or arc-standard (<b>-a nivrestandard</b>) mode. In addition, 
+the <a href="optiondesc.html#nivre-allow_root">allow_root</a> option decides whether the parser will start parsing with 
+an artificial root token on the stack (true) or with an empty stack (false), and 
+the <a href="optiondesc.html#nivre-allow_reduce">allow_reduce</a> option decides whether the reduce transition is allowed even if the token on top 
+of the stack does not have a head (true) or whether only attached tokens can be reduced (false).</p>
 <p>Nivre's algorithm uses two data structures:</p>
 <ul>
 <li>A stack <b>Stack</b> of partially processed tokens, where <b>Stack[i]</b> is the i+1th token from the top of the stack, with the top being <b>Stack[0]</b>.</li>
-<li>A list <b>Input</b> of remaining input tokens, where <b>Input[i]</b> is the i+1th token in the list, with the first token being <b>Input[0]</b>.</li> 
+<li>A list <b>Input</b> of remaining input tokens, where <b>Input[i]</b> is the i+1th token in the list, with the first token being <b>Input[0]</b>.</li>
 </ul>
+<p><b>NB: </b> Please note that the allow_root and allow_reduce options replace the older root_handling option from version 1.7. In order 
+to replicate the behavior of older versions, use the following settings:</p>
+<ul>
+<li><b>root_handling = normal</b> corresponds to <b>allow_root = true</b> and <b>allow_reduce = true</b></li>
+<li><b>root_handling = relaxed</b> corresponds to <b>allow_root = false</b> and <b>allow_reduce = true</b></li>
+<li><b>root_handling = strict</b> corresponds to <b>allow_root = false</b> and <b>allow_reduce = false</b></li>
+</ul>
+<p>The new default behavior is <b>allow_root = true</b> and <b>allow_reduce = false</b>.</p> 
 
 <a name="covington"></a>
 <h4>Covington</h4>
@@ -959,11 +978,21 @@ download <a href="download.html">MaltParser 1.2</a> and read the offline user gu
 </ul>
 <p>For more information about how to use MaltParserService, please see the examples provided in the directory <b>examples/apiexamples/srcex</b></p>
 
+<p>Since version 1.7, MaltParser is also available via the official <a href="http://search.maven.org/#search|ga|1|maltparser">Maven repository</a>.</p>
+<pre>
+&lt;dependency&gt;
+	&lt;groupId&gt;org.maltparser&lt;/groupId&gt;
+	&lt;artifactId&gt;maltparser&lt;/artifactId&gt;
+	&lt;version&gt;@version@&lt;/version&gt;
+&lt;/dependency&gt;
+</pre>
 <a name="opt"></a>
 <h3>MaltParser optimization</h3>
-<p>MaltParser is a fairly complex system with many parameters that need to be optimized. Simply using the system â€œout of the boxâ€� with default settings is therefore likely to result in suboptimal performance.</p>
+<p>MaltParser is a fairly complex system with many parameters that need to be optimized. Simply using the system <q>out of the box</q>with default 
+settings is therefore likely to result in suboptimal performance.</p>
 
-<p>Please read "<a href="http://maltparser.org/guides/opt/quick-opt.pdf">A Quick Guide to MaltParser Optimization</a>" to get hints and tips to how you can optimize MaltParser.</p>
+<p>Please read "<a href="http://maltparser.org/guides/opt/quick-opt.pdf">A Quick Guide to MaltParser Optimization</a>" to get hints and tips to 
+how you can optimize MaltParser.</p>
 
 <a name="ref"></a>
 <h3>References</h3>

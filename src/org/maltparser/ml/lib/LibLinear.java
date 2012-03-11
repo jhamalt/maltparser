@@ -11,12 +11,12 @@ import java.io.ObjectOutputStream;
 import java.io.PrintStream;
 import java.util.LinkedHashMap;
 
-import liblinear.FeatureNode;
-import liblinear.Linear;
-import liblinear.Model;
-import liblinear.Parameter;
-import liblinear.Problem;
-import liblinear.SolverType;
+import de.bwaldvogel.liblinear.FeatureNode;
+import de.bwaldvogel.liblinear.Linear;
+import de.bwaldvogel.liblinear.Model;
+import de.bwaldvogel.liblinear.Parameter;
+import de.bwaldvogel.liblinear.Problem;
+import de.bwaldvogel.liblinear.SolverType;
 
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.feature.FeatureVector;

@@ -29,13 +29,13 @@ public class ArcEagerOracle extends Oracle {
 			return updateActionContainers(ArcEager.LEFTARC, gold.getTokenNode(stackPeekIndex).getHeadEdge().getLabelSet());
 		} else if (gold.getTokenNode(inputPeekIndex).getHead().getIndex() == stackPeekIndex) {
 			return updateActionContainers(ArcEager.RIGHTARC, gold.getTokenNode(inputPeekIndex).getHeadEdge().getLabelSet());
-		} else if (nivreConfig.getRootHandling() == NivreConfig.STRICT && !stackPeek.hasHead()) {
+		} else if (!nivreConfig.isAllowReduce() && !stackPeek.hasHead()) {
 			return updateActionContainers(ArcEager.SHIFT, null);
 		} else if (gold.getTokenNode(inputPeekIndex).hasLeftDependent() &&
 				gold.getTokenNode(inputPeekIndex).getLeftmostDependent().getIndex() < stackPeekIndex) {
 			return updateActionContainers(ArcEager.REDUCE, null);
 		} else if (gold.getTokenNode(inputPeekIndex).getHead().getIndex() < stackPeekIndex && 
-				(!gold.getTokenNode(inputPeekIndex).getHead().isRoot() || nivreConfig.getRootHandling() == NivreConfig.NORMAL)) {
+				(!gold.getTokenNode(inputPeekIndex).getHead().isRoot() || nivreConfig.isAllowRoot())) {
 			return updateActionContainers(ArcEager.REDUCE, null);
 		} else {
 			return updateActionContainers(ArcEager.SHIFT, null);

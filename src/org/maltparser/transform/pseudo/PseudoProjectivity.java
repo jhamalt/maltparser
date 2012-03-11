@@ -1,5 +1,7 @@
 package org.maltparser.transform.pseudo;
 
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
@@ -329,7 +331,8 @@ public class PseudoProjectivity {
 			if (!pdg.getDependencyNode(index).isProjective()
 					&& (shortestNonProjectiveNode == null
 					|| nodeRelationLength.get(index) < nodeRelationLength.get(shortestNonProjectiveNode.getIndex()) 
-					|| (nodeRelationLength.get(index) == nodeRelationLength.get(shortestNonProjectiveNode.getIndex())))) {
+					)) {
+//					|| (nodeRelationLength.get(index) == nodeRelationLength.get(shortestNonProjectiveNode.getIndex())))) {
 				shortestNonProjectiveNode = pdg.getDependencyNode(index);
 			}
 		}
@@ -562,7 +565,54 @@ public class PseudoProjectivity {
 		return null;
 	}
 
+	
 	private Vector<DependencyNode> findAllDependentsVectorSortedByDistanceToPProjNode(DependencyStructure dg, DependencyNode governor, DependencyNode avoid,
+			boolean percentOnly) {
+		Vector<DependencyNode> output = new Vector<DependencyNode>();
+		SortedSet<DependencyNode> dependents = new TreeSet<DependencyNode>();
+		dependents.addAll(governor.getLeftDependents());
+		dependents.addAll(governor.getRightDependents());
+
+
+		DependencyNode[] deps = new DependencyNode[dependents.size()];
+		int[] distances = new int[dependents.size()];
+		int i = 0;
+		for (DependencyNode dep : dependents) {
+			distances[i] = Math.abs(dep.getIndex() - avoid.getIndex());
+			deps[i] = dep;
+			i++;
+		}
+		if (distances.length > 1) {
+			int smallest;
+			int n = distances.length;
+			int tmpDist;
+			DependencyNode tmpDep;
+			for (i=0; i < n; i++) {
+				smallest = i;
+				for (int j=i; j < n; j++) {
+					if (distances[j] < distances[smallest]) {
+						smallest = j;
+					}
+				}
+				if (smallest != i) {
+					tmpDist = distances[smallest];
+					distances[smallest] = distances[i];
+					distances[i] = tmpDist;
+					tmpDep = deps[smallest];
+					deps[smallest] = deps[i];
+					deps[i] = tmpDep;
+				}
+			}
+		}
+		for (i=0; i<distances.length;i++) {
+			if (deps[i] != avoid && (!percentOnly || (percentOnly && nodePath.get(deps[i].getIndex())))) {
+				output.add(deps[i]);
+			}
+		}
+		return output;
+	}
+	
+	private Vector<DependencyNode> findAllDependentsVectorSortedByDistanceToPProjNode2(DependencyStructure dg, DependencyNode governor, DependencyNode avoid,
 			boolean percentOnly) {
 		int i, j;
 		Vector<DependencyNode> dependents = new Vector<DependencyNode>();

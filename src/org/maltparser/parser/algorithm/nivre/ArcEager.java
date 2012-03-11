@@ -55,11 +55,11 @@ public class ArcEager extends TransitionSystem {
 	}
 	
 	public GuideUserAction getDeterministicAction(GuideUserHistory history, ParserConfiguration config) throws MaltChainedException {
-		final NivreConfig nivreConfig = (NivreConfig)config;
-		if (nivreConfig.getRootHandling() != NivreConfig.NORMAL && nivreConfig.getStack().peek().isRoot()) {
-			return updateActionContainers(history, ArcEager.SHIFT, null);
-		}
-		return null;
+        final NivreConfig nivreConfig = (NivreConfig)config;
+        if (!nivreConfig.isAllowRoot() && nivreConfig.getStack().peek().isRoot()) {
+                return updateActionContainers(history, ArcEager.SHIFT, null);
+        }
+        return null;
 	}
 	
 	protected void addAvailableTransitionToTable(TransitionTable ttable) throws MaltChainedException {
@@ -88,7 +88,6 @@ public class ArcEager extends TransitionSystem {
 		currentAction.getAction(actionContainers);
 		final int trans = transActionContainer.getActionCode();
 		final DependencyNode stackPeek = ((NivreConfig)config).getStack().peek();
-		int rootHandling = ((NivreConfig)config).getRootHandling();
 		if ((trans == LEFTARC || trans == RIGHTARC) && !isActionContainersLabeled()) {
 			return false;
 		}
@@ -98,7 +97,7 @@ public class ArcEager extends TransitionSystem {
 		if (trans == LEFTARC && stackPeek.hasHead()) { 
 			return false;
 		}
-		if (trans == REDUCE && !stackPeek.hasHead() && rootHandling == NivreConfig.STRICT) {
+		if (trans == REDUCE && !stackPeek.hasHead() && !((NivreConfig)config).isAllowReduce()) {
 			return false;
 		}
 		return true;

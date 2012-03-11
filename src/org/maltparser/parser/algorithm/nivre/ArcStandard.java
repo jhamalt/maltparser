@@ -53,7 +53,7 @@ public class ArcStandard extends TransitionSystem {
 	
 	public GuideUserAction getDeterministicAction(GuideUserHistory history, ParserConfiguration config) throws MaltChainedException {
 		NivreConfig nivreConfig = (NivreConfig)config;
-		if (nivreConfig.getRootHandling() != NivreConfig.NORMAL && nivreConfig.getStack().peek().isRoot()) {
+		if (!nivreConfig.isAllowRoot() && nivreConfig.getStack().peek().isRoot()) {
 			return updateActionContainers(history, ArcStandard.SHIFT, null);
 		}
 		return null;
@@ -86,7 +86,7 @@ public class ArcStandard extends TransitionSystem {
 			return false;
 		}
 		DependencyNode stackTop = ((NivreConfig)config).getStack().peek();
-		if (((NivreConfig)config).getRootHandling() != NivreConfig.NORMAL && stackTop.isRoot() && trans != SHIFT) {
+		if (!((NivreConfig)config).isAllowRoot() && stackTop.isRoot() && trans != SHIFT) {
 			return false;
 		}
 		if (trans == LEFTARC && stackTop.isRoot()) { 

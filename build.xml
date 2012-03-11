@@ -3,10 +3,9 @@
 
 
 <!-- ================================================================= -->
-<!-- NOTE: all directories are relative to malt-{version}/             -->
+<!-- NOTE: all directories are relative to maltparser-{version}/             -->
 <!-- ================================================================= -->
-<project name="maltparser" default="usage" basedir="." >
-
+<project name="maltparser" default="usage" basedir=".">
 	<!-- The build.properties file defines the path to local jar files -->
 	<property file="build.properties"/>
 
@@ -14,7 +13,7 @@
 	<!-- prefixed with "env". -->
 	<property environment="env"/>
 
-	<property name="version" value="1.6.1"/>
+	<property name="version" value="1.7"/>
 
 	<!-- The base directory relative to which most targets are built -->
 	<property name="base" value="."/>
@@ -30,7 +29,7 @@
 	<property name="java.source.examples.dir" value="examples/apiexamples/srcex/"/>
 
 	<!-- distribution directory -->
-	<property name="dist.dir" value="dist/malt"/>
+	<property name="dist.dir" value="dist/maltparser-${version}"/>
 
 	<!-- plugin directory -->
 	<property name="plugin.dir" value="${dist.dir}/plugin"/>
@@ -44,7 +43,7 @@
 	<property name="jar.dest" value="${dist.dir}/lib"/>
 
 	<!-- The jar file that the jar task will generate -->
-	<property name="jar.filename" value="malt.jar"/>
+	<property name="jar.filename" value="maltparser-${version}.jar"/>
 
 	<!-- Application data -->
 	<property name="appdata.src" value="appdata"/>
@@ -75,9 +74,9 @@
 		<pathelement location="${libsvm.jar}"/>
 		<pathelement location="${liblinear.jar}"/>
 		<pathelement location="${log4j.jar}"/>
-		<pathelement location="${jsr173_1.0_api.jar}"/>
-		<pathelement location="${stax-1.2.0.jar}"/>
 	</path>
+	
+
 	
 	<!-- ================================================================= -->
 	<!-- Default target                                                    -->
@@ -90,7 +89,7 @@
     build   - compile all project files, if a certain library 
               is missing, then the compilation of its dependents 
               are skipped.
-	jar     - build malt jar files
+	jar     - build maltparser-${version} jar files
 			
     javadoc - build project javadoc files
 
@@ -150,7 +149,7 @@
 	</target>
 
 	<!-- ================================================================= -->
-	<!-- Create malt.jar												     -->
+	<!-- Create maltparser-${version}.jar												     -->
 	<!-- ================================================================= -->
 	<target name="jar" depends="prejar">
 		<delete>
@@ -158,11 +157,9 @@
 				<include name="*.jar"/>
 			</fileset>
 		</delete>
-		<copy file="${stax-1.2.0.jar}" tofile="${jar.dest}/stax-1.2.0.jar"/>
-		<copy file="${jsr173_1.0_api.jar}" tofile="${jar.dest}/jsr173_1.0_api.jar"/>
 		<copy file="${log4j.jar}" tofile="${jar.dest}/log4j.jar"/>
 		<copy file="${libsvm.jar}" tofile="${jar.dest}/libsvm.jar"/>
-		<copy file="${liblinear.jar}" tofile="${jar.dest}/liblinear-1.7-with-deps.jar"/>
+		<copy file="${liblinear.jar}" tofile="${jar.dest}/liblinear-1.8.jar"/>
 		<jar jarfile="${dist.dir}/${jar.filename}" basedir="${javac.dest}"
          includes="${stem}/**/*.class,appdata/**/*.*"
          manifest="${dist.dir}/MANIFEST.MF">
@@ -175,7 +172,7 @@
 		<mkdir dir="${jar.dest}"/>
 		<filter token="version" value="${version}" />
 		<manifest file="${dist.dir}/MANIFEST.MF">
-			<attribute name="Class-Path" value="lib/log4j.jar lib/stax-1.2.0.jar lib/jsr173_1.0_api.jar lib/libsvm.jar lib/liblinear-1.7-with-deps.jar  "/>
+			<attribute name="Class-Path" value="lib/log4j.jar lib/libsvm.jar lib/liblinear-1.8.jar  "/>
 			<attribute name="Main-Class" value="org.maltparser.Malt"/>
 			<attribute name="Implementation-Title" value="MaltParser"/>
 			<attribute name="Implementation-Version" value="${version}"/>
@@ -194,59 +191,11 @@
 		<filter token="site" value="${site}"/>
 		<javadoc sourcepath="${java.source.dir}"
              destdir="${javadoc.dest}"
-             packagenames="org.maltparser,
-	    	org.maltparser.core.config,
-			org.maltparser.core.config.version,
-	    	org.maltparser.core.exception,
-			org.maltparser.core.feature,
-			org.maltparser.core.feature.function,
-			org.maltparser.core.feature.map,
-			org.maltparser.core.feature.spec,
-			org.maltparser.core.feature.spec.reader,
-			org.maltparser.core.feature.system,
-			org.maltparser.core.feature.value,
-			org.maltparser.core.flow,
-			org.maltparser.core.flow.item,
-			org.maltparser.core.flow.spec,
-			org.maltparser.core.flow.system,
-			org.maltparser.core.flow.system.elem,
-	    	org.maltparser.core.helper,
-		    org.maltparser.core.io.dataformat,
-	    	org.maltparser.core.options,
-	    	org.maltparser.core.options.option,
-	    	org.maltparser.core.plugin,
-			org.maltparser.core.pool,
-			org.maltparser.core.propagation,
-			org.maltparser.core.propagation.spec,
-	    	org.maltparser.core.symbol,
-			org.maltparser.core.symbol.nullvalue,
-	    	org.maltparser.core.symbol.trie,
-			org.maltparser.core.syntaxgraph,
-			org.maltparser.core.syntaxgraph.ds2ps,
-			org.maltparser.core.syntaxgraph.edge,
-			org.maltparser.core.syntaxgraph.feature,
-			org.maltparser.core.syntaxgraph.headrules,
-			org.maltparser.core.syntaxgraph.node,
-			org.maltparser.core.syntaxgraph.reader,
-			org.maltparser.core.syntaxgraph.writer,
-	    	org.maltparser.ml,
-			org.maltparser.ml.lib,
-			org.maltparser.parser,
-	    	org.maltparser.parser.algorithm,
-	    	org.maltparser.parser.algorithm.covington,
-	    	org.maltparser.parser.algorithm.nivre, 
-			org.maltparser.parser.algorithm.planar, 
-			org.maltparser.parser.algorithm.stack, 
-			org.maltparser.parser.algorithm.twoplanar, 
-	    	org.maltparser.parser.guide, 
-			org.maltparser.parser.guide.decision, 
-	    	org.maltparser.parser.guide.instance,
-			org.maltparser.parser.history,
-			org.maltparser.parser.history.action,
-			org.maltparser.parser.history.container,
-			org.maltparser.parser.history.kbest,
-			org.maltparser.parser.transition,
-			org.maltparser.transform.pseudo"
+             packagenames="org.maltparser.core.*,
+		                   org.maltparser.ml,
+		                   org.maltparser.ml.lib,
+		                   org.maltparser.parser.*,
+		                   org.maltparser.transform.*"
              version="true"
              protected="true"
              author="true"
@@ -255,8 +204,7 @@
              doctitle="MaltParser version ${version}&lt;br&gt;API Specification"
              windowtitle="MaltParser ${version}"
              header="&lt;b&gt;MaltParser ${version}&lt;/b&gt;"
-             bottom="Copyright 2007-2011 Johan Hall, Jens Nilsson and Joakim Nivre.">
-
+             bottom="Copyright 2007-2012 Johan Hall, Jens Nilsson and Joakim Nivre.">
 			<link href="http://java.sun.com/javase/6/docs/api/"/>
 			<classpath refid="compile.classpath"/>
 		</javadoc>
@@ -292,9 +240,9 @@
 	<target name="dist" depends="init, clean, javadoc, jar, site">
 		<mkdir  dir="${dist.images}" />
 
-		<mkdir  dir="${dist.tmp}/malt-${version}" />
+		<mkdir  dir="${dist.tmp}/maltparser-${version}" />
 
-		<copy todir="${dist.tmp}/malt-${version}">
+		<copy todir="${dist.tmp}/maltparser-${version}">
 			<fileset dir="${base}"
            includes="src/**,
 					 appdata/**,
@@ -307,20 +255,20 @@
 					 NOTICE,
 					 README"/>
 		</copy>
-		<copy todir="${dist.tmp}/malt-${version}">
+		<copy todir="${dist.tmp}/maltparser-${version}">
 			<fileset dir="${dist.dir}"
            includes="docs/**"/>
 		</copy>
 
-		<copy file="${dist.dir}/malt.jar" tofile="${dist.tmp}/malt-${version}/malt.jar"/>
-		<tar tarfile="${dist.images}/malt-${version}.tar.gz"
+		<copy file="${dist.dir}/maltparser-${version}.jar" tofile="${dist.tmp}/maltparser-${version}/maltparser-${version}.jar"/>
+		<tar tarfile="${dist.images}/maltparser-${version}.tar.gz"
          basedir="${dist.tmp}"
-         includes="malt-${version}/**"
+         includes="maltparser-${version}/**"
          compression="gzip" />
 
-		<zip zipfile="${dist.images}/malt-${version}.zip"
+		<zip zipfile="${dist.images}/maltparser-${version}.zip"
          basedir="${dist.tmp}"
-         includes="malt-${version}/**" />
+         includes="maltparser-${version}/**" />
 		<delete dir="${dist.tmp}" />
 	</target>
 

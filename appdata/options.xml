@@ -183,7 +183,7 @@ many single malt configurations. ]]></desc>
 		<option type="stringenum" name="format" flag="if" default="conllx" usage="save">
 			<desc><![CDATA[ This option tells the parser which format is used in the input data file. The format is defined in an XML file. For 
 			more information see the user guide: <a href="userguide.html#inout">Input and output format</a>. 
-			There are two data format specification files in the MaltParser distribution (included in malt.jar):
+			There are two data format specification files in the MaltParser distribution (included in maltparser-@version@.jar):
 			<ul> 
 			<li><b>conllx</b> defines the <a href="http://nextens.uvt.nl/depparse-wiki/DataFormat" target="_blank">CoNLL-X shared task format</a></li>
 			<li><b>malttab</b> defines the <a href="http://w3.msi.vxu.se/~nivre/research/MaltXML.html" target="_blank">Malt-TAB</a> format.</li>
@@ -224,7 +224,7 @@ many single malt configurations. ]]></desc>
 		<option type="stringenum" name="format" flag="of" default="" usage="both">
 			<desc><![CDATA[ This option tells the parser which format is used for the output data file. The format is defined in an XML file. 
 			For more information see the user guide: <a href="userguide.html#define_inout">Define your own input/output format</a>. 
-			There are two data format specification files in the MaltParser distribution (included in malt.jar):
+			There are two data format specification files in the MaltParser distribution (included in maltparser-@version@.jar):
 			<ul> 
 			<li><b>conllx</b> defines the <a href="http://nextens.uvt.nl/depparse-wiki/DataFormat" target="_blank">CoNLL-X shared task format</a></li>
 			<li><b>malttab</b> defines the <a href="http://w3.msi.vxu.se/~nivre/research/MaltXML.html" target="_blank">Malt-TAB</a> format.</li>
@@ -268,16 +268,20 @@ many single malt configurations. ]]></desc>
 			<shortdesc>An URL or a file name to file that contains a list of head rules</shortdesc>
 		</option>
 	</optiongroup>
-	<optiongroup groupname="nivre">
-		<desc><![CDATA[ The <b>nivre</b> option group controls the Nivre arc-eager and Nivre arc-standard parsing algorithms.  ]]></desc>
-		<option type="enum" name="root_handling" flag="r" default="normal" usage="save">
-			<desc><![CDATA[ The <b>root_handling</b> option specifies how dependents of the special root node are handled. ]]></desc>
-			<shortdesc>Root handling</shortdesc>
-			<legalvalue name="strict">Root dependents not attached during parsing (attached with default label afterwards), reduction of unattached tokens not permissible</legalvalue>
-			<legalvalue name="relaxed">Root dependents not attached during parsing (attached with default label afterwards), reduction of unattached tokens permissible</legalvalue>
-			<legalvalue name="normal">Root dependents attached by RightArc transition during parsing (unattached tokens attached with default label afterwards)</legalvalue>
-		</option>
-	</optiongroup>
+    <optiongroup groupname="nivre">
+    	<desc><![CDATA[ The <b>nivre</b> option group controls the Nivre arc-eager and Nivre arc-standard parsing algorithms. ]]></desc>
+        <option type="bool" name="allow_root" flag="nr" default="true" usage="save">
+	        <desc><![CDATA[ If <b>allow_root=true</b>, the parser treats the special root node as a token during parsing, allowing root dependents 
+	        to be attached with a RightArc transition; otherwise root dependents are not attached during parsing. In both cases, unattached tokens are 
+	        attached to the special root node with the default label after parsing is completed. ]]></desc>
+	        <shortdesc>Allow root</shortdesc>
+        </option>
+        <option type="bool" name="allow_reduce" flag="ne" default="false" usage="save">
+                <desc><![CDATA[ If <b>allow_reduce=true</b>, the Reduce transition is permissible even if the node on top of the stack does not have a head. As 
+                a result, this node will be attached to the special root node after parsing is completed, which may give rise to non-projective trees. ]]></desc>
+                <shortdesc>Allow root</shortdesc>
+        </option> 
+   	</optiongroup>
 	<optiongroup groupname="2planar">
 		<desc><![CDATA[ The <b>2-planar</b> option group controls the 2-planar parsing algorithm.  ]]></desc>
 		<option type="bool" name="reduceonswitch" flag="2pr" default="false" usage="save">
@@ -362,7 +366,7 @@ otherwise all tokens in Left must be inspected before the next token is shifted.
 			(see user guide: <a href="userguide.html#featurespec">Feature model</a>) or a text file with the file suffix <b>.par</b> (see 
 			user guide of MaltParser 0.x (C-impl) <a href="http://w3.msi.vxu.se/~nivre/research/MaltParser.html#features">Feature Models</a>). If 
 			no feature specification file is specified,  the parser will use a default feature model specification for the given parsing algorithm that is included in the
-			MaltParser distribution (included in the malt.jar file).  ]]></desc>
+			MaltParser distribution (included in the maltparser-@version@.jar file).  ]]></desc>
 			<shortdesc>Feature model specification</shortdesc>
 			<legalvalue name="nivreeager" mapto="/appdata/features/{learner}/NivreEager.xml">Nivre arc-eager default model</legalvalue>
 			<legalvalue name="nivrestandard" mapto="/appdata/features/{learner}/NivreStandard.xml">Nivre arc-standard default model</legalvalue>

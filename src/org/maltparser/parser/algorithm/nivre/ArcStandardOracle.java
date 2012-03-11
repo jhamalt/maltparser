@@ -25,7 +25,7 @@ public class ArcStandardOracle extends Oracle {
 		int stackPeekIndex = stackPeek.getIndex();
 		int inputPeekIndex = nivreConfig.getInput().peek().getIndex();
 		
-		if (nivreConfig.getRootHandling() != NivreConfig.NORMAL && stackPeek.isRoot()) {
+		if (!nivreConfig.isAllowRoot() && stackPeek.isRoot()) {
 			return updateActionContainers(ArcStandard.SHIFT, null);
 		}
 		if (!stackPeek.isRoot() && gold.getTokenNode(stackPeekIndex).getHead().getIndex() == inputPeekIndex) {

@@ -426,6 +426,11 @@ public class OptionManager {
 					flag = args[i].substring(1);
 				}
 				
+				// Error message if the old flag '-r' (root handling) is used 
+				if (args[i].substring(1).equals("r")) {
+					throw new OptionException("The flag -r (root_handling) is replaced with two flags -nr (allow_root) and -ne (allow_reduce) since MaltParser 1.7. Read more about these changes in the user guide.");
+				}
+				
 			    option = optionDescriptions.getOption(flag);
 
 				if (option instanceof UnaryOption) {

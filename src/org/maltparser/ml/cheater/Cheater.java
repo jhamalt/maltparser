@@ -9,11 +9,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarEntry;
 
-import liblinear.FeatureNode;
 
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.feature.FeatureVector;
@@ -159,8 +157,8 @@ public class Cheater implements LearningMethod {
 			}
 		}
 		
-		int offset = 1;
-		int i = 0;
+//		int offset = 1;
+//		int i = 0;
 		int decisionValue = 0;
 		StringBuilder csb = new StringBuilder();
 		if (cheaterPosition < cheatValues.size()) {

@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 
 import org.maltparser.core.helper.Util;
 
-import liblinear.SolverType;
+import de.bwaldvogel.liblinear.SolverType;
 
 /**
  * <p>This class borrows code from liblinear.Model.java of the Java implementation of the liblinear package.

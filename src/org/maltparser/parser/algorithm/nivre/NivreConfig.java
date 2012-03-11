@@ -16,23 +16,20 @@ import org.maltparser.parser.ParsingException;
  *
  */
 public class NivreConfig extends ParserConfiguration {
-	// Root Handling
-	public static final int STRICT = 1; //root tokens unattached, Reduce not permissible
-	public static final int RELAXED = 2; //root tokens unattached, Reduce permissible
-	public static final int NORMAL = 3; //root tokens attached to Root with RightArc
-	
 	private final Stack<DependencyNode> stack;
 	private final Stack<DependencyNode> input;
 	private final DependencyStructure dependencyGraph;
-	private int rootHandling;
 
+	private boolean allowRoot;
+	private boolean allowReduce;
 	
-	public NivreConfig(SymbolTableHandler symbolTableHandler, String rootHandling) throws MaltChainedException {
+	public NivreConfig(SymbolTableHandler symbolTableHandler, boolean allowRoot, boolean allowReduce) throws MaltChainedException {
 		super();
 		stack = new Stack<DependencyNode>();
 		input = new Stack<DependencyNode>();
 		dependencyGraph = new DependencyGraph(symbolTableHandler);
-		setRootHandling(rootHandling);
+		setAllowRoot(allowRoot);
+		setAllowReduce(allowReduce);
 	}
 	
 	public Stack<DependencyNode> getStack() {
@@ -121,24 +118,20 @@ public class NivreConfig extends ParserConfiguration {
 		}
 	}
 	
-	public int getRootHandling() {
-		return rootHandling;
-	}
-
-	public void setRootHandling(int rootHandling) {
-		this.rootHandling = rootHandling;
+    public boolean isAllowRoot() {
+        return allowRoot;
 	}
 	
-	protected void setRootHandling(String rh) throws MaltChainedException {
-		if (rh.equalsIgnoreCase("strict")) {
-			rootHandling = STRICT;
-		} else if (rh.equalsIgnoreCase("relaxed")) {
-			rootHandling = RELAXED;
-		} else if (rh.equalsIgnoreCase("normal")) {
-			rootHandling = NORMAL;
-		} else {
-			throw new ParsingException("The root handling '"+rh+"' is unknown");
-		}
+	public void setAllowRoot(boolean allowRoot) {
+	        this.allowRoot = allowRoot;
+	}
+	
+	public boolean isAllowReduce() {
+	        return allowReduce;
+	}
+	
+	public void setAllowReduce(boolean allowReduce) {
+	        this.allowReduce = allowReduce;
 	}
 	
 	public void clear() throws MaltChainedException {

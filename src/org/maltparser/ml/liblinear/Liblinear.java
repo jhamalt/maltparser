@@ -22,12 +22,12 @@ import java.util.jar.JarEntry;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import liblinear.FeatureNode;
-import liblinear.Linear;
-import liblinear.Model;
-import liblinear.Parameter;
-import liblinear.Problem;
-import liblinear.SolverType;
+import de.bwaldvogel.liblinear.FeatureNode;
+import de.bwaldvogel.liblinear.Linear;
+import de.bwaldvogel.liblinear.Model;
+import de.bwaldvogel.liblinear.Parameter;
+import de.bwaldvogel.liblinear.Problem;
+import de.bwaldvogel.liblinear.SolverType;
 
 
 
