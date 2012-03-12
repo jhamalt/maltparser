@@ -6,7 +6,7 @@
 	<!-- define Maven coordinates -->
 	<property name="groupId" value="org.maltparser" />
 	<property name="artifactId" value="maltparser" />
-	<property name="version" value="1.7-SNAPSHOT" />
+	<property name="version" value="1.7" />
 
 	<property name="version-maltparser" value="1.7" /> 
 	<property name="dist.dir" location="${dist}/${artifactId}-${version-maltparser}/" />
