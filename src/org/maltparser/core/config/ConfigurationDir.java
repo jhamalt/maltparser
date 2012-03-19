@@ -859,7 +859,7 @@ public class ConfigurationDir  {
 	 */
 	public void initWorkingDirectory() throws MaltChainedException {
 		try {
-			initWorkingDirectory(OptionManager.instance().getOptionValue(0, "config", "workingdir").toString());
+			initWorkingDirectory(OptionManager.instance().getOptionValue(containerIndex, "config", "workingdir").toString());
 		} catch (NullPointerException e) {
 			throw new ConfigurationException("The configuration cannot be found.", e);
 		}
