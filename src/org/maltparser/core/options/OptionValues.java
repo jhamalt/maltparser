@@ -1,5 +1,6 @@
 package org.maltparser.core.options;
 
+import java.util.Collections;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -21,7 +22,8 @@ public class OptionValues {
 	 */
 	public OptionValues() {
 		super();
-		optionContainers = new TreeMap<Integer, OptionContainer>();
+		optionContainers = Collections.synchronizedSortedMap(new TreeMap<Integer, OptionContainer>());
+//		optionContainers = new TreeMap<Integer, OptionContainer>();
 	}
 
 	/**
