@@ -1,42 +1,41 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<meta name="robots" content="index,follow" />
-	<meta name="revisit-after" content="14 days" />
-	<meta name="keywords" content="maltparser, dependency, parsing, Nivre, liblinear, parser" />
-	<meta name="description" content="Presents the release history of MaltParser for each versions." />
-	<title>MaltParser - Changes</title>
-	<link rel="stylesheet" type="text/css" href="style.css" media="all" />
-	<script type="text/javascript">
-	 var _gaq = _gaq || [];
-	 _gaq.push(['_setAccount', 'UA-22905106-2']);
-	 _gaq.push(['_trackPageview']);
-	 (function() {
-		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-	 })();
-	</script>
+ <title>MaltParser - Changes</title>
+ <meta name="description" content="Presents the release history of MaltParser for each versions." />
+ <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+ <meta name="robots" content="index,follow" />
+ <meta name="revisit-after" content="14 days" />
+ <meta name="keywords" content="maltparser, dependency, parsing, Nivre, liblinear, parser" />
+ <link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+ <link rel="stylesheet" type="text/css" href="print.css" media="print" />
+ <link rel="canonical" href="http://www.maltparser.org/changes.html" />
+ <script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-22905106-2']);
+  _gaq.push(['_trackPageview']);
+  (function() {
+   var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+   ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+   var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+ </script>
 </head>
 <body>
 <h1>MaltParser</h1>
-<div id="navtop">
-Modified: @today@
-</div>
+<div id="navtop">Modified: @today@</div>
 @leftmenu@
-
 <div id="bodycol">
-        <div class="section">
+ <div class="section">
 <a name="changes"></a>
 <h2>Changes</h2>
 </div>
 <div class="section">
 <h3>Release history</h3>
-
 <table class="bodyTable">
 <tr class="a"><th>Version</th><th>Date</th><th>Description</th></tr>
-<tr class="b"><td><a href="#1.7">1.7</a></td><td>@today@</td><td>Several changes please read the notes below.</td></tr>
+<tr class="b"><td><a href="#1.7.1">1.7.1</a></td><td>@today@</td><td>Minor fixes</td></tr>
+<tr class="b"><td><a href="#1.7">1.7</a></td><td>March 12 2012</td><td>Several changes please read the notes below.</td></tr>
 <tr class="b"><td><a href="#1.6.1">1.6.1</a></td><td>September 21 2011</td><td>Improvement of the MaltParserService. Some improvements during training.</td></tr>
 <tr class="b"><td><a href="#1.6">1.6</a></td><td>August 21 2011</td><td>More sparse representation of the liblinear model, this change requires that a parser model is retrained.</td></tr>
 <tr class="b"><td><a href="#1.5.3">1.5.3</a></td><td>August 1 2011</td><td>Fixed problem that the symbol table is increasing during parsing.</td></tr>
@@ -56,8 +55,16 @@ Modified: @today@
 <tr class="b"><td><a href="#1.0.0">1.0.0</a></td><td>November 9 2007</td><td>First release</td></tr>
 </table>
 
-<a name="1.7"></a>
-<h3>MaltParser 1.7</h3>
+<h3 id="1.7.1">MaltParser 1.7.1</h3>
+<table class="bodyTable">
+<tr class="a"><th>Changes</th></tr>
+<tr class="b"><td>Added deterministic action to the parsing algorithms Covington non-projective and Covington projective.</td></tr>
+<tr class="b"><td>Fixed a bug with option containers that cause problem when using several parser models via MaltParserService</td></tr>
+<tr class="b"><td>Synchronizing the TreeMap that handles the option values.</td></tr>
+<tr class="b"><td>Minor adjustments to the documentation.</td></tr>
+</table>
+
+<h3 id="1.7">MaltParser 1.7</h3>
 <table class="bodyTable">
 <tr class="a"><th>Changes</th></tr>
 <tr class="b"><td>Name of jar-file changed to maltparser-<em>&lt;version&gt;</em>.jar, where <em>&lt;version&gt;</em> is the current version of MaltParser.</td></tr>
@@ -70,8 +77,7 @@ Modified: @today@
 <tr class="b"><td>Some minor changes throughout the code.</td></tr>
 </table>
 
-<a name="1.6.1"></a>
-<h3>MaltParser 1.6.1</h3>
+<h3 id="1.6.1">MaltParser 1.6.1</h3>
 <table class="bodyTable">
 <tr class="a"><th>Changes</th></tr>
 <tr class="b"><td>The release of 1.6 reduced the memory usage of the liblinear model, but one drawback was that the training time increased a lot for complex models. This release tries to reduce this training time.</td></tr>
@@ -79,8 +85,7 @@ Modified: @today@
 <tr class="b"><td>Some minor changes throughout the code.</td></tr>
 </table>
 
-<a name="1.6"></a>
-<h3>MaltParser 1.6</h3>
+<h3 id="1.6">MaltParser 1.6</h3>
 <table class="bodyTable">
 <tr class="a"><th>Changes</th></tr>
 <tr class="b"><td>This update address the problem that the liblinear model use a lot of memory.
@@ -93,16 +98,14 @@ Modified: @today@
 <tr class="b"><td>Build target (javac.target) are now 1.6. If you want to run MaltParser with Java 5 you have to change javac.target to 1.5 and rebuild MaltParser. We have also tested MaltParser with Java 7 and it works fine.</td></tr>
 </table>
 
-<a name="1.5.3"></a>
-<h3>MaltParser 1.5.3</h3>
+<h3 id="1.5.3">MaltParser 1.5.3</h3>
 <table class="bodyTable">
 <tr class="a"><th>Changes</th></tr>
-<tr class="b"><td>Fixed a problem with identifying the correct version of malt-<version>.jar when there are several malt-<version>.jar</td></tr>
+<tr class="b"><td>Fixed a problem with identifying the correct version of malt-&lt;version&gt;.jar when there are several malt-&lt;version&gt;.jar</td></tr>
 <tr class="b"><td>Fixed a problem that the symbol table is increasing with new strings during parsing time.</td></tr>
 </table>
 
-<a name="1.5.2"></a>
-<h3>MaltParser 1.5.2</h3>
+<h3 id="1.5.2">MaltParser 1.5.2</h3>
 <table class="bodyTable">
 <tr class="a"><th>Changes</th></tr>
 <tr class="b"><td>Problem when using MaltParser within a servlet. By making Util.findURL() and Util.findURLinJars() non-static and using getClass().getResource() instead resolves the problem. Thanks Adriane Boyd.</td></tr>
@@ -111,15 +114,13 @@ Modified: @today@
 <tr class="b"><td>Some minor changes throughout the code.</td></tr>
 </table>
 
-<a name="1.5.1"></a>
-<h3>MaltParser 1.5.1</h3>
+<h3 id="1.5.1">MaltParser 1.5.1</h3>
 <table class="bodyTable">
 <tr class="a"><th>Changes</th></tr>
 <tr class="b"><td>Fixed a bug that cause MaltParser to crash under Windows</td></tr>
 </table>
 
-<a name="1.5"></a>
-<h3>MaltParser 1.5</h3>
+<h3 id="1.5">MaltParser 1.5</h3>
 <table class="bodyTable">
 <tr class="a"><th>Changes</th></tr>
 <tr class="b"><td>Total re-implementation of the interface to liblinear and libsvm.</td></tr>
@@ -133,15 +134,13 @@ Modified: @today@
 <tr class="b"><td>Some minor changes throughout the code.</td></tr>
 </table>
 
-<a name="1.4.1"></a>
-<h3>MaltParser 1.4.1</h3>
+<h3 id="1.4.1">MaltParser 1.4.1</h3>
 <table class="bodyTable">
 <tr class="a"><th>Changes</th></tr>
 <tr class="b"><td>Fixed a problem introduced in 1.4 with path separator in Microsoft Windows environment</td></tr>
 </table>
 
-<a name="1.4"></a>
-<h3>MaltParser 1.4</h3>
+<h3 id="1.4">MaltParser 1.4</h3>
 <table class="bodyTable">
 <tr class="a"><th>Changes</th></tr>
 <tr class="b"><td>Two new parsing algorithms 'planar' and 'twoplanar' written by Carlos Gómez-Rodríguez.</td></tr>
@@ -155,8 +154,7 @@ Modified: @today@
 <tr class="b"><td>Seven examples that show how to use MaltParser from other applications.</td></tr>
 </table>
 
-<a name="1.3.1"></a>
-<h3>MaltParser 1.3.1</h3>
+<h3 id="1.3.1">MaltParser 1.3.1</h3>
 <table class="bodyTable">
 <tr class="a"><th>Changes</th></tr>
 <tr class="b"><td>Improved the performance of the liblinear learner interface.</td></tr>
@@ -166,8 +164,7 @@ Modified: @today@
 <tr class="b"><td>Corrected the StackProjective.xml feature model file.</td></tr>
 </table>
 
-<a name="1.3"></a>
-<h3>MaltParser 1.3</h3>
+<h3 id="1.3">MaltParser 1.3</h3>
 <table class="bodyTable">
 <tr class="a"><th>Changes</th></tr>
 <tr class="b"><td>New design of the org.maltparser.parser package</td></tr>
@@ -183,8 +180,7 @@ Modified: @today@
 <tr class="b"><td>The changes may require retraining of parser models.</td></tr>
 </table>
 
-<a name="1.2"></a>
-<h3>MaltParser 1.2</h3>
+<h3 id="1.2">MaltParser 1.2</h3>
 <table class="bodyTable">
 <tr class="a"><th>Changes</th></tr>
 <tr class="b"><td>New functionality: TigerXML reader and writer for parsing phrase structure.</td></tr>
@@ -197,8 +193,7 @@ Modified: @today@
 <tr class="b"><td>The changes may require retraining of parser models, especially parser models trained with Negra format.</td></tr>
 </table>
 
-<a name="1.1"></a>
-<h3>MaltParser 1.1</h3>
+<h3 id="1.1">MaltParser 1.1</h3>
 <table class="bodyTable">
 <tr class="a"><th>Changes</th></tr>
 <tr class="b"><td>New functionality: prediction strategy, which makes it possible to divide the prediction of the parser action into several predictions.</td></tr>
@@ -216,9 +211,7 @@ by automatically transforming the phrase structure representations into dependen
 <tr class="b"><td>Some minor changes throughout the code.</td></tr>
 </table>
 
-
-<a name="1.0.4"></a>
-<h3>MaltParser 1.0.4</h3>
+<h3 id="1.0.4">MaltParser 1.0.4</h3>
 <table class="bodyTable">
 <tr class="a"><th>Changes</th></tr>
 <tr class="b"><td>The default value of the class separator option has been changed to the tilde character (~) instead of underscore (_), because it is quite common that underscore is present in dependency labels.</td></tr>
@@ -229,8 +222,7 @@ by automatically transforming the phrase structure representations into dependen
 <tr class="b"><td>Slightly improved memory usage of the trie symbol table.</td></tr>
 </table>
 
-<a name="1.0.3"></a>
-<h3>MaltParser 1.0.3</h3>
+<h3 id="1.0.3">MaltParser 1.0.3</h3>
 <table class="bodyTable">
 <tr class="a"><th>Changes</th></tr>
 <tr class="b"><td>Fixed some minor bugs</td></tr>
@@ -238,27 +230,24 @@ by automatically transforming the phrase structure representations into dependen
 <tr class="b"><td>Removed the file "using.htm" from the documentation.</td></tr>
 </table>
 
-<a name="1.0.2"></a>
-<h3>MaltParser 1.0.2</h3>
+<h3 id="1.0.2">MaltParser 1.0.2</h3>
 <table class="bodyTable">
 <tr class="a"><th>Changes</th></tr>
 <tr class="b"><td>A configuration file (.mco) was not unpacked in the working directory.</td></tr>
 <tr class="b"><td>URL to feature specification file and data format file were not handled correct.</td></tr>
 </table>
 
-<a name="1.0.1"></a>
-<h3>MaltParser 1.0.1</h3>
+<h3 id="1.0.1">MaltParser 1.0.1</h3>
 <table class="bodyTable">
 <tr class="a"><th>Changes</th></tr>
 <tr class="b"><td>Binaries built with JDK1.5 instead of JDK1.6.</td></tr>
 <tr class="b"><td>Some minor bug fixes</td></tr>
 </table>
-<a name="1.0.0"></a>
-<h3>MaltParser 1.0.0</h3>
+
+<h3 id="1.0.0">MaltParser 1.0.0</h3>
 <p>This is the first release of the Java implementation of MaltParser, so there are no changes.</p>
 <p id="footer">Copyright &copy; Johan Hall, Jens Nilsson and Joakim Nivre</p>
         </div>
 </div>
-
 </body>
 </html>

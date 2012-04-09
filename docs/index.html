@@ -1,14 +1,16 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<meta name="robots" content="index,follow" />
-	<meta name="revisit-after" content="7 days" />
-	<meta name="keywords" content="MaltParser, parsing, dependency, parser, parse, Nivre, treebank" />
-	<meta name="description" content="MaltParser is a system for data-driven dependency parsing." />
-	<title>MaltParser - a data-driven dependency parser</title>
-	<link rel="stylesheet" type="text/css" href="style.css" media="all" />
-	<script type="text/javascript">
+ <title>MaltParser - a data-driven dependency parser</title>
+ <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+ <meta name="robots" content="index,follow" />
+ <meta name="revisit-after" content="7 days" />
+ <meta name="keywords" content="MaltParser, parsing, dependency, parser, parse, Nivre, treebank" />
+ <meta name="description" content="MaltParser is a system for data-driven dependency parsing." />
+ <link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+ <link rel="stylesheet" type="text/css" href="print.css" media="print" />
+ <link rel="canonical" href="http://www.maltparser.org/" />
+ <script type="text/javascript">
 	 var _gaq = _gaq || [];
 	 _gaq.push(['_setAccount', 'UA-22905106-2']);
 	 _gaq.push(['_trackPageview']);
@@ -17,15 +19,12 @@
 		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
 		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 	 })();
-	</script>
+ </script>
 </head>
 <body>
 <h1>MaltParser</h1>
-<div id="navtop">
-Modified: @today@
-</div>
+<div id="navtop">Modified: @today@</div>
 @leftmenu@
-
 <div id="bodycol">
         <div class="section">
 <p>MaltParser is a system for data-driven dependency parsing, which can be 
@@ -44,7 +43,15 @@ MaltParser <a href="download.html">download page</a>.</p>
 &lt;/dependency&gt;
 </pre>
 
-<p><b>NB:</b> Parsers developed using MaltParser have achieved state-of-the-art accuracy for a number of languages. However, please note that MaltParser is a complex system with many parameters that need to be optimized. Simply using the system "out of the box" with default settings is likely to result in sub-optimal performance and should <b>not</b> be used as a reference in comparative parser evaluations (unless it is explicitly stated that it is a non-optimized version of the system). Please read "<a href="http://maltparser.org/guides/opt/quick-opt.pdf">A Quick Guide to MaltParser Optimization</a>" to get hints and tips to how you can optimize MaltParser. For many languages and data sets, information about optimized settings can be found in the literature or on the web. Please make the effort to use this information in order to avoid misleading comparisons.</p>
+<p><b>NB:</b> Parsers developed using MaltParser have achieved state-of-the-art accuracy for a number of languages. However, please 
+note that MaltParser is a complex system with many parameters that need to be optimized. Simply using 
+the system "out of the box" with default settings is likely to result in sub-optimal 
+performance and should <b>not</b> be used as a reference in comparative parser evaluations 
+(unless it is explicitly stated that it is a non-optimized version of the system). Please 
+read "<a href="http://maltparser.org/guides/opt/quick-opt.pdf">A Quick Guide to MaltParser Optimization</a>" to get hints and 
+tips to how you can optimize MaltParser. For many languages and data sets, information about optimized settings can be found in 
+the literature or on the web. Please make the effort to use this information in order to avoid misleading comparisons.
+You can also try <a href="http://nil.fdi.ucm.es/maltoptimizer/">MaltOptimizer</a>, a new tool for automatic MaltParser optimization.</p>
 
 <p id="footer">Copyright &copy; Johan Hall, Jens Nilsson and Joakim Nivre</p>
     </div>

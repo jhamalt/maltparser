@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <xsl:param name="version"></xsl:param>
 <xsl:template match="/">
-<xsl:output  method="html" doctype-public='-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'/>
+<xsl:output  method="html" doctype-public='-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd' encoding="UTF-8" indent="no"/>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<meta name="robots" content="index,follow" />
-	<meta name="revisit-after" content="7 days" />
-	<meta name="keywords" content="MaltParser, Dependency Parsing, Nivre, NLP, CoNLL, Treebank, Machine Learning, Data-driven" />
-	<meta name="description" content="MaltParser is a system for data-driven dependency parsing, which can be used to induce a parsing model from treebank data and to parse new data using an induced model." />
+	<meta name="robots" content="index,follow"></meta>
+	<meta name="revisit-after" content="7 days"></meta>
+	<meta name="keywords" content="MaltParser, Dependency Parsing, Nivre, NLP, CoNLL, Treebank, Machine Learning, Data-driven"></meta>
+	<meta name="description" content="MaltParser is a system for data-driven dependency parsing, which can be used to induce a parsing model from treebank data and to parse new data using an induced model."></meta>
 	<title>MaltParser - Available options</title>
- 	<link rel="stylesheet" type="text/css" href="style.css" media="all" />
+ <link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+ <link rel="stylesheet" type="text/css" href="print.css" media="print" />
  	<script type="text/javascript">
 	 var _gaq = _gaq || [];
 	 _gaq.push(['_setAccount', 'UA-22905106-2']);

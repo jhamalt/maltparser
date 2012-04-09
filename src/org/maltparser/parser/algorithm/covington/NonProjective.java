@@ -74,7 +74,11 @@ public class NonProjective extends TransitionSystem {
 	}
 	
 	public GuideUserAction getDeterministicAction(GuideUserHistory history, ParserConfiguration config) throws MaltChainedException {
-		return null;
+        final CovingtonConfig covingtonConfig = (CovingtonConfig)config;
+        if (!covingtonConfig.isAllowRoot() && covingtonConfig.getLeftTarget().isRoot()) {
+                return updateActionContainers(history, NonProjective.NOARC, null);
+        }
+        return null; 
 	}
 	
 	protected void addAvailableTransitionToTable(TransitionTable ttable) throws MaltChainedException {

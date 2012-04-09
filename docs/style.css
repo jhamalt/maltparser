@@ -24,35 +24,10 @@ a {text-decoration: none;}
 a:link {color:#3366aa;}
 a:visited  {color:#4477aa;}
 a:active, a:hover {color:#6699cc;}
-h1 {padding: 5px 10px 5px 10px;
-border: 1px solid #888888;
-color: #880000;
-background-color: #F5F5F5;
-font-weight:880000;
-font-size: x-large;
-}
-h2 {padding: 4px 4px 4px 6px;
-border: 1px solid #888888;
-color: #880000;
-background-color: #CCCCCC;
-font-weight:900;
-font-size: x-large;
-}
-h3 {padding: 4px 4px 4px 6px;
-border: 1px solid #AAAAAA;
-color: #880000;
-background-color: #DDDDDD;
-font-weight: normal;
-font-size: large;
-}
-h4 {
-padding: 4px 4px 4px 6px;
-border: 1px dashed #BBBBBB;
-color: #880000;
-background-color: #F5F5F5;
-font-weight: normal;
-font-size: large;
-}
+h1 {padding: 5px 10px 5px 10px;border: 1px solid #888888;color: #880000;background-color: #F5F5F5;font-weight:bold;font-size: x-large;}
+h2 {padding: 4px 4px 4px 6px;border: 1px solid #888888;color: #880000;background-color: #CCCCCC;font-weight:bold;font-size: x-large;}
+h3 {padding: 4px 4px 4px 6px;border: 1px solid #AAAAAA;color: #880000;background-color: #DDDDDD;font-weight: normal;font-size: large;}
+h4 {padding: 4px 4px 4px 6px;border: 1px dashed #BBBBBB;color: #880000;background-color: #F5F5F5;font-weight: normal;font-size: large;}
 h5 {padding: 4px 4px 4px 6px;color: #900;font-size: normal;}
 p {line-height: 1.4em;font-size: normal;}
 

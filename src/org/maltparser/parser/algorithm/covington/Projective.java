@@ -90,6 +90,10 @@ public class Projective extends TransitionSystem {
 	}
 	
 	public GuideUserAction getDeterministicAction(GuideUserHistory history, ParserConfiguration config) throws MaltChainedException {
+        final CovingtonConfig covingtonConfig = (CovingtonConfig)config;
+        if (!covingtonConfig.isAllowRoot() && covingtonConfig.getLeftTarget().isRoot()) {
+                return updateActionContainers(history, Projective.NOARC, null);
+        }
 		return null;
 	}
 	
@@ -112,7 +116,7 @@ public class Projective extends TransitionSystem {
 	}
 	
 	public String getName() {
-		return "covnonproj";
+		return "covproj";
 	}
 	
 	public boolean permissible(GuideUserAction currentAction, ParserConfiguration config) throws MaltChainedException {

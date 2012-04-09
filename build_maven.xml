@@ -1,5 +1,4 @@
 <project name="maltparser" default="dist" basedir="." xmlns:artifact="antlib:org.apache.maven.artifact.ant">
-	
 	<property name="src" location="src" />
 	<property name="dist" location="dist" />
 	

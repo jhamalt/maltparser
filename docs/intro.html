@@ -1,14 +1,16 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<meta name="robots" content="index,follow" />
-	<meta name="revisit-after" content="7 days" />
-	<meta name="keywords" content="MaltParser, dependency, Nivre, inductive, data-driven, parsing" />
-	<meta name="description" content="Introduction to MaltParser that is a system for data-driven dependency parsing" />
-	<title>MaltParser - Introduction</title>
-	<link rel="stylesheet" type="text/css" href="style.css" media="all" />
-	<script type="text/javascript">
+ <title>MaltParser - Introduction</title>
+ <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+ <meta name="robots" content="index,follow" />
+ <meta name="revisit-after" content="7 days" />
+ <meta name="keywords" content="MaltParser, dependency, Nivre, inductive, data-driven, parsing" />
+ <meta name="description" content="Introduction to MaltParser that is a system for data-driven dependency parsing" />
+ <link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+ <link rel="stylesheet" type="text/css" href="print.css" media="print" />
+ <link rel="canonical" href="http://www.maltparser.org/intro.html" />
+ <script type="text/javascript">
 	 var _gaq = _gaq || [];
 	 _gaq.push(['_setAccount', 'UA-22905106-2']);
 	 _gaq.push(['_trackPageview']);
@@ -17,7 +19,7 @@
 		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
 		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 	 })();
-	</script>
+ </script>
 </head>
 <body>
 <h1>MaltParser</h1>
@@ -48,7 +50,6 @@ the parser at nondeterministic choice points (Nivre, 2006). The parsing methodol
 <li>History-based models for predicting the next parser action at nondeterministic choice points (Black et al., 1992; Magerman, 1995; Ratnaparkhi, 1997; Collins, 1999)</li>
 <li>Discriminative learning to map histories to parser actions (Kudo and Matsumoto, 2002; Yamada and Matsumoto, 2003; Nivre et al., 2004; Hall et al., 2006)</li>
 </ol>
-</p>
 
 <h2>MaltParser @version@</h2>
 <p>MaltParser implements nine deterministic parsing algorithms:</p>
@@ -73,7 +74,7 @@ the parser at nondeterministic choice points (Nivre, 2006). The parsing methodol
 <p>MaltParser can also be turned into a phrase structure parser that recovers 
 both continuous and discontinuous phrases with both phrase labels and grammatical functions (Hall and Nivre, 2008a; Hall and Nivre, 2008b).</p>
 
-<h2>References</h2>
+<h2 id="ref">References</h2>
 <ul>
 <li class="pub">Black, E., F. Jelinek, J. D. Lafferty, D. M. Magerman, R. L. Mercer and S. Roukos (1992). Towards history-based grammars: Using richer 
 models for probabilistic parsing. In <i>Proceedings of the 5th DARPA Speech and Natural Language Workshop</i>, pp. 31-37</li>
@@ -101,15 +102,16 @@ In <i>Proceedings of the ACL Workshop on Parsing German (PaGe08)</i>, June 20, 2
 <li class="pub">Hall, J. and J. Nivre (2008b) Parsing Discontinuous Phrase Structure with Grammatical Functions.
  In <i>Proceedings of the 6th International Conference on Natural Language Processing (GoTAL 2008)</i>, August 25-27, 2008, Gothenburg, Sweden.</li>
 <li class="pub">Eryigit, G., Nivre, J. and Oflazer, K. (2008) Dependency Parsing of Turkish. 
-<i>Computational Linguistics</i> 34(3), 357-389.
+<i>Computational Linguistics</i> 34(3), 357-389.</li>
 <li class="pub">Nivre, J. (2008) Algorithms for Deterministic Incremental Dependency Parsing.
-<i>Computational Linguistics</i> 34(4), 513-553.
+<i>Computational Linguistics</i> 34(4), 513-553.</li>
 <li class="pub">Hall, J., Nilsson, J. and Nivre, J. (2010) Single Malt or Blended? A Study in 
 Multilingual Parser Optimization. In Bunt, H., Merlo, P. and Nivre, J. (eds.) 
-<i>New Trends in Parsing Technology</i>. Springer.
-<li class="pub">Nivre, J. (2009) Non-Projective Dependency Parsing in Expected Linear Time. In <i>Proceedings of the Joint Conference of the 47th Annual Meeting of the ACL and the 4th International Joint Conference on Natural Language Processing of the AFNLP</i>, 351-359.
+<i>New Trends in Parsing Technology</i>. Springer.</li>
+<li class="pub">Nivre, J. (2009) Non-Projective Dependency Parsing in Expected Linear Time. In <i>Proceedings of the Joint 
+Conference of the 47th Annual Meeting of the ACL and the 4th International Joint Conference on Natural Language Processing of the AFNLP</i>, 351-359.</li>
 <li class="pub">Nivre, J., Kuhlmann, M. and Hall, J. (2009) An Improved Oracle for Dependency Parsing with Online Reordering. In 
-<i>Proceedings of the 11th International Conference on Parsing Technologies (IWPT)</i>, 73-76.
+<i>Proceedings of the 11th International Conference on Parsing Technologies (IWPT)</i>, 73-76.</li>
 </ul>
 
 <p id="footer">Copyright &copy; Johan Hall, Jens Nilsson and Joakim Nivre</p>
