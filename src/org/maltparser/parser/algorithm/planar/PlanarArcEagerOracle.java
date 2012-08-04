@@ -35,7 +35,10 @@ public class PlanarArcEagerOracle extends Oracle {
 		} else if (gold.getTokenNode(inputPeekIndex).hasLeftDependent() &&
 				gold.getTokenNode(inputPeekIndex).getLeftmostDependent().getIndex() < stackPeekIndex) {
 			return updateActionContainers(Planar.REDUCE, null);
-		} else if (gold.getTokenNode(inputPeekIndex).getHead().getIndex() < stackPeekIndex) {
+		} else if (gold.getTokenNode(inputPeekIndex).getHead().getIndex() < stackPeekIndex
+				&& 
+				( !gold.getTokenNode(inputPeekIndex).getHead().isRoot() || planarConfig.getRootHandling()==PlanarConfig.NORMAL )	
+			) {
 			return updateActionContainers(Planar.REDUCE, null);
 		} else {
 			return updateActionContainers(Planar.SHIFT, null);

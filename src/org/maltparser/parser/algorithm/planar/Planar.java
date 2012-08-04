@@ -52,11 +52,10 @@ public class Planar extends TransitionSystem {
 	}
 	
 	public GuideUserAction getDeterministicAction(GuideUserHistory history, ParserConfiguration config) throws MaltChainedException {
-		//PlanarConfig planarConfig = (PlanarConfig)config;
-		//if (planarConfig.getRootHandling() != PlanarConfig.NORMAL && planarConfig.getStack().peek().isRoot()) {
-		//	return updateActionContainers(history, Planar.SHIFT, null);
-		//}
-		//TODO: yeah, shift root
+		PlanarConfig planarConfig = (PlanarConfig)config;
+		if (planarConfig.getRootHandling() != PlanarConfig.NORMAL && planarConfig.getStack().peek().isRoot()) {
+			return updateActionContainers(history, Planar.SHIFT, null);
+		}
 		return null;
 	}
 	

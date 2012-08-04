@@ -28,6 +28,10 @@ public class PlanarConfig extends ParserConfiguration {
 	public static final int REDUCE_ONLY = 2; //connectedness enforced on reduce only
 	public static final int FULL_CONNECTEDNESS = 3; //connectedness enforced on shift and reduce
 	
+	// Root Handling
+	public static final int NORMAL = 1; //root tokens attached to Root with RightArc
+	public static final int RELAXED = 2; //root tokens unattached
+	
 	//Constraints
 	public final boolean SINGLE_HEAD = true; //single-head constraint
 	public boolean noCoveredRoots = false; //no-covered-roots constraint
@@ -38,15 +42,18 @@ public class PlanarConfig extends ParserConfiguration {
 	private Stack<DependencyNode> stack;
 	private Stack<DependencyNode> input;
 	private DependencyStructure dependencyGraph;
-	//private int rootHandling;
+	
+	
+	//root handling: explicitly create links to dummy root or not?
+	private int rootHandling;
 
 	
-	public PlanarConfig(SymbolTableHandler symbolTableHandler, String noCoveredRoots , String acyclicity , String connectedness) throws MaltChainedException {
+	public PlanarConfig(SymbolTableHandler symbolTableHandler, String noCoveredRoots , String acyclicity , String connectedness , String rootHandling ) throws MaltChainedException {
 		super();
 		stack = new Stack<DependencyNode>();
 		input = new Stack<DependencyNode>();
 		dependencyGraph = new DependencyGraph(symbolTableHandler);
-		//setRootHandling(rootHandling);
+		setRootHandling(rootHandling);
 		setNoCoveredRoots(Boolean.valueOf(noCoveredRoots));
 		setAcyclicity(Boolean.valueOf(acyclicity));
 		setConnectedness(connectedness);
@@ -202,6 +209,20 @@ public class PlanarConfig extends ParserConfiguration {
 		}
 	}
 	*/
+	
+	public int getRootHandling() {
+		return rootHandling;
+	}
+	
+	protected void setRootHandling(String rh) throws MaltChainedException {
+		if (rh.equalsIgnoreCase("relaxed")) {
+			rootHandling = RELAXED;
+		} else if (rh.equalsIgnoreCase("normal")) {
+			rootHandling = NORMAL;
+		} else {
+			throw new ParsingException("The root handling '"+rh+"' is unknown");
+		}
+	}
 	
 	public void clear() throws MaltChainedException {
 		dependencyGraph.clear();

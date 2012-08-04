@@ -23,7 +23,7 @@ public abstract class TwoPlanarFactory implements AbstractParserFactory {
 		if (manager.getConfigLogger().isInfoEnabled()) {
 			manager.getConfigLogger().info("  Parser configuration : Two-Planar with no_covered_roots = " + manager.getOptionValue("planar", "no_covered_roots").toString().toUpperCase() + ", " + "acyclicity = " + manager.getOptionValue("planar", "acyclicity").toString().toUpperCase() + ", planar root handling = " + manager.getOptionValue("2planar" , "planar_root_handling").toString().toUpperCase() + ", reduce on switch = " + manager.getOptionValue("2planar" , "reduceonswitch").toString().toUpperCase() + "\n");
 		}
-		return new TwoPlanarConfig(manager.getSymbolTables() , manager.getOptionValue("planar", "no_covered_roots").toString() , manager.getOptionValue("planar", "acyclicity").toString() , manager.getOptionValue("2planar" , "reduceonswitch").toString()  , manager.getOptionValue("2planar" , "planar_root_handling").toString() );
+		return new TwoPlanarConfig(manager.getSymbolTables() , manager.getOptionValue("planar", "no_covered_roots").toString() , manager.getOptionValue("planar", "acyclicity").toString() , manager.getOptionValue("2planar" , "reduceonswitch").toString()  , manager.getOptionValue("multiplanar" , "planar_root_handling").toString() );
 	}
 	
 	public Function makeFunction(String subFunctionName) throws MaltChainedException {

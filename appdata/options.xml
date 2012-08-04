@@ -282,20 +282,16 @@ many single malt configurations. ]]></desc>
                 <shortdesc>Allow root</shortdesc>
         </option> 
    	</optiongroup>
-	<optiongroup groupname="2planar">
-		<desc><![CDATA[ The <b>2-planar</b> option group controls the 2-planar parsing algorithm.  ]]></desc>
-		<option type="bool" name="reduceonswitch" flag="2pr" default="false" usage="save">
-			<desc><![CDATA[ If <b>reduceonswitch=true</b>, the parser reduces the active stack immediately after switching stacks. ]]></desc>
-			<shortdesc>Force reduce after switch</shortdesc>
-		</option>
+   	<optiongroup groupname="multiplanar">
+		<desc><![CDATA[ The <b>multiplanar</b> option group contains options that are common to the multiplanar family of algorithms (planar and 2-planar algorithms).  ]]></desc>
 		<option type="enum" name="planar_root_handling" flag="prh" default="normal" usage="save">
-			<desc><![CDATA[ The <b>planar_root_handling</b> option specifies how dependents of the special root node are handled in the 2-planar parser. ]]></desc>
+			<desc><![CDATA[ The <b>planar_root_handling</b> option specifies how dependents of the special root node are handled in the planar or 2-planar parser. ]]></desc>
 			<shortdesc>Root handling</shortdesc>
 			<legalvalue name="relaxed">Root dependents not attached during parsing (attached with default label afterwards).</legalvalue>
 			<legalvalue name="normal">Root dependents attached by RightArc transition during parsing (unattached tokens attached with default label afterwards).</legalvalue>
 		</option>
 	</optiongroup>
-		<optiongroup groupname="planar">
+   	<optiongroup groupname="planar">
 		<desc><![CDATA[ The <b>planar</b> option group controls the Nivre planar parsing algorithm.  ]]></desc>
 		<option type="enum" name="connectedness" flag="pcon" default="none" usage="save">
 			<desc><![CDATA[ If <b>connectedness=true</b>, the parser only generates connected dependency graphs. ]]></desc>
@@ -311,6 +307,13 @@ many single malt configurations. ]]></desc>
 		<option type="bool" name="no_covered_roots" flag="pcov" default="false" usage="save">
 			<desc><![CDATA[ If <b>covered_roots=true</b>, the parser disallows covered roots (i.e. disallows non-projective structures, while with this option set to false, it allows planar structures that are not projective). ]]></desc>
 			<shortdesc>Disallow covered roots</shortdesc>
+		</option>
+	</optiongroup>
+	<optiongroup groupname="2planar">
+		<desc><![CDATA[ The <b>2-planar</b> option group controls the 2-planar parsing algorithm.  ]]></desc>
+		<option type="bool" name="reduceonswitch" flag="2pr" default="false" usage="save">
+			<desc><![CDATA[ If <b>reduceonswitch=true</b>, the parser reduces the active stack immediately after switching stacks. ]]></desc>
+			<shortdesc>Force reduce after switch</shortdesc>
 		</option>
 	</optiongroup>
 	<optiongroup groupname="covington">

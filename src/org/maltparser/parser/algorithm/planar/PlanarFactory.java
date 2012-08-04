@@ -21,9 +21,9 @@ public abstract class PlanarFactory implements AbstractParserFactory {
 	
 	public ParserConfiguration makeParserConfiguration() throws MaltChainedException {
 		if (manager.getConfigLogger().isInfoEnabled()) {
-			manager.getConfigLogger().info("  Parser configuration : Planar with no_covered_roots = " + manager.getOptionValue("planar", "no_covered_roots").toString().toUpperCase() + ", " + "acyclicity = " + manager.getOptionValue("planar", "acyclicity").toString().toUpperCase() + ", connectedness = " + manager.getOptionValue("planar", "connectedness").toString().toUpperCase() + "\n");
+			manager.getConfigLogger().info("  Parser configuration : Planar with no_covered_roots = " + manager.getOptionValue("planar", "no_covered_roots").toString().toUpperCase() + ", " + "acyclicity = " + manager.getOptionValue("planar", "acyclicity").toString().toUpperCase() + ", connectedness = " + manager.getOptionValue("planar", "connectedness").toString().toUpperCase() + ", planar root handling = " + manager.getOptionValue("2planar" , "planar_root_handling").toString().toUpperCase() + "\n");
 		}
-		return new PlanarConfig(manager.getSymbolTables() , manager.getOptionValue("planar", "no_covered_roots").toString() , manager.getOptionValue("planar", "acyclicity").toString() , manager.getOptionValue("planar", "connectedness").toString());
+		return new PlanarConfig(manager.getSymbolTables() , manager.getOptionValue("planar", "no_covered_roots").toString() , manager.getOptionValue("planar", "acyclicity").toString() , manager.getOptionValue("planar", "connectedness").toString(), manager.getOptionValue("multiplanar" , "planar_root_handling").toString());
 	}
 	
 	public Function makeFunction(String subFunctionName) throws MaltChainedException {
