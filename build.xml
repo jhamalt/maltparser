@@ -13,7 +13,7 @@
 	<!-- prefixed with "env". -->
 	<property environment="env"/>
 
-	<property name="version" value="1.7.1"/>
+	<property name="version" value="1.7.2"/>
 
 	<!-- The base directory relative to which most targets are built -->
 	<property name="base" value="."/>
@@ -116,10 +116,13 @@
 		<property name="javac.fork" value="false"/>
 	</target>
 
-
 	<target name="appdata">
 		<copy todir="${javac.dest}">
-			<fileset dir="${base}" includes="${appdata.src}/**"/>
+			<fileset dir="${base}" includes="${appdata.src}/**" />
+		    <filterset>
+		    	<filter token="version" value="${version}"/>
+		    	<filter token="builddate" value="${TODAY}"/>
+		    </filterset>
 		</copy>
 	</target>
 		
@@ -246,7 +249,6 @@
 			<fileset dir="${base}"
            includes="src/**,
 					 appdata/**,
-				     examples/**,
 					 docs/xslt/**,
 					 lib/**,
                      build.xml,
@@ -254,6 +256,12 @@
                      LICENSE,
 					 NOTICE,
 					 README"/>
+		</copy>
+		<copy todir="${dist.tmp}/maltparser-${version}">
+			<fileset dir="${base}" includes="examples/**"/>
+		    <filterset>
+		    	<filter token="version" value="${version}"/>
+		    </filterset>
 		</copy>
 		<copy todir="${dist.tmp}/maltparser-${version}">
 			<fileset dir="${dist.dir}"

@@ -1,13 +1,9 @@
 package org.maltparser;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Iterator;
 
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.flow.FlowChartInstance;
-import org.maltparser.core.helper.SystemInfo;
-import org.maltparser.core.helper.URLFinder;
 import org.maltparser.core.io.dataformat.ColumnDescription;
 import org.maltparser.core.io.dataformat.DataFormatInstance;
 import org.maltparser.core.io.dataformat.DataFormatSpecification;
@@ -34,7 +30,7 @@ import org.maltparser.parser.SingleMalt;
  * @author Johan Hall
  */
 public class MaltParserService {
-	private URL urlMaltJar;
+//	private URL urlMaltJar;
 	private Engine engine;
 	private FlowChartInstance flowChartInstance;
 	private DataFormatInstance dataFormatInstance;
@@ -332,18 +328,7 @@ public class MaltParserService {
 		if (OptionManager.instance().getOptionDescriptions().getOptionGroupNameSet().size() > 0) {
 			return; // OptionManager is already initialized
 		}
-		String maltpath = getMaltJarPath();
-		if (maltpath == null) {
-			throw new MaltChainedException("malt.jar could not be found. ");
-		}
-		final URLFinder f = new URLFinder();
-		urlMaltJar = f.findURL(maltpath);
-		try {
-			OptionManager.instance().loadOptionDescriptionFile(new URL("jar:"+urlMaltJar.toString()+"!/appdata/options.xml"));
-			
-		} catch (MalformedURLException e) {
-			throw new MaltChainedException("MaltParser couldn't find its options 'malt.jar!/appdata/options.xml'", e);
-		}
+		OptionManager.instance().loadOptionDescriptionFile();
 		OptionManager.instance().generateMaps();
 	}
 	
@@ -366,12 +351,12 @@ public class MaltParserService {
 	 * 
 	 * @return the path of malt.jar file
 	 */
-	public static String getMaltJarPath() {
-		if (SystemInfo.getMaltJarPath() != null) {
-			return SystemInfo.getMaltJarPath().toString();
-		}
-		return null;
-	}
+//	public static String getMaltJarPath() {
+//		if (SystemInfo.getMaltJarPath() != null) {
+//			return SystemInfo.getMaltJarPath().toString();
+//		}
+//		return null;
+//	}
 	
 	
 }

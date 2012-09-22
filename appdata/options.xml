@@ -424,7 +424,7 @@ otherwise all tokens in Left must be inspected before the next token is shifted.
 			<shortdesc>Type of k-best list</shortdesc>
 			<legalvalue name="rank" class="org.maltparser.parser.history.kbest.KBestList">Only ranked list</legalvalue>
 		</option>
-		<option type="class" name="learner" flag="l" default="libsvm"  usage="save">
+		<option type="class" name="learner" flag="l" default="liblinear"  usage="save">
 			<desc><![CDATA[ This option specifies the learning method (learner package). MaltParser @version@ includes
 			the LIBSVM learner and the LIBLINEAR learner. ]]></desc>
 			<shortdesc>Learner</shortdesc>

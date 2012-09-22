@@ -26,9 +26,9 @@ public class MaltConsoleEngine {
 		try {
 			/* Option and Plug-in management */
 			OptionManager.instance().loadOptionDescriptionFile();
-			if (SystemInfo.getMaltJarPath() != null) {
-				PluginLoader.instance().loadPlugins(new File(SystemInfo.getMaltJarPath().getParent()+"/plugin"));
-			}
+//			if (SystemInfo.getMaltJarPath() != null) {
+//				PluginLoader.instance().loadPlugins(new File(SystemInfo.getMaltJarPath().getParent()+"/plugin"));
+//			}
 			OptionManager.instance().generateMaps();
 		} catch (MaltChainedException e) {
 			if (SystemLogger.logger().isDebugEnabled()) {

@@ -46,37 +46,72 @@ public class LibLinear extends Lib {
 	}
 	
 	protected void trainInternal(FeatureVector featureVector) throws MaltChainedException {
-		try {
-			if (configLogger.isInfoEnabled()) {
-				configLogger.info("Creating Liblinear model "+getFile(".moo").getName()+"\n");
-			}
+		if (configLogger.isInfoEnabled()) {
+			configLogger.info("Creating Liblinear model "+getFile(".moo").getName()+"\n");
+		}
+		double[] wmodel = null;
+		int[] labels = null;
+		int nr_class = 0;
+		int nr_feature = 0;
+		Parameter parameter = getLiblinearParameters();
+		try {	
 			Problem problem = readProblem(getInstanceInputStreamReader(".ins"));
+			boolean res = checkProblem(problem);
+			if (res == false) {
+				throw new LibException("Abort (The number of training instances * the number of classes) > "+Integer.MAX_VALUE+" and this is not supported by LibLinear. ");
+			}
+			if (configLogger.isInfoEnabled()) {
+				owner.getGuide().getConfiguration().getConfigLogger().info("- Train a parser model using LibLinear.\n");
+			}
 			final PrintStream out = System.out;
 			final PrintStream err = System.err;
 			System.setOut(NoPrintStream.NO_PRINTSTREAM);
 			System.setErr(NoPrintStream.NO_PRINTSTREAM);
-			Parameter parameter = getLiblinearParameters();
 			Model model = Linear.train(problem, parameter);
 			System.setOut(err);
 			System.setOut(out);
-//			System.out.println(" model.getNrFeature():" +  model.getNrFeature());
-//			System.out.println(" model.getFeatureWeights().length:" +  model.getFeatureWeights().length);
-			if (configLogger.isInfoEnabled()) {
-				configLogger.info("Optimize memory usage for the Liblinear model "+getFile(".moo").getName()+"\n");
-			}
-			double[][] wmatrix = convert(model.getFeatureWeights(), model.getNrClass(), model.getNrFeature());
-			MaltLiblinearModel xmodel = new MaltLiblinearModel(model.getLabels(), model.getNrClass(), wmatrix.length, wmatrix, parameter.getSolverType());
-			if (configLogger.isInfoEnabled()) {
-				configLogger.info("Save the Liblinear model "+getFile(".moo").getName()+"\n");
-			}
-		    ObjectOutputStream output = new ObjectOutputStream (new BufferedOutputStream(new FileOutputStream(getFile(".moo").getAbsolutePath())));
-	        try{
-	          output.writeObject(xmodel);
-	        } finally {
-	          output.close();
-	        }
+			problem = null;
+			wmodel = model.getFeatureWeights();
+			labels = model.getLabels();
+			nr_class = model.getNrClass();
+			nr_feature = model.getNrFeature();
 			if (!saveInstanceFiles) {
 				getFile(".ins").delete();
+			}
+		} catch (OutOfMemoryError e) {
+			throw new LibException("Out of memory. Please increase the Java heap size (-Xmx<size>). ", e);
+		} catch (IllegalArgumentException e) {
+			throw new LibException("The Liblinear learner was not able to redirect Standard Error stream. ", e);
+		} catch (SecurityException e) {
+			throw new LibException("The Liblinear learner cannot remove the instance file. ", e);
+		} catch (NegativeArraySizeException e) {
+			throw new LibException("(The number of training instances * the number of classes) > "+Integer.MAX_VALUE+" and this is not supported by LibLinear.", e);
+		}
+		
+		if (configLogger.isInfoEnabled()) {
+			configLogger.info("- Optimize the memory usage\n");
+		}
+		MaltLiblinearModel xmodel = null;
+		try {
+//			System.out.println("Nr Features:" +  nr_feature);
+//			System.out.println("nr_class:" + nr_class);
+//			System.out.println("wmodel.length:" + wmodel.length);		
+			double[][] wmatrix = convert2(wmodel, nr_class, nr_feature);
+			xmodel = new MaltLiblinearModel(labels, nr_class, wmatrix.length, wmatrix, parameter.getSolverType());
+			if (configLogger.isInfoEnabled()) {
+				configLogger.info("- Save the Liblinear model "+getFile(".moo").getName()+"\n");
+			}
+		} catch (OutOfMemoryError e) {
+			throw new LibException("Out of memory. Please increase the Java heap size (-Xmx<size>). ", e);
+		}			
+		try {
+			if (xmodel != null) {
+			    ObjectOutputStream output = new ObjectOutputStream (new BufferedOutputStream(new FileOutputStream(getFile(".moo").getAbsolutePath())));
+		        try{
+		          output.writeObject(xmodel);
+		        } finally {
+		          output.close();
+		        }
 			}
 		} catch (OutOfMemoryError e) {
 			throw new LibException("Out of memory. Please increase the Java heap size (-Xmx<size>). ", e);
@@ -89,15 +124,94 @@ public class LibLinear extends Lib {
 		}
 	}
 	
+    private double[][] convert2(double[] w, int nr_class, int nr_feature) {
+        int[] wlength = new int[nr_feature];
+        int nr_nfeature = 0;
+//        int ne = 0;
+//        int nr = 0;
+//        int no = 0;
+//        int n = 0;
+        
+        // Identify length of new weight array for each feature
+        for (int i = 0; i < nr_feature; i++) {
+        	int k = nr_class;       	
+        	for (int t = i * nr_class; (t + (k - 1)) >= t; k--) {
+        		if (w[t + k - 1] != 0.0) {
+        			break;
+        		}
+        	}
+        	int b = k;
+        	if (b != 0) {
+	        	for (int t = i * nr_class; (t + (b - 1)) >= t; b--) {
+	        		if (b != k) {
+	        			if (w[t + b - 1] != w[t + b]) {
+	        				break;
+	        			}
+	        		}
+	        	}
+        	}
+        	if (k == 0 || b == 0) {
+        		wlength[i] = 0;
+        	} else {
+        		wlength[i] = k;
+        		nr_nfeature++;
+        	}        	
+        }
+        // Allocate the weight matrix with the new number of features and
+        // an array wsignature that efficient compare if weight vector can be reused by another feature. 
+        double[][] wmatrix = new double[nr_nfeature][];
+        double[] wsignature = new double[nr_nfeature];
+        Long[] reverseMap = featureMap.reverseMap();
+        int in = 0;
+        for (int i = 0; i < nr_feature; i++) {
+            if (wlength[i] == 0) {
+            	// if the length of the weight vector is zero than eliminate the feature from the feature map.
+//            	ne++;
+            	featureMap.removeIndex(reverseMap[i + 1]);
+            	reverseMap[i + 1] = null;
+            } else {          	
+            	boolean reuse = false;
+            	double[] copy = new double[wlength[i]];
+            	System.arraycopy(w, i * nr_class, copy, 0, wlength[i]);
+            	featureMap.setIndex(reverseMap[i + 1], in + 1);
+            	for (int j=0; j<copy.length; j++) wsignature[in] += copy[j];
+	            for (int j = 0; j < in; j++) {
+	            	if (wsignature[j] == wsignature[in]) {
+	            		// if the signatures is equal then do more narrow comparison  
+		            	if (Util.equals(copy, wmatrix[j])) {
+		            		// if equal then reuse the weight vector
+		            		wmatrix[in] = wmatrix[j];
+		            		reuse = true;
+//		            		nr++;
+		            		break;
+		            	}
+	            	}
+	            }
+	            if (reuse == false) {
+	                // if no reuse has done use the new weight vector in the weight matrix 
+//	            	no++;
+	            	wmatrix[in] = copy;
+	            }
+	            in++;
+            }
+//            n++;
+        }
+        featureMap.setFeatureCounter(nr_nfeature);
+//        System.out.println("NE:"+ne);
+//        System.out.println("NR:"+nr);
+//        System.out.println("NO:"+no);
+//        System.out.println("N :"+n);
+        return wmatrix;
+    }
+	
     private double[][] convert(double[] w, int nr_class, int nr_feature) {
         double[][] wmatrix = new double[nr_feature][];
         double[] wsignature = new double[nr_feature];
         boolean reuse = false;
         int ne = 0;
-//        int nr = 0;
-//        int no = 0;
-//        int n = 0;
-
+        int nr = 0;
+        int no = 0;
+        int n = 0;
         Long[] reverseMap = featureMap.reverseMap();
         for (int i = 0; i < nr_feature; i++) {
         	reuse = false;
@@ -122,17 +236,17 @@ public class LibLinear extends Lib {
 		            	if (Util.equals(copy, wmatrix[j])) {
 		            		wmatrix[i] = wmatrix[j];
 		            		reuse = true;
-//		            		nr++;
+		            		nr++;
 		            		break;
 		            	}
 	            	}
 	            }
 	            if (reuse == false) {
-//	            	no++;
+	            	no++;
 	            	wmatrix[i] = copy;
 	            }
             }
-//            n++;
+            n++;
         }
         featureMap.setFeatureCounter(featureMap.getFeatureCounter()- ne);
         double[][] wmatrix_reduced = new double[nr_feature-ne][];
@@ -250,7 +364,9 @@ public class LibLinear extends Lib {
 	private Problem readProblem(InputStreamReader isr) throws MaltChainedException {
 		Problem problem = new Problem();
 		final FeatureList featureList = new FeatureList();
-		
+		if (configLogger.isInfoEnabled()) {
+			owner.getGuide().getConfiguration().getConfigLogger().info("- Read all training instances.\n");
+		}
 		try {
 			final BufferedReader fp = new BufferedReader(isr);
 			
@@ -259,7 +375,7 @@ public class LibLinear extends Lib {
 			problem.x = new FeatureNode[problem.l][];
 			problem.y = new int[problem.l];
 			int i = 0;
-
+			
 			while(true) {
 				String line = fp.readLine();
 				if(line == null) break;
@@ -286,7 +402,24 @@ public class LibLinear extends Lib {
 		} catch (IOException e) {
 			throw new LibException("Cannot read from the instance file. ", e);
 		}
+		
 		return problem;
+	}
+	
+	private boolean checkProblem(Problem problem) throws MaltChainedException {
+		int max_y = problem.y[0];
+		for (int i = 1; i < problem.y.length; i++) {
+			if (problem.y[i] > max_y) {
+				max_y = problem.y[i];
+			}
+		}
+		if (max_y * problem.l < 0) { // max_y * problem.l > Integer.MAX_VALUE
+			if (configLogger.isInfoEnabled()) {
+				owner.getGuide().getConfiguration().getConfigLogger().info("*** Abort (The number of training instances * the number of classes) > Max array size: ("+problem.l+" * "+max_y+") > "+Integer.MAX_VALUE+" and this is not supported by LibLinear.\n");
+			}
+			return false;
+		}
+		return true;
 	}
 	
 	private Parameter getLiblinearParameters() throws MaltChainedException {

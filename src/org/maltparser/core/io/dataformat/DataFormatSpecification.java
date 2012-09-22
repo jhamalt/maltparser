@@ -65,7 +65,7 @@ public class DataFormatSpecification {
 		if (url == null) {
 			throw new DataFormatException("The data format specifcation file cannot be found. ");
 		}
-				
+
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             DocumentBuilder db = dbf.newDocumentBuilder();

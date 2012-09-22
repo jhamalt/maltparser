@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
@@ -54,7 +55,7 @@ public class ConfigurationDir  {
 	protected String name;
 	protected String type;
 	protected File workingDirectory;
-	protected URL url = null;
+	protected URL url;
 	protected int containerIndex;
 	protected BufferedWriter infoFile = null;
 	protected String createdByMaltParserVersion;
@@ -123,6 +124,12 @@ public class ConfigurationDir  {
 					throw new ConfigurationException("Couldn't find the MaltParser configuration file: " + getName()+".mco");
 				}
 			}
+	        try {
+	        	url = mcoPath.toURI().toURL();
+	        } catch (MalformedURLException e) {
+	        	// should never happen
+	        	throw new ConfigurationException("File path could not be represented as a URL.");
+	        }
 		}
 	}
 	
@@ -160,7 +167,6 @@ public class ConfigurationDir  {
 			}
 		}
 		dataFormatInstances = new HashMap<String, DataFormatInstance>(3);
-
 		inputFormatURL = findURL(inputFormatName);
 		outputFormatURL = findURL(outputFormatName);
 		if (outputFormatURL != null) {
@@ -324,42 +330,86 @@ public class ConfigurationDir  {
 	}
 	
 	public InputStream getInputStreamFromConfigFileEntry(String fileName) throws MaltChainedException {
-		File mcoPath = new File(workingDirectory.getPath()+File.separator+getName()+".mco");
-		try {
-			JarFile mcoFile = new JarFile(mcoPath.getAbsolutePath());
-			JarEntry entry = mcoFile.getJarEntry(getName()+'/'+fileName);
-			if (entry == null) {
-				entry = mcoFile.getJarEntry(getName()+'\\'+fileName);
+		if	(!url.toString().startsWith("jar")) { 
+			// New solution 
+			try {
+				JarURLConnection conn = (JarURLConnection)new URL("jar:" + url.toString() + "!/").openConnection();
+				JarFile mcoFile = conn.getJarFile();
+				JarEntry entry = mcoFile.getJarEntry(getName()+'/'+fileName);
+				if (entry == null) {
+					entry = mcoFile.getJarEntry(getName()+'\\'+fileName);
+				}
+				if (entry == null) {
+					throw new FileNotFoundException();
+				}
+				return mcoFile.getInputStream(entry);
+
+			} catch (IOException e) {
+				throw new ConfigurationException("The file entry '"+fileName+"' in the mco file '"+url+"' cannot be loaded. ", e);
 			}
-			if (entry == null) {
-				throw new FileNotFoundException();
-			}
-			return mcoFile.getInputStream(entry);
-		} catch (FileNotFoundException e) {
-			throw new ConfigurationException("The file entry '"+fileName+"' in the mco file '"+mcoPath+"' cannot be found. ", e);
-		} catch (IOException e) {
-			throw new ConfigurationException("The file entry '"+fileName+"' in the mco file '"+mcoPath+"' cannot be loaded. ", e);
+		} else {
+			// Old solution: Can load files from the mco-file within a jar-file
+            File mcoPath = new File(workingDirectory.getPath()+File.separator+getName()+".mco");
+            try {
+                    JarFile mcoFile = new JarFile(mcoPath.getAbsolutePath());
+                    JarEntry entry = mcoFile.getJarEntry(getName()+'/'+fileName);
+                    if (entry == null) {
+                            entry = mcoFile.getJarEntry(getName()+'\\'+fileName);
+                    }
+                    if (entry == null) {
+                            throw new FileNotFoundException();
+                    }
+                    return mcoFile.getInputStream(entry);
+            } catch (FileNotFoundException e) {
+                    throw new ConfigurationException("The file entry '"+fileName+"' in the mco file '"+mcoPath+"' cannot be found. ", e);
+            } catch (IOException e) {
+                    throw new ConfigurationException("The file entry '"+fileName+"' in the mco file '"+mcoPath+"' cannot be loaded. ", e);
+            }
 		}
 	}
 	
 	public InputStreamReader getInputStreamReaderFromConfigFileEntry(String fileName, String charSet) throws MaltChainedException {
-		File mcoPath = new File(workingDirectory.getPath()+File.separator+getName()+".mco");
-		try {
-			JarFile mcoFile = new JarFile(mcoPath.getAbsolutePath());
-			JarEntry entry = mcoFile.getJarEntry(getName()+'/'+fileName);
-			if (entry == null) {
-				entry = mcoFile.getJarEntry(getName()+'\\'+fileName);
+		if	(!url.toString().startsWith("jar")) { 
+			// New solution 
+			try {
+				JarURLConnection conn = (JarURLConnection)new URL("jar:" + url.toString() + "!/").openConnection();
+
+				JarFile mcoFile = null;
+				mcoFile = conn.getJarFile();
+				JarEntry entry = mcoFile.getJarEntry(getName() + '/' + fileName);
+	
+				if (entry == null) {
+					entry = mcoFile.getJarEntry(getName() + '\\' + fileName);
+				}
+				if (entry == null) {
+					throw new FileNotFoundException();
+				}
+				return new InputStreamReader(mcoFile.getInputStream(entry), charSet);
+			} catch (UnsupportedEncodingException e) {
+				throw new ConfigurationException("The char set '"+charSet+"' is not supported. ", e);
+			} catch (IOException e) {
+				throw new ConfigurationException("The entry '"+fileName+"' in the mco url '"+this.url+"' cannot be loaded. ", e);
 			}
-			if (entry == null) {
-				throw new FileNotFoundException();
-			}
-			return new InputStreamReader(mcoFile.getInputStream(entry),  charSet);
-		} catch (FileNotFoundException e) {
-			throw new ConfigurationException("The file entry '"+fileName+"' in the mco file '"+mcoPath+"' cannot be found. ", e);
-		} catch (UnsupportedEncodingException e) {
-			throw new ConfigurationException("The char set '"+charSet+"' is not supported. ", e);
-		} catch (IOException e) {
-			throw new ConfigurationException("The file entry '"+fileName+"' in the mco file '"+mcoPath+"' cannot be loaded. ", e);
+		} else {
+			// Old solution: Can load files from the mco-file within a jar-file
+			File mcoPath = new File(workingDirectory.getPath()+File.separator+getName()+".mco");
+			try {
+		        JarFile mcoFile = new JarFile(mcoPath.getAbsolutePath());
+	            JarEntry entry = mcoFile.getJarEntry(getName()+'/'+fileName);
+	            if (entry == null) {
+	                    entry = mcoFile.getJarEntry(getName()+'\\'+fileName);
+	            }
+		        if (entry == null) {
+		        	throw new FileNotFoundException();
+		        }
+		        return new InputStreamReader(mcoFile.getInputStream(entry),  charSet);
+	        } catch (FileNotFoundException e) {
+	                throw new ConfigurationException("The file entry '"+fileName+"' in the mco file '"+mcoPath+"' cannot be found. ", e);
+	        } catch (UnsupportedEncodingException e) {
+	                throw new ConfigurationException("The char set '"+charSet+"' is not supported. ", e);
+	        } catch (IOException e) {
+	                throw new ConfigurationException("The file entry '"+fileName+"' in the mco file '"+mcoPath+"' cannot be loaded. ", e);
+	        }
 		}
 	}
 	
@@ -379,22 +429,38 @@ public class ConfigurationDir  {
 	}
 	
 	public URL getConfigFileEntryURL(String fileName) throws MaltChainedException {
-		File mcoPath = new File(workingDirectory.getPath()+File.separator+getName()+".mco");
-		try {
-			if (!mcoPath.exists()) {
-				throw new ConfigurationException("Couldn't find mco-file '" +mcoPath.getAbsolutePath()+ "'");
+		if	(!url.toString().startsWith("jar")) { 
+			// New solution 
+			try {
+				URL url = new URL("jar:"+this.url.toString()+"!/"+getName()+'/'+fileName + "\n");
+				try { 
+					InputStream is = url.openStream();
+					is.close();
+				} catch (IOException e) {
+					url = new URL("jar:"+this.url.toString()+"!/"+getName()+'\\'+fileName + "\n");
+				}
+				return url;
+			} catch (MalformedURLException e) {
+				throw new ConfigurationException("Couldn't find the URL '" +"jar:"+this.url.toString()+"!/"+getName()+'/'+fileName+ "'", e);
 			}
-//			new URL("file", null, mcoPath.getAbsolutePath());
-			URL url = new URL("jar:"+new URL("file", null, mcoPath.getAbsolutePath())+"!/"+getName()+'/'+fileName + "\n");
-			try { 
-				InputStream is = url.openStream();
-				is.close();
-			} catch (IOException e) {
-				url = new URL("jar:"+new URL("file", null, mcoPath.getAbsolutePath())+"!/"+getName()+'\\'+fileName + "\n");
-			}
-			return url;
-		} catch (MalformedURLException e) {
-			throw new ConfigurationException("Couldn't find the URL '" +"jar:"+mcoPath.getAbsolutePath()+"!/"+getName()+'/'+fileName+ "'", e);
+		} else {
+			// Old solution: Can load files from the mco-file within a jar-file
+	        File mcoPath = new File(workingDirectory.getPath()+File.separator+getName()+".mco");
+	        try {
+	                if (!mcoPath.exists()) {
+	                        throw new ConfigurationException("Couldn't find mco-file '" +mcoPath.getAbsolutePath()+ "'");
+	                }                                                                                                                                   
+	                URL url = new URL("jar:"+new URL("file", null, mcoPath.getAbsolutePath())+"!/"+getName()+'/'+fileName + "\n");
+	                try {
+	                        InputStream is = url.openStream();
+	                        is.close();
+	                } catch (IOException e) {
+	                        url = new URL("jar:"+new URL("file", null, mcoPath.getAbsolutePath())+"!/"+getName()+'\\'+fileName + "\n");
+	                }
+	                return url;
+	        } catch (MalformedURLException e) {
+	                throw new ConfigurationException("Couldn't find the URL '" +"jar:"+mcoPath.getAbsolutePath()+"!/"+getName()+'/'+fileName+ "'", e);
+	        }
 		}
 	}
 	

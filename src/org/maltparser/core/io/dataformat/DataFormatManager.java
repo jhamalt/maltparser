@@ -5,7 +5,6 @@ import java.net.URL;
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.helper.HashMap;
 import org.maltparser.core.helper.URLFinder;
-import org.maltparser.core.helper.Util;
 import org.maltparser.core.io.dataformat.DataFormatSpecification.Dependency;
 
 public class DataFormatManager {
