@@ -2,11 +2,11 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
  <title>MaltParser - Changes</title>
- <meta name="description" content="Presents the release history of MaltParser for each versions." />
+ <meta name="description" content="Presents the release history of MaltParser for each version." />
  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
  <meta name="robots" content="index,follow" />
  <meta name="revisit-after" content="14 days" />
- <meta name="keywords" content="maltparser, dependency, parsing, Nivre, liblinear, parser" />
+ <meta name="keywords" content="maltparser, dependency, parsing, nivre, liblinear, parser, deterministic" />
  <link rel="stylesheet" type="text/css" href="style.css" media="screen" />
  <link rel="stylesheet" type="text/css" href="print.css" media="print" />
  <link rel="canonical" href="http://www.maltparser.org/changes.html" />
@@ -59,13 +59,14 @@
 <h3 id="v1.7.2">MaltParser 1.7.2</h3>
 <table class="bodyTable">
 <tr class="a"><th>Changes</th></tr>
-<tr class="b"><td>Add a new option group multiplaner that affect the parsing algorithm planar and 2-planar (thanks Carlos Gómez-Rodríguez)</td></tr>
+<tr class="b"><td>Add a new option group "multiplanar" that affect the parsing algorithm planar and 2-planar (thanks to Carlos Gómez-Rodríguez)</td></tr>
+<tr class="b"><td>Liblinear is now the default learner.Liblinear is now the default learner.</td></tr>
 <tr class="b"><td>Liblinear interface: Abort and presentation of an error message when number of training instances * number of classes > Integer.MAX_VALUE (limitation of the size of Java array)</td></tr>
 <tr class="b"><td>Liblinear interface: Improvement of the performance of the memory optimization.</td></tr>
-<tr class="b"><td>SystemInfo: MaltParser version and build date are not load from the manifest-file. Instead version and build date are read from a new file in appdata. </td></tr>
-<tr class="b"><td>SystemInfo: Removed the code that tries to find the path to the maltparser-version.jar. The code is not needed anymore and cause problems for MaltParserService user.</td></tr>
+<tr class="b"><td>SystemInfo: MaltParser version and build date are not loaded  from the manifest-file. Instead version and build date are read from a new file in appdata. </td></tr>
+<tr class="b"><td>SystemInfo: Removed the code that tries to find the path to the maltparser-version.jar. The code is not needed anymore and cause problems for MaltParserService users.</td></tr>
 <tr class="b"><td>MaltParserService and OptionManager: Fixed problems when loading /appdata/options.xml from the jar-file</td></tr>
-<tr class="b"><td>ConfigurationDir: fixed URL-problems when loading files from the parser model .mco-file (thanks Michael Schmitz)</td></tr>
+<tr class="b"><td>ConfigurationDir: fixed URL-problems when loading files from the parser model .mco-file (thanks to  Michael Schmitz)</td></tr>
 <tr class="b"><td>New API examples ParseSentence4: shows how to use MaltParserService with a mco-file nested in a jar-file.</td></tr>
 </table>
 
@@ -122,7 +123,7 @@
 <h3 id="v1.5.2">MaltParser 1.5.2</h3>
 <table class="bodyTable">
 <tr class="a"><th>Changes</th></tr>
-<tr class="b"><td>Problem when using MaltParser within a servlet. By making Util.findURL() and Util.findURLinJars() non-static and using getClass().getResource() instead resolves the problem. Thanks Adriane Boyd.</td></tr>
+<tr class="b"><td>Problem when using MaltParser within a servlet. By making Util.findURL() and Util.findURLinJars() non-static and using getClass().getResource() instead resolves the problem. thanks to  Adriane Boyd.</td></tr>
 <tr class="b"><td>Fixed a bug when merging Distance, NumOf and Exists features.</td></tr>
 <tr class="b"><td>Fixed some minor errors in the User guide. Legal values of the second arguments of the NumOf feature are LDEPS, RDEPS, DEPS.</td></tr>
 <tr class="b"><td>Some minor changes throughout the code.</td></tr>
