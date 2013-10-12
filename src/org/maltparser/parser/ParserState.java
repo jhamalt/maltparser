@@ -14,28 +14,22 @@ import org.maltparser.parser.history.action.GuideUserAction;
  */
 public class ParserState {
 	private final AbstractParserFactory factory;
-	private final Algorithm algorithm;
-	private SymbolTableHandler symboltables;
-	private GuideUserHistory history;
-	private TransitionSystem transitionSystem;
-	private HistoryStructure historyStructure;
-	private ParserConfiguration config;
+	private final GuideUserHistory history;
+	private final TransitionSystem transitionSystem;
+	private final HistoryStructure historyStructure;
+	private final ParserConfiguration config;
 	
-	public ParserState(Algorithm algorithm, AbstractParserFactory factory) throws MaltChainedException {
-		this(algorithm, factory, 1);
-	}
-	
-	public ParserState(Algorithm algorithm, AbstractParserFactory factory, int k) throws MaltChainedException {
-		this.algorithm = algorithm;
+	public ParserState(DependencyParserConfig manager, SymbolTableHandler symbolTableHandler, AbstractParserFactory factory) throws MaltChainedException {
 		this.factory = factory;
-		setSymboltables(algorithm.getManager().getSymbolTables());
-		setHistoryStructure(new HistoryList());
-		setTransitionSystem(factory.makeTransitionSystem());
-		String decisionSettings = algorithm.getManager().getOptionValue("guide", "decision_settings").toString().trim();
-		getTransitionSystem().initTableHandlers(decisionSettings, symboltables);
-		setHistory(new History(decisionSettings, algorithm.getManager().getOptionValue("guide", "classitem_separator").toString(), getTransitionSystem().getTableHandlers()));
+		this.historyStructure = new HistoryList();
+		this.transitionSystem = factory.makeTransitionSystem();
+		String decisionSettings = manager.getOptionValue("guide", "decision_settings").toString().trim();
+		getTransitionSystem().initTableHandlers(decisionSettings, symbolTableHandler);
+		int kBestSize = ((Integer)manager.getOptionValue("guide", "kbest")).intValue();
+		String classitem_separator = manager.getOptionValue("guide", "classitem_separator").toString();
+		this.history = new History(decisionSettings, classitem_separator, getTransitionSystem().getTableHandlers(), kBestSize);
 		getTransitionSystem().initTransitionSystem(history);
-		config = getFactory().makeParserConfiguration();
+		this.config = factory.makeParserConfiguration();
 	}
 	
 	
@@ -44,46 +38,22 @@ public class ParserState {
 		historyStructure.clear();
 	}
 	
-	public Algorithm getAlgorithm() {
-		return algorithm;
-	}
-
-	public SymbolTableHandler getSymboltables() {
-		return symboltables;
-	}
-
-	protected void setSymboltables(SymbolTableHandler symboltables) {
-		this.symboltables = symboltables;
-	}
-	
 	public GuideUserHistory getHistory() {
 		return history;
-	}
-
-	protected void setHistory(GuideUserHistory history) {
-		this.history = history;
 	}
 
 	public TransitionSystem getTransitionSystem() {
 		return transitionSystem;
 	}
-
-	protected void setTransitionSystem(TransitionSystem transitionSystem) {
-		this.transitionSystem = transitionSystem;
-	}
 	
 	public HistoryStructure getHistoryStructure() {
 		return historyStructure;
-	}
-
-	protected void setHistoryStructure(HistoryStructure historyStructure) {
-		this.historyStructure = historyStructure;
 	}
 	
 	public void initialize(DependencyStructure dependencyStructure) throws MaltChainedException {
 		config.clear();
 		config.setDependencyGraph(dependencyStructure);
-		config.initialize(null);
+		config.initialize();
 	}
 	
 	public boolean isTerminalState() throws MaltChainedException {

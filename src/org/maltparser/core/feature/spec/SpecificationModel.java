@@ -10,16 +10,16 @@ import org.maltparser.core.exception.MaltChainedException;
 * @author Johan Hall
 */
 public class SpecificationModel implements Iterable<SpecificationSubModel> {
-	private String specModelName;
-	private LinkedHashMap<String, SpecificationSubModel> subModelMap;
+	private final String specModelName;
+	private final LinkedHashMap<String, SpecificationSubModel> subModelMap;
 	
 	public SpecificationModel() throws MaltChainedException {
 		this(null);
 	}
 	
-	public SpecificationModel(String specModelName) throws MaltChainedException {
-		setSpecModelName(specModelName);
-		subModelMap = new LinkedHashMap<String, SpecificationSubModel>();
+	public SpecificationModel(String _specModelName) throws MaltChainedException {
+		this.specModelName = _specModelName;
+		this.subModelMap = new LinkedHashMap<String, SpecificationSubModel>();
 	}
 	
 	public void add(String featureSpec) throws MaltChainedException {
@@ -42,10 +42,6 @@ public class SpecificationModel implements Iterable<SpecificationSubModel> {
 
 	public String getSpecModelName() {
 		return specModelName;
-	}
-
-	public void setSpecModelName(String specModelName) {
-		this.specModelName = specModelName;
 	}
 	
 	public Iterator<SpecificationSubModel> iterator() {

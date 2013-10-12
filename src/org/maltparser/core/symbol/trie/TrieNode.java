@@ -77,7 +77,6 @@ public class TrieNode {
 			TrieNode child = null; 
 			if (children == null) {
 				children = new HashMap<Character, TrieNode>();
-//				children = new HashMap<Character, TrieNode>(INITIAL_CAPACITY);
 				child = new TrieNode(c, this);
 				children.put(c,child);
 			} else {
@@ -107,23 +106,22 @@ public class TrieNode {
 		}
 		if (cachedValueEntry == null) {
 			if (code != -1) {
-				cachedValueEntry = code; //new TrieEntry(code,true);
+				cachedValueEntry = code; 
 				table.updateValueCounter(code);
 			} else {
-				cachedValueEntry = table.increaseValueCounter(); //new TrieEntry(table.increaseValueCounter(),false);
+				cachedValueEntry = table.increaseValueCounter();
 			}
 			cachedKeyEntry = table; 
 		} else if (!table.equals(cachedKeyEntry)) {
 			if (entries == null) {
 				entries = new HashMap<TrieSymbolTable, Integer>();
-//				entries = new HashMap<TrieSymbolTable, TrieEntry>(INITIAL_CAPACITY);
 			}
 			if (!entries.containsKey(table)) {
 				if (code != -1) {
-					entries.put(table, code); //new TrieEntry(code,true));
+					entries.put(table, code); 
 					table.updateValueCounter(code);
 				} else {
-					entries.put(table, table.increaseValueCounter()); //new TrieEntry(table.increaseValueCounter(),false));
+					entries.put(table, table.increaseValueCounter()); 
 				}
 			}
 		}

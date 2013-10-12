@@ -14,20 +14,12 @@ public class HistoryTreeNode implements HistoryNode {
 	private HistoryTreeNode parent;
 	private int depth;
 	private ArrayList<HistoryTreeNode> children;
-//	private double score;
 	
 	public HistoryTreeNode(HistoryNode previousNode, GuideUserAction action) {
 		setPreviousNode(parent);
 		setAction(action);
 		children = new ArrayList<HistoryTreeNode>();
 	}
-	
-//	public HistoryTreeNode(HistoryNode previousNode, GuideUserAction action, double score) {
-//		setPreviousNode(parent);
-//		setAction(action);
-//		setScore(score);
-//		children = new ArrayList<HistoryTreeNode>();
-//	}
 	
 	public GuideUserAction getAction() {
 		return action;
@@ -73,14 +65,6 @@ public class HistoryTreeNode implements HistoryNode {
 		}
 		return null;
 	}
-	
-//	public double getScore() {
-//		return score;
-//	}
-//
-//	public void setScore(double score) {
-//		this.score = score;
-//	}
 	
 	public int getPosition() {
 		return depth;

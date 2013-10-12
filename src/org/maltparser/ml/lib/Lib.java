@@ -16,11 +16,8 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 
-import org.apache.log4j.Logger;
-
 import java.util.LinkedHashMap;
 import java.util.Set;
-import java.util.jar.JarEntry;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -33,32 +30,30 @@ import org.maltparser.core.feature.value.MultipleFeatureValue;
 import org.maltparser.core.feature.value.SingleFeatureValue;
 import org.maltparser.core.syntaxgraph.DependencyStructure;
 import org.maltparser.ml.LearningMethod;
+import org.maltparser.ml.lib.FeatureMap;
+import org.maltparser.ml.lib.FeatureList;
+import org.maltparser.ml.lib.MaltLibModel;
+import org.maltparser.ml.lib.MaltFeatureNode;
+import org.maltparser.ml.lib.LibException;
 import org.maltparser.parser.DependencyParserConfig;
 import org.maltparser.parser.guide.instance.InstanceModel;
 import org.maltparser.parser.history.action.SingleDecision;
 
 public abstract class Lib implements LearningMethod {
-	protected Verbostity verbosity;
 	public enum Verbostity {
 		SILENT, ERROR, ALL
 	}
-	protected InstanceModel owner;
-	protected int learnerMode;
-	protected String name;
-	protected int numberOfInstances;
-	protected boolean saveInstanceFiles;
-	protected boolean excludeNullValues;
-	protected BufferedWriter instanceOutput = null; 
-	protected FeatureMap featureMap;
-	protected String paramString;
-	protected String pathExternalTrain;
-	protected LinkedHashMap<String, String> libOptions;
-	protected String allowedLibOptionFlags;
-	protected Logger configLogger;
-	protected final Pattern tabPattern = Pattern.compile("\t");
-	protected final Pattern pipePattern = Pattern.compile("\\|");	
-	private final StringBuilder sb = new StringBuilder();
+	protected final Verbostity verbosity;
+	private final InstanceModel owner;
+	private final int learnerMode;
+	private final String name;
+	protected final FeatureMap featureMap;
+	private final boolean excludeNullValues;
+	private BufferedWriter instanceOutput = null; 
 	protected MaltLibModel model = null;
+	
+	private int numberOfInstances;
+	
 	/**
 	 * Constructs a Lib learner.
 	 * 
@@ -66,25 +61,30 @@ public abstract class Lib implements LearningMethod {
 	 * @param learnerMode the mode of the learner BATCH or CLASSIFY
 	 */
 	public Lib(InstanceModel owner, Integer learnerMode, String learningMethodName) throws MaltChainedException {
-		setOwner(owner);
-		setLearnerMode(learnerMode.intValue());
+		this.owner = owner;
+		this.learnerMode = learnerMode.intValue();
+		this.name = learningMethodName;
+		if (getConfiguration().getOptionValue("lib", "verbosity") != null) {
+			this.verbosity = Verbostity.valueOf(getConfiguration().getOptionValue("lib", "verbosity").toString().toUpperCase());
+		} else {
+			this.verbosity = Verbostity.SILENT;
+		}
 		setNumberOfInstances(0);
-		setLearningMethodName(learningMethodName);
-		verbosity = Verbostity.SILENT;
-		configLogger = owner.getGuide().getConfiguration().getConfigLogger();
-		initLibOptions();
-		initAllowedLibOptionFlags();
-		parseParameters(getConfiguration().getOptionValue("lib", "options").toString());
-		initSpecialParameters();
-		
+		if (getConfiguration().getOptionValue("singlemalt", "null_value") != null && getConfiguration().getOptionValue("singlemalt", "null_value").toString().equalsIgnoreCase("none")) {
+			excludeNullValues = true;
+		} else {
+			excludeNullValues = false;
+		}
+
 		if (learnerMode == BATCH) {
 			featureMap = new FeatureMap();
 			instanceOutput = new BufferedWriter(getInstanceOutputStreamWriter(".ins"));
 		} else if (learnerMode == CLASSIFY) {
-			featureMap = loadFeatureMap(getInputStreamFromConfigFileEntry(".map"));
+			featureMap = (FeatureMap)getConfigFileEntryObject(".map");
+		} else {
+			featureMap = null;
 		}
 	}
-	
 	
 	public void addInstance(SingleDecision decision, FeatureVector featureVector) throws MaltChainedException {
 		if (featureVector == null) {
@@ -94,6 +94,7 @@ public abstract class Lib implements LearningMethod {
 		}	
 		
 		try {
+			final StringBuilder sb = new StringBuilder();
 			sb.append(decision.getDecisionCode()+"\t");
 			final int n = featureVector.size();
 			for (int i = 0; i < n; i++) {
@@ -133,7 +134,7 @@ public abstract class Lib implements LearningMethod {
 			instanceOutput.write(sb.toString());
 			instanceOutput.flush();
 			increaseNumberOfInstances();
-			sb.setLength(0);
+//			sb.setLength(0);
 		} catch (IOException e) {
 			throw new LibException("The learner cannot write to the instance file. ", e);
 		}
@@ -209,9 +210,6 @@ public abstract class Lib implements LearningMethod {
 	}
 
 	public boolean predict(FeatureVector featureVector, SingleDecision decision) throws MaltChainedException {
-//		if (featureVector == null) {
-//			throw new LibException("The learner cannot predict the next class, because the feature vector cannot be found. ");
-//		}
 		final FeatureList featureList = new FeatureList();
 		final int size = featureVector.size();
 		for (int i = 1; i <= size; i++) {
@@ -244,21 +242,40 @@ public abstract class Lib implements LearningMethod {
 		
 //	protected abstract int[] prediction(FeatureList featureList) throws MaltChainedException;
 	
-	public void train(FeatureVector featureVector) throws MaltChainedException { 
-		if (featureVector == null) {
-			throw new LibException("The feature vector cannot be found. ");
-		} else if (owner == null) {
+	public void train() throws MaltChainedException { 
+		if (owner == null) {
 			throw new LibException("The parent guide model cannot be found. ");
 		}
-		long startTime = System.currentTimeMillis();
+		String pathExternalTrain = null;
+		if (!getConfiguration().getOptionValue("lib", "external").toString().equals("")) {
+			String path = getConfiguration().getOptionValue("lib", "external").toString(); 
+			try {
+				if (!new File(path).exists()) {
+					throw new LibException("The path to the external  trainer 'svm-train' is wrong.");
+				}
+				if (new File(path).isDirectory()) {
+					throw new LibException("The option --lib-external points to a directory, the path should point at the 'train' file or the 'train.exe' file in the libsvm or the liblinear package");
+				}
+				if (!(path.endsWith("train") ||path.endsWith("train.exe"))) {
+					throw new LibException("The option --lib-external does not specify the path to 'train' file or the 'train.exe' file in the libsvm or the liblinear package. ");
+				}
+				pathExternalTrain = path;
+			} catch (SecurityException e) {
+				throw new LibException("Access denied to the file specified by the option --lib-external. ", e);
+			}
+		}
+		LinkedHashMap<String, String> libOptions = getDefaultLibOptions();
+		parseParameters(getConfiguration().getOptionValue("lib", "options").toString(), libOptions, getAllowedLibOptionFlags());
+		
+//		long startTime = System.currentTimeMillis();
 		
 //		if (configLogger.isInfoEnabled()) {
 //			configLogger.info("\nStart training\n");
 //		}
 		if (pathExternalTrain != null) {
-			trainExternal(featureVector);
+			trainExternal(pathExternalTrain, libOptions);
 		} else {
-			trainInternal(featureVector);
+			trainInternal(libOptions);
 		}
 //		long elapsed = System.currentTimeMillis() - startTime;
 //		if (configLogger.isInfoEnabled()) {
@@ -277,13 +294,13 @@ public abstract class Lib implements LearningMethod {
 //			configLogger.info("Time 2: " +new Formatter().format("%02d:%02d:%02d", elapsed/3600000, elapsed%3600000/60000, elapsed%60000/1000)+" ("+elapsed+" ms)\n");
 //		}
 	}
-	protected abstract void trainExternal(FeatureVector featureVector) throws MaltChainedException;
-	protected abstract void trainInternal(FeatureVector featureVector) throws MaltChainedException;
+	protected abstract void trainExternal(String pathExternalTrain, LinkedHashMap<String, String> libOptions) throws MaltChainedException;
+	protected abstract void trainInternal(LinkedHashMap<String, String> libOptions) throws MaltChainedException;
 	
 	public void terminate() throws MaltChainedException { 
 		closeInstanceWriter();
-		owner = null;
-		model = null;
+//		owner = null;
+//		model = null;
 	}
 
 	public BufferedWriter getInstanceWriter() {
@@ -302,30 +319,12 @@ public abstract class Lib implements LearningMethod {
 		}
 	}
 	
-	
-	/**
-	 * Returns the parameter string used for configure the learner
-	 * 
-	 * @return the parameter string used for configure the learner
-	 */
-	public String getParamString() {
-		return paramString;
-	}
-	
 	public InstanceModel getOwner() {
 		return owner;
-	}
-
-	protected void setOwner(InstanceModel owner) {
-		this.owner = owner;
 	}
 	
 	public int getLearnerMode() {
 		return learnerMode;
-	}
-
-	public void setLearnerMode(int learnerMode) throws MaltChainedException {
-		this.learnerMode = learnerMode;
 	}
 	
 	public String getLearningMethodName() {
@@ -373,87 +372,28 @@ public abstract class Lib implements LearningMethod {
 	protected void setNumberOfInstances(int numberOfInstances) {
 		this.numberOfInstances = 0;
 	}
-
-	protected void setLearningMethodName(String name) {
-		this.name = name;
-	}
 	
-	public String getPathExternalTrain() {
-		return pathExternalTrain;
-	}
-
-
-	public void setPathExternalTrain(String pathExternalTrain) {
-		this.pathExternalTrain = pathExternalTrain;
-	}
-
 	protected OutputStreamWriter getInstanceOutputStreamWriter(String suffix) throws MaltChainedException {
-		return getConfiguration().getConfigurationDir().getAppendOutputStreamWriter(owner.getModelName()+getLearningMethodName()+suffix);
+		return getConfiguration().getAppendOutputStreamWriter(owner.getModelName()+getLearningMethodName()+suffix);
 	}
 	
 	protected InputStreamReader getInstanceInputStreamReader(String suffix) throws MaltChainedException {
-		return getConfiguration().getConfigurationDir().getInputStreamReader(owner.getModelName()+getLearningMethodName()+suffix);
-	}
-	
-	protected InputStreamReader getInstanceInputStreamReaderFromConfigFile(String suffix) throws MaltChainedException {
-		return getConfiguration().getConfigurationDir().getInputStreamReaderFromConfigFile(owner.getModelName()+getLearningMethodName()+suffix);
+		return getConfiguration().getInputStreamReader(owner.getModelName()+getLearningMethodName()+suffix);
 	}
 	
 	protected InputStream getInputStreamFromConfigFileEntry(String suffix) throws MaltChainedException {
-		return getConfiguration().getConfigurationDir().getInputStreamFromConfigFileEntry(owner.getModelName()+getLearningMethodName()+suffix);
+		return getConfiguration().getInputStreamFromConfigFileEntry(owner.getModelName()+getLearningMethodName()+suffix);
 	}
-	
 	
 	protected File getFile(String suffix) throws MaltChainedException {
-		return getConfiguration().getConfigurationDir().getFile(owner.getModelName()+getLearningMethodName()+suffix);
+		return getConfiguration().getFile(owner.getModelName()+getLearningMethodName()+suffix);
 	}
 	
-	protected JarEntry getConfigFileEntry(String suffix) throws MaltChainedException {
-		return getConfiguration().getConfigurationDir().getConfigFileEntry(owner.getModelName()+getLearningMethodName()+suffix);
+	protected Object getConfigFileEntryObject(String suffix) throws MaltChainedException {
+		return getConfiguration().getConfigFileEntryObject(owner.getModelName()+getLearningMethodName()+suffix);
 	}
 	
-	protected void initSpecialParameters() throws MaltChainedException {
-		if (getConfiguration().getOptionValue("singlemalt", "null_value") != null && getConfiguration().getOptionValue("singlemalt", "null_value").toString().equalsIgnoreCase("none")) {
-			excludeNullValues = true;
-		} else {
-			excludeNullValues = false;
-		}
-		saveInstanceFiles = ((Boolean)getConfiguration().getOptionValue("lib", "save_instance_files")).booleanValue();
-		if (!getConfiguration().getOptionValue("lib", "external").toString().equals("")) {
-			String path = getConfiguration().getOptionValue("lib", "external").toString(); 
-			try {
-				if (!new File(path).exists()) {
-					throw new LibException("The path to the external  trainer 'svm-train' is wrong.");
-				}
-				if (new File(path).isDirectory()) {
-					throw new LibException("The option --lib-external points to a directory, the path should point at the 'train' file or the 'train.exe' file in the libsvm or the liblinear package");
-				}
-				if (!(path.endsWith("train") ||path.endsWith("train.exe"))) {
-					throw new LibException("The option --lib-external does not specify the path to 'train' file or the 'train.exe' file in the libsvm or the liblinear package. ");
-				}
-				setPathExternalTrain(path);
-			} catch (SecurityException e) {
-				throw new LibException("Access denied to the file specified by the option --lib-external. ", e);
-			}
-		}
-		if (getConfiguration().getOptionValue("lib", "verbosity") != null) {
-			verbosity = Verbostity.valueOf(getConfiguration().getOptionValue("lib", "verbosity").toString().toUpperCase());
-		}
-	}
-	
-	public String getLibOptions() {
-		final StringBuilder sb = new StringBuilder();
-		for (String key : libOptions.keySet()) {
-			sb.append('-');
-			sb.append(key);
-			sb.append(' ');
-			sb.append(libOptions.get(key));
-			sb.append(' ');
-		}
-		return sb.toString();
-	}
-	
-	public String[] getLibParamStringArray() {
+	public String[] getLibParamStringArray(LinkedHashMap<String, String> libOptions) {
 		final ArrayList<String> params = new ArrayList<String>();
 
 		for (String key : libOptions.keySet()) {
@@ -462,10 +402,10 @@ public abstract class Lib implements LearningMethod {
 		return params.toArray(new String[params.size()]);
 	}
 	
-	public abstract void initLibOptions();
-	public abstract void initAllowedLibOptionFlags();
+	public abstract LinkedHashMap<String, String> getDefaultLibOptions();
+	public abstract String getAllowedLibOptionFlags();
 	
-	public void parseParameters(String paramstring) throws MaltChainedException {
+	public void parseParameters(String paramstring, LinkedHashMap<String, String> libOptions, String allowedLibOptionFlags) throws MaltChainedException {
 		if (paramstring == null) {
 			return;
 		}
@@ -509,12 +449,18 @@ public abstract class Lib implements LearningMethod {
 	
 	public String toString() {
 		final StringBuffer sb = new StringBuffer();
-		sb.append("\n"+getLearningMethodName()+" INTERFACE\n");
-		sb.append(getLibOptions());
+		sb.append('\n');
+		sb.append(getLearningMethodName());
+		sb.append(" INTERFACE\n");
+		try {
+			sb.append(getConfiguration().getOptionValue("lib", "options").toString());
+		} catch (MaltChainedException e) {}
 		return sb.toString();
 	}
 
 	protected int binariesInstance(String line, FeatureList featureList) throws MaltChainedException {
+		final Pattern tabPattern = Pattern.compile("\t");
+		final Pattern pipePattern = Pattern.compile("\\|");
 		int y = -1; 
 		featureList.clear();
 		try {	
@@ -589,7 +535,7 @@ public abstract class Lib implements LearningMethod {
 		} catch (NumberFormatException e) {
 			throw new LibException("The instance file contain a non-numeric value", e);
 		} catch (IOException e) {
-			throw new LibException("Couln't read from the instance file, when converting the Malt instances into LIBSV/LIBLINEAR format. ", e);
+			throw new LibException("Couldn't read from the instance file, when converting the Malt instances into LIBSVM/LIBLINEAR format. ", e);
 		}
 	}
 	

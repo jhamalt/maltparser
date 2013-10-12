@@ -10,16 +10,16 @@ import org.maltparser.core.symbol.SymbolTable;
 import org.maltparser.core.symbol.SymbolTableHandler;
 import org.maltparser.core.syntaxgraph.SyntaxGraphException;
 
-public class ExistsFeature implements FeatureFunction {
-	protected AddressFunction addressFunction;
-	protected SymbolTableHandler tableHandler;
-	protected SymbolTable table;
-	protected SingleFeatureValue featureValue;
+public final class ExistsFeature implements FeatureFunction {
+	public final static  Class<?>[] paramTypes = { org.maltparser.core.feature.function.AddressFunction.class };
+	private AddressFunction addressFunction;
+	private final SymbolTableHandler tableHandler;
+	private SymbolTable table;
+	private final SingleFeatureValue featureValue;
 	
 	public ExistsFeature(SymbolTableHandler tableHandler) throws MaltChainedException {
-		super();
-		featureValue = new SingleFeatureValue(this);
-		setTableHandler(tableHandler);
+		this.tableHandler = tableHandler;
+		this.featureValue = new SingleFeatureValue(this);
 	}
 	
 	/**
@@ -53,7 +53,6 @@ public class ExistsFeature implements FeatureFunction {
 	 * @return an array of class types
 	 */
 	public Class<?>[] getParameterTypes() {
-		Class<?>[] paramTypes = { org.maltparser.core.feature.function.AddressFunction.class };
 		return paramTypes; 
 	}
 	/**
@@ -76,15 +75,6 @@ public class ExistsFeature implements FeatureFunction {
 	 */
 	public int getCode(String symbol) throws MaltChainedException {
 		return (symbol.equals("true"))?1:0;
-	}
-	
-	/**
-	 * Cause the exists feature function to update the cardinality of the feature value.
-	 * 
-	 * @throws MaltChainedException
-	 */
-	public void updateCardinality() {
-//		featureValue.setCardinality(table.getValueCounter()); 
 	}
 	
 	/**
@@ -148,14 +138,6 @@ public class ExistsFeature implements FeatureFunction {
 	 */
 	public SymbolTableHandler getTableHandler() {
 		return tableHandler;
-	}
-	/**
-	 * Sets the symbol table handler
-	 * 
-	 * @param tableHandler a symbol table handler
-	 */
-	public void setTableHandler(SymbolTableHandler tableHandler) {
-		this.tableHandler = tableHandler;
 	}
 
 	/**

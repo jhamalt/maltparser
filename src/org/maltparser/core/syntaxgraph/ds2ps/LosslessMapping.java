@@ -36,13 +36,15 @@ public class LosslessMapping implements Dependency2PhraseStructure {
 	private HeadRules headRules;
 	private DataFormatInstance dependencyDataFormatInstance;
 	private DataFormatInstance phraseStructuretDataFormatInstance;
+	private SymbolTableHandler symbolTableHandler;
 	private boolean lockUpdate = false;
 	private int nonTerminalCounter;
 	private StringBuilder deprel;
 	private StringBuilder headrel;
 	private StringBuilder phrase;
 	
-	public LosslessMapping(DataFormatInstance dependencyDataFormatInstance, DataFormatInstance phraseStructuretDataFormatInstance) {
+	public LosslessMapping(DataFormatInstance dependencyDataFormatInstance, DataFormatInstance phraseStructuretDataFormatInstance, SymbolTableHandler symbolTableHandler) {
+		this.symbolTableHandler = symbolTableHandler;
 		setDependencyDataFormatInstance(dependencyDataFormatInstance);
 		setPhraseStructuretDataFormatInstance(phraseStructuretDataFormatInstance);
 		deprel = new StringBuilder();
@@ -247,8 +249,8 @@ public class LosslessMapping implements Dependency2PhraseStructure {
 		e.removeLabel(symbolTables.getSymbolTable(ATTACH));
 		
 		int i = 0;
-		SortedMap<String, SymbolTable> edgeLabelSymbolTables = phraseStructuretDataFormatInstance.getPhraseStructureEdgeLabelSymbolTables();
-		SortedMap<String, SymbolTable> nodeLabelSymbolTables = phraseStructuretDataFormatInstance.getPhraseStructureNodeLabelSymbolTables();
+		SortedMap<String, SymbolTable> edgeLabelSymbolTables = phraseStructuretDataFormatInstance.getPhraseStructureEdgeLabelSymbolTables(symbolTableHandler);
+		SortedMap<String, SymbolTable> nodeLabelSymbolTables = phraseStructuretDataFormatInstance.getPhraseStructureNodeLabelSymbolTables(symbolTableHandler);
 		if (!top.isRoot()) {
 			for (String name : edgeLabelSymbolTables.keySet()) {
 				if (top.hasParentEdgeLabel(symbolTables.getSymbolTable(name))) {
@@ -497,7 +499,7 @@ public class LosslessMapping implements Dependency2PhraseStructure {
 	
 	public void setHeadRules(String headRulesURL) throws MaltChainedException {
 		if (headRulesURL != null && headRulesURL.length() > 0 && !headRulesURL.equals("*")) {
-			headRules = new HeadRules(SystemLogger.logger(), phraseStructuretDataFormatInstance);
+			headRules = new HeadRules(SystemLogger.logger(), phraseStructuretDataFormatInstance, symbolTableHandler);
 			headRules.parseHeadRules(headRulesURL);
 		}
 	}

@@ -8,31 +8,39 @@ import org.maltparser.core.symbol.TableHandler;
 /**
 *
 * @author Johan Hall
-* @since 1.1
 **/
 public class CombinedTableContainer extends TableContainer implements Table {
-	private TableHandler tableHandler;
+	private final TableHandler tableHandler;
 	private final char separator;
 	private final TableContainer[] containers;
 	private final StringBuilder[] cachedSymbols;
 	private final int[] cachedCodes;
 	
-	public CombinedTableContainer(TableHandler tableHandler, String separator, List<TableContainer> containers, char decisionSeparator) throws MaltChainedException {
+	public CombinedTableContainer(TableHandler _tableHandler, String _separator, List<TableContainer> _containers, char decisionSeparator) throws MaltChainedException {
 		super(null, null, decisionSeparator);
-		this.tableHandler = tableHandler;
-		if (separator.length() > 0) {
-			this.separator = separator.charAt(0);
+		this.tableHandler = _tableHandler;
+		if (_separator.length() > 0) {
+			this.separator = _separator.charAt(0);
 		} else {
 			this.separator = '~';
 		};
-		this.containers = new TableContainer[containers.size()];
-		for (int i = 0; i < containers.size(); i++) {
-			this.containers[i] = containers.get(i);
+		this.containers = new TableContainer[_containers.size()];
+		for (int i = 0; i < _containers.size(); i++) {
+			this.containers[i] = _containers.get(i);
 		}
-		initSymbolTable();
-		cachedSymbols = new StringBuilder[containers.size()];
-		cachedCodes = new int[containers.size()];
-		for (int i = 0; i < containers.size(); i++) {
+		
+		final StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < this.containers.length; i++) {
+			sb.append(this.containers[i].getTableContainerName());
+			sb.append('+');
+		}
+		sb.setLength(sb.length()-1);
+		setTable((Table)tableHandler.addSymbolTable(sb.toString())); 
+		setName(sb.toString());
+		
+		cachedSymbols = new StringBuilder[containers.length];
+		cachedCodes = new int[containers.length];
+		for (int i = 0; i < containers.length; i++) {
 			cachedCodes[i] = -1;
 			cachedSymbols[i] = new StringBuilder();
 		};
@@ -272,12 +280,6 @@ public class CombinedTableContainer extends TableContainer implements Table {
 	}
 	
 	protected void initSymbolTable() throws MaltChainedException {
-		final StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < containers.length; i++) {
-			sb.append(containers[i].getTableContainerName()+"+");
-		}
-		sb.setLength(sb.length()-1);
-		setTable((Table)tableHandler.addSymbolTable(sb.toString())); 
-		setName(sb.toString());
+
 	}
 }

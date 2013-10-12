@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.io.dataformat.DataFormatInstance;
 import org.maltparser.core.symbol.SymbolTable;
+import org.maltparser.core.symbol.SymbolTableHandler;
 import org.maltparser.core.syntaxgraph.node.NonTerminalNode;
 import org.maltparser.core.syntaxgraph.node.PhraseStructureNode;
 /**
@@ -34,7 +35,7 @@ public class HeadRule extends ArrayList<PrioList> {
 		
 		int index = items[0].indexOf(':');
 		if (index != -1) {
-			SymbolTable t = getDataFormatInstance().getSymbolTables().getSymbolTable(items[0].substring(0, index));
+			SymbolTable t = headRules.getSymbolTableHandler().getSymbolTable(items[0].substring(0, index));
 			if (t == null) {
 				throw new HeadRuleException("The specification of the head rule is not correct '"+ruleSpec+"'. ");
 			}
@@ -105,12 +106,16 @@ public class HeadRule extends ArrayList<PrioList> {
 		return headRules.getLogger();
 	}
 	
-	public void setHeadRules(HeadRules headRules) {
-		this.headRules = headRules;
+    public DataFormatInstance getDataFormatInstance() {
+		return headRules.getDataFormatInstance();
+	}
+    
+	public SymbolTableHandler getSymbolTableHandler() {
+		return headRules.getSymbolTableHandler();
 	}
 	
-	public DataFormatInstance getDataFormatInstance() {
-		return headRules.getDataFormatInstance();
+	public void setHeadRules(HeadRules headRules) {
+		this.headRules = headRules;
 	}
 	
 	public String toString() {

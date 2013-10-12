@@ -2,7 +2,7 @@ package org.maltparser.parser.algorithm.twoplanar;
 
 import org.maltparser.core.exception.MaltChainedException;
 
-import org.maltparser.parser.Algorithm;
+import org.maltparser.parser.DependencyParserConfig;
 import org.maltparser.parser.TransitionSystem;
 import org.maltparser.parser.guide.OracleGuide;
 import org.maltparser.parser.history.GuideUserHistory;
@@ -11,22 +11,20 @@ import org.maltparser.parser.history.GuideUserHistory;
  *
  */
 public class TwoPlanarArcEagerFactory extends TwoPlanarFactory {
-	public TwoPlanarArcEagerFactory(Algorithm algorithm) {
-		super(algorithm);
+	public TwoPlanarArcEagerFactory(DependencyParserConfig _manager) {
+		super(_manager);
 	}
 	
 	public TransitionSystem makeTransitionSystem() throws MaltChainedException {
-		if (manager.getConfigLogger().isInfoEnabled()) {
-			manager.getConfigLogger().info("  Transition system    : 2-Planar Arc-Eager\n");
+		if (manager.isLoggerInfoEnabled()) {
+			manager.logInfoMessage("  Transition system    : 2-Planar Arc-Eager\n");
 		}
-		TransitionSystem ts = new TwoPlanar();
-		ts.setPropagationManager(manager.getPropagationManager());
-		return ts;
+		return new TwoPlanar(manager.getPropagationManager());
 	}
 	
 	public OracleGuide makeOracleGuide(GuideUserHistory history) throws MaltChainedException {
-		if (manager.getConfigLogger().isInfoEnabled()) {
-			manager.getConfigLogger().info("  Oracle               : 2-Planar Arc-Eager\n");
+		if (manager.isLoggerInfoEnabled()) {
+			manager.logInfoMessage("  Oracle               : 2-Planar Arc-Eager\n");
 		}
 		return new TwoPlanarArcEagerOracle(manager, history);
 	}

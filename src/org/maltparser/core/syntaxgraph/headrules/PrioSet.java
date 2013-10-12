@@ -39,7 +39,7 @@ public class PrioSet extends ArrayList<PrioSetMember> {
 			for (int j = 0; j < conItems.length; j++) {
 				int index = conItems[j].indexOf(':');
 				if (index != -1) {
-					SymbolTable table = prioList.getDataFormatInstance().getSymbolTables().getSymbolTable(conItems[j].substring(0, index));
+					SymbolTable table = prioList.getSymbolTableHandler().getSymbolTable(conItems[j].substring(0, index));
 					ColumnDescription column = prioList.getDataFormatInstance().getColumnDescriptionByName(conItems[j].substring(0, index));
 					if (i == 0 && j == 0) {
 						addPrioSetMember(table, column, conItems[j].substring(index+1), RelationToPrevMember.START);

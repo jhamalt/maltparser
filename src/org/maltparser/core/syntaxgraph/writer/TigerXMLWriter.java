@@ -17,6 +17,7 @@ import org.maltparser.core.helper.Util;
 import org.maltparser.core.io.dataformat.ColumnDescription;
 import org.maltparser.core.io.dataformat.DataFormatException;
 import org.maltparser.core.io.dataformat.DataFormatInstance;
+import org.maltparser.core.symbol.SymbolTableHandler;
 import org.maltparser.core.syntaxgraph.PhraseStructure;
 import org.maltparser.core.syntaxgraph.TokenStructure;
 import org.maltparser.core.syntaxgraph.node.NonTerminalNode;
@@ -137,8 +138,9 @@ public class TigerXMLWriter implements SyntaxGraphWriter {
 	private void setRootID(PhraseStructure phraseStructure) throws MaltChainedException {
 		useVROOT = false;
 		PhraseStructureNode root = phraseStructure.getPhraseStructureRoot();
+		final SymbolTableHandler symbolTables = phraseStructure.getSymbolTables();
 		for (ColumnDescription column : dataFormatInstance.getPhraseStructureNodeLabelColumnDescriptionSet()) {
-			if (root.hasLabel(column.getSymbolTable()) && root.getLabelSymbol(column.getSymbolTable()).equals(VROOT_SYMBOL)) {
+			if (root.hasLabel(symbolTables.getSymbolTable(column.getName())) && root.getLabelSymbol(symbolTables.getSymbolTable(column.getName())).equals(VROOT_SYMBOL)) {
 				useVROOT = true;
 				break;
 			}
@@ -194,7 +196,7 @@ public class TigerXMLWriter implements SyntaxGraphWriter {
 	private void writeHeader() throws MaltChainedException {
 		try {
 			if (header == null) {
-				header = new TigerXMLHeader(dataFormatInstance.getSymbolTables());
+				header = new TigerXMLHeader();
 			}
 			writer.write(header.toTigerXML());
 //			hasWriteTigerXMLHeader = true;
@@ -221,7 +223,7 @@ public class TigerXMLWriter implements SyntaxGraphWriter {
 				for (ColumnDescription column : dataFormatInstance.getInputColumnDescriptionSet()) {
 					writer.write(column.getName().toLowerCase());
 					writer.write("=\"");
-					writer.write(Util.xmlEscape(t.getLabelSymbol(column.getSymbolTable())));
+					writer.write(Util.xmlEscape(t.getLabelSymbol(phraseStructure.getSymbolTables().getSymbolTable(column.getName()))));
 					writer.write("\" ");	
 				}
 				writer.write("/>\n");
@@ -250,30 +252,30 @@ public class TigerXMLWriter implements SyntaxGraphWriter {
 						tmpID.append(sentenceID);
 						tmpID.append('_');
 						tmpID.append(Integer.toString(nt.getIndex()+START_ID_OF_NONTERMINALS-1));
-						writeNonTerminal(nt, tmpID.toString());
+						writeNonTerminal(phraseStructure.getSymbolTables(), nt, tmpID.toString());
 						done = false;
 					}
 				}
 				h++;
 			}
 			
-			writeNonTerminal((NonTerminalNode)phraseStructure.getPhraseStructureRoot(),rootID.toString());
+			writeNonTerminal(phraseStructure.getSymbolTables(), (NonTerminalNode)phraseStructure.getPhraseStructureRoot(),rootID.toString());
 			writer.write("        </nonterminals>\n");
 		} catch (IOException e) {
 			throw new DataFormatException("The TigerXML writer is not able to write. ", e);
 		}
 	}
 	
-	public void writeNonTerminal(NonTerminalNode nt, String id) throws MaltChainedException {
+	public void writeNonTerminal(SymbolTableHandler symbolTables, NonTerminalNode nt, String id) throws MaltChainedException {
 		try {
 			writer.write("          <nt");
 			writer.write(" id=\"");writer.write(id);writer.write("\" ");
 			for (ColumnDescription column : dataFormatInstance.getPhraseStructureNodeLabelColumnDescriptionSet()) {
-				if (nt.hasLabel(column.getSymbolTable())) {
+				if (nt.hasLabel(symbolTables.getSymbolTable(column.getName()))) {
 					writer.write(column.getName().toLowerCase());
 					writer.write("=");
 					writer.write("\"");
-					writer.write(Util.xmlEscape(nt.getLabelSymbol(column.getSymbolTable())));
+					writer.write(Util.xmlEscape(nt.getLabelSymbol(symbolTables.getSymbolTable(column.getName()))));
 					writer.write("\" ");
 				}
 			}
@@ -284,10 +286,10 @@ public class TigerXMLWriter implements SyntaxGraphWriter {
 				writer.write("            <edge ");
 
 				for (ColumnDescription column : dataFormatInstance.getPhraseStructureEdgeLabelColumnDescriptionSet()) {
-					if (child.hasParentEdgeLabel(column.getSymbolTable())) {
+					if (child.hasParentEdgeLabel(symbolTables.getSymbolTable(column.getName()))) {
 						writer.write(column.getName().toLowerCase());
 						writer.write("=\"");
-						writer.write(Util.xmlEscape(child.getParentEdgeLabelSymbol(column.getSymbolTable())));
+						writer.write(Util.xmlEscape(child.getParentEdgeLabelSymbol(symbolTables.getSymbolTable(column.getName()))));
 						writer.write("\" ");
 					}
 				}
@@ -299,7 +301,7 @@ public class TigerXMLWriter implements SyntaxGraphWriter {
 						tmpID.append(Integer.toString(child.getIndex()));
 						writer.write(" idref=\"");writer.write(tmpID.toString());writer.write("\"");
 					} else {
-						writer.write(" idref=\"");writer.write(child.getLabelSymbol(dataFormatInstance.getInputSymbolTables().get("ID")));writer.write("\"");
+						writer.write(" idref=\"");writer.write(child.getLabelSymbol(symbolTables.getSymbolTable("ID")));writer.write("\"");
 					}
 					
 				} else {

@@ -1,17 +1,19 @@
 package org.maltparser.parser.guide.instance;
 
-import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Formatter;
 
 import org.maltparser.core.exception.MaltChainedException;
+import org.maltparser.core.feature.FeatureModel;
 import org.maltparser.core.feature.FeatureVector;
 import org.maltparser.core.feature.function.FeatureFunction;
 import org.maltparser.core.feature.function.Modifiable;
 import org.maltparser.core.syntaxgraph.DependencyStructure;
 import org.maltparser.ml.LearningMethod;
+import org.maltparser.ml.lib.LibLinear;
+import org.maltparser.ml.lib.LibSvm;
 import org.maltparser.parser.guide.ClassifierGuide;
 import org.maltparser.parser.guide.GuideException;
 import org.maltparser.parser.guide.Model;
@@ -21,15 +23,15 @@ import org.maltparser.parser.history.action.SingleDecision;
 /**
 
 @author Johan Hall
-@since 1.0
 */
 public class AtomicModel implements InstanceModel {
-	private Model parent;
-	private String modelName;
-	private FeatureVector featureVector;
-	private int index;
+	public static final Class<?>[] argTypes = { org.maltparser.parser.guide.instance.InstanceModel.class, java.lang.Integer.class };
+	private final Model parent;
+	private final String modelName;
+//	private final FeatureVector featureVector;
+	private final int index;
+	private final LearningMethod method;
 	private int frequency = 0;
-	private LearningMethod method;
 
 	
 	/**
@@ -37,32 +39,55 @@ public class AtomicModel implements InstanceModel {
 	 * 
 	 * @param index the index of the atomic model (-1..n), where -1 is special value (used by a single model 
 	 * or the master divide model) and n is number of divide models.
-	 * @param features the feature vector used by the atomic model.
 	 * @param parent the parent guide model.
 	 * @throws MaltChainedException
 	 */
-	public AtomicModel(int index, FeatureVector features, Model parent) throws MaltChainedException {
-		setParent(parent);
-		setIndex(index);
+	public AtomicModel(int index, Model parent) throws MaltChainedException {
+		this.parent = parent;
+		this.index = index;
 		if (index == -1) {
-			setModelName(parent.getModelName()+".");
+			this.modelName = parent.getModelName()+".";
 		} else {
-			setModelName(parent.getModelName()+"."+new Formatter().format("%03d", index)+".");
+			this.modelName = parent.getModelName()+"."+new Formatter().format("%03d", index)+".";
 		}
-		setFeatures(features);
-		setFrequency(0);
-		initMethod();
-		if (getGuide().getGuideMode() == ClassifierGuide.GuideMode.BATCH && index == -1 && getGuide().getConfiguration().getConfigurationDir().getInfoFileWriter() != null) {
-			try {
-				getGuide().getConfiguration().getConfigurationDir().getInfoFileWriter().write(method.toString());
-				getGuide().getConfiguration().getConfigurationDir().getInfoFileWriter().flush();
-			} catch (IOException e) {
-				throw new GuideException("Could not write learner settings to the information file. ", e);
+//		this.featureVector = featureVector;
+		this.frequency = 0;
+		Integer learnerMode = null;
+		if (getGuide().getGuideMode() == ClassifierGuide.GuideMode.CLASSIFY) {
+			learnerMode = LearningMethod.CLASSIFY;
+		} else if (getGuide().getGuideMode() == ClassifierGuide.GuideMode.BATCH) {
+			learnerMode = LearningMethod.BATCH;
+		}
+		
+		// start init learning method
+		Class<?> clazz = (Class<?>)getGuide().getConfiguration().getOptionValue("guide", "learner");
+		if (clazz == org.maltparser.ml.lib.LibSvm.class) {
+			this.method = new LibSvm(this, learnerMode);
+		} else if (clazz == org.maltparser.ml.lib.LibLinear.class) {
+			this.method = new LibLinear(this, learnerMode);
+		} else {
+			Object[] arguments = {this, learnerMode};
+			try {	
+				Constructor<?> constructor = clazz.getConstructor(argTypes);
+				this.method = (LearningMethod)constructor.newInstance(arguments);
+			} catch (NoSuchMethodException e) {
+				throw new GuideException("The learner class '"+clazz.getName()+"' cannot be initialized. ", e);
+			} catch (InstantiationException e) {
+				throw new GuideException("The learner class '"+clazz.getName()+"' cannot be initialized. ", e);
+			} catch (IllegalAccessException e) {
+				throw new GuideException("The learner class '"+clazz.getName()+"' cannot be initialized. ", e);
+			} catch (InvocationTargetException e) {
+				throw new GuideException("The learner class '"+clazz.getName()+"' cannot be initialized. ", e);
 			}
+		}
+		// end init learning method
+		
+		if (learnerMode == LearningMethod.BATCH && index == -1 && getGuide().getConfiguration() != null) {
+			getGuide().getConfiguration().writeInfoToConfigFile(method.toString());
 		}
 	}
 	
-	public void addInstance(SingleDecision decision) throws MaltChainedException {
+	public void addInstance(FeatureVector featureVector, SingleDecision decision) throws MaltChainedException {
 		try {
 			method.addInstance(decision, featureVector);
 		} catch (NullPointerException e) {
@@ -71,7 +96,7 @@ public class AtomicModel implements InstanceModel {
 	}
 
 	
-	public void noMoreInstances() throws MaltChainedException {
+	public void noMoreInstances(FeatureModel featureModel) throws MaltChainedException {
 		try {
 			method.noMoreInstances();
 		} catch (NullPointerException e) {
@@ -87,22 +112,17 @@ public class AtomicModel implements InstanceModel {
 		}
 	}
 
-	public boolean predict(SingleDecision decision) throws MaltChainedException {
+	public boolean predict(FeatureVector featureVector, SingleDecision decision) throws MaltChainedException {
 		try {
-//			if (getGuide().getGuideMode() == ClassifierGuide.GuideMode.BATCH) {
-//				throw new GuideException("Cannot predict during batch training. ");
-//			}
 			return method.predict(featureVector, decision);
 		} catch (NullPointerException e) {
 			throw new GuideException("The learner cannot be found. ", e);
 		}
 	}
 
-	public FeatureVector predictExtract(SingleDecision decision) throws MaltChainedException {
+	public FeatureVector predictExtract(FeatureVector featureVector, SingleDecision decision) throws MaltChainedException {
 		try {
-//			if (getGuide().getGuideMode() == ClassifierGuide.GuideMode.BATCH) {
-//				throw new GuideException("Cannot predict during batch training. ");
-//			}
+
 			if (method.predict(featureVector, decision)) {
 				return featureVector;
 			}
@@ -112,17 +132,14 @@ public class AtomicModel implements InstanceModel {
 		}
 	}
 	
-	public FeatureVector extract() throws MaltChainedException {
+	public FeatureVector extract(FeatureVector featureVector) throws MaltChainedException {
 		return featureVector;
 	}
 	
 	public void terminate() throws MaltChainedException {
 		if (method != null) {
 			method.terminate();
-			method = null;
 		}
-		featureVector = null;
-		parent = null;
 	}
 	
 	/**
@@ -147,7 +164,6 @@ public class AtomicModel implements InstanceModel {
 		((Modifiable)divideFeature).setFeatureValue(index);
 		method.moveAllInstances(model.getMethod(), divideFeature, divideFeatureIndexVector);
 		method.terminate();
-		method = null;
 	}
 	
 	/**
@@ -157,48 +173,14 @@ public class AtomicModel implements InstanceModel {
 	 */
 	public void train() throws MaltChainedException {
 		try {
-			method.train(featureVector);
+			method.train();
 			method.terminate();
-			method = null;
-			
 		} catch (NullPointerException e) {	
 			throw new GuideException("The learner cannot be found. ", e);
 		}
 		
 
 	}
-	
-	/**
-	 * Initialize the learning method according to the option --learner-method.
-	 * 
-	 * @throws MaltChainedException
-	 */
-	public void initMethod() throws MaltChainedException {
-		Class<?> clazz = (Class<?>)getGuide().getConfiguration().getOptionValue("guide", "learner");
-		Class<?>[] argTypes = { org.maltparser.parser.guide.instance.InstanceModel.class, java.lang.Integer.class };
-		Object[] arguments = new Object[2];
-		arguments[0] = this;
-		if (getGuide().getGuideMode() == ClassifierGuide.GuideMode.CLASSIFY) {
-			arguments[1] = LearningMethod.CLASSIFY;
-		} else if (getGuide().getGuideMode() == ClassifierGuide.GuideMode.BATCH) {
-			arguments[1] = LearningMethod.BATCH;
-		} 
-
-		try {	
-			Constructor<?> constructor = clazz.getConstructor(argTypes);
-			this.method = (LearningMethod)constructor.newInstance(arguments);
-		} catch (NoSuchMethodException e) {
-			throw new GuideException("The learner class '"+clazz.getName()+"' cannot be initialized. ", e);
-		} catch (InstantiationException e) {
-			throw new GuideException("The learner class '"+clazz.getName()+"' cannot be initialized. ", e);
-		} catch (IllegalAccessException e) {
-			throw new GuideException("The learner class '"+clazz.getName()+"' cannot be initialized. ", e);
-		} catch (InvocationTargetException e) {
-			throw new GuideException("The learner class '"+clazz.getName()+"' cannot be initialized. ", e);
-		}
-	}
-	
-	
 	
 	/**
 	 * Returns the parent guide model
@@ -212,26 +194,9 @@ public class AtomicModel implements InstanceModel {
 		return parent;
 	}
 
-	/**
-	 * Sets the parent guide model
-	 * 
-	 * @param parent the parent guide model
-	 */
-	protected void setParent(Model parent) {
-		this.parent = parent;
-	}
 
 	public String getModelName() {
 		return modelName;
-	}
-
-	/**
-	 * Sets the name of the atomic model
-	 * 
-	 * @param modelName the name of the atomic model
-	 */
-	protected void setModelName(String modelName) {
-		this.modelName = modelName;
 	}
 
 	/**
@@ -239,18 +204,9 @@ public class AtomicModel implements InstanceModel {
 	 * 
 	 * @return a feature vector object
 	 */
-	public FeatureVector getFeatures() {
-		return featureVector;
-	}
-
-	/**
-	 * Sets the feature vector used by the atomic model.
-	 * 
-	 * @param features a feature vector object
-	 */
-	protected void setFeatures(FeatureVector features) {
-		this.featureVector = features;
-	}
+//	public FeatureVector getFeatures() {
+//		return featureVector;
+//	}
 
 	public ClassifierGuide getGuide() {
 		return parent.getGuide();
@@ -263,15 +219,6 @@ public class AtomicModel implements InstanceModel {
 	 */
 	public int getIndex() {
 		return index;
-	}
-
-	/**
-	 * Sets the index of the model (-1..n), where -1 is a special value.
-	 * 
-	 * @param index index value (-1..n) of the atomic model
-	 */
-	protected void setIndex(int index) {
-		this.index = index;
 	}
 
 	/**

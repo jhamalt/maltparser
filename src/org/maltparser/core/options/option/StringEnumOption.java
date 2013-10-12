@@ -1,7 +1,10 @@
 package org.maltparser.core.options.option;
 
+import java.util.Collections;
 import java.util.Formatter;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.maltparser.core.exception.MaltChainedException;
@@ -16,10 +19,10 @@ import org.maltparser.core.options.OptionGroup;
 **/
 public class StringEnumOption extends Option{
 	private String defaultValue;
-	private TreeSet<String> legalValues;
-	private HashMap<String,String> legalValueDesc;
-	private HashMap<String,String> valueMapto;
-	private HashMap<String, String> maptoValue;
+	private final SortedSet<String> legalValues;
+	private final Map<String,String> legalValueDesc;
+	private final Map<String,String> valueMapto;
+	private final Map<String, String> maptoValue;
 	
 	/**
 	 * Creates a stringenum type option description
@@ -37,10 +40,10 @@ public class StringEnumOption extends Option{
 						String flag, 
 						String usage) throws MaltChainedException {
 		super(group, name, shortDescription, flag, usage);
-		legalValues = new TreeSet<String>();
-		legalValueDesc = new HashMap<String,String>();
-		valueMapto = new HashMap<String,String>();
-		maptoValue = new HashMap<String, String>();
+		legalValues = Collections.synchronizedSortedSet(new TreeSet<String>());
+		legalValueDesc = Collections.synchronizedMap(new HashMap<String,String>());
+		valueMapto = Collections.synchronizedMap(new HashMap<String,String>());
+		maptoValue = Collections.synchronizedMap(new HashMap<String, String>());
 	}
 
 	/* (non-Javadoc)

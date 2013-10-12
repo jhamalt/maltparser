@@ -1,7 +1,14 @@
 package org.maltparser.parser;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.OutputStreamWriter;
+import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Formatter;
 import java.util.regex.Pattern;
@@ -12,12 +19,15 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.maltparser.core.config.ConfigurationDir;
 import org.maltparser.core.config.ConfigurationException;
-import org.maltparser.core.config.ConfigurationRegistry;
 import org.maltparser.core.exception.MaltChainedException;
+import org.maltparser.core.feature.FeatureModelManager;
+import org.maltparser.core.feature.system.FeatureEngine;
 import org.maltparser.core.helper.SystemLogger;
 import org.maltparser.core.helper.URLFinder;
 import org.maltparser.core.io.dataformat.DataFormatInstance;
 import org.maltparser.core.options.OptionManager;
+import org.maltparser.core.plugin.PluginLoader;
+import org.maltparser.core.propagation.PropagationException;
 import org.maltparser.core.propagation.PropagationManager;
 import org.maltparser.core.symbol.SymbolTableHandler;
 import org.maltparser.core.syntaxgraph.DependencyStructure;
@@ -28,42 +38,42 @@ import org.maltparser.parser.guide.ClassifierGuide;
  *
  */
 public class SingleMalt implements DependencyParserConfig {
+	public final static Class<?>[] paramTypes = { org.maltparser.parser.DependencyParserConfig.class };
 	public static final int LEARN = 0;
 	public static final int PARSE = 1;
 	protected ConfigurationDir configDir;
 	protected Logger configLogger;
 	protected int optionContainerIndex;
-	protected Algorithm parsingAlgorithm = null;
+	protected ParsingAlgorithm parsingAlgorithm = null;
 	protected int mode;
-	protected ConfigurationRegistry registry;
 	protected SymbolTableHandler symbolTableHandler;
 	protected DataFormatInstance dataFormatInstance;
+	protected FeatureModelManager featureModelManager;
 	protected long startTime;
 	protected long endTime;
 	protected int nIterations = 0;
 	protected PropagationManager propagationManager;
 	private Parser parser;
 	private Trainer trainer;
+	private AbstractParserFactory parserFactory;
 	
-	public void initialize(int containerIndex, DataFormatInstance dataFormatInstance, ConfigurationDir configDir, int mode) throws MaltChainedException {
-
+	
+	public void initialize(int containerIndex, DataFormatInstance dataFormatInstance, SymbolTableHandler symbolTableHandler, ConfigurationDir configDir, int mode) throws MaltChainedException {
 		this.optionContainerIndex = containerIndex;
 		this.mode = mode;
 		setConfigurationDir(configDir);
 		startTime = System.currentTimeMillis();
 		configLogger = initConfigLogger(getOptionValue("config", "logfile").toString(), getOptionValue("config", "logging").toString());
-		registry = new ConfigurationRegistry();
 		this.dataFormatInstance = dataFormatInstance;
-		symbolTableHandler = dataFormatInstance.getSymbolTables();
-
+		this.symbolTableHandler = symbolTableHandler;
+		this.parserFactory = makeParserFactory();
 		if (mode == SingleMalt.LEARN) {
 			checkOptionDependency();
 		}
-		registry.put(org.maltparser.core.symbol.SymbolTableHandler.class, getSymbolTables());
-		registry.put(org.maltparser.core.io.dataformat.DataFormatInstance.class, dataFormatInstance);
-//		registry.put(org.maltparser.parser.DependencyParserConfig.class, this);
 		initPropagation();
+		initFeatureSystem();
 		initParsingAlgorithm(); 
+		
 		if (configLogger.isInfoEnabled()) {
 			URL inputFormatURL = configDir.getInputFormatURL(); 
 			URL outputFormatURL = configDir.getOutputFormatURL();
@@ -98,13 +108,16 @@ public class SingleMalt implements DependencyParserConfig {
 		if (propagationSpecFileName == null || propagationSpecFileName.length() == 0) {
 			return;
 		}
-		propagationManager = new PropagationManager(configDir);
+		propagationManager = new PropagationManager();
 		if (mode == SingleMalt.LEARN) {
 			propagationSpecFileName = configDir.copyToConfig(propagationSpecFileName);
 			OptionManager.instance().overloadOptionValue(optionContainerIndex, "singlemalt", "propagation", propagationSpecFileName);
 		}
-		getConfigLogger().info("  Propagation          : " + propagationSpecFileName+"\n");
-		propagationManager.loadSpecification(propagationSpecFileName);
+		if (isLoggerInfoEnabled()) {
+			logInfoMessage("  Propagation          : " + propagationSpecFileName+"\n");
+		}
+		propagationManager.loadSpecification(findURL(propagationSpecFileName));
+		propagationManager.createPropagations(dataFormatInstance, symbolTableHandler);
 	}
 	
 	/**
@@ -113,15 +126,65 @@ public class SingleMalt implements DependencyParserConfig {
 	 * @throws MaltChainedException
 	 */
 	protected void initParsingAlgorithm() throws MaltChainedException {
+		boolean diagnostics = (Boolean)getOptionValue("singlemalt", "diagnostics");
 		if (mode == LEARN) {
-			parsingAlgorithm = trainer = new BatchTrainer(this);
+			if (!diagnostics) {
+				parsingAlgorithm = trainer = new BatchTrainer(this, symbolTableHandler);
+			} else {
+				parsingAlgorithm = trainer = new BatchTrainerWithDiagnostics(this, symbolTableHandler);
+			}
 		} else if (mode == PARSE) {
-			parsingAlgorithm = parser = new DeterministicParser(this);
+			if (!diagnostics) {
+				parsingAlgorithm = parser = new DeterministicParser(this, symbolTableHandler);
+			} else {
+				parsingAlgorithm = parser = new DeterministicParserWithDiagnostics(this, symbolTableHandler);
+			}
 		}
 	}
 	
-	public void addRegistry(Class<?> clazz, Object o) {
-		registry.put(clazz, o);
+	protected void initFeatureSystem() throws MaltChainedException {
+		final FeatureEngine system = new FeatureEngine();
+		system.load("/appdata/features/ParserFeatureSystem.xml");
+		system.load(PluginLoader.instance());
+		featureModelManager = new FeatureModelManager(system);
+		String featureModelFileName = getOptionValue("guide", "features").toString().trim();
+		if (featureModelFileName.endsWith(".par")) {
+			String markingStrategy = getOptionValue("pproj", "marking_strategy").toString().trim();
+			String coveredRoot = getOptionValue("pproj", "covered_root").toString().trim();
+			featureModelManager.loadParSpecification(findURL(featureModelFileName), markingStrategy, coveredRoot);
+		} else {
+			featureModelManager.loadSpecification(findURL(featureModelFileName));
+		}
+	}
+	
+	/**
+	 * Creates a parser factory specified by the --singlemalt-parsing_algorithm option
+	 * 
+	 * @return a parser factory
+	 * @throws MaltChainedException
+	 */
+	private AbstractParserFactory makeParserFactory() throws MaltChainedException {
+		Class<?> clazz = (Class<?>)getOptionValue("singlemalt", "parsing_algorithm");
+		try {	
+			Object[] arguments = { this };
+			return (AbstractParserFactory)clazz.getConstructor(paramTypes).newInstance(arguments);
+		} catch (NoSuchMethodException e) {
+			throw new ConfigurationException("The parser factory '"+clazz.getName()+"' cannot be initialized. ", e);
+		} catch (InstantiationException e) {
+			throw new ConfigurationException("The parser factory '"+clazz.getName()+"' cannot be initialized. ", e);
+		} catch (IllegalAccessException e) {
+			throw new ConfigurationException("The parser factory '"+clazz.getName()+"' cannot be initialized. ", e);
+		} catch (InvocationTargetException e) {
+			throw new ConfigurationException("The parser factory '"+clazz.getName()+"' cannot be initialized. ", e);			
+		}
+	}
+	
+	public AbstractParserFactory getParserFactory() {
+		return parserFactory;
+	}
+	
+	public FeatureModelManager getFeatureModelManager() {
+		return featureModelManager;
 	}
 	
 	public void process(Object[] arguments) throws MaltChainedException {
@@ -220,6 +283,35 @@ public class SingleMalt implements DependencyParserConfig {
 		return configLogger;
 	}
 	
+	public boolean isLoggerInfoEnabled() {
+		return configLogger != null && configLogger.isInfoEnabled();
+	}
+	public boolean isLoggerDebugEnabled() {
+		return configLogger != null && configLogger.isDebugEnabled();
+	}
+	public void logErrorMessage(String message) {
+		configLogger.error(message);
+	}
+	public void logInfoMessage(String message) {
+		configLogger.info(message);
+	}
+	public void logInfoMessage(char character) {
+		configLogger.info(character);
+	}
+	public void logDebugMessage(String message) {
+		configLogger.debug(message);
+	}
+	
+	public void writeInfoToConfigFile(String message) throws MaltChainedException {
+		try {
+			configDir.getInfoFileWriter().write(message);
+			configDir.getInfoFileWriter().flush();
+		} catch (IOException e) {
+			throw new ConfigurationException("Could not write to the configuration information file. ", e);
+	
+		}
+	}
+	
 	public Logger getConfigLogger() {
 		return configLogger;
 	}
@@ -236,16 +328,67 @@ public class SingleMalt implements DependencyParserConfig {
 		this.configDir = configDir;
 	}
 	
-	public int getMode() {
-		return mode;
+	public OutputStreamWriter getOutputStreamWriter(String fileName) throws MaltChainedException {
+		return configDir.getOutputStreamWriter(fileName);
 	}
 	
-	public ConfigurationRegistry getRegistry() {
-		return registry;
+	public OutputStreamWriter getAppendOutputStreamWriter(String fileName) throws MaltChainedException {
+		return configDir.getAppendOutputStreamWriter(fileName);
 	}
-
-	public void setRegistry(ConfigurationRegistry registry) {
-		this.registry = registry;
+	
+	public InputStreamReader getInputStreamReader(String fileName) throws MaltChainedException {
+		return configDir.getInputStreamReader(fileName);
+	}
+	
+	public InputStream getInputStreamFromConfigFileEntry(String fileName) throws MaltChainedException {
+		return configDir.getInputStreamFromConfigFileEntry(fileName);
+	}
+	
+	public URL getConfigFileEntryURL(String fileName) throws MaltChainedException {
+		return configDir.getConfigFileEntryURL(fileName);
+	}
+	
+	public File getFile(String fileName) throws MaltChainedException {
+		return configDir.getFile(fileName);
+	}
+	
+	public Object getConfigFileEntryObject(String fileName) throws MaltChainedException {
+		Object object = null;
+		try {
+		    ObjectInputStream input = new ObjectInputStream(getInputStreamFromConfigFileEntry(fileName));
+		    try {
+		    	object = input.readObject();
+			} catch (ClassNotFoundException e) {
+				throw new ConfigurationException("Could not load object '"+fileName+"' from mco-file", e);
+			} catch (Exception e) {
+				throw new ConfigurationException("Could not load object '"+fileName+"' from mco-file", e);
+		    } finally {
+		    	input.close();
+		    }
+		} catch (IOException e) {
+			throw new ConfigurationException("Could not load object from '"+fileName+"' in mco-file", e);
+		}
+	    return object;
+	}
+	
+	public String getConfigFileEntryString(String fileName) throws MaltChainedException {
+		StringBuilder sb = new StringBuilder();
+		try {
+			final BufferedReader in = new BufferedReader(new InputStreamReader(getInputStreamFromConfigFileEntry(fileName), "UTF-8"));
+			String line;
+			
+			while((line = in.readLine()) != null) {
+				 sb.append(line);
+				 sb.append('\n');
+			}
+		} catch (IOException e) {
+			throw new ConfigurationException("Could not load string from '"+fileName+"' in mco-file", e);
+		}
+	    return sb.toString();
+	}
+	
+	public int getMode() {
+		return mode;
 	}
 
 	public Object getOptionValue(String optiongroup, String optionname) throws MaltChainedException {
@@ -270,11 +413,15 @@ public class SingleMalt implements DependencyParserConfig {
 		return symbolTableHandler;
 	}
 	
+	public DataFormatInstance getDataFormatInstance() {
+		return dataFormatInstance;
+	}
+	
 	public PropagationManager getPropagationManager() {
 		return propagationManager;
 	}
-
-	public Algorithm getAlgorithm() {
+	
+	public ParsingAlgorithm getAlgorithm() {
 		return parsingAlgorithm;
 	}
 	/**
@@ -366,5 +513,20 @@ public class SingleMalt implements DependencyParserConfig {
 		} catch (IOException e) {
 			throw new ConfigurationException("Could not write to the configuration information file. ", e);
 		}
+	}
+	
+	private URL findURL(String propagationSpecFileName) throws MaltChainedException {
+		URL url = null;
+		File specFile = configDir.getFile(propagationSpecFileName);
+		if (specFile.exists()) {
+			try {
+				url = new URL("file:///"+specFile.getAbsolutePath());
+			} catch (MalformedURLException e) {
+				throw new PropagationException("Malformed URL: "+specFile, e);
+			}
+		} else {
+			url = configDir.getConfigFileEntryURL(propagationSpecFileName);
+		}
+		return url;
 	}
 }

@@ -3,7 +3,7 @@ package org.maltparser.examples;
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.symbol.SymbolTable;
 import org.maltparser.core.symbol.SymbolTableHandler;
-import org.maltparser.core.symbol.trie.TrieSymbolTableHandler;
+import org.maltparser.core.symbol.hash.HashSymbolTableHandler;
 import org.maltparser.core.syntaxgraph.PhraseStructureGraph;
 import org.maltparser.core.syntaxgraph.edge.Edge;
 import org.maltparser.core.syntaxgraph.node.PhraseStructureNode;
@@ -19,7 +19,7 @@ public class CreatePhraseStructureGraph {
 	
 	public PhraseStructureGraph run() throws MaltChainedException {
 		// Creates a symbol table handler
-		SymbolTableHandler symbolTables = new TrieSymbolTableHandler(TrieSymbolTableHandler.ADD_NEW_TO_TRIE);
+		SymbolTableHandler symbolTables = new HashSymbolTableHandler();
 		
 		// Adds three symbol tables (FORM, POSTAG, CAT, EDGELABEL)
 		SymbolTable formTable = symbolTables.addSymbolTable("FORM");

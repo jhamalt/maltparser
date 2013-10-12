@@ -15,6 +15,7 @@ import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.io.dataformat.ColumnDescription;
 import org.maltparser.core.io.dataformat.DataFormatException;
 import org.maltparser.core.io.dataformat.DataFormatInstance;
+import org.maltparser.core.symbol.SymbolTableHandler;
 import org.maltparser.core.syntaxgraph.MappablePhraseStructureGraph;
 import org.maltparser.core.syntaxgraph.PhraseStructure;
 import org.maltparser.core.syntaxgraph.TokenStructure;
@@ -217,6 +218,7 @@ public class BracketReader implements SyntaxGraphReader {
 	}
 
 	private void extract(PhraseStructure phraseStructure, int begin, int end,  PhraseStructureNode parent) throws MaltChainedException {
+		SymbolTableHandler symbolTables = phraseStructure.getSymbolTables();
 		int index = -1;
 		for (int i = begin; i < end; i++) {
 			if (input.charAt(i) == STARTING_BRACKET
@@ -262,8 +264,9 @@ public class BracketReader implements SyntaxGraphReader {
 					} else if (start == begin) {
 						if ((noneNode && input.charAt(i) != EDGELABEL_SEPARATOR) || !noneNode) {
 							if (inputColumnsIterator.hasNext()) { 
-								t.addLabel(inputColumns.get(inputColumnsIterator.next()).getSymbolTable(), 
-										
+								
+								t.addLabel(symbolTables.getSymbolTable(inputColumns.get(inputColumnsIterator.next()).getName()), 
+												
 										// Start BracketProgLangReader
 										decodeString(
 										// end BracketProgLangReader
@@ -280,7 +283,7 @@ public class BracketReader implements SyntaxGraphReader {
 						}
 					} else if (edgeLabels && e != null) {
 						if (edgeLabelsColumnsIterator.hasNext()) { 
-							e.addLabel(edgeLabelColumns.get(edgeLabelsColumnsIterator.next()).getSymbolTable(), (i == end - 1)?input.substring(start,end):input.substring(start, i));
+							e.addLabel(symbolTables.getSymbolTable(edgeLabelColumns.get(edgeLabelsColumnsIterator.next()).getName()), (i == end - 1)?input.substring(start,end):input.substring(start, i));
 						}
 						start = i + 1;
 						if (input.charAt(i) == INPUT_SEPARATOR
@@ -298,7 +301,7 @@ public class BracketReader implements SyntaxGraphReader {
 					) {	
 					} else {
 						if (inputColumnsIterator.hasNext()) { 
-							t.addLabel(inputColumns.get(inputColumnsIterator.next()).getSymbolTable(), (i == end - 1)?input.substring(start,end):input.substring(start, i));
+							t.addLabel(symbolTables.getSymbolTable(inputColumns.get(inputColumnsIterator.next()).getName()), (i == end - 1)?input.substring(start,end):input.substring(start, i));
 						}
 						start = i + 1;
 					}
@@ -328,12 +331,12 @@ public class BracketReader implements SyntaxGraphReader {
 				if (input.charAt(i) == EDGELABEL_SEPARATOR || i == index - 1) {
 					if (start == newbegin) {
 						if (phraseLabelColumnsIterator.hasNext()) { 
-							nt.addLabel(phraseLabelColumns.get(phraseLabelColumnsIterator.next()).getSymbolTable(), (i == index - 1)?input.substring(start,index):input.substring(start, i));
+							nt.addLabel(symbolTables.getSymbolTable(phraseLabelColumns.get(phraseLabelColumnsIterator.next()).getName()), (i == index - 1)?input.substring(start,index):input.substring(start, i));
 						}
 						start = i + 1;
 					} else if (e != null) {
 						if (edgeLabelsColumnsIterator.hasNext()) { 
-							e.addLabel(edgeLabelColumns.get(edgeLabelsColumnsIterator.next()).getSymbolTable(), (i == index - 1)?input.substring(start,index):input.substring(start, i));
+							e.addLabel(symbolTables.getSymbolTable(edgeLabelColumns.get(edgeLabelsColumnsIterator.next()).getName()), (i == index - 1)?input.substring(start,index):input.substring(start, i));
 						}
 						start = i + 1;
 					}

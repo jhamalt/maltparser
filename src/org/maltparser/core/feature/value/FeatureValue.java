@@ -6,7 +6,6 @@ import org.maltparser.core.feature.function.Function;
  *  
  *
  * @author Johan Hall
- * @since 1.0
 **/
 public abstract class FeatureValue extends FunctionValue {
 	protected boolean nullValue;

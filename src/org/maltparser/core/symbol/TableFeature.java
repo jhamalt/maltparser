@@ -8,14 +8,15 @@ import org.maltparser.core.feature.value.SingleFeatureValue;
 import org.maltparser.core.symbol.nullvalue.NullValues.NullValueId;
 
 public abstract class TableFeature implements FeatureFunction, Modifiable {
-	protected SingleFeatureValue featureValue;
+	protected final SingleFeatureValue featureValue;
 	protected SymbolTable table;
 	protected String tableName;
 	protected SymbolTableHandler tableHandler;
 	protected int type;
 	
-	public TableFeature() throws MaltChainedException {
-		featureValue = new SingleFeatureValue(this);
+	public TableFeature(SymbolTableHandler tableHandler) throws MaltChainedException {
+		this.tableHandler = tableHandler;
+		this.featureValue = new SingleFeatureValue(this);
 	}
 	
 	public abstract void update() throws MaltChainedException;
@@ -36,14 +37,6 @@ public abstract class TableFeature implements FeatureFunction, Modifiable {
 
 	public void setSymbolTable(SymbolTable table) {
 		this.table = table;
-	}
-	
-	public void updateCardinality() {
-//		if (table != null) {
-//			featureValue.setCardinality(table.getValueCounter());
-//		} else {
-//			featureValue.setCardinality(0);
-//		}
 	}
 	
 	public void setFeatureValue(int indexCode) throws MaltChainedException {
@@ -80,10 +73,6 @@ public abstract class TableFeature implements FeatureFunction, Modifiable {
 	
 	public SymbolTableHandler getTableHandler() {
 		return tableHandler;
-	}
-
-	public void setTableHandler(SymbolTableHandler tableHandler) {
-		this.tableHandler = tableHandler;
 	}
 	
 	public boolean equals(Object obj) {

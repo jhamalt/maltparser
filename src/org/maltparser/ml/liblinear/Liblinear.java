@@ -13,12 +13,12 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.jar.JarEntry;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -31,6 +31,8 @@ import de.bwaldvogel.liblinear.SolverType;
 
 
 
+import org.maltparser.core.config.Configuration;
+import org.maltparser.core.config.ConfigurationException;
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.feature.FeatureVector;
 import org.maltparser.core.feature.function.FeatureFunction;
@@ -211,10 +213,8 @@ public class Liblinear implements LearningMethod {
 	/* (non-Javadoc)
 	 * @see org.maltparser.ml.LearningMethod#train(org.maltparser.parser.guide.feature.FeatureVector)
 	 */
-	public void train(FeatureVector featureVector) throws MaltChainedException {
-		if (featureVector == null) {
-			throw new LiblinearException("The feature vector cannot be found. ");
-		} else if (owner == null) {
+	public void train() throws MaltChainedException {
+		 if (owner == null) {
 			throw new LiblinearException("The parent guide model cannot be found. ");
 		}
 //		cardinalities = getCardinalities(featureVector);
@@ -226,9 +226,9 @@ public class Liblinear implements LearningMethod {
 				} else {
 //					problem = readLibLinearProblem(getInstanceInputStreamReader(".ins"), cardinalities);
 				}
-				
-				if (owner.getGuide().getConfiguration().getConfigLogger().isInfoEnabled()) {
-					owner.getGuide().getConfiguration().getConfigLogger().info("Creating Liblinear model "+getFile(".mod").getName()+"\n");
+				Configuration config = owner.getGuide().getConfiguration();
+				if (config.isLoggerInfoEnabled()) {
+					config.logInfoMessage("Creating Liblinear model "+getFile(".mod").getName()+"\n");
 				}
 				final PrintStream out = System.out;
 				final PrintStream err = System.err;
@@ -250,7 +250,7 @@ public class Liblinear implements LearningMethod {
 				throw new LiblinearException("The Liblinear learner cannot save the model file '"+getFile(".mod").getAbsolutePath()+"'. ", e);
 			}
 		} else {
-			trainExternal(featureVector);
+			trainExternal();
 		}
 		
 		if (featurePruning) {
@@ -264,10 +264,13 @@ public class Liblinear implements LearningMethod {
 		}
 	}
 	
-	private void trainExternal(FeatureVector featureVector) throws MaltChainedException {
+	private void trainExternal() throws MaltChainedException {
 		try {		
 //			maltSVMFormat2OriginalSVMFormat(getInstanceInputStreamReader(".ins"), getInstanceOutputStreamWriter(".ins.tmp"), cardinalities);
-			owner.getGuide().getConfiguration().getConfigLogger().info("Creating Liblinear model (external) "+getFile(".mod").getName());
+			Configuration config = owner.getGuide().getConfiguration();
+			if (config.isLoggerInfoEnabled()) {
+				config.logInfoMessage("Creating Liblinear model (external) "+getFile(".mod").getName());
+			}
 
 			final String[] params = getLibLinearParamStringArray();
 			String[] arrayCommands = new String[params.length+3];
@@ -280,7 +283,7 @@ public class Liblinear implements LearningMethod {
 			arrayCommands[i++] = getFile(".mod").getAbsolutePath();
 			
 	        if (verbosity == Verbostity.ALL) {
-	        	owner.getGuide().getConfiguration().getConfigLogger().info('\n');
+	        	config.logInfoMessage('\n');
 	        }
 			final Process child = Runtime.getRuntime().exec(arrayCommands);
 	        final InputStream in = child.getInputStream();
@@ -288,16 +291,16 @@ public class Liblinear implements LearningMethod {
 	        int c;
 	        while ((c = in.read()) != -1){
 	        	if (verbosity == Verbostity.ALL) {
-	        		owner.getGuide().getConfiguration().getConfigLogger().info((char)c);
+	        		config.logInfoMessage((char)c);
 	        	}
 	        }
 	        while ((c = err.read()) != -1){
 	        	if (verbosity == Verbostity.ALL || verbosity == Verbostity.ERROR) {
-	        		owner.getGuide().getConfiguration().getConfigLogger().info((char)c);
+	        		config.logInfoMessage((char)c);
 	        	}
 	        }
             if (child.waitFor() != 0) {
-            	owner.getGuide().getConfiguration().getConfigLogger().info(" FAILED ("+child.exitValue()+")");
+            	config.logErrorMessage(" FAILED ("+child.exitValue()+")");
             }
 	        in.close();
 	        err.close();
@@ -305,7 +308,9 @@ public class Liblinear implements LearningMethod {
 				getFile(".ins").delete();
 				getFile(".ins.tmp").delete();
 	        }
-	        owner.getGuide().getConfiguration().getConfigLogger().info('\n');
+	        if (config.isLoggerInfoEnabled()) {
+	        	config.logInfoMessage('\n');
+	        }
 		} catch (InterruptedException e) {
 			 throw new LiblinearException("Liblinear is interrupted. ", e);
 		} catch (IllegalArgumentException e) {
@@ -642,29 +647,32 @@ public class Liblinear implements LearningMethod {
 	}
 	
 	protected OutputStreamWriter getInstanceOutputStreamWriter(String suffix) throws MaltChainedException {
-		return getConfiguration().getConfigurationDir().getAppendOutputStreamWriter(owner.getModelName()+getLearningMethodName()+suffix);
+		return getConfiguration().getAppendOutputStreamWriter(owner.getModelName()+getLearningMethodName()+suffix);
 	}
 	
 	protected InputStreamReader getInstanceInputStreamReader(String suffix) throws MaltChainedException {
-		return getConfiguration().getConfigurationDir().getInputStreamReader(owner.getModelName()+getLearningMethodName()+suffix);
+		return getConfiguration().getInputStreamReader(owner.getModelName()+getLearningMethodName()+suffix);
 	}
 	
 	protected InputStreamReader getInstanceInputStreamReaderFromConfigFile(String suffix) throws MaltChainedException {
-		return getConfiguration().getConfigurationDir().getInputStreamReaderFromConfigFile(owner.getModelName()+getLearningMethodName()+suffix);
+		try {
+			return new InputStreamReader(getInputStreamFromConfigFileEntry(suffix), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			throw new ConfigurationException("The char set UTF-8 is not supported. ", e);
+		}
 	}
 	
 	protected InputStream getInputStreamFromConfigFileEntry(String suffix) throws MaltChainedException {
-		return getConfiguration().getConfigurationDir().getInputStreamFromConfigFileEntry(owner.getModelName()+getLearningMethodName()+suffix);
+		return getConfiguration().getInputStreamFromConfigFileEntry(owner.getModelName()+getLearningMethodName()+suffix);
 	}
-	
 	
 	protected File getFile(String suffix) throws MaltChainedException {
-		return getConfiguration().getConfigurationDir().getFile(owner.getModelName()+getLearningMethodName()+suffix);
+		return getConfiguration().getFile(owner.getModelName()+getLearningMethodName()+suffix);
 	}
 	
-	protected JarEntry getConfigFileEntry(String suffix) throws MaltChainedException {
-		return getConfiguration().getConfigurationDir().getConfigFileEntry(owner.getModelName()+getLearningMethodName()+suffix);
-	}
+//	protected JarEntry getConfigFileEntry(String suffix) throws MaltChainedException {
+//		return getConfiguration().getConfigurationDir().getConfigFileEntry(owner.getModelName()+getLearningMethodName()+suffix);
+//	}
 	
 	
 	public Problem readLibLinearProblemWithFeaturePruning(InputStreamReader isr) throws MaltChainedException {

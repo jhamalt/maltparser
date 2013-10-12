@@ -250,8 +250,6 @@ public class TwoPlanarArcEagerOracle extends Oracle {
 	/**
 	 * Gets the shortest pending link between (to or from) the input node and a node to the left of the top of the active stack,
 	 * such that the link can be established on the active plane.
-	 * @param config
-	 * @return
 	 */
 	private Edge getFirstPendingLinkOnActivePlane ( TwoPlanarConfig config , DependencyStructure gold ) throws MaltChainedException
 	{
@@ -262,8 +260,6 @@ public class TwoPlanarArcEagerOracle extends Oracle {
 	/**
 	 * Gets the shortest pending link between (to or from) the input node and a node to the left of the top of the inactive stack, 
 	 * such that the link can be established on the inactive plane.
-	 * @param config
-	 * @return
 	 */
 	private Edge getFirstPendingLinkOnInactivePlane ( TwoPlanarConfig config , DependencyStructure gold ) throws MaltChainedException
 	{
@@ -284,10 +280,6 @@ public class TwoPlanarArcEagerOracle extends Oracle {
 	/**
 	 * Gets the shortest pending link between (to or from) the input node and a node to the left of rightmostLimit, such that the link
 	 * can be established on the given plane.
-	 * @param config
-	 * @param plane
-	 * @param rightmostLimit
-	 * @return
 	 */
 	private Edge getFirstPendingLinkOnPlane ( TwoPlanarConfig config , DependencyStructure gold ,  int plane , int rightmostLimit )
 		throws MaltChainedException

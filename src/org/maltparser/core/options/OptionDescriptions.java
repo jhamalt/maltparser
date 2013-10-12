@@ -33,12 +33,11 @@ import org.xml.sax.SAXException;
 * @since 1.0
 **/
 public class OptionDescriptions {
-//	private static Logger logger = SystemLogger.logger();
-	private HashMap<String, OptionGroup> optionGroups;
-	private TreeSet<String> ambiguous;
-	private HashMap<String, Option> unambiguousOptionMap;
-	private HashMap<String, Option> ambiguousOptionMap;
-	private HashMap<String, Option> flagOptionMap;
+	private final HashMap<String, OptionGroup> optionGroups;
+	private final TreeSet<String> ambiguous;
+	private final HashMap<String, Option> unambiguousOptionMap;
+	private final HashMap<String, Option> ambiguousOptionMap;
+	private final HashMap<String, Option> flagOptionMap;
 
 	/**
 	 * Creates the Option Descriptions
@@ -135,7 +134,7 @@ public class OptionDescriptions {
 	 * @param groupname the name of the option group
 	 * @return a collection of option that are member of an option group 
 	 */
-	public Collection<Option> getOptionGroupList(String groupname) {
+	protected Collection<Option> getOptionGroupList(String groupname) {
 		return optionGroups.get(groupname).getOptionList();
 	}
 	
@@ -311,6 +310,10 @@ public class OptionDescriptions {
         		throw new OptionException("Illegal option type found in the setting file. ");
         	}
         }
+	}
+	
+	public boolean hasOptions() {
+		return optionGroups.size() > 0;
 	}
 	
 	/**

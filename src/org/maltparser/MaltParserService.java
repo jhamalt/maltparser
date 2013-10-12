@@ -10,7 +10,7 @@ import org.maltparser.core.io.dataformat.DataFormatSpecification;
 import org.maltparser.core.options.OptionManager;
 import org.maltparser.core.symbol.SymbolTable;
 import org.maltparser.core.symbol.SymbolTableHandler;
-import org.maltparser.core.symbol.trie.TrieSymbolTableHandler;
+import org.maltparser.core.symbol.hash.HashSymbolTableHandler;
 import org.maltparser.core.syntaxgraph.DependencyGraph;
 import org.maltparser.core.syntaxgraph.DependencyStructure;
 import org.maltparser.core.syntaxgraph.edge.Edge;
@@ -26,11 +26,13 @@ import org.maltparser.parser.SingleMalt;
  *  done by the third-party program.
  *  
  *  How to use MaltParserService, please see the examples provided in the directory 'examples/apiexamples/srcex'
- * 
+ *  
+ *  Note: This class is not thread-safe and it is not possible parser sentences concurrently with this interface. Please use 
+ *  the new interface org.maltparser.concurrent.ConcurrentMaltParserService to parse sentences in a multi threaded environment
+ *  
  * @author Johan Hall
  */
 public class MaltParserService {
-//	private URL urlMaltJar;
 	private Engine engine;
 	private FlowChartInstance flowChartInstance;
 	private DataFormatInstance dataFormatInstance;
@@ -56,7 +58,7 @@ public class MaltParserService {
 	 * @throws MaltChainedException
 	 */
 	public MaltParserService(int optionContainer) throws MaltChainedException {
-		setOptionContainer(optionContainer);
+		this.optionContainer = optionContainer;
 		initialize();
 	}
 	
@@ -69,10 +71,10 @@ public class MaltParserService {
 	 */
 	public MaltParserService(boolean optionFreeInitialization) throws MaltChainedException {
 		if (optionFreeInitialization == false) {
-			setOptionContainer(0);
+			this.optionContainer = 0;
 			initialize();
 		} else {
-			setOptionContainer(-1);
+			this.optionContainer = -1;
 		}
 	}
 	
@@ -160,13 +162,6 @@ public class MaltParserService {
 	/**
 	 * Converts an array of tokens to a dependency structure. 
 	 * 
-	 * Note that this method uses the same data format specification and symbol table as the parser engine. This can cause problem in multi-threaded 
-	 * environment. 
-	 * 
-	 * Please use (in multi-threaded environment)
-	 * toDependencyStructure(String[] tokens, DataFormatSpecification dataFormatSpecification)
-	 * or
-	 * toDependencyStructure(String[] tokens, String dataFormatFileName)
 	 * 
 	 * @param tokens an array of tokens
 	 * @return a dependency structure
@@ -228,7 +223,7 @@ public class MaltParserService {
 	 */
 	public DependencyStructure toDependencyStructure(String[] tokens, DataFormatSpecification dataFormatSpecification) throws MaltChainedException {
 		// Creates a symbol table handler
-		SymbolTableHandler symbolTables = new TrieSymbolTableHandler(TrieSymbolTableHandler.ADD_NEW_TO_TRIE);
+		SymbolTableHandler symbolTables = new HashSymbolTableHandler();
 		
 		// Initialize data format instance
 		DataFormatInstance dataFormatInstance = dataFormatSpecification.createDataFormatInstance(symbolTables, "none");
@@ -341,22 +336,4 @@ public class MaltParserService {
 	public int getOptionContainer() {
 		return optionContainer;
 	}
-
-	private void setOptionContainer(int optionContainer) {
-		this.optionContainer = optionContainer;
-	}
-
-	/**
-	 * Returns the path of malt.jar file
-	 * 
-	 * @return the path of malt.jar file
-	 */
-//	public static String getMaltJarPath() {
-//		if (SystemInfo.getMaltJarPath() != null) {
-//			return SystemInfo.getMaltJarPath().toString();
-//		}
-//		return null;
-//	}
-	
-	
 }

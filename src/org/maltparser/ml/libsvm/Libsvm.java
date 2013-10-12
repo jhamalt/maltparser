@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
@@ -24,6 +25,8 @@ import libsvm.svm_node;
 import libsvm.svm_parameter;
 import libsvm.svm_problem;
 
+import org.maltparser.core.config.Configuration;
+import org.maltparser.core.config.ConfigurationException;
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.feature.FeatureVector;
 import org.maltparser.core.feature.function.FeatureFunction;
@@ -170,10 +173,8 @@ public class Libsvm implements LearningMethod {
 	/* (non-Javadoc)
 	 * @see org.maltparser.ml.LearningMethod#train(org.maltparser.parser.guide.feature.FeatureVector)
 	 */
-	public void train(FeatureVector featureVector) throws MaltChainedException {
-		if (featureVector == null) {
-			throw new LibsvmException("The feature vector cannot be found. ");
-		} else if (owner == null) {
+	public void train() throws MaltChainedException {
+		if (owner == null) {
 			throw new LibsvmException("The parent guide model cannot be found. ");
 		}
 //		cardinalities = getCardinalities(featureVector);
@@ -212,10 +213,14 @@ public class Libsvm implements LearningMethod {
 	
 	
 
-	private void trainExternal(FeatureVector featureVector) throws MaltChainedException {
+	private void trainExternal() throws MaltChainedException {
 		try {		
 //			maltSVMFormat2OriginalSVMFormat(getInstanceInputStreamReader(".ins"), getInstanceOutputStreamWriter(".ins.tmp"), cardinalities);
-			owner.getGuide().getConfiguration().getConfigLogger().info("Creating LIBSVM model (svm-train) "+getFile(".mod").getName());
+			Configuration config = owner.getGuide().getConfiguration();
+			if (config.isLoggerInfoEnabled()) {
+				config.logInfoMessage("Creating LIBSVM model (svm-train) "+getFile(".mod").getName());
+			}
+
 
 			final ArrayList<String> commands = new ArrayList<String>();
 			commands.add(pathExternalSVMTrain);
@@ -228,7 +233,7 @@ public class Libsvm implements LearningMethod {
 			String[] arrayCommands =  commands.toArray(new String[commands.size()]);
 			
 	        if (verbosity == Verbostity.ALL) {
-	        	owner.getGuide().getConfiguration().getConfigLogger().info('\n');
+	        	config.logInfoMessage('\n');
 	        }
 			final Process child = Runtime.getRuntime().exec(arrayCommands);
 	        final InputStream in = child.getInputStream();
@@ -236,16 +241,16 @@ public class Libsvm implements LearningMethod {
 	        int c;
 	        while ((c = in.read()) != -1){
 	        	if (verbosity == Verbostity.ALL) {
-	        		owner.getGuide().getConfiguration().getConfigLogger().info((char)c);
+	        		config.logInfoMessage((char)c);
 	        	}
 	        }
 	        while ((c = err.read()) != -1){
 	        	if (verbosity == Verbostity.ALL || verbosity == Verbostity.ERROR) {
-	        		owner.getGuide().getConfiguration().getConfigLogger().info((char)c);
+	        		config.logInfoMessage((char)c);
 	        	}
 	        }
             if (child.waitFor() != 0) {
-            	owner.getGuide().getConfiguration().getConfigLogger().info(" FAILED ("+child.exitValue()+")");
+            	config.logErrorMessage(" FAILED ("+child.exitValue()+")");
             }
 	        in.close();
 	        err.close();
@@ -253,7 +258,9 @@ public class Libsvm implements LearningMethod {
 				getFile(".ins").delete();
 				getFile(".ins.tmp").delete();
 	        }
-	        owner.getGuide().getConfiguration().getConfigLogger().info('\n');
+	        if (config.isLoggerInfoEnabled()) {
+	        	config.logInfoMessage('\n');
+	        }
 		} catch (InterruptedException e) {
 			 throw new LibsvmException("SVM-trainer is interrupted. ", e);
 		} catch (IllegalArgumentException e) {
@@ -578,24 +585,33 @@ public class Libsvm implements LearningMethod {
 	}
 	
 	protected OutputStreamWriter getInstanceOutputStreamWriter(String suffix) throws MaltChainedException {
-		return getConfiguration().getConfigurationDir().getAppendOutputStreamWriter(owner.getModelName()+getLearningMethodName()+suffix);
+		return getConfiguration().getAppendOutputStreamWriter(owner.getModelName()+getLearningMethodName()+suffix);
 	}
 	
 	protected InputStreamReader getInstanceInputStreamReader(String suffix) throws MaltChainedException {
-		return getConfiguration().getConfigurationDir().getInputStreamReader(owner.getModelName()+getLearningMethodName()+suffix);
+		return getConfiguration().getInputStreamReader(owner.getModelName()+getLearningMethodName()+suffix);
 	}
 	
 	protected InputStreamReader getInstanceInputStreamReaderFromConfigFile(String suffix) throws MaltChainedException {
-		return getConfiguration().getConfigurationDir().getInputStreamReaderFromConfigFile(owner.getModelName()+getLearningMethodName()+suffix);
+		try {
+			return new InputStreamReader(getInputStreamFromConfigFileEntry(suffix), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			throw new ConfigurationException("The char set UTF-8 is not supported. ", e);
+		}
+//		return getConfiguration().getInputStreamReaderFromConfigFile(owner.getModelName()+getLearningMethodName()+suffix);
+	}
+	
+	protected InputStream getInputStreamFromConfigFileEntry(String suffix) throws MaltChainedException {
+		return getConfiguration().getInputStreamFromConfigFileEntry(owner.getModelName()+getLearningMethodName()+suffix);
 	}
 	
 	protected File getFile(String suffix) throws MaltChainedException {
-		return getConfiguration().getConfigurationDir().getFile(owner.getModelName()+getLearningMethodName()+suffix);
+		return getConfiguration().getFile(owner.getModelName()+getLearningMethodName()+suffix);
 	}
 	
-	protected JarEntry getConfigFileEntry(String suffix) throws MaltChainedException {
-		return getConfiguration().getConfigurationDir().getConfigFileEntry(owner.getModelName()+getLearningMethodName()+suffix);
-	}
+//	protected JarEntry getConfigFileEntry(String suffix) throws MaltChainedException {
+//		return getConfiguration().getConfigurationDir().getConfigFileEntry(owner.getModelName()+getLearningMethodName()+suffix);
+//	}
 	
 	/**
 	 * Reads an instance file into a svm_problem object according to the Malt-SVM format, which is column fixed format (tab-separated).

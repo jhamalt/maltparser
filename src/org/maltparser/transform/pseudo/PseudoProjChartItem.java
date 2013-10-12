@@ -74,9 +74,8 @@ public class PseudoProjChartItem extends ChartItem {
 			marking_strategy = OptionManager.instance().getOptionValue(getOptionContainerIndex(), "pproj", "marking_strategy").toString().trim();
 			covered_root = OptionManager.instance().getOptionValue(getOptionContainerIndex(), "pproj", "covered_root").toString().trim();
 			lifting_order = OptionManager.instance().getOptionValue(getOptionContainerIndex(), "pproj", "lifting_order").toString().trim();
-			
 			if (!marking_strategy.equalsIgnoreCase("none") || !covered_root.equalsIgnoreCase("none")) { 
-				pproj.initialize(marking_strategy, covered_root, lifting_order, SystemLogger.logger(), dataFormatInstance);
+				pproj.initialize(marking_strategy, covered_root, lifting_order, SystemLogger.logger(), dataFormatInstance, configDir.getSymbolTables());
 			}
 			if (!marking_strategy.equalsIgnoreCase("none") || !covered_root.equalsIgnoreCase("none")) { 
 				pprojActive = true;
@@ -104,6 +103,11 @@ public class PseudoProjChartItem extends ChartItem {
 					pproj.mergeArclabels((DependencyStructure)cachedGraph);
 			} else if (taskName.equals("deproj")) {
 					pproj.deprojectivize((DependencyStructure)cachedGraph);
+//				marking_strategy = OptionManager.instance().getOptionValue(getOptionContainerIndex(), "pproj", "marking_strategy").toString().trim();
+//				covered_root = OptionManager.instance().getOptionValue(getOptionContainerIndex(), "pproj", "covered_root").toString().trim();
+//				ConfigurationDir configDir = (ConfigurationDir)flowChartinstance.getFlowChartRegistry(org.maltparser.core.config.ConfigurationDir.class, idName);
+//				Deprojectivizer deprojectivizer = new Deprojectivizer(marking_strategy, covered_root, configDir.getInputDataFormatInstance(), configDir.getSymbolTables());
+//				deprojectivizer.deprojectivize((DependencyStructure)cachedGraph);
 			} else if (taskName.equals("split")) {
 					pproj.splitArclabels((DependencyStructure)cachedGraph);
 			}

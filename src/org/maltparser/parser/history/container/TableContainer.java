@@ -12,12 +12,12 @@ public class TableContainer {
 	protected final StringBuilder cachedSymbol;
 	protected Table table;
 	protected String name;
-	private RelationToNextDecision relationToNextDecision;
+	private final RelationToNextDecision relationToNextDecision;
 	
-	public TableContainer(Table table, String name, char decisionSeparator) {
-		this.table = table;
-		this.name = name;
-		switch (decisionSeparator) {
+	public TableContainer(Table _table, String _name, char _decisionSeparator) {
+		this.table = _table;
+		this.name = _name;
+		switch (_decisionSeparator) {
 		case '+':
 			this.relationToNextDecision = RelationToNextDecision.COMBINED;
 			break;
@@ -121,7 +121,6 @@ public class TableContainer {
 	public RelationToNextDecision getRelationToNextDecision() {
 		return relationToNextDecision;
 	}
-
 
 	protected void setTable(Table table) {
 		this.table = table;

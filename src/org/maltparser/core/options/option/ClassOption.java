@@ -1,7 +1,10 @@
 package org.maltparser.core.options.option;
 
+import java.util.Collections;
 import java.util.Formatter;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.maltparser.core.exception.MaltChainedException;
@@ -17,10 +20,10 @@ import org.maltparser.core.plugin.PluginLoader;
 **/
 public class ClassOption extends Option{
 	private Class<?> defaultValue;
-	private TreeSet<String> legalValues;
-	private HashMap<String,String> legalValueDesc;
-	private HashMap<String,Class<?>> legalValueClass;
-	private HashMap<Class<?>, String> classLegalValues;
+	private final SortedSet<String> legalValues;
+	private final Map<String,String> legalValueDesc;
+	private final Map<String,Class<?>> legalValueClass;
+	private final Map<Class<?>, String> classLegalValues;
 	
 	/**
 	 * Creates a class type option description
@@ -38,10 +41,10 @@ public class ClassOption extends Option{
 						String flag, 
 						String usage) throws MaltChainedException {
 		super(group, name, shortDescription, flag, usage);
-		legalValues = new TreeSet<String>();
-		legalValueDesc = new HashMap<String,String>();
-		legalValueClass = new HashMap<String,Class<?>>();
-		classLegalValues = new HashMap<Class<?>, String>();
+		legalValues = Collections.synchronizedSortedSet(new TreeSet<String>());
+		legalValueDesc = Collections.synchronizedMap(new HashMap<String,String>());
+		legalValueClass = Collections.synchronizedMap(new HashMap<String,Class<?>>());
+		classLegalValues = Collections.synchronizedMap(new HashMap<Class<?>, String>());
 	}
 
 	/* (non-Javadoc)

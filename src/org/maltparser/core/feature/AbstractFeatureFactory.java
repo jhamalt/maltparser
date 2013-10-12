@@ -1,9 +1,8 @@
 package org.maltparser.core.feature;
 
-import org.maltparser.core.config.ConfigurationRegistry;
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.feature.function.Function;
 
 public interface AbstractFeatureFactory {
-	public Function makeFunction(String subFunctionName) throws MaltChainedException;
+	public Function makeFunction(String subFunctionName, FeatureRegistry registry) throws MaltChainedException;
 }

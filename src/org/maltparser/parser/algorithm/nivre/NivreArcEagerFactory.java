@@ -2,7 +2,7 @@ package org.maltparser.parser.algorithm.nivre;
 
 import org.maltparser.core.exception.MaltChainedException;
 
-import org.maltparser.parser.Algorithm;
+import org.maltparser.parser.DependencyParserConfig;
 import org.maltparser.parser.TransitionSystem;
 import org.maltparser.parser.guide.OracleGuide;
 import org.maltparser.parser.history.GuideUserHistory;
@@ -11,22 +11,20 @@ import org.maltparser.parser.history.GuideUserHistory;
  *
  */
 public class NivreArcEagerFactory extends NivreFactory {
-	public NivreArcEagerFactory(Algorithm algorithm) {
-		super(algorithm);
+	public NivreArcEagerFactory(DependencyParserConfig _manager) {
+		super(_manager);
 	}
 	
 	public TransitionSystem makeTransitionSystem() throws MaltChainedException {
-		if (manager.getConfigLogger().isInfoEnabled()) {
-			manager.getConfigLogger().info("  Transition system    : Arc-Eager\n");
+		if (manager.isLoggerInfoEnabled()) {
+			manager.logInfoMessage("  Transition system    : Arc-Eager\n");
 		}
-		TransitionSystem ts = new ArcEager();
-		ts.setPropagationManager(manager.getPropagationManager());
-		return ts;
+		return new ArcEager(manager.getPropagationManager());
 	}
 	
 	public OracleGuide makeOracleGuide(GuideUserHistory history) throws MaltChainedException {
-		if (manager.getConfigLogger().isInfoEnabled()) {
-			manager.getConfigLogger().info("  Oracle               : Arc-Eager\n");
+		if (manager.isLoggerInfoEnabled()) {
+			manager.logInfoMessage("  Oracle               : Arc-Eager\n");
 		}
 		return new ArcEagerOracle(manager, history);
 	}

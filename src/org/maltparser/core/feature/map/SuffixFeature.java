@@ -17,19 +17,20 @@ import org.maltparser.core.symbol.SymbolTableHandler;
 *
 * @author Johan Hall
 */
-public class SuffixFeature implements FeatureMapFunction {
-	protected FeatureFunction parentFeature;
-	protected MultipleFeatureValue multipleFeatureValue;
-	protected SymbolTableHandler tableHandler;
-	protected SymbolTable table;
-	protected DataFormatInstance dataFormatInstance;
-	protected ColumnDescription column;
-	protected int suffixLength;
+public final class SuffixFeature implements FeatureMapFunction {
+	public final static Class<?>[] paramTypes = { org.maltparser.core.syntaxgraph.feature.InputColumnFeature.class, java.lang.Integer.class };
+	private FeatureFunction parentFeature;
+	private final MultipleFeatureValue multipleFeatureValue;
+	private final SymbolTableHandler tableHandler;
+	private SymbolTable table;
+	private final DataFormatInstance dataFormatInstance;
+	private ColumnDescription column;
+	private int suffixLength;
 
-	public SuffixFeature(DataFormatInstance dataFormatInstance) throws MaltChainedException {
-		super();
-		setDataFormatInstance(dataFormatInstance);
-		multipleFeatureValue = new MultipleFeatureValue(this);
+	public SuffixFeature(DataFormatInstance dataFormatInstance, SymbolTableHandler tableHandler) throws MaltChainedException {
+		this.dataFormatInstance = dataFormatInstance;
+		this.tableHandler = tableHandler;
+		this.multipleFeatureValue = new MultipleFeatureValue(this);
 	}
 	
 	public void initialize(Object[] arguments) throws MaltChainedException {
@@ -48,13 +49,12 @@ public class SuffixFeature implements FeatureMapFunction {
 		if (parentColumn.getType() != ColumnDescription.STRING) {
 			throw new FeatureException("Could not initialize SuffixFeature: the first argument must be a string. ");
 		}
-		setColumn(dataFormatInstance.addInternalColumnDescription("SUFFIX_"+suffixLength+"_"+parentFeature.getSymbolTable().getName(), parentColumn));
-		setSymbolTable(column.getSymbolTable());
+		setColumn(dataFormatInstance.addInternalColumnDescription(tableHandler,"SUFFIX_"+suffixLength+"_"+parentFeature.getSymbolTable().getName(), parentColumn));
+		setSymbolTable(tableHandler.getSymbolTable(column.getName()));
 //		setSymbolTable(tableHandler.addSymbolTable("SUFFIX_"+suffixLength+"_"+parentFeature.getSymbolTable().getName(), parentFeature.getSymbolTable()));
 	}
 	
 	public Class<?>[] getParameterTypes() {
-		Class<?>[] paramTypes = { org.maltparser.core.syntaxgraph.feature.InputColumnFeature.class, java.lang.Integer.class };
 		return paramTypes; 
 	}
 	
@@ -127,7 +127,7 @@ public class SuffixFeature implements FeatureMapFunction {
 	}
 
 	public SymbolTableHandler getTableHandler() {
-		return dataFormatInstance.getSymbolTables();
+		return tableHandler;
 	}
 	
 	public SymbolTable getSymbolTable() {
@@ -140,10 +140,6 @@ public class SuffixFeature implements FeatureMapFunction {
 	
 	public DataFormatInstance getDataFormatInstance() {
 		return dataFormatInstance;
-	}
-
-	public void setDataFormatInstance(DataFormatInstance dataFormatInstance) {
-		this.dataFormatInstance = dataFormatInstance;
 	}
 	
 	public ColumnDescription getColumn() {

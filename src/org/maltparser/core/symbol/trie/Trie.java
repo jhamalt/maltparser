@@ -10,13 +10,11 @@ import org.maltparser.core.symbol.SymbolException;
 **/
 public class Trie {
 	private final TrieNode root;
-	private final StringBuilder sb;
 
 
 	
 	public Trie() {
 		root = new TrieNode(' ', null);
-		sb = new StringBuilder();
 	}
 	
 	public TrieNode addValue(String value, TrieSymbolTable table, int code) throws SymbolException {
@@ -45,9 +43,9 @@ public class Trie {
 	}
 	
 	public String getValue(TrieNode node, TrieSymbolTable table) {
-		sb.setLength(0);
+		final StringBuilder sb = new StringBuilder();
 		TrieNode tmp = node;
-		while (tmp != root) { // && tmp != null) {
+		while (tmp != root) { 
 			sb.append(tmp.getCharacter());
 			tmp = tmp.getParent();
 		}

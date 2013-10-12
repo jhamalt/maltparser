@@ -10,28 +10,25 @@ import org.maltparser.parser.history.container.DecisionPropertyTable;
 /**
 *
 * @author Johan Hall
-* @since 1.1
 **/
 public class TransitionTable implements Table, DecisionPropertyTable {
-	private String name;
+	private final String name;
 	private final SortedMap<Integer,Transition> code2transitionMap;
 	private final HashMap<String,Transition> symbol2transitionMap;
 	private final HashMap<Transition,TransitionTable> childrenTables;
 	
 	public TransitionTable(String tableName) {
-		setName(name);
-		code2transitionMap = new TreeMap<Integer,Transition>();
-		symbol2transitionMap = new HashMap<String,Transition>();
-		childrenTables = new HashMap<Transition,TransitionTable>();
+		this.name = tableName;
+		this.code2transitionMap = new TreeMap<Integer,Transition>();
+		this.symbol2transitionMap = new HashMap<String,Transition>();
+		this.childrenTables = new HashMap<Transition,TransitionTable>();
 	}
 	
 	public void addTransition(int code, String symbol, boolean labeled, TransitionTable childrenTable) {
 		final Transition transition = new Transition(code, symbol, labeled); 
 		code2transitionMap.put(code,transition);
 		symbol2transitionMap.put(symbol, transition);
-		if (childrenTable != null) {
-			childrenTables.put(transition, childrenTable);
-		}
+		childrenTables.put(transition, childrenTable);
 	}
 	
 	public boolean continueWithNextDecision(int code) throws MaltChainedException {
@@ -78,7 +75,6 @@ public class TransitionTable implements Table, DecisionPropertyTable {
 		return name;
 	}
 
-	
 	public String getSymbolCodeToString(int code) throws MaltChainedException {
 		if (code < 0) {
 			return null;
@@ -91,10 +87,6 @@ public class TransitionTable implements Table, DecisionPropertyTable {
 			return -1;
 		}
 		return symbol2transitionMap.get(symbol).getCode();
-	}
-
-	protected void setName(String name) {
-		this.name = name;
 	}
 	
 	public int size() {

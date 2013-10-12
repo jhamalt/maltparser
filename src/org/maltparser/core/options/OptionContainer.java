@@ -1,5 +1,6 @@
 package org.maltparser.core.options;
 
+import java.util.Collections;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -36,11 +37,11 @@ public class OptionContainer implements Comparable<OptionContainer>{
 	public static final int COMMANDLINE = 2; 
 	public static final int OPTIONFILE = 3;
 	
-	private int index;
-	private SortedMap<Option,Object> savedOptionMap;
-	private SortedMap<Option,Object> dependenciesResolvedOptionMap;
-	private SortedMap<Option,Object> commandLineOptionMap;
-	private SortedMap<Option,Object> optionFileOptionMap;
+	private final int index;
+	private final SortedMap<Option,Object> savedOptionMap;
+	private final SortedMap<Option,Object> dependenciesResolvedOptionMap;
+	private final SortedMap<Option,Object> commandLineOptionMap;
+	private final SortedMap<Option,Object> optionFileOptionMap;
 
 	/**
 	 * Creates an option container
@@ -48,11 +49,11 @@ public class OptionContainer implements Comparable<OptionContainer>{
 	 * @param index The index of the option container (0..n).
 	 */
 	public OptionContainer(int index) throws OptionException {
-		setIndex(index);
-		savedOptionMap = new TreeMap<Option,Object>();
-		dependenciesResolvedOptionMap = new TreeMap<Option,Object>();
-		commandLineOptionMap = new TreeMap<Option,Object>();
-		optionFileOptionMap = new TreeMap<Option,Object>();
+		this.index = index;
+		savedOptionMap = Collections.synchronizedSortedMap(new TreeMap<Option,Object>());
+		dependenciesResolvedOptionMap = Collections.synchronizedSortedMap(new TreeMap<Option,Object>());
+		commandLineOptionMap = Collections.synchronizedSortedMap(new TreeMap<Option,Object>());
+		optionFileOptionMap = Collections.synchronizedSortedMap(new TreeMap<Option,Object>());
 	}
 	
 	/**
@@ -63,7 +64,7 @@ public class OptionContainer implements Comparable<OptionContainer>{
 	 * @param value		the option value object
 	 * @throws OptionException
 	 */
-	public void addOptionValue(int type, Option option, Object value) throws OptionException {
+	protected void addOptionValue(int type, Option option, Object value) throws OptionException {
 		if (type == OptionContainer.SAVEDOPTION) {
 			savedOptionMap.put(option, value);
 		} else if (type == OptionContainer.DEPENDENCIES_RESOLVED) {
@@ -172,18 +173,6 @@ public class OptionContainer implements Comparable<OptionContainer>{
 	 */
 	public int getIndex() {
 		return index;
-	}
-	
-	/**
-	 * Sets the option container index, if the index is great than or equal 0.
-	 * @param index the option container index
-	 * @throws OptionException
-	 */
-	private void setIndex(int index) throws OptionException {
-		if (index < 0) {
-			throw new OptionException("The option container index must be an integer value great than or equal 0. ");
-		}
-		this.index = index;
 	}
 
 	public int compareTo(OptionContainer that) {

@@ -31,9 +31,9 @@ public abstract class Option implements Comparable<Option>{
 	 */
 	public static final int SAVE = 4; 
 	
-	private OptionGroup group;
-	private String name;
-	private String shortDescription;
+	private final OptionGroup group;
+	private final String name;
+	private final String shortDescription;
 	private String flag;
 	private int usage;
 	private boolean ambiguous;
@@ -49,9 +49,12 @@ public abstract class Option implements Comparable<Option>{
 	 * @throws OptionException
 	 */
 	public Option(OptionGroup group, String name, String shortDescription, String flag, String usage) throws MaltChainedException {
-		setGroup(group);
-		setName(name);
-		setShortDescription(shortDescription);
+		this.group = group;
+		if (name == null || name.length() == 0) {
+			throw new OptionException("The option name has no value. ");	
+		}
+		this.name = name.toLowerCase();
+		this.shortDescription = shortDescription;
 		setFlag(flag);
 		setUsage(usage);
 		setAmbiguous(false);
@@ -106,13 +109,7 @@ public abstract class Option implements Comparable<Option>{
 	public OptionGroup getGroup() {
 		return group;
 	}
-	/**
-	 * Sets the reference to the option group
-	 * @param group	a reference to a option group
-	 */
-	public void setGroup(OptionGroup group) {
-		this.group = group;
-	}	
+	
 	/**
 	 * Returns the name of the option.
 	 * 
@@ -121,18 +118,7 @@ public abstract class Option implements Comparable<Option>{
 	public String getName() {
 		return name;
 	}
-	/**
-	 * Sets the name of the option.
-	 * 
-	 * @param name the name of the option.
-	 * @throws OptionException
-	 */
-	public void setName(String name) throws MaltChainedException {
-		if (name == null || name.length() == 0) {
-			throw new OptionException("The option name has no value. ");	
-		}
-		this.name = name.toLowerCase();
-	}
+
 	/**
 	 * Returns a short description of the option
 	 * 
@@ -141,14 +127,7 @@ public abstract class Option implements Comparable<Option>{
 	public String getShortDescription() {
 		return shortDescription;
 	}
-	/**
-	 * Sets a short description of the option
-	 * 
-	 * @param shortDescription	a short description of the option
-	 */
-	public void setShortDescription(String shortDescription) {
-		this.shortDescription = shortDescription;
-	}
+
 	/**
 	 * Returns a character that is used as a flag for the command line input
 	 * 

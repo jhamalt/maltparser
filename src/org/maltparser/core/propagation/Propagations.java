@@ -10,13 +10,12 @@ import org.maltparser.core.symbol.SymbolTableHandler;
 import org.maltparser.core.syntaxgraph.edge.Edge;
 
 public class Propagations {
-	private ArrayList<Propagation> propagations;
+	private final ArrayList<Propagation> propagations;
 
-	
-	public Propagations(PropagationSpecs specs,DataFormatInstance dataFormatInstance) throws MaltChainedException {
+	public Propagations(PropagationSpecs specs,DataFormatInstance dataFormatInstance, SymbolTableHandler tableHandler) throws MaltChainedException {
 		propagations = new ArrayList<Propagation>(specs.size());
 		for (PropagationSpec spec : specs) {
-			propagations.add(new Propagation(spec, dataFormatInstance));
+			propagations.add(new Propagation(spec, dataFormatInstance, tableHandler));
 		}
 	}
 
@@ -26,8 +25,6 @@ public class Propagations {
 		}
 	}
 	
-
-
 	public ArrayList<Propagation> getPropagations() {
 		return propagations;
 	}
@@ -36,6 +33,4 @@ public class Propagations {
 	public String toString() {
 		return "Propagations [propagations=" + propagations + "]";
 	}
-	
-	
 }

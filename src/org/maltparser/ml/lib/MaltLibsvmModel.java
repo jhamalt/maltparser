@@ -2,8 +2,6 @@ package org.maltparser.ml.lib;
 
 import java.io.Serializable;
 
-import org.maltparser.core.helper.Util;
-
 import libsvm.svm_model;
 import libsvm.svm_node;
 import libsvm.svm_parameter;
@@ -89,26 +87,81 @@ public class MaltLibsvmModel implements Serializable, MaltLibModel {
 			}
 		}
 		
-		final int[] predictionList = Util.copyOf(label, nr_class); 
-		int tmpObj;
-		int lagest;
-		int tmpint;
+        final int[] predictionList = new int[nr_class];
+        System.arraycopy(label, 0, predictionList, 0, nr_class);
+		int tmp;
+		int iMax;
 		final int nc =  nr_class-1;
 		for (i=0; i < nc; i++) {
-			lagest = i;
-			for (int j=i; j < nr_class; j++) {
-				if (vote[j] > vote[lagest]) {
-					lagest = j;
+			iMax = i;
+			for (int j=i+1; j < nr_class; j++) {
+				if (vote[j] > vote[iMax]) {
+					iMax = j;
 				}
 			}
-			tmpint = vote[lagest];
-			vote[lagest] = vote[i];
-			vote[i] = tmpint;
-			tmpObj = predictionList[lagest];
-			predictionList[lagest] = predictionList[i];
-			predictionList[i] = tmpObj;
+			if (iMax != i) {
+				tmp = vote[iMax];
+				vote[iMax] = vote[i];
+				vote[i] = tmp;
+				tmp = predictionList[iMax];
+				predictionList[iMax] = predictionList[i];
+				predictionList[i] = tmp;
+			}
 		}
 		return predictionList;
+    }
+    
+    
+    public int predict_one(MaltFeatureNode[] x) { 
+    	final double[] dec_values = new double[nr_class*(nr_class-1)/2];
+		final double[] kvalue = new double[l];
+		final int[] vote = new int[nr_class];
+		int i;
+		for(i=0;i<l;i++) {
+			kvalue[i] = MaltLibsvmModel.k_function(x,SV[i],param);
+		}
+		for(i=0;i<nr_class;i++) {
+			vote[i] = 0;
+		}
+		
+		int p=0;
+		for(i=0;i<nr_class;i++) {
+			for(int j=i+1;j<nr_class;j++) {
+				double sum = 0;
+				int si = start[i];
+				int sj = start[j];
+				int ci = nSV[i];
+				int cj = nSV[j];
+			
+				int k;
+				double[] coef1 = sv_coef[j-1];
+				double[] coef2 = sv_coef[i];
+				for(k=0;k<ci;k++)
+					sum += coef1[si+k] * kvalue[si+k];
+				for(k=0;k<cj;k++)
+					sum += coef2[sj+k] * kvalue[sj+k];
+				sum -= rho[p];
+				dec_values[p] = sum;					
+
+				if(dec_values[p] > 0)
+					++vote[i];
+				else
+					++vote[j];
+				p++;
+			}
+		}
+		
+		
+        int max = vote[0];
+        int max_index = 0;
+		for (i = 1; i < dec_values.length; i++) {
+			if (vote[i] > max) {
+				max = vote[i];
+				max_index = i;
+			}
+		}
+
+		return label[max_index];
     }
     
 	static double dot(MaltFeatureNode[] x, svm_node[] y) {

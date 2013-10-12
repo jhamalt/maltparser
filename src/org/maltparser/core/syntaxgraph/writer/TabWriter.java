@@ -13,6 +13,7 @@ import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.io.dataformat.ColumnDescription;
 import org.maltparser.core.io.dataformat.DataFormatException;
 import org.maltparser.core.io.dataformat.DataFormatInstance;
+import org.maltparser.core.symbol.SymbolTableHandler;
 import org.maltparser.core.syntaxgraph.DependencyStructure;
 import org.maltparser.core.syntaxgraph.TokenStructure;
 import org.maltparser.core.syntaxgraph.node.TokenNode;
@@ -70,6 +71,7 @@ public class TabWriter implements SyntaxGraphWriter {
 			return;
 		}
 		Iterator<ColumnDescription> columns = dataFormatInstance.iterator();
+		final SymbolTableHandler symbolTables = syntaxGraph.getSymbolTables();
 		
 		for (int i : syntaxGraph.getTokenIndices()) {
 			try {
@@ -80,8 +82,8 @@ public class TabWriter implements SyntaxGraphWriter {
 					if (column.getCategory() == ColumnDescription.INPUT) { // && column.getType() != ColumnDescription.IGNORE) {
 						TokenNode node = syntaxGraph.getTokenNode(i); 
 						if (!column.getName().equals("ID")) {
-							if (node.hasLabel(column.getSymbolTable())) {
-								output.append(node.getLabelSymbol(column.getSymbolTable()));
+							if (node.hasLabel(symbolTables.getSymbolTable(column.getName()))) {
+								output.append(node.getLabelSymbol(symbolTables.getSymbolTable(column.getName())));
 								if (output.length() != 0) {
 									writer.write(output.toString());
 								} else {
@@ -101,10 +103,10 @@ public class TabWriter implements SyntaxGraphWriter {
 						}
 						
 					} else if (column.getCategory() == ColumnDescription.DEPENDENCY_EDGE_LABEL /* && column.getType() != ColumnDescription.IGNORE */ && syntaxGraph instanceof DependencyStructure) {
-						if (((DependencyStructure)syntaxGraph).getDependencyNode(i).hasHead() && ((DependencyStructure)syntaxGraph).getDependencyNode(i).hasHeadEdgeLabel(column.getSymbolTable())) {
-							output.append(((DependencyStructure)syntaxGraph).getDependencyNode(i).getHeadEdgeLabelSymbol(column.getSymbolTable()));
+						if (((DependencyStructure)syntaxGraph).getDependencyNode(i).hasHead() && ((DependencyStructure)syntaxGraph).getDependencyNode(i).hasHeadEdgeLabel(symbolTables.getSymbolTable(column.getName()))) {
+							output.append(((DependencyStructure)syntaxGraph).getDependencyNode(i).getHeadEdgeLabelSymbol(symbolTables.getSymbolTable(column.getName())));
 						} else {
-							output.append(((DependencyStructure)syntaxGraph).getDefaultRootEdgeLabelSymbol(column.getSymbolTable()));
+							output.append(((DependencyStructure)syntaxGraph).getDefaultRootEdgeLabelSymbol(symbolTables.getSymbolTable(column.getName())));
 						}
 						
 						if (output.length() != 0) {

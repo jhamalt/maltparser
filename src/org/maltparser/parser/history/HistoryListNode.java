@@ -9,30 +9,17 @@ import org.maltparser.parser.history.action.GuideUserAction;
 public class HistoryListNode implements HistoryNode {
 	private HistoryNode previousNode;
 	private GuideUserAction action;
-//	private double score;
 	private int position;
 	
-	public HistoryListNode(HistoryNode previousNode, GuideUserAction action) {
-		setPreviousNode(previousNode);
-		setAction(action);
-//		setScore(score);
+	public HistoryListNode(HistoryNode _previousNode, GuideUserAction _action) {
+		this.previousNode = _previousNode;
+		this.action = _action;
 		if (previousNode != null) {
-			setPosition(previousNode.getPosition()+1);
+			this.position = previousNode.getPosition()+1;
 		} else {
-			setPosition(1);
+			this.position = 1;
 		}
 	}
-	
-//	public HistoryListNode(HistoryNode previousNode, GuideUserAction action, double score) {
-//		setPreviousNode(previousNode);
-//		setAction(action);
-//		setScore(score);
-//		if (previousNode != null) {
-//			setPosition(previousNode.getPosition()+1);
-//		} else {
-//			setPosition(1);
-//		}	
-//	}
 	
 	public HistoryNode getPreviousNode() {
 		return previousNode;
@@ -50,25 +37,13 @@ public class HistoryListNode implements HistoryNode {
 		this.action = action;
 	}
 	
-//	public double getScore() {
-//		return score;
-//	}
-//
-//	public void setScore(double score) {
-//		this.score = score;
-//	}
-
-	private void setPosition(int p) {
-		position = p;
-	}
-	
 	public int getPosition() {
 		return position;
 	}
 	
 	public void clear() throws MaltChainedException {
-		setPreviousNode(null);
-		setAction(null);
+		this.previousNode = null;
+		this.action = null;
 	}
 	
 	public String toString() {

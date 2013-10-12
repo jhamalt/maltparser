@@ -6,50 +6,37 @@ package org.maltparser.core.propagation.spec;
  */
 public class PropagationSpec {
 	public static final long serialVersionUID = 1L;
-	private String from;
-	private String to;
-	private String _for; // for
-	private String over;
+	private final String from;
+	private final String to;
+	private final String _for; // for
+	private final String over;
 	
 	public PropagationSpec(String from, String to, String _for, String over) {
-		setFrom(from);
-		setTo(to);
-		setFor(_for);
-		setOver(over);
+		this.from = from;
+		this.to = to;
+		this._for = _for;
+		this.over = over;
 	}
 	
 	public String getFrom() {
 		return from;
 	}
 	
-	public void setFrom(String from) {
-		this.from = from;
-	}
 	
 	public String getTo() {
 		return to;
 	}
 	
-	public void setTo(String to) {
-		this.to = to;
-	}
 	
 	public String getFor() {
 		return _for;
 	}
 	
-	public void setFor(String _for) {
-		this._for = _for;
-	}
 	
 	public String getOver() {
 		return over;
 	}
 	
-	public void setOver(String over) {
-		this.over = over;
-	}
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;

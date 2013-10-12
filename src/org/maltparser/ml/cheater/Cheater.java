@@ -2,7 +2,6 @@ package org.maltparser.ml.cheater;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -10,7 +9,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Set;
-import java.util.jar.JarEntry;
 
 
 import org.maltparser.core.exception.MaltChainedException;
@@ -116,12 +114,12 @@ public class Cheater implements LearningMethod {
 		}
 	}
 	
-	public void train(FeatureVector featureVector) throws MaltChainedException {
-		if (featureVector == null) {
-			throw new CheaterException("The feature vector cannot be found. ");
-		} else if (owner == null) {
-			throw new CheaterException("The parent guide model cannot be found. ");
-		}
+	public void train() throws MaltChainedException {
+//		if (featureVector == null) {
+//			throw new CheaterException("The feature vector cannot be found. ");
+//		} else if (owner == null) {
+//			throw new CheaterException("The parent guide model cannot be found. ");
+//		}
 //		if (!saveCheatAction) {
 //			cardinalities = getCardinalities(featureVector);
 //			maltSVMFormat2OriginalSVMFormat(getInstanceInputStreamReader(".ins"), getInstanceOutputStreamWriter(".ins.tmp"), cardinalities);
@@ -408,25 +406,8 @@ public class Cheater implements LearningMethod {
 	}
 	
 	protected OutputStreamWriter getInstanceOutputStreamWriter(String suffix) throws MaltChainedException {
-		return getConfiguration().getConfigurationDir().getAppendOutputStreamWriter(owner.getModelName()+getLearningMethodName()+suffix);
+		return getConfiguration().getAppendOutputStreamWriter(owner.getModelName()+getLearningMethodName()+suffix);
 	}
-	
-	protected InputStreamReader getInstanceInputStreamReader(String suffix) throws MaltChainedException {
-		return getConfiguration().getConfigurationDir().getInputStreamReader(owner.getModelName()+getLearningMethodName()+suffix);
-	}
-	
-	protected InputStreamReader getInstanceInputStreamReaderFromConfigFile(String suffix) throws MaltChainedException {
-		return getConfiguration().getConfigurationDir().getInputStreamReaderFromConfigFile(owner.getModelName()+getLearningMethodName()+suffix);
-	}
-	
-	protected File getFile(String suffix) throws MaltChainedException {
-		return getConfiguration().getConfigurationDir().getFile(owner.getModelName()+getLearningMethodName()+suffix);
-	}
-	
-	protected JarEntry getConfigFileEntry(String suffix) throws MaltChainedException {
-		return getConfiguration().getConfigurationDir().getConfigFileEntry(owner.getModelName()+getLearningMethodName()+suffix);
-	}
-	
 	
 	protected void finalize() throws Throwable {
 		try {

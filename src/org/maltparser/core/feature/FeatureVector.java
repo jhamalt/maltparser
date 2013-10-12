@@ -15,20 +15,20 @@ import org.maltparser.core.feature.value.FeatureValue;
 */
 public class FeatureVector extends ArrayList<FeatureFunction> implements Serializable {
 	public final static long serialVersionUID = 3256444702936019250L;
-	protected SpecificationSubModel specSubModel;
-	protected FeatureModel featureModel;
+	private final SpecificationSubModel specSubModel;
+	private final FeatureModel featureModel;
 
 	
 	/**
 	 * Constructs a feature vector
 	 * 
-	 * @param featureModel	the parent feature model
-	 * @param specSubModel	the subspecifiction-model
+	 * @param _featureModel	the parent feature model
+	 * @param _specSubModel	the subspecifiction-model
 	 * @throws MaltChainedException
 	 */
-	public FeatureVector(FeatureModel featureModel, SpecificationSubModel specSubModel) throws MaltChainedException {
-		setSpecSubModel(specSubModel);
-		setFeatureModel(featureModel);
+	public FeatureVector(FeatureModel _featureModel, SpecificationSubModel _specSubModel) throws MaltChainedException {
+		this.specSubModel = _specSubModel;
+		this.featureModel = _featureModel;
 		for (String spec : specSubModel) {
 			add(featureModel.identifyFeature(spec));	
 		}
@@ -42,10 +42,6 @@ public class FeatureVector extends ArrayList<FeatureFunction> implements Seriali
 	public SpecificationSubModel getSpecSubModel() {
 		return specSubModel;
 	}
-
-	protected void setSpecSubModel(SpecificationSubModel specSubModel) {
-		this.specSubModel = specSubModel;
-	}
 	
 	/**
 	 * Returns the feature model that the feature vector belongs to.
@@ -54,10 +50,6 @@ public class FeatureVector extends ArrayList<FeatureFunction> implements Seriali
 	 */
 	public FeatureModel getFeatureModel() {
 		return featureModel;
-	}
-
-	protected void setFeatureModel(FeatureModel featureModel) {
-		this.featureModel = featureModel;
 	}
 	
 	/**

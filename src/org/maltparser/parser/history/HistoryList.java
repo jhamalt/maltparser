@@ -12,7 +12,6 @@ import org.maltparser.parser.history.action.GuideUserAction;
 public class HistoryList extends HistoryStructure {
 	protected final ArrayList<HistoryNode> list;
 	protected final ObjectPoolList<HistoryNode> nodePool;
-//	protected BufferedWriter writer;
 	
 	public HistoryList() throws MaltChainedException {
 		super();
@@ -21,11 +20,6 @@ public class HistoryList extends HistoryStructure {
 			protected HistoryNode create() throws MaltChainedException { return new HistoryListNode(null, null); }
 			public void resetObject(HistoryNode o) throws MaltChainedException { o.clear(); }
 		};
-//		try {
-//			writer = new BufferedWriter(new FileWriter("tseq.dat"));
-//		} catch (IOException e) {
-//			throw new MaltChainedException("", e);
-//		}
 	}
 	
 	public HistoryNode getNewHistoryNode(HistoryNode previousNode, GuideUserAction action) throws MaltChainedException {
@@ -47,31 +41,6 @@ public class HistoryList extends HistoryStructure {
 
 	public int hashCode() {
 		return super.hashCode();
-	}
-
-	public void toFile() throws MaltChainedException {
-//		try {
-//			for (int i = 0; i < list.size(); i++) {
-//				writer.write(((ComplexDecisionAction)list.get(i).getAction()).getSingleDecision(0).getDecisionSymbol());
-//				writer.write("\n");
-//				writer.flush();
-//			}
-//			writer.write("\n");
-//		} catch (IOException e) {
-//			throw new MaltChainedException("", e);
-//		}
-	}
-	
-	public void close() throws MaltChainedException {
-//		if (writer != null) {
-//			try {
-//				writer.flush();
-//				writer.close();
-//				writer = null;
-//			} catch (IOException e) {
-//				throw new MaltChainedException("", e);
-//			}
-//		}
 	}
 	
 	public String toString() {

@@ -8,7 +8,7 @@ import org.maltparser.parser.history.action.GuideUserAction;
  * @author Johan Hall
 */
 public class HistoryTree extends HistoryStructure {
-	private HistoryTreeNode root;
+	private final HistoryTreeNode root;
 	protected final ObjectPoolList<HistoryNode> nodePool;
 	
 	public HistoryTree() {
@@ -34,14 +34,6 @@ public class HistoryTree extends HistoryStructure {
 	public void clear() throws MaltChainedException {
 		nodePool.checkInAll();
 		root.clear();
-	}
-	
-	public void toFile() throws MaltChainedException {
-		
-	}
-	
-	public void close() throws MaltChainedException {
-		
 	}
 	
 	public String toString() {

@@ -14,8 +14,6 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import org.apache.log4j.Logger;
-
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.helper.HashMap;
 import org.maltparser.core.symbol.SymbolException;
@@ -26,26 +24,20 @@ import org.maltparser.core.symbol.SymbolTableHandler;
 /**
 
 @author Johan Hall
-@since 1.0
 */
 public class TrieSymbolTableHandler implements SymbolTableHandler {
 	private final Trie trie;
 	private final HashMap<String, TrieSymbolTable> symbolTables;
-	
-	public final static int ADD_NEW_TO_TRIE = 1;
-	public final static int ADD_NEW_TO_TMP_STORAGE = 2;
-	private final int symbolTableMode;
 
-	public TrieSymbolTableHandler(int symbolTableMode) {
+	public TrieSymbolTableHandler() { 
 		trie = new Trie();
 		symbolTables = new HashMap<String, TrieSymbolTable>();
-		this.symbolTableMode = symbolTableMode;
 	}
 
 	public TrieSymbolTable addSymbolTable(String tableName) throws MaltChainedException {
 		TrieSymbolTable symbolTable = symbolTables.get(tableName);
 		if (symbolTable == null) {
-			symbolTable = new TrieSymbolTable(tableName, trie, symbolTableMode);
+			symbolTable = new TrieSymbolTable(tableName, trie); 
 			symbolTables.put(tableName, symbolTable);
 		}
 		return symbolTable;
@@ -55,7 +47,7 @@ public class TrieSymbolTableHandler implements SymbolTableHandler {
 		TrieSymbolTable symbolTable = symbolTables.get(tableName);
 		if (symbolTable == null) {
 			TrieSymbolTable trieParentTable = (TrieSymbolTable)parentTable;
-			symbolTable = new TrieSymbolTable(tableName, trie, trieParentTable.getColumnCategory(), trieParentTable.getNullValueStrategy(), symbolTableMode);
+			symbolTable = new TrieSymbolTable(tableName, trie, trieParentTable.getColumnCategory(), trieParentTable.getNullValueStrategy());
 			symbolTables.put(tableName, symbolTable);
 		}
 		return symbolTable;
@@ -64,7 +56,7 @@ public class TrieSymbolTableHandler implements SymbolTableHandler {
 	public TrieSymbolTable addSymbolTable(String tableName, int columnCategory, String nullValueStrategy) throws MaltChainedException {
 		TrieSymbolTable symbolTable = symbolTables.get(tableName);
 		if (symbolTable == null) {
-			symbolTable = new TrieSymbolTable(tableName, trie, columnCategory, nullValueStrategy, symbolTableMode);
+			symbolTable = new TrieSymbolTable(tableName, trie, columnCategory, nullValueStrategy);
 			symbolTables.put(tableName, symbolTable);
 		}
 		return symbolTable;
@@ -79,11 +71,6 @@ public class TrieSymbolTableHandler implements SymbolTableHandler {
 	}
 	
 	public void cleanUp() {
-		if (symbolTableMode == TrieSymbolTableHandler.ADD_NEW_TO_TMP_STORAGE) {
-			for (TrieSymbolTable table : symbolTables.values()) {
-				table.clearTmpStorage();
-			}
-		}
 	}
 	
 	public void save(OutputStreamWriter osw) throws MaltChainedException  {
@@ -166,7 +153,6 @@ public class TrieSymbolTableHandler implements SymbolTableHandler {
 	public void load(String fileName, String charSet) throws MaltChainedException  {
 		try {
 			load(new InputStreamReader(new FileInputStream(fileName), charSet));
-
 		} catch (FileNotFoundException e) {
 			throw new SymbolException("The symbol table file '"+fileName+"' cannot be found. ", e);
 		} catch (UnsupportedEncodingException e) {
@@ -184,6 +170,7 @@ public class TrieSymbolTableHandler implements SymbolTableHandler {
 			while ((fileLine = br.readLine()) != null) {
 				table.addSymbol(fileLine.trim());
 			}
+			br.close();
 			return table;
 		} catch (FileNotFoundException e) {
 			throw new SymbolException("The tagset file '"+fileName+"' cannot be found. ", e);
@@ -194,9 +181,11 @@ public class TrieSymbolTableHandler implements SymbolTableHandler {
 		}
 	}
 	
-	public void printSymbolTables(Logger logger) throws MaltChainedException  {
+	public String printSymbolTables() throws MaltChainedException  {
+		StringBuilder sb = new StringBuilder();
 		for (TrieSymbolTable table : symbolTables.values()) {
-			table.printSymbolTable(logger);
-		}	
+			sb.append(table.printSymbolTable());
+		}
+		return sb.toString();
 	}
 }

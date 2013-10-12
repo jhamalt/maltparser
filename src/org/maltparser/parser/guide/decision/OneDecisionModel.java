@@ -4,7 +4,6 @@ import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.feature.FeatureModel;
 import org.maltparser.core.feature.FeatureVector;
 import org.maltparser.core.syntaxgraph.DependencyStructure;
-import org.maltparser.parser.DependencyParserConfig;
 import org.maltparser.parser.guide.ClassifierGuide;
 import org.maltparser.parser.guide.GuideException;
 import org.maltparser.parser.guide.instance.AtomicModel;
@@ -16,22 +15,20 @@ import org.maltparser.parser.history.action.SingleDecision;
 /**
 *
 * @author Johan Hall
-* @since 1.1
 **/
 public class OneDecisionModel implements DecisionModel {
 	private final ClassifierGuide guide;
 	private final String modelName;
-	private final FeatureModel featureModel;
+//	private final FeatureModel featureModel;
 	private final int decisionIndex;
 	private final DecisionModel prevDecisionModel;
 	private final String branchedDecisionSymbols;
-//	private int nIteration;
 	private InstanceModel instanceModel;
 	
-	public OneDecisionModel(ClassifierGuide guide, FeatureModel featureModel) throws MaltChainedException {
+	public OneDecisionModel(ClassifierGuide _guide) throws MaltChainedException {
 		this.branchedDecisionSymbols = "";
-		this.guide = guide;
-		this.featureModel = featureModel;
+		this.guide = _guide;
+//		this.featureModel = _featureModel;
 		this.decisionIndex = 0;
 		if (guide.getGuideName() == null || guide.getGuideName().equals("")) {
 			this.modelName = "odm"+decisionIndex;
@@ -41,26 +38,31 @@ public class OneDecisionModel implements DecisionModel {
 		this.prevDecisionModel = null;
 	}
 	
-	public OneDecisionModel(ClassifierGuide guide, DecisionModel prevDecisionModel, String branchedDecisionSymbol) throws MaltChainedException {
-		if (branchedDecisionSymbol != null && branchedDecisionSymbol.length() > 0) {
-			this.branchedDecisionSymbols = branchedDecisionSymbol;
-		} else {
-			this.branchedDecisionSymbols = "";
-		}
-		this.guide = guide;
-		this.featureModel = prevDecisionModel.getFeatureModel();
+	public OneDecisionModel(ClassifierGuide _guide, DecisionModel _prevDecisionModel, String _branchedDecisionSymbol) throws MaltChainedException {
+		this.prevDecisionModel = _prevDecisionModel;
 		this.decisionIndex = prevDecisionModel.getDecisionIndex() + 1;
-		this.prevDecisionModel = prevDecisionModel;
-		if (branchedDecisionSymbols != null && branchedDecisionSymbols.length() > 0) {
+		if (_branchedDecisionSymbol != null && _branchedDecisionSymbol.length() > 0) {
+			this.branchedDecisionSymbols = _branchedDecisionSymbol;
 			this.modelName = "odm"+decisionIndex+branchedDecisionSymbols;
 		} else {
+			this.branchedDecisionSymbols = "";
 			this.modelName = "odm"+decisionIndex;
+		}
+		this.guide = _guide;
+//		this.featureModel = prevDecisionModel.getFeatureModel();
+	}
+	
+	private final void initInstanceModel(FeatureModel featureModel, String subModelName) throws MaltChainedException {
+		if (featureModel.hasDivideFeatureFunction()) {
+			instanceModel = new FeatureDivideModel(this);
+		} else {
+			instanceModel = new AtomicModel(-1, this);
 		}
 	}
 	
-	public void updateFeatureModel() throws MaltChainedException {
-		featureModel.update();
-	}
+//	public void updateFeatureModel() throws MaltChainedException {
+//		featureModel.update();
+//	}
 
 	public void finalizeSentence(DependencyStructure dependencyGraph) throws MaltChainedException {
 		if (instanceModel != null) {
@@ -68,13 +70,13 @@ public class OneDecisionModel implements DecisionModel {
 		}
 	}
 	
-	public void noMoreInstances() throws MaltChainedException {
+	public void noMoreInstances(FeatureModel featureModel) throws MaltChainedException {
 		if (guide.getGuideMode() == ClassifierGuide.GuideMode.CLASSIFY) {
 			throw new GuideException("The decision model could not create it's model. ");
 		}
 
 		if (instanceModel != null) {
-			instanceModel.noMoreInstances();
+			instanceModel.noMoreInstances(featureModel);
 			instanceModel.train();
 		}
 	}
@@ -86,42 +88,42 @@ public class OneDecisionModel implements DecisionModel {
 		}
 	}
 	
-	public void addInstance(GuideDecision decision) throws MaltChainedException {
+	public void addInstance(FeatureModel featureModel, GuideDecision decision) throws MaltChainedException {
 		featureModel.update();
 		final SingleDecision singleDecision = (decision instanceof SingleDecision)?(SingleDecision)decision:((MultipleDecision)decision).getSingleDecision(decisionIndex);
 		
 		if (instanceModel == null) {
-			initInstanceModel(singleDecision.getTableContainer().getTableContainerName());
+			initInstanceModel(featureModel, singleDecision.getTableContainer().getTableContainerName());
 		}
-		instanceModel.addInstance(singleDecision);
+		instanceModel.addInstance(featureModel.getFeatureVector(branchedDecisionSymbols, singleDecision.getTableContainer().getTableContainerName()), singleDecision);
 	}
 	
-	public boolean predict(GuideDecision decision) throws MaltChainedException {
+	public boolean predict(FeatureModel featureModel, GuideDecision decision) throws MaltChainedException {
 		featureModel.update();
 		final SingleDecision singleDecision = (decision instanceof SingleDecision)?(SingleDecision)decision:((MultipleDecision)decision).getSingleDecision(decisionIndex);
 
 		if (instanceModel == null) {
-			initInstanceModel(singleDecision.getTableContainer().getTableContainerName());
+			initInstanceModel(featureModel, singleDecision.getTableContainer().getTableContainerName());
 		}
-		return instanceModel.predict(singleDecision);
+		return instanceModel.predict(featureModel.getFeatureVector(branchedDecisionSymbols, singleDecision.getTableContainer().getTableContainerName()), singleDecision);
 	}
 	
-	public FeatureVector predictExtract(GuideDecision decision) throws MaltChainedException {
+	public FeatureVector predictExtract(FeatureModel featureModel, GuideDecision decision) throws MaltChainedException {
 		featureModel.update();
 		final SingleDecision singleDecision = (decision instanceof SingleDecision)?(SingleDecision)decision:((MultipleDecision)decision).getSingleDecision(decisionIndex);
 
 		if (instanceModel == null) {
-			initInstanceModel(singleDecision.getTableContainer().getTableContainerName());
+			initInstanceModel(featureModel, singleDecision.getTableContainer().getTableContainerName());
 		}
-		return instanceModel.predictExtract(singleDecision);
+		return instanceModel.predictExtract(featureModel.getFeatureVector(branchedDecisionSymbols, singleDecision.getTableContainer().getTableContainerName()), singleDecision);
 	}
 	
-	public FeatureVector extract() throws MaltChainedException {
+	public FeatureVector extract(FeatureModel featureModel) throws MaltChainedException {
 		featureModel.update();
-		return instanceModel.extract();
+		return null; //instanceModel.extract(featureModel.getFeatureVector(branchedDecisionSymbols, singleDecision.getTableContainer().getTableContainerName()));
 	}
 	
-	public boolean predictFromKBestList(GuideDecision decision) throws MaltChainedException {
+	public boolean predictFromKBestList(FeatureModel featureModel, GuideDecision decision) throws MaltChainedException {
 		if (decision instanceof SingleDecision) {
 			return ((SingleDecision)decision).updateFromKBestList();
 		} else {
@@ -136,10 +138,6 @@ public class OneDecisionModel implements DecisionModel {
 	public String getModelName() {
 		return modelName;
 	}
-	
-	public FeatureModel getFeatureModel() {
-		return featureModel;
-	}
 
 	public int getDecisionIndex() {
 		return decisionIndex;
@@ -147,22 +145,6 @@ public class OneDecisionModel implements DecisionModel {
 
 	public DecisionModel getPrevDecisionModel() {
 		return prevDecisionModel;
-	}
-
-	private final void initInstanceModel(String subModelName) throws MaltChainedException {
-		FeatureVector fv = featureModel.getFeatureVector(branchedDecisionSymbols+"."+subModelName);
-		if (fv == null) {
-			fv = featureModel.getFeatureVector(subModelName);
-		}
-		if (fv == null) {
-			fv = featureModel.getMainFeatureVector();
-		}
-		final DependencyParserConfig c = guide.getConfiguration();
-		if (c.getOptionValue("guide", "data_split_column").toString().length() == 0) {
-			instanceModel = new AtomicModel(-1, fv, this);
-		} else {
-			instanceModel = new FeatureDivideModel(fv, this);
-		}
 	}
 	
 	public String toString() {		

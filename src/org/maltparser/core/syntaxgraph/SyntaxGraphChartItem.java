@@ -91,9 +91,9 @@ public class SyntaxGraphChartItem extends ChartItem {
 				if (inFormat != null && outFormat != null) {
 					LosslessMapping mapping = null;
 					if (inFormat.getDataFormarSpec().getDataStructure() == DataStructure.DEPENDENCY) {
-						mapping = new LosslessMapping(inFormat, outFormat);
+						mapping = new LosslessMapping(inFormat, outFormat, symbolTables);
 					} else {
-						mapping = new LosslessMapping(outFormat, inFormat);
+						mapping = new LosslessMapping(outFormat, inFormat, symbolTables);
 					}
 					if (inFormat.getDataFormarSpec().getDataStructure() == DataStructure.PHRASE) {
 						mapping.setHeadRules(OptionManager.instance().getOptionValue(getOptionContainerIndex(), "graph", "head_rules").toString());
@@ -114,7 +114,7 @@ public class SyntaxGraphChartItem extends ChartItem {
 			if (dataFormatInstance != null) {
 				((DependencyStructure)graph).setDefaultRootEdgeLabels(
 						OptionManager.instance().getOptionValue(getOptionContainerIndex(), "graph", "root_label").toString(), 
-						dataFormatInstance.getDependencyEdgeLabelSymbolTables());
+						dataFormatInstance.getDependencyEdgeLabelSymbolTables(symbolTables));
 			}
 			flowChartinstance.addFlowChartRegistry(org.maltparser.core.syntaxgraph.TokenStructure.class, structureName, graph);
 		}

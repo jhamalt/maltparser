@@ -3,11 +3,7 @@ package org.maltparser.parser.algorithm.covington;
 import java.util.ArrayList;
 
 import org.maltparser.core.exception.MaltChainedException;
-import org.maltparser.core.symbol.SymbolTable;
-import org.maltparser.core.symbol.SymbolTableHandler;
-import org.maltparser.core.syntaxgraph.DependencyGraph;
 import org.maltparser.core.syntaxgraph.DependencyStructure;
-import org.maltparser.core.syntaxgraph.edge.Edge;
 import org.maltparser.core.syntaxgraph.node.DependencyNode;
 import org.maltparser.parser.ParserConfiguration;
 import org.maltparser.parser.ParsingException;
@@ -16,22 +12,21 @@ import org.maltparser.parser.ParsingException;
  *
  */
 public class CovingtonConfig extends ParserConfiguration {
-	private ArrayList<DependencyNode> input;
+	private final ArrayList<DependencyNode> input;
 	private int right;
 	private int left;
 	private int leftstop;
 	private int rightstop;
 	private DependencyStructure dependencyGraph;
-	private boolean allowRoot;
-	private boolean allowShift;
+	private final boolean allowRoot;
+	private final boolean allowShift;
 
 	
-	public CovingtonConfig(SymbolTableHandler symbolTableHandler, boolean cr, boolean cs) throws MaltChainedException {
+	public CovingtonConfig(boolean cr, boolean cs) throws MaltChainedException {
 		super();
 		input = new ArrayList<DependencyNode>();
-		dependencyGraph = new DependencyGraph(symbolTableHandler);
-		setAllowRoot(cr);
-		setAllowShift(cs);
+		this.allowRoot = cr;
+		this.allowShift = cs;
 	}
 
 	public DependencyStructure getDependencyStructure() {
@@ -74,17 +69,17 @@ public class CovingtonConfig extends ParserConfiguration {
 		return allowRoot;
 	}
 
-	public void setAllowRoot(boolean allowRoot) {
-		this.allowRoot = allowRoot;
-	}
+//	public void setAllowRoot(boolean allowRoot) {
+//		this.allowRoot = allowRoot;
+//	}
 
 	public boolean isAllowShift() {
 		return allowShift;
 	}
 
-	public void setAllowShift(boolean allowShift) {
-		this.allowShift = allowShift;
-	}
+//	public void setAllowShift(boolean allowShift) {
+//		this.allowShift = allowShift;
+//	}
 
 	public DependencyNode getLeftNode(int index) throws MaltChainedException {
 		if (index < 0) {
@@ -150,40 +145,32 @@ public class CovingtonConfig extends ParserConfiguration {
 	}
 	
 	public void setDependencyGraph(DependencyStructure source) throws MaltChainedException {
-		dependencyGraph.clear();
-		for (int index : source.getTokenIndices()) {
-			DependencyNode gnode = source.getTokenNode(index);
-			DependencyNode pnode = dependencyGraph.addTokenNode(gnode.getIndex());
-			for (SymbolTable table : gnode.getLabelTypes()) {
-				pnode.addLabel(table, gnode.getLabelSymbol(table));
-			}
-			
-			if (gnode.hasHead()) {
-				Edge s = gnode.getHeadEdge();
-				Edge t = dependencyGraph.addDependencyEdge(s.getSource().getIndex(), s.getTarget().getIndex());
-				
-				for (SymbolTable table : s.getLabelTypes()) {
-					t.addLabel(table, s.getLabelSymbol(table));
-				}
-			}
-		}
-		for (SymbolTable table : source.getDefaultRootEdgeLabels().keySet()) {
-			dependencyGraph.setDefaultRootEdgeLabel(table, source.getDefaultRootEdgeLabelSymbol(table));
-		}
+		this.dependencyGraph = source;
+//		dependencyGraph.clear();
+//		for (int index : source.getTokenIndices()) {
+//			DependencyNode gnode = source.getDependencyNode(index);
+//			DependencyNode pnode = dependencyGraph.addDependencyNode(gnode.getIndex());
+//			for (SymbolTable table : gnode.getLabelTypes()) {
+//				pnode.addLabel(table, gnode.getLabelSymbol(table));
+//			}
+//			
+//			if (gnode.hasHead()) {
+//				Edge s = gnode.getHeadEdge();
+//				Edge t = dependencyGraph.addDependencyEdge(s.getSource().getIndex(), s.getTarget().getIndex());
+//				
+//				for (SymbolTable table : s.getLabelTypes()) {
+//					t.addLabel(table, s.getLabelSymbol(table));
+//				}
+//			}
+//		}
+//		for (SymbolTable table : source.getDefaultRootEdgeLabels().keySet()) {
+//			dependencyGraph.setDefaultRootEdgeLabel(table, source.getDefaultRootEdgeLabelSymbol(table));
+//		}
 	}
 	
 	public DependencyStructure getDependencyGraph() {
 		return dependencyGraph;
 	}
-	
-//	public void initAllowRoot(boolean allowRoot) throws MaltChainedException {
-//		if (allowRoot == true) {
-//			leftstop = 0;
-//		} else {
-//			leftstop = 1;
-//		}
-//	}
-	
 	
 	public void initialize(ParserConfiguration parserConfiguration) throws MaltChainedException {	
 		if (parserConfiguration != null) {
@@ -215,8 +202,25 @@ public class CovingtonConfig extends ParserConfiguration {
 		}
 	}
 	
+	public void initialize() throws MaltChainedException {	
+		for (int i = 0, n = dependencyGraph.getHighestTokenIndex(); i <= n; i++) {
+			DependencyNode node = dependencyGraph.getDependencyNode(i);
+			if (node != null) { 
+				input.add(node);
+			}
+		}
+		if (allowRoot == true) {
+			leftstop = 0;
+		} else {
+			leftstop = 1;
+		}
+		rightstop = dependencyGraph.getHighestTokenIndex();
+		left = leftstop;
+		right = left + 1;
+	}
+	
 	public void clear() throws MaltChainedException {
-		dependencyGraph.clear();
+//		dependencyGraph.clear();
 		input.clear();
 		historyNode = null;
 	}

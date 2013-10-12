@@ -2,6 +2,8 @@ package org.maltparser.core.syntaxgraph.feature;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
+
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.feature.function.AddressFunction;
 import org.maltparser.core.feature.function.FeatureFunction;
@@ -15,21 +17,27 @@ import org.maltparser.core.symbol.nullvalue.NullValues.NullValueId;
 import org.maltparser.core.syntaxgraph.SyntaxGraphException;
 import org.maltparser.core.syntaxgraph.node.DependencyNode;
 
-public class DistanceFeature implements FeatureFunction {
-	protected AddressFunction addressFunction1;
-	protected AddressFunction addressFunction2;
-	protected SymbolTableHandler tableHandler;
-	protected SymbolTable table;
-	protected SingleFeatureValue featureValue;
-	protected String normalizationString;
-	protected Map<Integer,String> normalization;
+public final class DistanceFeature implements FeatureFunction {
+	public final static  Class<?>[] paramTypes = { org.maltparser.core.feature.function.AddressFunction.class, 
+		                                           org.maltparser.core.feature.function.AddressFunction.class,
+		                                           java.lang.String.class };
+	private final static Pattern splitPattern = Pattern.compile("\\|");
+	private AddressFunction addressFunction1;
+	private AddressFunction addressFunction2;
+	private final SymbolTableHandler tableHandler;
+	private SymbolTable table;
+	private final SingleFeatureValue featureValue;
+	private String normalizationString;
+	private final Map<Integer,String> normalization;
 	
+//	public DistanceFeature(FeatureRegistry registry) throws MaltChainedException {
+//		this(registry.getSymbolTableHandler());
+//	}
 	
 	public DistanceFeature(SymbolTableHandler tableHandler) throws MaltChainedException {
-		super();
-		featureValue = new SingleFeatureValue(this);
-		setTableHandler(tableHandler);
-		normalization = new LinkedHashMap<Integer,String>();
+		this.featureValue = new SingleFeatureValue(this);
+		this.tableHandler = tableHandler;
+		this.normalization = new LinkedHashMap<Integer,String>();
 	}
 	
 	/**
@@ -59,7 +67,7 @@ public class DistanceFeature implements FeatureFunction {
 		// Creates a symbol table called "DISTANCE" using one null value
 		setSymbolTable(tableHandler.addSymbolTable("DISTANCE_"+normalizationString, ColumnDescription.INPUT, "one"));
 		
-		String[] items  = normalizationString.split("\\|");
+		String[] items  = splitPattern.split(normalizationString);
 		
 		if (items.length <= 0 || !items[0].equals("0")) {
 			throw new SyntaxGraphException("Could not initialize DistanceFeature ("+this+"): the third argument (normalization) must contain a list of integer values separated with | and the first element must be 0.");
@@ -88,9 +96,6 @@ public class DistanceFeature implements FeatureFunction {
 	 * @return an array of class types
 	 */
 	public Class<?>[] getParameterTypes() {
-		Class<?>[] paramTypes = { org.maltparser.core.feature.function.AddressFunction.class, 
-								  org.maltparser.core.feature.function.AddressFunction.class,
-								  java.lang.String.class};
 		return paramTypes; 
 	}
 	
@@ -114,15 +119,6 @@ public class DistanceFeature implements FeatureFunction {
 	 */
 	public int getCode(String symbol) throws MaltChainedException {
 		return table.getSymbolStringToCode(symbol);
-	}
-	
-	/**
-	 * Cause the distance feature function to update the cardinality of the feature value.
-	 * 
-	 * @throws MaltChainedException
-	 */
-	public void updateCardinality() {
-//		featureValue.setCardinality(table.getValueCounter()); 
 	}
 	
 	/**
@@ -249,15 +245,6 @@ public class DistanceFeature implements FeatureFunction {
 	 */
 	public SymbolTableHandler getTableHandler() {
 		return tableHandler;
-	}
-
-	/**
-	 * Sets the symbol table handler
-	 * 
-	 * @param tableHandler a symbol table handler
-	 */
-	public void setTableHandler(SymbolTableHandler tableHandler) {
-		this.tableHandler = tableHandler;
 	}
 
 	/**

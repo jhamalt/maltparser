@@ -1,21 +1,22 @@
 package org.maltparser.parser;
 
 import org.maltparser.core.exception.MaltChainedException;
+import org.maltparser.core.symbol.SymbolTableHandler;
 import org.maltparser.core.syntaxgraph.DependencyStructure;
 import org.maltparser.parser.guide.OracleGuide;
 /**
  * @author Johan Hall
  *
  */
-public abstract class Trainer extends Algorithm {
+public abstract class Trainer extends ParsingAlgorithm {
 	/**
 	 * Creates a parser trainer
 	 * 
 	 * @param manager a reference to the single malt configuration
 	 * @throws MaltChainedException
 	 */
-	public Trainer(DependencyParserConfig manager) throws MaltChainedException {
-		super(manager);
+	public Trainer(DependencyParserConfig manager, SymbolTableHandler symbolTableHandler) throws MaltChainedException {
+		super(manager, symbolTableHandler);
 	}
 	
 	/**

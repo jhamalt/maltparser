@@ -3,11 +3,7 @@ package org.maltparser.parser.algorithm.stack;
 import java.util.Stack;
 
 import org.maltparser.core.exception.MaltChainedException;
-import org.maltparser.core.symbol.SymbolTable;
-import org.maltparser.core.symbol.SymbolTableHandler;
-import org.maltparser.core.syntaxgraph.DependencyGraph;
 import org.maltparser.core.syntaxgraph.DependencyStructure;
-import org.maltparser.core.syntaxgraph.edge.Edge;
 import org.maltparser.core.syntaxgraph.node.DependencyNode;
 import org.maltparser.parser.ParserConfiguration;
 import org.maltparser.parser.ParsingException;
@@ -16,16 +12,16 @@ import org.maltparser.parser.ParsingException;
  *
  */
 public class StackConfig extends ParserConfiguration {
-	private Stack<DependencyNode> stack;
-	private Stack<DependencyNode> input;
+	private final Stack<DependencyNode> stack;
+	private final Stack<DependencyNode> input;
 	private DependencyStructure dependencyGraph;
 	private int lookahead;
 	
-	public StackConfig(SymbolTableHandler symbolTableHandler) throws MaltChainedException {
+	public StackConfig() throws MaltChainedException {
 		super();
 		stack = new Stack<DependencyNode>();
 		input = new Stack<DependencyNode>();
-		dependencyGraph = new DependencyGraph(symbolTableHandler);
+//		dependencyGraph = new DependencyGraph(symbolTableHandler);
 	}
 	
 	public Stack<DependencyNode> getStack() {
@@ -76,26 +72,27 @@ public class StackConfig extends ParserConfiguration {
 	}
 	
 	public void setDependencyGraph(DependencyStructure source) throws MaltChainedException {
-		dependencyGraph.clear();
-		for (int index : source.getTokenIndices()) {
-			DependencyNode gnode = source.getTokenNode(index);
-			DependencyNode pnode = dependencyGraph.addTokenNode(gnode.getIndex());
-			for (SymbolTable table : gnode.getLabelTypes()) {
-				pnode.addLabel(table, gnode.getLabelSymbol(table));
-			}
-			
-			if (gnode.hasHead()) {
-				Edge s = gnode.getHeadEdge();
-				Edge t = dependencyGraph.addDependencyEdge(s.getSource().getIndex(), s.getTarget().getIndex());
-				
-				for (SymbolTable table : s.getLabelTypes()) {
-					t.addLabel(table, s.getLabelSymbol(table));
-				}
-			}
-		}
-		for (SymbolTable table : source.getDefaultRootEdgeLabels().keySet()) {
-			dependencyGraph.setDefaultRootEdgeLabel(table, source.getDefaultRootEdgeLabelSymbol(table));
-		}
+		this.dependencyGraph = source;
+//		dependencyGraph.clear();
+//		for (int index : source.getTokenIndices()) {
+//			DependencyNode gnode = source.getDependencyNode(index);
+//			DependencyNode pnode = dependencyGraph.addDependencyNode(gnode.getIndex());
+//			for (SymbolTable table : gnode.getLabelTypes()) {
+//				pnode.addLabel(table, gnode.getLabelSymbol(table));
+//			}
+//			
+//			if (gnode.hasHead()) {
+//				Edge s = gnode.getHeadEdge();
+//				Edge t = dependencyGraph.addDependencyEdge(s.getSource().getIndex(), s.getTarget().getIndex());
+//				
+//				for (SymbolTable table : s.getLabelTypes()) {
+//					t.addLabel(table, s.getLabelSymbol(table));
+//				}
+//			}
+//		}
+//		for (SymbolTable table : source.getDefaultRootEdgeLabels().keySet()) {
+//			dependencyGraph.setDefaultRootEdgeLabel(table, source.getDefaultRootEdgeLabelSymbol(table));
+//		}
 	}
 	
 	public void lookaheadIncrement() {
@@ -135,6 +132,16 @@ public class StackConfig extends ParserConfiguration {
 		}
 	}
 	
+	public void initialize() throws MaltChainedException {
+		stack.push(dependencyGraph.getDependencyRoot());
+		for (int i = dependencyGraph.getHighestTokenIndex(); i > 0; i--) {
+			final DependencyNode node = dependencyGraph.getDependencyNode(i);
+			if (node != null && !node.hasHead()) { 
+				input.push(node);
+			}
+		}
+	}
+	
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -166,7 +173,7 @@ public class StackConfig extends ParserConfiguration {
 	}
 	
 	public void clear() throws MaltChainedException {
-		dependencyGraph.clear();
+//		dependencyGraph.clear();
 		stack.clear();
 		input.clear();
 		historyNode = null;

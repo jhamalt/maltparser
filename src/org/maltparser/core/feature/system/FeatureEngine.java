@@ -9,9 +9,9 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.maltparser.core.config.ConfigurationRegistry;
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.feature.FeatureException;
+import org.maltparser.core.feature.FeatureRegistry;
 import org.maltparser.core.feature.function.Function;
 import org.maltparser.core.helper.HashMap;
 import org.maltparser.core.helper.URLFinder;
@@ -33,7 +33,7 @@ public class FeatureEngine extends HashMap<String, FunctionDescription> {
 		super();
 	}
 
-	public Function newFunction(String functionName, ConfigurationRegistry registry) throws MaltChainedException {
+	public Function newFunction(String functionName, FeatureRegistry registry) throws MaltChainedException {
 		int i = 0;
 		Function func = null;
 		while (true) {

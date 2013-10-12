@@ -1,20 +1,16 @@
 package org.maltparser.parser.guide.instance;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.SortedMap;
 
-import java.util.ArrayList;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 import org.maltparser.core.exception.MaltChainedException;
-import org.maltparser.core.feature.FeatureException;
+import org.maltparser.core.feature.FeatureModel;
 import org.maltparser.core.feature.FeatureVector;
-import org.maltparser.core.feature.function.FeatureFunction;
-import org.maltparser.core.feature.function.Modifiable;
 import org.maltparser.core.feature.value.SingleFeatureValue;
 import org.maltparser.core.syntaxgraph.DependencyStructure;
 import org.maltparser.parser.guide.ClassifierGuide;
@@ -28,88 +24,72 @@ a divide feature. Usually this strategy decrease the training and classification
 the accuracy of the parser.  
 
 @author Johan Hall
-@since 1.0
 */
 public class FeatureDivideModel implements InstanceModel {
-	private Model parent;
+	private final Model parent;
 	private final SortedMap<Integer,AtomicModel> divideModels;
-	private FeatureVector masterFeatureVector;
-	private FeatureVector divideFeatureVector;
+//	private FeatureVector masterFeatureVector;
 	private int frequency = 0;
-	private FeatureFunction divideFeature;
-	private int divideThreshold;
+	private final int divideThreshold;
 	private AtomicModel masterModel;
-	private ArrayList<Integer> divideFeatureIndexVector;
 	
 	/**
 	 * Constructs a feature divide model.
 	 * 
-	 * @param features the feature vector used by the atomic model.
 	 * @param parent the parent guide model.
 	 * @throws MaltChainedException
 	 */
-	public FeatureDivideModel(FeatureVector features, Model parent) throws MaltChainedException {
-		setParent(parent);
+	public FeatureDivideModel(Model parent) throws MaltChainedException {
+		this.parent = parent;
 		setFrequency(0);
-		initSplitParam(features);
+//		this.masterFeatureVector = featureVector;
+
+		String data_split_threshold = getGuide().getConfiguration().getOptionValue("guide", "data_split_threshold").toString().trim();
+		if (data_split_threshold != null) {
+			try {
+				divideThreshold = Integer.parseInt(data_split_threshold);
+			} catch (NumberFormatException e) {
+				throw new GuideException("The --guide-data_split_threshold option is not an integer value. ", e);
+			}
+		} else {
+			divideThreshold = 0;
+		}
 		divideModels = new TreeMap<Integer,AtomicModel>();
 		if (getGuide().getGuideMode() == ClassifierGuide.GuideMode.BATCH) {
-			masterModel = new AtomicModel(-1, masterFeatureVector, this);
+			masterModel = new AtomicModel(-1, this);
 		} else if (getGuide().getGuideMode() == ClassifierGuide.GuideMode.CLASSIFY) {
 			load();
 		}
 	}
 	
-	public void addInstance(SingleDecision decision) throws MaltChainedException {
-		if (getGuide().getGuideMode() == ClassifierGuide.GuideMode.CLASSIFY) {
-			throw new GuideException("Can only add instance during learning. ");
-		} else if (!(divideFeature.getFeatureValue() instanceof SingleFeatureValue)) {
-			throw new GuideException("The divide feature does not have a single value. ");
+	public void addInstance(FeatureVector featureVector, SingleDecision decision) throws MaltChainedException {
+//		featureVector.getFeatureModel().getDivideFeatureFunction().update();
+		SingleFeatureValue featureValue = (SingleFeatureValue)featureVector.getFeatureModel().getDivideFeatureFunction().getFeatureValue();
+		if (!divideModels.containsKey(featureValue.getIndexCode())) {
+			divideModels.put(featureValue.getIndexCode(), new AtomicModel(featureValue.getIndexCode(), this));
 		}
-		
-		divideFeature.update();
-		if (divideModels != null) { 
-			if (!divideModels.containsKey(((SingleFeatureValue)divideFeature.getFeatureValue()).getIndexCode())) {
-				divideModels.put(((SingleFeatureValue)divideFeature.getFeatureValue()).getIndexCode(), new AtomicModel(((SingleFeatureValue)divideFeature.getFeatureValue()).getIndexCode(), divideFeatureVector, this));
-			}
-			divideModels.get(((SingleFeatureValue)divideFeature.getFeatureValue()).getIndexCode()).addInstance(decision);
-		} else {
-			throw new GuideException("The feature divide models cannot be found. ");
-		}
+		FeatureVector divideFeatureVector = featureVector.getFeatureModel().getFeatureVector("/" + featureVector.getSpecSubModel().getSubModelName());
+		divideModels.get(featureValue.getIndexCode()).addInstance(divideFeatureVector, decision);
 	}
 	
-	public void noMoreInstances() throws MaltChainedException {
-//		if (getGuide().getGuideMode() == Guide.GuideMode.CLASSIFY) {
-//			throw new GuideException("Can only finish all data during learning. ");
-//		}
-		
-		if (divideModels != null) {
-//			divideFeature.updateCardinality();
-			for (Integer index : divideModels.keySet()) {
-				divideModels.get(index).noMoreInstances();
-			}
-			final TreeSet<Integer> removeSet = new TreeSet<Integer>();
-			for (Integer index : divideModels.keySet()) {
-				if (divideModels.get(index).getFrequency() <= divideThreshold) {
-					divideModels.get(index).moveAllInstances(masterModel, divideFeature, divideFeatureIndexVector);
-					removeSet.add(index);
-				}
-			}
-			for (Integer index : removeSet) {
-				divideModels.remove(index);
-			}
-			masterModel.noMoreInstances();
-
-		} else {
-			throw new GuideException("The feature divide models cannot be found. ");
+	public void noMoreInstances(FeatureModel featureModel) throws MaltChainedException {
+		for (Integer index : divideModels.keySet()) {
+			divideModels.get(index).noMoreInstances(featureModel);
 		}
+		final TreeSet<Integer> removeSet = new TreeSet<Integer>();
+		for (Integer index : divideModels.keySet()) {
+			if (divideModels.get(index).getFrequency() <= divideThreshold) {
+				divideModels.get(index).moveAllInstances(masterModel, featureModel.getDivideFeatureFunction(), featureModel.getDivideFeatureIndexVector());
+				removeSet.add(index);
+			}
+		}
+		for (Integer index : removeSet) {
+			divideModels.remove(index);
+		}
+		masterModel.noMoreInstances(featureModel);
 	}
 
 	public void finalizeSentence(DependencyStructure dependencyGraph) throws MaltChainedException {
-//		if (getGuide().getGuideMode() == Guide.GuideMode.CLASSIFY) {
-//			throw new GuideException("Can only finish sentence during learning. ");
-//		}
-
 		if (divideModels != null) { 
 			for (AtomicModel divideModel : divideModels.values()) {
 				divideModel.finalizeSentence(dependencyGraph);
@@ -119,53 +99,51 @@ public class FeatureDivideModel implements InstanceModel {
 		}
 	}
 
-	public boolean predict(SingleDecision decision) throws MaltChainedException {
-		if (getGuide().getGuideMode() == ClassifierGuide.GuideMode.BATCH) {
-			throw new GuideException("Can only predict during parsing. ");
-		} else if (!(divideFeature.getFeatureValue() instanceof SingleFeatureValue)) {
-			throw new GuideException("The divide feature does not have a single value. ");
-		}
-		
-		//divideFeature.update();
-		if (divideModels != null && divideModels.containsKey(((SingleFeatureValue)divideFeature.getFeatureValue()).getIndexCode())) {
-			return divideModels.get(((SingleFeatureValue)divideFeature.getFeatureValue()).getIndexCode()).predict(decision);
-		} else if (masterModel != null && masterModel.getFrequency() > 0) {
-			return masterModel.predict(decision);
-		} else {
-			getGuide().getConfiguration().getConfigLogger().info("Could not predict the next parser decision because there is " +
-					"no divide or master model that covers the divide value '"+((SingleFeatureValue)divideFeature.getFeatureValue()).getIndexCode()+"', as default" +
-							" class code '1' is used. ");
-			
+	public boolean predict(FeatureVector featureVector, SingleDecision decision) throws MaltChainedException {
+		AtomicModel model = getAtomicModel((SingleFeatureValue)featureVector.getFeatureModel().getDivideFeatureFunction().getFeatureValue());
+		if (model == null) {
+			if (getGuide().getConfiguration().isLoggerInfoEnabled()) {
+				getGuide().getConfiguration().logInfoMessage("Could not predict the next parser decision because there is " +
+						"no divide or master model that covers the divide value '"+((SingleFeatureValue)featureVector.getFeatureModel().getDivideFeatureFunction().getFeatureValue()).getIndexCode()+"', as default" +
+								" class code '1' is used. ");
+			}
 			decision.addDecision(1); // default prediction
-			//classCodeTable.getEmptyKBestList().addKBestItem(1); 
+			return true;
 		}
-		return true;
+		return model.predict(getModelFeatureVector(model, featureVector), decision);
 	}
 
-	public FeatureVector predictExtract(SingleDecision decision) throws MaltChainedException {
-		return getAtomicModel().predictExtract(decision);
-	}
-	
-	public FeatureVector extract() throws MaltChainedException {
-		return getAtomicModel().extract();
-	}
-	
-	private AtomicModel getAtomicModel() throws MaltChainedException {
-		if (getGuide().getGuideMode() == ClassifierGuide.GuideMode.BATCH) {
-			throw new GuideException("Can only predict during parsing. ");
-		} else if (!(divideFeature.getFeatureValue() instanceof SingleFeatureValue)) {
-			throw new GuideException("The divide feature does not have a single value. ");
+	public FeatureVector predictExtract(FeatureVector featureVector, SingleDecision decision) throws MaltChainedException {
+		AtomicModel model = getAtomicModel((SingleFeatureValue)featureVector.getFeatureModel().getDivideFeatureFunction().getFeatureValue());
+		if (model == null) {
+			return null;
 		}
-		
-		if (divideModels != null && divideModels.containsKey(((SingleFeatureValue)divideFeature.getFeatureValue()).getIndexCode())) {
-			return divideModels.get(((SingleFeatureValue)divideFeature.getFeatureValue()).getIndexCode());
+		return model.predictExtract(getModelFeatureVector(model, featureVector), decision);
+	}
+	
+	public FeatureVector extract(FeatureVector featureVector) throws MaltChainedException {
+		AtomicModel model = getAtomicModel((SingleFeatureValue)featureVector.getFeatureModel().getDivideFeatureFunction().getFeatureValue());
+		if (model == null) {
+			return featureVector;
+		}
+		return model.extract(getModelFeatureVector(model, featureVector));
+	}
+	
+	private FeatureVector getModelFeatureVector(AtomicModel model, FeatureVector featureVector) {
+		if (model.getIndex() == -1) {
+			return featureVector;
+		} else {
+			return featureVector.getFeatureModel().getFeatureVector("/" + featureVector.getSpecSubModel().getSubModelName());
+		}
+	}
+	
+	private AtomicModel getAtomicModel(SingleFeatureValue featureValue) throws MaltChainedException {
+		//((SingleFeatureValue)masterFeatureVector.getFeatureModel().getDivideFeatureFunction().getFeatureValue()).getIndexCode()
+		if (divideModels != null && divideModels.containsKey(featureValue.getIndexCode())) {
+			return divideModels.get(featureValue.getIndexCode());
 		} else if (masterModel != null && masterModel.getFrequency() > 0) {
 			return masterModel;
-		} else {
-			getGuide().getConfiguration().getConfigLogger().info("Could not predict the next parser decision because there is " +
-					"no divide or master model that covers the divide value '"+((SingleFeatureValue)divideFeature.getFeatureValue()).getIndexCode()+"', as default" +
-							" class code '1' is used. ");
-		}
+		} 
 		return null;
 	}
 	
@@ -193,80 +171,13 @@ public class FeatureDivideModel implements InstanceModel {
 	}
 	
 	/**
-	 * Initialize the feature split parameters and the split feature vector and master feature vector
-	 * according to the behavior strategy.
-	 * 
-	 * @param featureVector the parent guide model's feature vector.
-	 * @throws MaltChainedException
-	 */
-	protected void initSplitParam(FeatureVector featureVector) throws MaltChainedException {
-		if (getGuide().getConfiguration().getOptionValue("guide", "data_split_column") == null 
-				|| getGuide().getConfiguration().getOptionValue("guide", "data_split_column").toString().length() == 0) {
-			throw new GuideException("The option '--guide-data_split_column' cannot be found, when initializing the data split. ");
-		}
-		if (getGuide().getConfiguration().getOptionValue("guide", "data_split_structure") == null 
-				|| getGuide().getConfiguration().getOptionValue("guide", "data_split_structure").toString().length() == 0) {
-			throw new GuideException("The option '--guide-data_split_structure' cannot be found, when initializing the data split. ");
-		}
-		try {
-			final String spec = "InputColumn(" + getGuide().getConfiguration().getOptionValue("guide", "data_split_column").toString().trim()+
-							", "+getGuide().getConfiguration().getOptionValue("guide", "data_split_structure").toString().trim() +")";
-			divideFeature = featureVector.getFeatureModel().identifyFeature(spec);
-		} catch (FeatureException e) {
-			throw new GuideException("The data split feature 'InputColumn("+getGuide().getConfiguration().getOptionValue("guide", "data_split_column").toString()+", "+getGuide().getConfiguration().getOptionValue("guide", "data_split_structure").toString()+") cannot be initialized. ", e);
-		}
-		if (!(divideFeature instanceof Modifiable)) {
-			throw new GuideException("The data split feature 'InputColumn("+getGuide().getConfiguration().getOptionValue("guide", "data_split_column").toString()+", "+getGuide().getConfiguration().getOptionValue("guide", "data_split_structure").toString()+") does not implement Modifiable interface. ");
-		}
-		divideFeatureIndexVector = new ArrayList<Integer>();
-		for (int i = 0; i < featureVector.size(); i++) {
-			if (featureVector.get(i).equals(divideFeature)) {
-				divideFeatureIndexVector.add(i);
-			}
-		}
-		
-//		if ((Boolean)getGuide().getConfiguration().getOptionValue("malt0.4", "behavior") == true) {
-//			/* MaltParser 0.4 removes the divide feature for all divide models. For the "Sum-up" model or
-//			 * master model adds the divide feature in the end of the feature vector.
-//			 */
-//			masterFeatureVector = (FeatureVector)featureVector.clone();
-//			for (Integer i : divideFeatureIndexVector) {
-//				masterFeatureVector.remove(masterFeatureVector.get(i));
-//			}
-//			for (Integer i : divideFeatureIndexVector) {
-//				masterFeatureVector.add(featureVector.get(i));
-//			}
-//		
-//			divideFeatureVector = (FeatureVector)featureVector.clone();
-//			for (Integer i : divideFeatureIndexVector) {
-//				divideFeatureVector.remove(divideFeatureVector.get(i));
-//			}
-//		} else {
-			masterFeatureVector = featureVector;
-			divideFeatureVector = (FeatureVector)featureVector.clone();
-			for (Integer i : divideFeatureIndexVector) {
-				divideFeatureVector.remove(divideFeatureVector.get(i));
-			}
-//		}
-		try {
-			if (getGuide().getConfiguration().getOptionValue("guide", "data_split_threshold").toString() != null) {
-				divideThreshold = Integer.parseInt(getGuide().getConfiguration().getOptionValue("guide", "data_split_threshold").toString());
-			} else {
-				divideThreshold = 0;
-			}
-		} catch (NumberFormatException e) {
-			throw new GuideException("The --guide-data_split_threshold option is not an integer value. ", e);
-		}
-	}
-	
-	/**
-	 * Saves the feature divide model settings .fsm file.
+	 * Saves the feature divide model settings .dsm file.
 	 * 
 	 * @throws MaltChainedException
 	 */
 	protected void save() throws MaltChainedException {
 		try {
-			final BufferedWriter out = new BufferedWriter(getGuide().getConfiguration().getConfigurationDir().getOutputStreamWriter(getModelName()+".dsm"));
+			final BufferedWriter out = new BufferedWriter(getGuide().getConfiguration().getOutputStreamWriter(getModelName()+".dsm"));
 			out.write(masterModel.getIndex() + "\t" + masterModel.getFrequency() + "\n");
 
 			if (divideModels != null) {
@@ -281,44 +192,33 @@ public class FeatureDivideModel implements InstanceModel {
 		}
 	}
 	
-	/**
-	 * Loads the feature divide model settings .fsm file.
-	 * 
-	 * @throws MaltChainedException
-	 */
 	protected void load() throws MaltChainedException {
-		try {
-			final BufferedReader in = new BufferedReader(getGuide().getConfiguration().getConfigurationDir().getInputStreamReaderFromConfigFile(getModelName()+".dsm"));
-			final Pattern tabPattern = Pattern.compile("\t");
-			while(true) {
-				String line = in.readLine();
-				if(line == null) break;
-				String[] cols = tabPattern.split(line);
-				if (cols.length != 2) { 
-					throw new GuideException("");
-				}
-				int code = -1;
-				int freq = 0;
-				try {
-					code = Integer.parseInt(cols[0]);
-					freq = Integer.parseInt(cols[1]);
-				} catch (NumberFormatException e) {
-					throw new GuideException("Could not convert a string value into an integer value when loading the feature divide model settings (.fsm). ", e);
-				}
-				if (code == -1) { 
-					masterModel = new AtomicModel(-1, masterFeatureVector, this);
-					masterModel.setFrequency(freq);
-				} else if (divideModels != null) {
-					divideModels.put(code, new AtomicModel(code, divideFeatureVector, this));
-					divideModels.get(code).setFrequency(freq);
-				}
-				setFrequency(getFrequency()+freq);
+		String dsmString = getGuide().getConfiguration().getConfigFileEntryString(getModelName()+".dsm");
+		String[] lines = dsmString.split("\n");
+		Pattern tabPattern = Pattern.compile("\t");
+//		FeatureVector divideFeatureVector = featureVector.getFeatureModel().getFeatureVector("/" + featureVector.getSpecSubModel().getSubModelName());
+		for (int i = 0; i < lines.length; i++) {
+			String[] cols = tabPattern.split(lines[i]);
+			if (cols.length != 2) { 
+				throw new GuideException("");
 			}
-			in.close();
-		} catch (IOException e) {
-			throw new GuideException("Could not read from the guide model settings file '"+getModelName()+".dsm"+"', when " +
-					"loading the guide model settings. ", e);
-		}	
+			int code = -1;
+			int freq = 0;
+			try {
+				code = Integer.parseInt(cols[0]);
+				freq = Integer.parseInt(cols[1]);
+			} catch (NumberFormatException e) {
+				throw new GuideException("Could not convert a string value into an integer value when loading the feature divide model settings (.dsm). ", e);
+			}
+			if (code == -1) { 
+				masterModel = new AtomicModel(-1, this);
+				masterModel.setFrequency(freq);
+			} else if (divideModels != null) {
+				divideModels.put(code, new AtomicModel(code, this));
+				divideModels.get(code).setFrequency(freq);
+			}
+			setFrequency(getFrequency()+freq);
+		}
 	}
 	
 	/**
@@ -334,40 +234,12 @@ public class FeatureDivideModel implements InstanceModel {
 		return parent.getGuide();
 	}
 	
-	/**
-	 * Sets the parent model
-	 * 
-	 * @param parent the parent model
-	 */
-	protected void setParent(Model parent) throws MaltChainedException {
-		this.parent = parent;
-	}
-
-
 	public String getModelName() throws MaltChainedException {
 		try {
 			return parent.getModelName();
 		} catch (NullPointerException e) {
 			throw new GuideException("The parent guide model cannot be found. ", e);
 		}
-	}
-
-	/**
-	 * Returns the "sum-up" or master feature vector
-	 * 
-	 * @return a feature vector object
-	 */
-	public FeatureVector getMasterFeatureVector() {
-		return masterFeatureVector;
-	}
-
-	/**
-	 * Returns the divide feature vector
-	 * 
-	 * @return a feature vector object
-	 */
-	public FeatureVector getDivideFeatureVector() {
-		return divideFeatureVector;
 	}
 	
 	/**

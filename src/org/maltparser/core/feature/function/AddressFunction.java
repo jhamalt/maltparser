@@ -9,9 +9,9 @@ import org.maltparser.core.feature.value.AddressValue;
 * @author Johan Hall
 */
 public abstract class AddressFunction implements Function {
-	protected AddressValue address;
+	protected final AddressValue address;
 	public AddressFunction() {
-		address = new AddressValue(this);
+		this.address = new AddressValue(this);
 	}
 	
 	public abstract void update(Object[] arguments) throws MaltChainedException;

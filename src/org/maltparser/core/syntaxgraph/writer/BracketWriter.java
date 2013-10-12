@@ -15,6 +15,7 @@ import org.maltparser.core.io.dataformat.ColumnDescription;
 import org.maltparser.core.io.dataformat.DataFormatException;
 import org.maltparser.core.io.dataformat.DataFormatInstance;
 import org.maltparser.core.symbol.SymbolTable;
+import org.maltparser.core.symbol.SymbolTableHandler;
 import org.maltparser.core.syntaxgraph.PhraseStructure;
 import org.maltparser.core.syntaxgraph.TokenStructure;
 import org.maltparser.core.syntaxgraph.node.NonTerminalNode;
@@ -87,9 +88,9 @@ public class BracketWriter implements SyntaxGraphWriter {
 		if (syntaxGraph instanceof PhraseStructure && syntaxGraph.hasTokens()) {
 //			PhraseStructure phraseStructure = ((PhraseStructure) syntaxGraph);
 			if (format == PennWriterFormat.PRETTY) {
-				writeElement(((PhraseStructure) syntaxGraph).getPhraseStructureRoot(), 0);
+				writeElement(syntaxGraph.getSymbolTables(), ((PhraseStructure) syntaxGraph).getPhraseStructureRoot(), 0);
 			} else {
-				writeElement(((PhraseStructure) syntaxGraph).getPhraseStructureRoot());
+				writeElement(syntaxGraph.getSymbolTables(), ((PhraseStructure) syntaxGraph).getPhraseStructureRoot());
 			}
 			try {
 				writer.write(SENTENCE_SEPARATOR);
@@ -101,7 +102,7 @@ public class BracketWriter implements SyntaxGraphWriter {
 		}
 	}
 	
-	private void writeElement(PhraseStructureNode element) throws MaltChainedException {
+	private void writeElement(SymbolTableHandler symbolTables, PhraseStructureNode element) throws MaltChainedException {
 		try {
 			if (element instanceof TokenNode) {
 				PhraseStructureNode t = (PhraseStructureNode)element;
@@ -112,13 +113,13 @@ public class BracketWriter implements SyntaxGraphWriter {
 					if (i != 0) {
 						writer.write(INPUT_SEPARATOR);
 					}
-					table = inputColumns.get(inputColumn).getSymbolTable();
+					table = symbolTables.getSymbolTable(inputColumns.get(inputColumn).getName());
 					if (t.hasLabel(table)) {
 						writer.write(t.getLabelSymbol(table));
 					}
 					if (i == 0) {
-						for (String edgeLabelColumn : edgeLabelColumns.keySet()) {
-							table = edgeLabelColumns.get(edgeLabelColumn).getSymbolTable();
+						for (String edgeLabelColumn : edgeLabelColumns.keySet()) { 
+							table = symbolTables.getSymbolTable(edgeLabelColumns.get(edgeLabelColumn).getName());
 							if (t.hasParentEdgeLabel(table) && !t.getParent().isRoot() && !t.getParentEdgeLabelSymbol(table).equals(EMPTY_EDGELABEL)) {
 								writer.write(EDGELABEL_SEPARATOR);
 								writer.write(t.getParentEdgeLabelSymbol(table));
@@ -137,13 +138,13 @@ public class BracketWriter implements SyntaxGraphWriter {
 					if (i != 0) {
 						writer.write(INPUT_SEPARATOR);
 					}
-					table = phraseLabelColumns.get(phraseLabelColumn).getSymbolTable();
+					table = symbolTables.getSymbolTable(phraseLabelColumns.get(phraseLabelColumn).getName());
 					if (nt.hasLabel(table)) { 
 						writer.write(nt.getLabelSymbol(table));
 					}
 					if (i == 0) {
 						for (String edgeLabelColumn : edgeLabelColumns.keySet()) {
-							table = edgeLabelColumns.get(edgeLabelColumn).getSymbolTable();
+							table = symbolTables.getSymbolTable(edgeLabelColumns.get(edgeLabelColumn).getName());
 							if (nt.hasParentEdgeLabel(table) && !nt.getParent().isRoot() && !nt.getParentEdgeLabelSymbol(table).equals(EMPTY_EDGELABEL)) {
 								writer.write(EDGELABEL_SEPARATOR);
 								writer.write(nt.getParentEdgeLabelSymbol(table));
@@ -153,7 +154,7 @@ public class BracketWriter implements SyntaxGraphWriter {
 					i++;
 				}
 				for (PhraseStructureNode node : ((NonTerminalNode)element).getChildren()) {
-					writeElement(node);
+					writeElement(symbolTables, node);
 				}
 				writer.write(CLOSING_BRACKET);
 			}
@@ -170,7 +171,7 @@ public class BracketWriter implements SyntaxGraphWriter {
 		return sb.toString();
 	}
 	
-	private void writeElement(PhraseStructureNode element, int depth) throws MaltChainedException {
+	private void writeElement(SymbolTableHandler symbolTables, PhraseStructureNode element, int depth) throws MaltChainedException {
 		try {
 			if (element instanceof TokenNode) {
 				PhraseStructureNode t = (PhraseStructureNode)element;
@@ -181,13 +182,13 @@ public class BracketWriter implements SyntaxGraphWriter {
 					if (i != 0) {
 						writer.write(INPUT_SEPARATOR);
 					}
-					table = inputColumns.get(inputColumn).getSymbolTable();
+					table = symbolTables.getSymbolTable(inputColumns.get(inputColumn).getName());
 					if (t.hasLabel(table)) {
 						writer.write(encodeString(t.getLabelSymbol(table)));
 					}
 					if (i == 0) {
 						for (String edgeLabelColumn : edgeLabelColumns.keySet()) {
-							table = edgeLabelColumns.get(edgeLabelColumn).getSymbolTable();
+							table = symbolTables.getSymbolTable(edgeLabelColumns.get(edgeLabelColumn).getName());
 							if (t.hasParentEdgeLabel(table) && !t.getParent().isRoot() && !t.getParentEdgeLabelSymbol(table).equals(EMPTY_EDGELABEL)) {
 								writer.write(EDGELABEL_SEPARATOR);
 								writer.write(t.getParentEdgeLabelSymbol(table));
@@ -206,13 +207,13 @@ public class BracketWriter implements SyntaxGraphWriter {
 					if (i != 0) {
 						writer.write(INPUT_SEPARATOR);
 					}
-					table = phraseLabelColumns.get(phraseLabelColumn).getSymbolTable();
+					table = symbolTables.getSymbolTable(phraseLabelColumns.get(phraseLabelColumn).getName());
 					if (nt.hasLabel(table)) { 
 						writer.write(nt.getLabelSymbol(table));
 					}
 					if (i == 0) {
 						for (String edgeLabelColumn : edgeLabelColumns.keySet()) {
-							table = edgeLabelColumns.get(edgeLabelColumn).getSymbolTable();
+							table = symbolTables.getSymbolTable(edgeLabelColumns.get(edgeLabelColumn).getName());
 							if (nt.hasParentEdgeLabel(table) && !nt.getParent().isRoot() && !nt.getParentEdgeLabelSymbol(table).equals(EMPTY_EDGELABEL)) {
 								writer.write(EDGELABEL_SEPARATOR);
 								writer.write(nt.getParentEdgeLabelSymbol(table));
@@ -222,7 +223,7 @@ public class BracketWriter implements SyntaxGraphWriter {
 					i++;
 				}
 				for (PhraseStructureNode node : ((NonTerminalNode)element).getChildren()) {
-					writeElement(node, depth + 1);
+					writeElement(symbolTables, node, depth + 1);
 				}
 				writer.write("\n" + getIndentation(depth) + CLOSING_BRACKET);
 			}

@@ -17,10 +17,11 @@ import org.maltparser.core.symbol.nullvalue.NullValues.NullValueId;
 */
 public abstract class ColumnFeature implements FeatureFunction, Modifiable {
 	protected ColumnDescription column;
+	protected SymbolTable symbolTable;
 	protected final SingleFeatureValue featureValue;
 	
 	public ColumnFeature() throws MaltChainedException {
-		featureValue = new SingleFeatureValue(this);
+		this.featureValue = new SingleFeatureValue(this);
 	}
 	
 	public abstract void update() throws MaltChainedException;
@@ -28,11 +29,11 @@ public abstract class ColumnFeature implements FeatureFunction, Modifiable {
 	public abstract Class<?>[] getParameterTypes();
 	
 	public String getSymbol(int value) throws MaltChainedException {
-		return column.getSymbolTable().getSymbolCodeToString(value);
+		return symbolTable.getSymbolCodeToString(value);
 	}
 	
 	public int getCode(String value) throws MaltChainedException {
-		return column.getSymbolTable().getSymbolStringToCode(value);
+		return symbolTable.getSymbolStringToCode(value);
 	}
 	
 	public ColumnDescription getColumn() {
@@ -43,13 +44,21 @@ public abstract class ColumnFeature implements FeatureFunction, Modifiable {
 		this.column = column;
 	}
 	
+	public SymbolTable getSymbolTable() {
+		return symbolTable;
+	}
+	
+	protected void setSymbolTable(SymbolTable symbolTable) {
+		this.symbolTable = symbolTable;
+	}
+	
 	public void setFeatureValue(int indexCode) throws MaltChainedException {
-		final String symbol = column.getSymbolTable().getSymbolCodeToString(indexCode);
+		final String symbol = symbolTable.getSymbolCodeToString(indexCode);
 		
 		if (symbol == null) {
-			featureValue.update(indexCode, column.getSymbolTable().getNullValueSymbol(NullValueId.NO_NODE), true, 1);
+			featureValue.update(indexCode, symbolTable.getNullValueSymbol(NullValueId.NO_NODE), true, 1);
 		} else {
-			boolean nullValue = column.getSymbolTable().isNullValue(indexCode);
+			boolean nullValue = symbolTable.isNullValue(indexCode);
 			if (column.getType() == ColumnDescription.STRING || nullValue) {
 				featureValue.update(indexCode, symbol, nullValue, 1);
 			} else {
@@ -59,11 +68,11 @@ public abstract class ColumnFeature implements FeatureFunction, Modifiable {
 	}
 	
 	public void setFeatureValue(String symbol) throws MaltChainedException {
-		final int indexCode = column.getSymbolTable().getSymbolStringToCode(symbol);
+		final int indexCode = symbolTable.getSymbolStringToCode(symbol);
 		if (indexCode < 0) {
-			featureValue.update(column.getSymbolTable().getNullValueCode(NullValueId.NO_NODE), symbol, true, 1);
+			featureValue.update(symbolTable.getNullValueCode(NullValueId.NO_NODE), symbol, true, 1);
 		} else {
-			boolean nullValue = column.getSymbolTable().isNullValue(symbol);
+			boolean nullValue = symbolTable.isNullValue(symbol);
 			if (column.getType() == ColumnDescription.STRING || nullValue) {
 				featureValue.update(indexCode, symbol, nullValue, 1);
 			} else {
@@ -127,10 +136,6 @@ public abstract class ColumnFeature implements FeatureFunction, Modifiable {
 
 	public String getColumnName() {
 		return column.getName();
-	}
-	
-	public SymbolTable getSymbolTable() {
-		return column.getSymbolTable();
 	}
 	
 	public  int getType() {

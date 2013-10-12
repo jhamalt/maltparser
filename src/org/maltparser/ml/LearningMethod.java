@@ -16,7 +16,7 @@ public interface LearningMethod {
 	public void addInstance(SingleDecision decision, FeatureVector featureVector) throws MaltChainedException;
 	public void finalizeSentence(DependencyStructure dependencyGraph)  throws MaltChainedException;
 	public void noMoreInstances() throws MaltChainedException;
-	public void train(FeatureVector featureVector) throws MaltChainedException;
+	public void train() throws MaltChainedException;
 	public void moveAllInstances(LearningMethod method, FeatureFunction divideFeature, ArrayList<Integer> divideFeatureIndexVector) throws MaltChainedException;
 	public void terminate() throws MaltChainedException;
 	public boolean predict(FeatureVector features, SingleDecision decision) throws MaltChainedException;

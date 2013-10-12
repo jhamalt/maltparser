@@ -18,11 +18,11 @@ public interface TokenNode extends DependencyNode, PhraseStructureNode {
 	 * 
 	 * @return the predecessor token node in the linear order of the token nodes.
 	 */
-	public TokenNode getPredecessor();
+	public TokenNode getTokenNodePredecessor();
 	/**
 	 * Returns the successor token node in the linear order of the token nodes.
 	 * 
 	 * @return the successor token node in the linear order of the token nodes.
 	 */
-	public TokenNode getSuccessor();
+	public TokenNode getTokenNodeSuccessor();
 }

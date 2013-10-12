@@ -145,6 +145,9 @@ public abstract class GraphNode extends GraphElement implements Node {
 		sb.append(" [I:");
 		for (Edge e : incomingEdges) {
 			sb.append(e.getSource().getIndex());
+			sb.append("(");
+			sb.append(e.toString());
+			sb.append(")");
 			if (incomingEdges.last() != e) {
 				sb.append(",");
 			}

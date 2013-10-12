@@ -15,7 +15,7 @@ import org.maltparser.core.options.option.Option;
  * @since 1.0
 **/
 public class OptionValues {
-	private SortedMap<Integer, OptionContainer> optionContainers;
+	private final SortedMap<Integer, OptionContainer> optionContainers;
 	
 	/**
 	 * Creates OptionValues.
@@ -23,7 +23,6 @@ public class OptionValues {
 	public OptionValues() {
 		super();
 		optionContainers = Collections.synchronizedSortedMap(new TreeMap<Integer, OptionContainer>());
-//		optionContainers = new TreeMap<Integer, OptionContainer>();
 	}
 
 	/**
@@ -106,7 +105,7 @@ public class OptionValues {
 	 * @return	true if the value is added, false if the value already is in use.
 	 * @throws OptionException
 	 */
-	public boolean addOptionValue(int containerType, int containerIndex, Option option, Object value) throws OptionException {
+	protected boolean addOptionValue(int containerType, int containerIndex, Option option, Object value) throws OptionException {
 		if (option == null) {
 			throw new OptionException("The option cannot be found. ");
 		}

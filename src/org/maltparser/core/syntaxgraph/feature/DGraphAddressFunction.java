@@ -5,37 +5,37 @@ import org.maltparser.core.feature.function.AddressFunction;
 import org.maltparser.core.feature.value.AddressValue;
 import org.maltparser.core.syntaxgraph.SyntaxGraphException;
 import org.maltparser.core.syntaxgraph.node.DependencyNode;
-import org.maltparser.core.syntaxgraph.node.TokenNode;
 /**
 *
 *
 * @author Johan Hall
 */
-public class DGraphAddressFunction extends AddressFunction {
+public final class DGraphAddressFunction extends AddressFunction {
+	public final static Class<?>[] paramTypes = { org.maltparser.core.feature.function.AddressFunction.class };
 	public enum DGraphSubFunction {
 		HEAD, LDEP, RDEP, RDEP2, LSIB, RSIB, PRED, SUCC, ANC, PANC, LDESC, PLDESC, RDESC, PRDESC
 	};
 	private AddressFunction addressFunction;
-	private String subFunctionName;
-	private DGraphSubFunction subFunction;
+	private final String subFunctionName;
+	private final DGraphSubFunction subFunction;
 	
-	public DGraphAddressFunction(String subFunctionName) {
+	public DGraphAddressFunction(String _subFunctionName) {
 		super();
-		setSubFunctionName(subFunctionName);
+		this.subFunctionName = _subFunctionName;
+		this.subFunction = DGraphSubFunction.valueOf(subFunctionName.toUpperCase());
 	}
 	
 	public void initialize(Object[] arguments) throws MaltChainedException {
 		if (arguments.length != 1) {
-			throw new SyntaxGraphException("Could not initialize NodeAddressFunction: number of arguments are not correct. ");
+			throw new SyntaxGraphException("Could not initialize DGraphAddressFunction: number of arguments are not correct. ");
 		}
 		if (!(arguments[0] instanceof AddressFunction)) {
-			throw new SyntaxGraphException("Could not initialize NodeAddressFunction: the second argument is not an addres function. ");
+			throw new SyntaxGraphException("Could not initialize DGraphAddressFunction: the second argument is not an addres function. ");
 		}
-		setAddressFunction((AddressFunction)arguments[0]);
+		this.addressFunction = (AddressFunction)arguments[0];
 	}
 	
 	public Class<?>[] getParameterTypes() {
-		Class<?>[] paramTypes = { org.maltparser.core.feature.function.AddressFunction.class };
 		return paramTypes; 
 	}
 	
@@ -65,13 +65,10 @@ public class DGraphAddressFunction extends AddressFunction {
 					address.setAddress(node.getSameSideLeftSibling());
 				} else if (subFunction == DGraphSubFunction.RSIB) {
 					address.setAddress(node.getSameSideRightSibling());
-				} else if ((subFunction == DGraphSubFunction.PRED || subFunction == DGraphSubFunction.SUCC) && node instanceof TokenNode) {
-					final TokenNode tokenNode = (TokenNode)node;
-					if (subFunction == DGraphSubFunction.PRED) {
-						address.setAddress(tokenNode.getPredecessor());
-					} else if (subFunction == DGraphSubFunction.SUCC) {
-						address.setAddress(tokenNode.getSuccessor());
-					}
+				} else if (subFunction == DGraphSubFunction.PRED && !node.isRoot()) {	
+					address.setAddress(node.getPredecessor());
+				} else if (subFunction == DGraphSubFunction.SUCC && !node.isRoot()) {
+					address.setAddress(node.getSuccessor());
 				} else if (subFunction == DGraphSubFunction.ANC) {
 					address.setAddress(node.getAncestor());
 				} else if (subFunction == DGraphSubFunction.PANC) {
@@ -101,17 +98,8 @@ public class DGraphAddressFunction extends AddressFunction {
 		return addressFunction;
 	}
 
-	public void setAddressFunction(AddressFunction addressFunction) {
-		this.addressFunction = addressFunction;
-	}
-
 	public String getSubFunctionName() {
 		return subFunctionName;
-	}
-
-	public void setSubFunctionName(String subFunctionName) {
-		this.subFunctionName = subFunctionName;
-		subFunction = DGraphSubFunction.valueOf(subFunctionName.toUpperCase());
 	}
 	
 	public DGraphSubFunction getSubFunction() {

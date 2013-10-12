@@ -3,10 +3,8 @@ package org.maltparser.parser.history.action;
 import java.util.ArrayList;
 
 import org.maltparser.core.exception.MaltChainedException;
-import org.maltparser.parser.history.GuideHistory;
 import org.maltparser.parser.history.GuideUserHistory;
 import org.maltparser.parser.history.HistoryException;
-import org.maltparser.parser.history.History;
 import org.maltparser.parser.history.container.ActionContainer;
 import org.maltparser.parser.history.container.CombinedTableContainer;
 import org.maltparser.parser.history.kbest.ScoredKBestList;
@@ -14,22 +12,17 @@ import org.maltparser.parser.history.kbest.ScoredKBestList;
 /**
 *
 * @author Johan Hall
-* @since 1.1
 **/
 public class ComplexDecisionAction implements GuideUserAction, MultipleDecision {
-	private History history;
-	private ArrayList<SimpleDecisionAction> decisions;
+	private final GuideUserHistory history;
+	private final ArrayList<SimpleDecisionAction> decisions;
 	
-	public ComplexDecisionAction(History history) throws MaltChainedException {
+	public ComplexDecisionAction(GuideUserHistory history) throws MaltChainedException {
 		this.history = history;
-		decisions = new ArrayList<SimpleDecisionAction>(history.getDecisionTables().size());
+		this.decisions = new ArrayList<SimpleDecisionAction>(history.getDecisionTables().size());
 		for (int i=0, n = history.getDecisionTables().size(); i < n; i++) {
-			decisions.add(new SimpleDecisionAction(history, history.getDecisionTables().get(i)));
+			decisions.add(new SimpleDecisionAction(history.getKBestSize(), history.getDecisionTables().get(i)));
 		}
-	}
-	
-	public ComplexDecisionAction(GuideHistory history) throws MaltChainedException {
-		this((History)history);
 	}
 	
 	/* GuideUserAction interface */
@@ -126,10 +119,6 @@ public class ComplexDecisionAction implements GuideUserAction, MultipleDecision 
 		return history.getActionTables().size();
 	}
 	
-	public GuideUserHistory getGuideUserHistory() {
-		return (GuideUserHistory)history;
-	}
-	
 	public void clear() {
 		for (int i=0, n = decisions.size(); i < n;i++) {
 			decisions.get(i).clear();
@@ -144,10 +133,6 @@ public class ComplexDecisionAction implements GuideUserAction, MultipleDecision 
 	/* GuideDecision */
 	public int numberOfDecisions() {
 		return history.getDecisionTables().size();
-	}
-
-	public GuideHistory getGuideHistory() {
-		return (GuideHistory)history;
 	}
 	
 	public boolean equals(Object obj) {

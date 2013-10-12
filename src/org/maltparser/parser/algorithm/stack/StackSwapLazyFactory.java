@@ -1,7 +1,7 @@
 package org.maltparser.parser.algorithm.stack;
 
 import org.maltparser.core.exception.MaltChainedException;
-import org.maltparser.parser.Algorithm;
+import org.maltparser.parser.DependencyParserConfig;
 import org.maltparser.parser.TransitionSystem;
 import org.maltparser.parser.guide.OracleGuide;
 import org.maltparser.parser.history.GuideUserHistory;
@@ -10,22 +10,20 @@ import org.maltparser.parser.history.GuideUserHistory;
  *
  */
 public class StackSwapLazyFactory extends StackFactory {
-	public StackSwapLazyFactory(Algorithm algorithm) {
-		super(algorithm);
+	public StackSwapLazyFactory(DependencyParserConfig _manager) {
+		super(_manager);
 	}
 	
 	public TransitionSystem makeTransitionSystem() throws MaltChainedException {
-		if (manager.getConfigLogger().isInfoEnabled()) {
-			manager.getConfigLogger().info("  Transition system    : Non-Projective\n");
+		if (manager.isLoggerInfoEnabled()) {
+			manager.logInfoMessage("  Transition system    : Non-Projective\n");
 		}
-		TransitionSystem ts = new NonProjective();
-		ts.setPropagationManager(manager.getPropagationManager());
-		return ts;
+		return new NonProjective(manager.getPropagationManager());
 	}
 	
 	public OracleGuide makeOracleGuide(GuideUserHistory history) throws MaltChainedException {
-		if (manager.getConfigLogger().isInfoEnabled()) {
-			manager.getConfigLogger().info("  Oracle               : Swap-Lazy\n");
+		if (manager.isLoggerInfoEnabled()) {
+			manager.logInfoMessage("  Oracle               : Swap-Lazy\n");
 		}
 		return new SwapLazyOracle(manager, history);
 	}

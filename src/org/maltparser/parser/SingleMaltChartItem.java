@@ -14,7 +14,6 @@ import org.maltparser.core.io.dataformat.DataFormatSpecification.DataStructure;
 import org.maltparser.core.io.dataformat.DataFormatSpecification.Dependency;
 import org.maltparser.core.options.OptionManager;
 import org.maltparser.core.syntaxgraph.DependencyStructure;
-import org.maltparser.core.syntaxgraph.MappablePhraseStructureGraph;
 /**
  * @author Johan Hall
  *
@@ -75,7 +74,6 @@ public class SingleMaltChartItem extends ChartItem {
 				OptionManager.instance().overloadOptionValue(getOptionContainerIndex(), "singlemalt", "mode", modeName);
 				ConfigurationDir configDir = (ConfigurationDir)flowChartinstance.getFlowChartRegistry(org.maltparser.core.config.ConfigurationDir.class, idName);
 				DataFormatManager dataFormatManager = configDir.getDataFormatManager();
-				
 				if (modeName.equals("learn")) {
 					DataFormatInstance dataFormatInstance = null;
 					if (dataFormatManager.getInputDataFormatSpec().getDataStructure() == DataStructure.PHRASE) {
@@ -104,10 +102,10 @@ public class SingleMaltChartItem extends ChartItem {
 					} else {
 						dataFormatInstance = configDir.getDataFormatInstance(dataFormatManager.getInputDataFormatSpec().getDataFormatName());
 					}
-					singleMalt.initialize(getOptionContainerIndex(), dataFormatInstance, configDir, SingleMalt.LEARN);
+					singleMalt.initialize(getOptionContainerIndex(), dataFormatInstance, configDir.getSymbolTables(), configDir, SingleMalt.LEARN);
 				} else if (modeName.equals("parse")) {
-					singleMalt.initialize(getOptionContainerIndex(), 
-							configDir.getDataFormatInstance(dataFormatManager.getInputDataFormatSpec().getDataFormatName()), configDir, SingleMalt.PARSE);
+					singleMalt.initialize(getOptionContainerIndex(),
+							configDir.getDataFormatInstance(dataFormatManager.getInputDataFormatSpec().getDataFormatName()), configDir.getSymbolTables(), configDir, SingleMalt.PARSE);
 				} else {
 					return ChartItem.TERMINATE;
 				}

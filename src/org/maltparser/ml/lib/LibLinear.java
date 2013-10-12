@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintStream;
 import java.util.LinkedHashMap;
@@ -18,10 +17,14 @@ import de.bwaldvogel.liblinear.Parameter;
 import de.bwaldvogel.liblinear.Problem;
 import de.bwaldvogel.liblinear.SolverType;
 
+import org.maltparser.core.config.Configuration;
 import org.maltparser.core.exception.MaltChainedException;
-import org.maltparser.core.feature.FeatureVector;
 import org.maltparser.core.helper.NoPrintStream;
 import org.maltparser.core.helper.Util;
+import org.maltparser.ml.lib.FeatureList;
+import org.maltparser.ml.lib.MaltLiblinearModel;
+import org.maltparser.ml.lib.MaltFeatureNode;
+import org.maltparser.ml.lib.LibException;
 import org.maltparser.parser.guide.instance.InstanceModel;
 
 public class LibLinear extends Lib {
@@ -29,39 +32,29 @@ public class LibLinear extends Lib {
 	public LibLinear(InstanceModel owner, Integer learnerMode) throws MaltChainedException {
 		super(owner, learnerMode, "liblinear");
 		if (learnerMode == CLASSIFY) {
-			try {
-			    ObjectInputStream input = new ObjectInputStream(getInputStreamFromConfigFileEntry(".moo"));
-			    try {
-			    	model = (MaltLibModel)input.readObject();
-			    } finally {
-			    	input.close();
-			    }
-			} catch (ClassNotFoundException e) {
-				throw new LibException("Couldn't load the liblinear model", e);
-			} catch (Exception e) {
-				throw new LibException("Couldn't load the liblinear model", e);
-			}
+			model = (MaltLibModel)getConfigFileEntryObject(".moo");
 		}
-
 	}
 	
-	protected void trainInternal(FeatureVector featureVector) throws MaltChainedException {
-		if (configLogger.isInfoEnabled()) {
-			configLogger.info("Creating Liblinear model "+getFile(".moo").getName()+"\n");
+	protected void trainInternal( LinkedHashMap<String, String> libOptions) throws MaltChainedException {
+		Configuration config = getConfiguration();
+		
+		if (config.isLoggerInfoEnabled()) {
+			config.logInfoMessage("Creating Liblinear model "+getFile(".moo").getName()+"\n");
 		}
 		double[] wmodel = null;
 		int[] labels = null;
 		int nr_class = 0;
 		int nr_feature = 0;
-		Parameter parameter = getLiblinearParameters();
+		Parameter parameter = getLiblinearParameters(libOptions);
 		try {	
 			Problem problem = readProblem(getInstanceInputStreamReader(".ins"));
 			boolean res = checkProblem(problem);
 			if (res == false) {
 				throw new LibException("Abort (The number of training instances * the number of classes) > "+Integer.MAX_VALUE+" and this is not supported by LibLinear. ");
 			}
-			if (configLogger.isInfoEnabled()) {
-				owner.getGuide().getConfiguration().getConfigLogger().info("- Train a parser model using LibLinear.\n");
+			if (config.isLoggerInfoEnabled()) {
+				config.logInfoMessage("- Train a parser model using LibLinear.\n");
 			}
 			final PrintStream out = System.out;
 			final PrintStream err = System.err;
@@ -75,6 +68,7 @@ public class LibLinear extends Lib {
 			labels = model.getLabels();
 			nr_class = model.getNrClass();
 			nr_feature = model.getNrFeature();
+			boolean saveInstanceFiles = ((Boolean)getConfiguration().getOptionValue("lib", "save_instance_files")).booleanValue();
 			if (!saveInstanceFiles) {
 				getFile(".ins").delete();
 			}
@@ -88,8 +82,8 @@ public class LibLinear extends Lib {
 			throw new LibException("(The number of training instances * the number of classes) > "+Integer.MAX_VALUE+" and this is not supported by LibLinear.", e);
 		}
 		
-		if (configLogger.isInfoEnabled()) {
-			configLogger.info("- Optimize the memory usage\n");
+		if (config.isLoggerInfoEnabled()) {
+			config.logInfoMessage("- Optimize the memory usage\n");
 		}
 		MaltLiblinearModel xmodel = null;
 		try {
@@ -98,8 +92,8 @@ public class LibLinear extends Lib {
 //			System.out.println("wmodel.length:" + wmodel.length);		
 			double[][] wmatrix = convert2(wmodel, nr_class, nr_feature);
 			xmodel = new MaltLiblinearModel(labels, nr_class, wmatrix.length, wmatrix, parameter.getSolverType());
-			if (configLogger.isInfoEnabled()) {
-				configLogger.info("- Save the Liblinear model "+getFile(".moo").getName()+"\n");
+			if (config.isLoggerInfoEnabled()) {
+				config.logInfoMessage("- Save the Liblinear model "+getFile(".moo").getName()+"\n");
 			}
 		} catch (OutOfMemoryError e) {
 			throw new LibException("Out of memory. Please increase the Java heap size (-Xmx<size>). ", e);
@@ -203,65 +197,6 @@ public class LibLinear extends Lib {
 //        System.out.println("N :"+n);
         return wmatrix;
     }
-	
-    private double[][] convert(double[] w, int nr_class, int nr_feature) {
-        double[][] wmatrix = new double[nr_feature][];
-        double[] wsignature = new double[nr_feature];
-        boolean reuse = false;
-        int ne = 0;
-        int nr = 0;
-        int no = 0;
-        int n = 0;
-        Long[] reverseMap = featureMap.reverseMap();
-        for (int i = 0; i < nr_feature; i++) {
-        	reuse = false;
-        	int k = nr_class;
-        	for (int t = i * nr_class; (t + (k - 1)) >= t; k--) {
-        		if (w[t + k - 1] != 0.0) {
-        			break;
-        		}
-        	}
-        	double[] copy = new double[k];
-            System.arraycopy(w, i * nr_class, copy, 0,k);
-            if (eliminate(copy)) {
-            	ne++;
-            	featureMap.removeIndex(reverseMap[i + 1]);
-            	reverseMap[i + 1] = null;
-            	wmatrix[i] = null;
-            } else {
-            	featureMap.setIndex(reverseMap[i + 1], i + 1 - ne);
-            	for (int j=0; j<copy.length; j++) wsignature[i] += copy[j];
-	            for (int j = 0; j < i; j++) {
-	            	if (wsignature[j] == wsignature[i]) {
-		            	if (Util.equals(copy, wmatrix[j])) {
-		            		wmatrix[i] = wmatrix[j];
-		            		reuse = true;
-		            		nr++;
-		            		break;
-		            	}
-	            	}
-	            }
-	            if (reuse == false) {
-	            	no++;
-	            	wmatrix[i] = copy;
-	            }
-            }
-            n++;
-        }
-        featureMap.setFeatureCounter(featureMap.getFeatureCounter()- ne);
-        double[][] wmatrix_reduced = new double[nr_feature-ne][];
-        for (int i = 0, j = 0; i < wmatrix.length; i++) {
-        	if (wmatrix[i] != null) {
-        		wmatrix_reduced[j++] = wmatrix[i];
-        	}
-        }
-//        System.out.println("NE:"+ne);
-//        System.out.println("NR:"+nr);
-//        System.out.println("NO:"+no);
-//        System.out.println("N :"+n);
-
-        return wmatrix_reduced;
-    }
     
     public static boolean eliminate(double[] a) {
     	if (a.length == 0) {
@@ -275,14 +210,14 @@ public class LibLinear extends Lib {
     	return true;
     }
     
-	protected void trainExternal(FeatureVector featureVector) throws MaltChainedException {
+	protected void trainExternal(String pathExternalTrain, LinkedHashMap<String, String> libOptions) throws MaltChainedException {
 		try {		
-			
-			if (configLogger.isInfoEnabled()) {
-				owner.getGuide().getConfiguration().getConfigLogger().info("Creating liblinear model (external) "+getFile(".mod").getName());
+			Configuration config = getConfiguration();
+			if (config.isLoggerInfoEnabled()) {
+				config.logInfoMessage("Creating liblinear model (external) "+getFile(".mod").getName());
 			}
 			binariesInstances2SVMFileFormat(getInstanceInputStreamReader(".ins"), getInstanceOutputStreamWriter(".ins.tmp"));
-			final String[] params = getLibParamStringArray();
+			final String[] params = getLibParamStringArray(libOptions);
 			String[] arrayCommands = new String[params.length+3];
 			int i = 0;
 			arrayCommands[i++] = pathExternalTrain;
@@ -293,7 +228,7 @@ public class LibLinear extends Lib {
 			arrayCommands[i++] = getFile(".mod").getAbsolutePath();
 			
 	        if (verbosity == Verbostity.ALL) {
-	        	owner.getGuide().getConfiguration().getConfigLogger().info('\n');
+	        	config.logInfoMessage('\n');
 	        }
 			final Process child = Runtime.getRuntime().exec(arrayCommands);
 	        final InputStream in = child.getInputStream();
@@ -301,21 +236,21 @@ public class LibLinear extends Lib {
 	        int c;
 	        while ((c = in.read()) != -1){
 	        	if (verbosity == Verbostity.ALL) {
-	        		owner.getGuide().getConfiguration().getConfigLogger().info((char)c);
+	        		config.logInfoMessage((char)c);
 	        	}
 	        }
 	        while ((c = err.read()) != -1){
 	        	if (verbosity == Verbostity.ALL || verbosity == Verbostity.ERROR) {
-	        		owner.getGuide().getConfiguration().getConfigLogger().info((char)c);
+	        		config.logInfoMessage((char)c);
 	        	}
 	        }
             if (child.waitFor() != 0) {
-            	owner.getGuide().getConfiguration().getConfigLogger().info(" FAILED ("+child.exitValue()+")");
+            	config.logErrorMessage(" FAILED ("+child.exitValue()+")");
             }
 	        in.close();
 	        err.close();
-			if (configLogger.isInfoEnabled()) {
-				configLogger.info("\nSaving Liblinear model "+getFile(".moo").getName()+"\n");
+			if (config.isLoggerInfoEnabled()) {
+				config.logInfoMessage("\nSaving Liblinear model "+getFile(".moo").getName()+"\n");
 			}
 			MaltLiblinearModel xmodel = new MaltLiblinearModel(getFile(".mod"));
 		    ObjectOutputStream output = new ObjectOutputStream (new BufferedOutputStream(new FileOutputStream(getFile(".moo").getAbsolutePath())));
@@ -324,13 +259,14 @@ public class LibLinear extends Lib {
 	        } finally {
 	          output.close();
 	        }
+	        boolean saveInstanceFiles = ((Boolean)getConfiguration().getOptionValue("lib", "save_instance_files")).booleanValue();
 	        if (!saveInstanceFiles) {
 				getFile(".ins").delete();
 				getFile(".mod").delete();
 				getFile(".ins.tmp").delete();
 	        }
-	        if (configLogger.isInfoEnabled()) {
-	        	configLogger.info('\n');
+	        if (config.isLoggerInfoEnabled()) {
+	        	config.logInfoMessage('\n');
 	        }
 		} catch (InterruptedException e) {
 			 throw new LibException("Learner is interrupted. ", e);
@@ -349,23 +285,24 @@ public class LibLinear extends Lib {
 		super.terminate();
 	}
 
-	public void initLibOptions() {
-		libOptions = new LinkedHashMap<String, String>();
-		libOptions.put("s", "4"); // type = SolverType.L2LOSS_SVM_DUAL (default)
+	public LinkedHashMap<String, String> getDefaultLibOptions() {
+		LinkedHashMap<String, String> libOptions = new LinkedHashMap<String, String>();
+		libOptions.put("s", "4"); // type = SolverType.MCSVM_CS (default)
 		libOptions.put("c", "0.1"); // cost = 1 (default)
 		libOptions.put("e", "0.1"); // epsilon = 0.1 (default)
 		libOptions.put("B", "-1"); // bias = -1 (default)
+		return libOptions;
 	}
 	
-	public void initAllowedLibOptionFlags() {
-		allowedLibOptionFlags = "sceB";
+	public String getAllowedLibOptionFlags() {
+		return "sceB";
 	}
 	
 	private Problem readProblem(InputStreamReader isr) throws MaltChainedException {
 		Problem problem = new Problem();
 		final FeatureList featureList = new FeatureList();
-		if (configLogger.isInfoEnabled()) {
-			owner.getGuide().getConfiguration().getConfigLogger().info("- Read all training instances.\n");
+		if (getConfiguration().isLoggerInfoEnabled()) {
+			getConfiguration().logInfoMessage("- Read all training instances.\n");
 		}
 		try {
 			final BufferedReader fp = new BufferedReader(isr);
@@ -414,15 +351,15 @@ public class LibLinear extends Lib {
 			}
 		}
 		if (max_y * problem.l < 0) { // max_y * problem.l > Integer.MAX_VALUE
-			if (configLogger.isInfoEnabled()) {
-				owner.getGuide().getConfiguration().getConfigLogger().info("*** Abort (The number of training instances * the number of classes) > Max array size: ("+problem.l+" * "+max_y+") > "+Integer.MAX_VALUE+" and this is not supported by LibLinear.\n");
+			if (getConfiguration().isLoggerInfoEnabled()) {
+				getConfiguration().logInfoMessage("*** Abort (The number of training instances * the number of classes) > Max array size: ("+problem.l+" * "+max_y+") > "+Integer.MAX_VALUE+" and this is not supported by LibLinear.\n");
 			}
 			return false;
 		}
 		return true;
 	}
 	
-	private Parameter getLiblinearParameters() throws MaltChainedException {
+	private Parameter getLiblinearParameters(LinkedHashMap<String, String> libOptions) throws MaltChainedException {
 		Parameter param = new Parameter(SolverType.MCSVM_CS, 0.1, 0.1);
 		String type = libOptions.get("s");
 		

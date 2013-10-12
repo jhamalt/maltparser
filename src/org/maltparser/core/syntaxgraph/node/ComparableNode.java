@@ -98,11 +98,11 @@ public interface ComparableNode extends Element, Comparable<ComparableNode> {
 	 * 
 	 * @return a sorted set of incoming secondary edges.
 	 */
-	public SortedSet<Edge> getIncomingSecondaryEdges();
+	public SortedSet<Edge> getIncomingSecondaryEdges() throws MaltChainedException;
 	/**
 	 * Returns a sorted set of outgoing secondary edges.
 	 * 
 	 * @return a sorted set of outgoing secondary edges.
 	 */
-	public SortedSet<Edge> getOutgoingSecondaryEdges();
+	public SortedSet<Edge> getOutgoingSecondaryEdges() throws MaltChainedException;
 }

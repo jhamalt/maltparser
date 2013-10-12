@@ -3,12 +3,12 @@ package org.maltparser.parser.algorithm.nivre;
 import java.util.Stack;
 
 import org.maltparser.core.exception.MaltChainedException;
+import org.maltparser.core.propagation.PropagationManager;
 import org.maltparser.core.syntaxgraph.edge.Edge;
 import org.maltparser.core.syntaxgraph.node.DependencyNode;
 import org.maltparser.parser.ParserConfiguration;
 import org.maltparser.parser.TransitionSystem;
 import org.maltparser.parser.history.GuideUserHistory;
-import org.maltparser.parser.history.History;
 import org.maltparser.parser.history.action.ComplexDecisionAction;
 import org.maltparser.parser.history.action.GuideUserAction;
 import org.maltparser.parser.transition.TransitionTable;
@@ -22,8 +22,8 @@ public class ArcEager extends TransitionSystem {
 	protected static final int RIGHTARC = 3;
 	protected static final int LEFTARC = 4;
 	
-	public ArcEager() throws MaltChainedException {
-		super();
+	public ArcEager(PropagationManager propagationManager) throws MaltChainedException {
+		super(propagationManager);
 	}
 	
 	public void apply(GuideUserAction currentAction, ParserConfiguration config) throws MaltChainedException {
@@ -37,13 +37,11 @@ public class ArcEager extends TransitionSystem {
 			e = nivreConfig.getDependencyStructure().addDependencyEdge(input.peek().getIndex(), stack.peek().getIndex());
 			addEdgeLabels(e);
 			stack.pop();
-//			doPropagation(e);
 			break;
 		case RIGHTARC:
 			e = nivreConfig.getDependencyStructure().addDependencyEdge(stack.peek().getIndex(), input.peek().getIndex());
 			addEdgeLabels(e);
 			stack.push(input.pop());
-//			doPropagation(e);
 			break;
 		case REDUCE:
 			stack.pop();
@@ -70,7 +68,7 @@ public class ArcEager extends TransitionSystem {
 	}
 	
 	protected void initWithDefaultTransitions(GuideUserHistory history) throws MaltChainedException {
-		GuideUserAction currentAction = new ComplexDecisionAction((History)history);
+		GuideUserAction currentAction = new ComplexDecisionAction(history);
 		
 		transActionContainer.setAction(SHIFT);
 		transActionContainer.setAction(REDUCE);

@@ -1,45 +1,30 @@
 package org.maltparser.core.propagation;
 
-import java.io.File;
-import java.net.MalformedURLException;
 import java.net.URL;
 
-import org.maltparser.core.config.ConfigurationDir;
+
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.propagation.spec.PropagationSpecs;
 import org.maltparser.core.propagation.spec.PropagationSpecsReader;
+import org.maltparser.core.symbol.SymbolTableHandler;
 import org.maltparser.core.syntaxgraph.edge.Edge;
+import org.maltparser.core.io.dataformat.DataFormatInstance;
 
 public class PropagationManager {
-	private ConfigurationDir configDirectory;
-	private PropagationSpecs propagationSpecs;
+	private final PropagationSpecs propagationSpecs;
 	private Propagations propagations;
 	
-	public PropagationManager(ConfigurationDir configDirectory) {
-		setConfigDirectory(configDirectory);
+	public PropagationManager() {
 		propagationSpecs = new PropagationSpecs();
-		
-	}
-
-	private URL findURL(String propagationSpecFileName) throws MaltChainedException {
-		URL url = null;
-		File specFile = configDirectory.getFile(propagationSpecFileName);
-		if (specFile.exists()) {
-			try {
-				url = new URL("file:///"+specFile.getAbsolutePath());
-			} catch (MalformedURLException e) {
-				throw new PropagationException("Malformed URL: "+specFile, e);
-			}
-		} else {
-			url = configDirectory.getConfigFileEntryURL(propagationSpecFileName);
-		}
-		return url;
 	}
 	
-	public void loadSpecification(String propagationSpecFileName) throws MaltChainedException {
+	public void loadSpecification(URL propagationSpecURL) throws MaltChainedException {
 		PropagationSpecsReader reader = new PropagationSpecsReader();
-		reader.load(findURL(propagationSpecFileName), propagationSpecs);
-		propagations = new Propagations(propagationSpecs, configDirectory.getInputDataFormatInstance());
+		reader.load(propagationSpecURL, propagationSpecs);
+	}
+	
+	public void createPropagations(DataFormatInstance dataFormatInstance, SymbolTableHandler tableHandler) throws MaltChainedException {
+		propagations = new Propagations(propagationSpecs, dataFormatInstance, tableHandler);
 	}
 	
 	public void propagate(Edge e) throws MaltChainedException {
@@ -52,17 +37,7 @@ public class PropagationManager {
 		return propagationSpecs;
 	}
 
-	public ConfigurationDir getConfigDirectory() {
-		return configDirectory;
-	}
-
-	public void setConfigDirectory(ConfigurationDir configDirectory) {
-		this.configDirectory = configDirectory;
-	}
-
 	public Propagations getPropagations() {
 		return propagations;
 	}
-	
-	
 }

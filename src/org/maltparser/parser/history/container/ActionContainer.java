@@ -8,10 +8,11 @@ import org.maltparser.core.symbol.Table;
 * @author Johan Hall
 **/
 public class ActionContainer {
+	private final Table table;
+	private final String name;
 	private int actionCode;
 	private String actionSymbol;
-	private Table table;
-	private String name;
+
 	
 	public ActionContainer(TableContainer tableContainer) {
 		this.table = tableContainer.getTable();
@@ -77,8 +78,6 @@ public class ActionContainer {
 		return name;
 	}
 
-
-	
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
 		sb.append(name);

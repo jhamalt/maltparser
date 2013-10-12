@@ -9,6 +9,7 @@ import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.io.dataformat.ColumnDescription;
 import org.maltparser.core.io.dataformat.DataFormatInstance;
 import org.maltparser.core.symbol.SymbolTable;
+import org.maltparser.core.symbol.SymbolTableHandler;
 import org.maltparser.core.syntaxgraph.DependencyStructure;
 import org.maltparser.core.syntaxgraph.node.DependencyNode;
 
@@ -59,7 +60,7 @@ public class PseudoProjectivity {
 	public PseudoProjectivity() { }
 
 	public void initialize(String markingStrategyString, String coveredRoot, String liftingOrder, Logger configLogger,
-			DataFormatInstance dataFormatInstance) throws MaltChainedException {
+			DataFormatInstance dataFormatInstance, SymbolTableHandler symbolTables) throws MaltChainedException {
 		nodeLifted = new Vector<Boolean>();
 		nodeTrace = new Vector<Vector<DependencyNode>>();
 		headDeprel = new Vector<DependencyNode>();
@@ -83,13 +84,11 @@ public class PseudoProjectivity {
 			markingStrategy = PseudoProjectiveEncoding.TRACE;
 		}
 		this.deprelColumn = dataFormatInstance.getColumnDescriptionByName("DEPREL");
-		this.deprelSymbolTable = deprelColumn.getSymbolTable();
-//		this.deprelSymbolTable = dataFormatInstance.getSymbolTables().getSymbolTable("DEPREL");
+		this.deprelSymbolTable = symbolTables.getSymbolTable(deprelColumn.getName());
 		if (markingStrategy == PseudoProjectiveEncoding.HEAD || markingStrategy == PseudoProjectiveEncoding.PATH
 				|| markingStrategy == PseudoProjectiveEncoding.HEADPATH) {
-			this.ppliftedColumn = dataFormatInstance.addInternalColumnDescription("PPLIFTED", "DEPENDENCY_EDGE_LABEL", "BOOLEAN", "", deprelColumn.getNullValueStrategy());
-			this.ppliftedSymbolTable = ppliftedColumn.getSymbolTable();
-//			this.ppliftedSymbolTable = dataFormatInstance.getSymbolTables().addSymbolTable("PPLIFTED", deprelSymbolTable);
+			this.ppliftedColumn = dataFormatInstance.addInternalColumnDescription(symbolTables, "PPLIFTED", "DEPENDENCY_EDGE_LABEL", "BOOLEAN", "", deprelColumn.getNullValueStrategy());
+			this.ppliftedSymbolTable = symbolTables.getSymbolTable(ppliftedColumn.getName()); 
 			if (this.markingStrategy == PseudoProjectiveEncoding.PATH) {
 				ppliftedSymbolTable.addSymbol("#true#");
 				ppliftedSymbolTable.addSymbol("#false#");
@@ -99,8 +98,8 @@ public class PseudoProjectivity {
 		}
 
 		if (markingStrategy == PseudoProjectiveEncoding.PATH || markingStrategy == PseudoProjectiveEncoding.HEADPATH) {
-			this.pppathColumn = dataFormatInstance.addInternalColumnDescription("PPPATH", "DEPENDENCY_EDGE_LABEL", "BOOLEAN", "", deprelColumn.getNullValueStrategy());
-			this.pppathSymbolTable = pppathColumn.getSymbolTable();
+			this.pppathColumn = dataFormatInstance.addInternalColumnDescription(symbolTables, "PPPATH", "DEPENDENCY_EDGE_LABEL", "BOOLEAN", "", deprelColumn.getNullValueStrategy());
+			this.pppathSymbolTable = symbolTables.getSymbolTable(pppathColumn.getName());
 			pppathSymbolTable.addSymbol("#true#");
 			pppathSymbolTable.addSymbol("#false#");
 		}
@@ -118,8 +117,8 @@ public class PseudoProjectivity {
 		}
 
 		if (this.rootAttachment != CoveredRootAttachment.NONE) {
-			this.ppcoveredRootColumn = dataFormatInstance.addInternalColumnDescription("PPCOVERED", "DEPENDENCY_EDGE_LABEL", "BOOLEAN", "", deprelColumn.getNullValueStrategy());
-			this.ppcoveredRootSymbolTable = ppcoveredRootColumn.getSymbolTable();
+			this.ppcoveredRootColumn = dataFormatInstance.addInternalColumnDescription(symbolTables, "PPCOVERED", "DEPENDENCY_EDGE_LABEL", "BOOLEAN", "", deprelColumn.getNullValueStrategy());
+			this.ppcoveredRootSymbolTable = symbolTables.getSymbolTable(ppcoveredRootColumn.getName());
 			ppcoveredRootSymbolTable.addSymbol("#true#");
 			ppcoveredRootSymbolTable.addSymbol("#false#");
 		}

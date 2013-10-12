@@ -3,26 +3,28 @@ package org.maltparser.parser.algorithm.twoplanar;
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.feature.function.AddressFunction;
 import org.maltparser.core.feature.value.AddressValue;
-import org.maltparser.parser.Algorithm;
+import org.maltparser.parser.AlgoritmInterface;
 import org.maltparser.parser.ParsingException;
 
 /**
 *
 * @author Carlos Gomez Rodriguez
 **/
-public class TwoPlanarAddressFunction extends AddressFunction {
+public final class TwoPlanarAddressFunction extends AddressFunction {
+	public final static Class<?>[] paramTypes = { java.lang.Integer.class };
 	public enum TwoPlanarSubFunction {
 		ACTIVESTACK, INACTIVESTACK , INPUT
 	};
-	protected String subFunctionName;
-	protected TwoPlanarSubFunction subFunction;
-	protected Algorithm parsingAlgorithm;
-	protected int index;
+	private final String subFunctionName;
+	private final TwoPlanarSubFunction subFunction;
+	private final AlgoritmInterface parsingAlgorithm;
+	private int index;
 	
-	public TwoPlanarAddressFunction(String subFunctionName, Algorithm parsingAlgorithm) {
+	public TwoPlanarAddressFunction(String _subFunctionName, AlgoritmInterface _parsingAlgorithm) {
 		super();
-		setSubFunctionName(subFunctionName);
-		setAlgorithm(parsingAlgorithm);
+		this.subFunctionName = _subFunctionName;
+		this.subFunction = TwoPlanarSubFunction.valueOf(subFunctionName.toUpperCase());
+		this.parsingAlgorithm = _parsingAlgorithm;
 	}
 	
 	public void initialize(Object[] arguments) throws MaltChainedException {
@@ -37,7 +39,6 @@ public class TwoPlanarAddressFunction extends AddressFunction {
 	}
 	
 	public Class<?>[] getParameterTypes() {
-		Class<?>[] paramTypes = { java.lang.Integer.class };
 		return paramTypes; 
 	}
 	
@@ -67,11 +68,6 @@ public class TwoPlanarAddressFunction extends AddressFunction {
 	public String getSubFunctionName() {
 		return subFunctionName;
 	}
-
-	public void setSubFunctionName(String subFunctionName) {
-		this.subFunctionName = subFunctionName;
-		subFunction = TwoPlanarSubFunction.valueOf(subFunctionName.toUpperCase());
-	}
 	
 	public TwoPlanarSubFunction getSubFunction() {
 		return subFunction;
@@ -79,14 +75,6 @@ public class TwoPlanarAddressFunction extends AddressFunction {
 	
 	public AddressValue getAddressValue() {
 		return address;
-	}
-	
-	public Algorithm getParsingAlgorithm() {
-		return parsingAlgorithm;
-	}
-
-	public void setAlgorithm(Algorithm parsingAlgorithm) {
-		this.parsingAlgorithm = parsingAlgorithm;
 	}
 
 	public int getIndex() {

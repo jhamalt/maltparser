@@ -17,6 +17,7 @@ import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.io.dataformat.ColumnDescription;
 import org.maltparser.core.io.dataformat.DataFormatException;
 import org.maltparser.core.io.dataformat.DataFormatInstance;
+import org.maltparser.core.symbol.SymbolTableHandler;
 import org.maltparser.core.syntaxgraph.MappablePhraseStructureGraph;
 import org.maltparser.core.syntaxgraph.PhraseStructure;
 import org.maltparser.core.syntaxgraph.TokenStructure;
@@ -116,6 +117,7 @@ public class NegraReader implements SyntaxGraphReader {
 		}
 		syntaxGraph.clear();
 		final PhraseStructure phraseStructure = (PhraseStructure)syntaxGraph;
+		final SymbolTableHandler symbolTables = phraseStructure.getSymbolTables();
 		PhraseStructureNode parent = null;
 		PhraseStructureNode child = null;
 		currentHeaderTable = NegraTables.UNDEF;
@@ -225,7 +227,7 @@ public class NegraReader implements SyntaxGraphReader {
 											}
 										}
 										Edge e = phraseStructure.addSecondaryEdge(parent, child);
-										e.addLabel(column.getSymbolTable(), edgelabelSymbol.toString());
+										e.addLabel(symbolTables.getSymbolTable(column.getName()), edgelabelSymbol.toString());
 										secedgecounter++;
 									}
 								}
@@ -288,7 +290,7 @@ public class NegraReader implements SyntaxGraphReader {
 											}
 										}
 										Edge e = phraseStructure.addSecondaryEdge(parent, child);
-										e.addLabel(column.getSymbolTable(), edgelabelSymbol.toString());
+										e.addLabel(symbolTables.getSymbolTable(column.getName()), edgelabelSymbol.toString());
 										secedgecounter++;
 									}
 								}

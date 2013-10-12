@@ -1,5 +1,7 @@
 package org.maltparser.core.syntaxgraph.node;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedSet;
@@ -68,7 +70,7 @@ public class Token extends GraphNode implements TokenNode, DependencyNode, Phras
 	 * 
 	 * @return the predecessor terminal node in the linear order of the terminal nodes.
 	 */
-	public TokenNode getPredecessor() {
+	public TokenNode getTokenNodePredecessor() {
 		return predecessor;
 	}
 
@@ -77,7 +79,15 @@ public class Token extends GraphNode implements TokenNode, DependencyNode, Phras
 	 * 
 	 * @return the successor terminal node in the linear order of the terminal nodes.
 	 */
-	public TokenNode getSuccessor() {
+	public TokenNode getTokenNodeSuccessor() {
+		return successor;
+	}
+	
+	public DependencyNode getPredecessor() {
+		return predecessor;
+	}
+
+	public DependencyNode getSuccessor() {
 		return successor;
 	}
 	
@@ -767,6 +777,34 @@ public class Token extends GraphNode implements TokenNode, DependencyNode, Phras
 //		}
 	}
 	
+	public List<DependencyNode> getListOfDependents() {
+		List<DependencyNode> dependentList = new ArrayList<DependencyNode>();
+		for (DependencyNode node : leftDependents) {
+			dependentList.add(node);
+		}
+		for (DependencyNode node : rightDependents) {
+			dependentList.add(node);
+		}
+		return dependentList;		
+	}
+	
+	public List<DependencyNode> getListOfLeftDependents() {
+		List<DependencyNode> leftDependentList = new ArrayList<DependencyNode>();
+		
+		for (DependencyNode node : leftDependents) {
+			leftDependentList.add(node);
+		}
+		return leftDependentList;
+	}
+	
+	public List<DependencyNode> getListOfRightDependents() {
+		List<DependencyNode> rightDependentList = new ArrayList<DependencyNode>();
+		for (DependencyNode node : rightDependents) {
+			rightDependentList.add(node);
+		}
+		return rightDependentList;
+	}
+	
 	protected void getDependencyDominationSet(SortedSet<DependencyNode> dominationSet) {
 		if (leftDependents.size() > 0 || rightDependents.size() > 0) {
 			dominationSet.addAll(leftDependents);
@@ -801,7 +839,7 @@ public class Token extends GraphNode implements TokenNode, DependencyNode, Phras
 		if (hasHead() && !getHead().isRoot()) {
 			final DependencyNode head = getHead();
 			if (getHead().getIndex() < this.getIndex()) {
-				TokenNode terminals = ((TokenNode)head);
+				DependencyNode terminals = head;
 				DependencyNode tmp = null;
 				while (true) {
 					if (terminals == null || terminals.getSuccessor() == null) {
@@ -819,7 +857,7 @@ public class Token extends GraphNode implements TokenNode, DependencyNode, Phras
 					}
 				}
 			} else {
-				TokenNode terminals = ((TokenNode)this);
+				DependencyNode terminals = this;
 				DependencyNode tmp = null;
 				while (true) {
 					if (terminals == null || terminals.getSuccessor() == null) {

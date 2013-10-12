@@ -22,7 +22,9 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.maltparser.core.exception.MaltChainedException;
+import org.maltparser.core.options.option.EnumOption;
 import org.maltparser.core.options.option.ClassOption;
+import org.maltparser.core.options.option.StringEnumOption;
 import org.maltparser.core.options.option.Option;
 import org.maltparser.core.options.option.UnaryOption;
 import org.maltparser.core.plugin.PluginLoader;
@@ -40,8 +42,8 @@ import org.xml.sax.SAXException;
 **/
 public class OptionManager {
 	public static final int DEFAULTVALUE = -1;
-	private OptionDescriptions optionDescriptions;
-	private OptionValues optionValues;
+	private final OptionDescriptions optionDescriptions;
+	private final OptionValues optionValues;
 	private static OptionManager uniqueInstance = new OptionManager();
 	
 	/**
@@ -86,6 +88,10 @@ public class OptionManager {
 	 */
 	public OptionDescriptions getOptionDescriptions() {
 		return optionDescriptions;
+	}
+	
+	public boolean hasOptions() {
+		return optionDescriptions.hasOptions();
 	}
 	
 	/**
@@ -149,6 +155,19 @@ public class OptionManager {
 		return optionValues.getOptionValueString(containerIndex, optionDescriptions.getOption(optiongroup, optionname));
 	}
 	
+	public void addLegalValue(String optiongroup, String optionname, String value, String desc, String target) throws MaltChainedException {
+		Option option = optionDescriptions.getOption(optiongroup, optionname);
+		if (option != null) {
+			if (option instanceof EnumOption) {
+				((EnumOption)option).addLegalValue(value, desc);
+			} else if (option instanceof ClassOption) {
+				((ClassOption)option).addLegalValue(value, desc, target);
+			} else if (option instanceof StringEnumOption) {
+				((StringEnumOption)option).addLegalValue(value, desc, target);
+			}
+		}
+	}
+	
 	/**
 	 * Overloads the option value specified by the container index, the option group name, the option name.
 	 * This method is used to override option that have specific dependencies. 
@@ -160,12 +179,22 @@ public class OptionManager {
 	 * @throws MaltChainedException
 	 */
 	public void overloadOptionValue(int containerIndex, String optiongroup, String optionname, String value) throws MaltChainedException {
+//		Option option = optionDescriptions.getOption(optiongroup, optionname);
+//		if (value == null) {
+//    		throw new OptionException("The option value is missing. ");
+//    	}
+//    	Object ovalue = option.getValueObject(value);
+//    	optionValues.addOptionValue(OptionContainer.DEPENDENCIES_RESOLVED, containerIndex, option, ovalue);
+		overloadOptionValue(containerIndex, OptionContainer.DEPENDENCIES_RESOLVED, optiongroup, optionname, value);
+	}
+	
+	public void overloadOptionValue(int containerIndex, int containerType, String optiongroup, String optionname, String value) throws MaltChainedException {
 		Option option = optionDescriptions.getOption(optiongroup, optionname);
 		if (value == null) {
     		throw new OptionException("The option value is missing. ");
     	}
     	Object ovalue = option.getValueObject(value);
-    	optionValues.addOptionValue(OptionContainer.DEPENDENCIES_RESOLVED, containerIndex, option, ovalue);
+    	optionValues.addOptionValue(containerType, containerIndex, option, ovalue);
 	}
 	
 	/**

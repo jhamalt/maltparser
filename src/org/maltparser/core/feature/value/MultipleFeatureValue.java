@@ -10,7 +10,6 @@ import org.maltparser.core.helper.HashSet;
  *  
  *
  * @author Johan Hall
- * @since 1.0
 **/
 public class MultipleFeatureValue extends FeatureValue {
 	protected SortedMap<Integer, String> featureValues;

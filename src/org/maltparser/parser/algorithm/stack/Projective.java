@@ -3,13 +3,13 @@ package org.maltparser.parser.algorithm.stack;
 import java.util.Stack;
 
 import org.maltparser.core.exception.MaltChainedException;
+import org.maltparser.core.propagation.PropagationManager;
 import org.maltparser.core.syntaxgraph.LabelSet;
 import org.maltparser.core.syntaxgraph.edge.Edge;
 import org.maltparser.core.syntaxgraph.node.DependencyNode;
 import org.maltparser.parser.ParserConfiguration;
 import org.maltparser.parser.TransitionSystem;
 import org.maltparser.parser.history.GuideUserHistory;
-import org.maltparser.parser.history.History;
 import org.maltparser.parser.history.action.ComplexDecisionAction;
 import org.maltparser.parser.history.action.GuideUserAction;
 import org.maltparser.parser.transition.TransitionTable;
@@ -22,8 +22,8 @@ public class Projective extends TransitionSystem {
 	protected static final int RIGHTARC = 2;
 	protected static final int LEFTARC = 3;
 	
-	public Projective() throws MaltChainedException {
-		super();
+	public Projective(PropagationManager propagationManager) throws MaltChainedException {
+		super(propagationManager);
 	}
 	
 	public void apply(GuideUserAction currentAction, ParserConfiguration configuration) throws MaltChainedException {
@@ -89,7 +89,7 @@ public class Projective extends TransitionSystem {
 	}
 	
 	protected void initWithDefaultTransitions(GuideUserHistory history) throws MaltChainedException {
-		GuideUserAction currentAction = new ComplexDecisionAction((History)history);
+		GuideUserAction currentAction = new ComplexDecisionAction(history);
 		
 		transActionContainer.setAction(SHIFT);
 		for (int i = 0; i < arcLabelActionContainers.length; i++) {

@@ -16,21 +16,20 @@ import org.maltparser.core.syntaxgraph.node.DependencyNode;
 /**
 *
 * @author Johan Hall
-* @since 1.1
 **/
-public class InputArcDirFeature implements FeatureFunction {
-	protected ColumnDescription column;
-	protected DataFormatInstance dataFormatInstance;
-	protected SymbolTableHandler tableHandler;
-	protected SymbolTable table;
-	protected SingleFeatureValue featureValue;
-	protected AddressFunction addressFunction;
+public final class InputArcDirFeature implements FeatureFunction {
+	public final static Class<?>[] paramTypes = { java.lang.String.class, org.maltparser.core.feature.function.AddressFunction.class };
+	private ColumnDescription column;
+	private final DataFormatInstance dataFormatInstance;
+	private final SymbolTableHandler tableHandler;
+	private SymbolTable table;
+	private final SingleFeatureValue featureValue;
+	private AddressFunction addressFunction;
 	
 	public InputArcDirFeature(DataFormatInstance dataFormatInstance, SymbolTableHandler tableHandler) throws MaltChainedException {
-		super();
-		setDataFormatInstance(dataFormatInstance);
-		setTableHandler(tableHandler);
-		setFeatureValue(new SingleFeatureValue(this));
+		this.dataFormatInstance = dataFormatInstance;
+		this.tableHandler = tableHandler;
+		this.featureValue = new SingleFeatureValue(this);
 	}
 	
 	public void initialize(Object[] arguments) throws MaltChainedException {
@@ -52,7 +51,6 @@ public class InputArcDirFeature implements FeatureFunction {
 	}
 	
 	public Class<?>[] getParameterTypes() {
-		Class<?>[] paramTypes = { java.lang.String.class, org.maltparser.core.feature.function.AddressFunction.class };
 		return paramTypes;
 	}
 	
@@ -68,16 +66,12 @@ public class InputArcDirFeature implements FeatureFunction {
 		return featureValue;
 	}
 
-	public void updateCardinality() throws MaltChainedException {
-//		featureValue.setCardinality(table.getValueCounter());
-	}
-
 	public void update() throws MaltChainedException {
 		AddressValue a = addressFunction.getAddressValue();
 		if (a.getAddress() != null && a.getAddressClass() == org.maltparser.core.syntaxgraph.node.DependencyNode.class) {
 			DependencyNode node = (DependencyNode)a.getAddress();
 			try {
-				int index = Integer.parseInt(node.getLabelSymbol(column.getSymbolTable()));
+				int index = Integer.parseInt(node.getLabelSymbol(tableHandler.getSymbolTable(column.getName())));
 				if (node.isRoot()) {
 					featureValue.setIndexCode(table.getNullValueCode(NullValueId.ROOT_NODE));
 					featureValue.setSymbol(table.getNullValueSymbol(NullValueId.ROOT_NODE));
@@ -129,14 +123,6 @@ public class InputArcDirFeature implements FeatureFunction {
 	public DataFormatInstance getDataFormatInstance() {
 		return dataFormatInstance;
 	}
-
-	public void setDataFormatInstance(DataFormatInstance dataFormatInstance) {
-		this.dataFormatInstance = dataFormatInstance;
-	}
-
-	public void setFeatureValue(SingleFeatureValue featureValue) {
-		this.featureValue = featureValue;
-	}
 	
 	public SymbolTable getSymbolTable() {
 		return table;
@@ -148,10 +134,6 @@ public class InputArcDirFeature implements FeatureFunction {
 	
 	public SymbolTableHandler getTableHandler() {
 		return tableHandler;
-	}
-
-	public void setTableHandler(SymbolTableHandler tableHandler) {
-		this.tableHandler = tableHandler;
 	}
 	
 	public  int getType() {

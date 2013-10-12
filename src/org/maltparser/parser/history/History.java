@@ -13,27 +13,32 @@ import org.maltparser.parser.history.action.GuideUserAction;
 import org.maltparser.parser.history.container.ActionContainer;
 import org.maltparser.parser.history.container.CombinedTableContainer;
 import org.maltparser.parser.history.container.TableContainer;
-import org.maltparser.parser.history.kbest.KBestList;
 
 /**
 *
 * @author Johan Hall
-* @since 1.1
 **/
-public class History implements GuideUserHistory, GuideHistory {
-	protected final ObjectPoolList<ComplexDecisionAction> actionPool;
-	protected Class<? extends KBestList> kBestListClass = null;
-	protected int kBestSize;
-	protected String separator = "~";
-	protected String decisionSettings;
-	protected ArrayList<TableContainer> decisionTables;
-	protected ArrayList<TableContainer> actionTables; 
-	protected HashMap<String, TableHandler> tableHandlers;
+public class History implements GuideUserHistory { 
+	private final ObjectPoolList<ComplexDecisionAction> actionPool;
+	private final int kBestSize;
+	private final String separator;
+	private final String decisionSettings;
+	private final ArrayList<TableContainer> decisionTables;
+	private final ArrayList<TableContainer> actionTables; 
+	private final HashMap<String, TableHandler> tableHandlers;
 	
-	public History(String decisionSettings, String separator, HashMap<String, TableHandler> tableHandlers) throws MaltChainedException {
-		setTableHandlers(tableHandlers);
-		setSeparator(separator);
-		initDecisionSettings(decisionSettings);
+	public History(String _decisionSettings, String _separator, HashMap<String, TableHandler> _tableHandlers, int _kBestSize) throws MaltChainedException {
+		this.tableHandlers = _tableHandlers;
+		if (_separator == null || _separator.length() < 1) {
+			this.separator = "~";
+		} else {
+			this.separator = _separator;
+		}
+		this.kBestSize = _kBestSize;
+		this.decisionTables = new ArrayList<TableContainer>();
+		this.actionTables = new ArrayList<TableContainer>();
+		this.decisionSettings = _decisionSettings;
+		initDecisionSettings();
 		actionPool = new ObjectPoolList<ComplexDecisionAction>() {
 			protected ComplexDecisionAction create() throws MaltChainedException { return new ComplexDecisionAction(getThis()); }
 			public void resetObject(ComplexDecisionAction o) throws MaltChainedException { o.clear(); }
@@ -71,10 +76,6 @@ public class History implements GuideUserHistory, GuideHistory {
 		actionPool.checkInAll();
 	}
 	
-//	public void clear() {
-//		currentAction = -1;
-//	}
-	
 	/* GuideHistory interface */
 	public GuideDecision getEmptyGuideDecision() throws MaltChainedException {
 		return (GuideDecision)getEmptyActionObject();
@@ -87,27 +88,9 @@ public class History implements GuideUserHistory, GuideHistory {
 	public TableHandler getTableHandler(String name) {
 		return tableHandlers.get(name);
 	}
-
-	public Class<? extends KBestList> getKBestListClass() {
-		return kBestListClass;
-	}
-	
-	public void setKBestListClass(Class<?> kBestListClass) throws MaltChainedException {
-		try {
-			if (kBestListClass != null) {
-				this.kBestListClass = kBestListClass.asSubclass(org.maltparser.parser.history.kbest.KBestList.class);
-			}
-		} catch (ClassCastException e) {
-			throw new HistoryException("The class '"+kBestListClass.getName()+"' is not a subclass of '"+org.maltparser.parser.history.kbest.KBestList.class.getName()+"'. ", e);
-		}
-	}
 	
 	public int getKBestSize() {
 		return kBestSize;
-	}
-
-	public void setKBestSize(int kBestSize) {
-		this.kBestSize = kBestSize;
 	}
 
 	public int getNumberOfActions() {
@@ -130,33 +113,15 @@ public class History implements GuideUserHistory, GuideHistory {
 		return separator;
 	}
 
-	public void setSeparator(String separator) throws MaltChainedException {
-		if (separator == null || separator.length() < 1) {
-			throw new HistoryException("The class item separator (--guide-classitem_separator) does not have correct value. ");
-		}
-		this.separator = separator;
-	}
-
 	public String getDecisionSettings() {
 		return decisionSettings;
 	}
-
-	public void setDecisionSettings(String decisionSettings) {
-		this.decisionSettings = decisionSettings;
-	}
-
-	protected void setTableHandlers(HashMap<String, TableHandler> tableHandlers) {
-		this.tableHandlers = tableHandlers;
-	}
 	
-	protected ActionDecision getEmptyActionObject() throws MaltChainedException {
+	private ActionDecision getEmptyActionObject() throws MaltChainedException {
 		return actionPool.checkOut();
 	}
 	
-	protected void initDecisionSettings(String decisionSettings) throws MaltChainedException {
-		decisionTables = new ArrayList<TableContainer>();
-		actionTables = new ArrayList<TableContainer>();
-		this.decisionSettings = decisionSettings;
+	private void initDecisionSettings() throws MaltChainedException {
 		int start = 0;
 		int k = 0;
 		char prevDecisionSeparator = ' ';
@@ -167,13 +132,11 @@ public class History implements GuideUserHistory, GuideHistory {
 		for (int i = 0; i < decisionSettings.length(); i++) {
 			switch (decisionSettings.charAt(i)) {
 			case '.':
-				if (state != 0) {
-					//error
-				}
 				state = 1;
 				break;
 			case '+':
-				tmp = new TableContainer(tableHandlers.get(sbTableHandler.toString()).getSymbolTable(sbTable.toString()), sbTableHandler.toString()+"."+sbTable.toString(), '+');
+				tmp = new TableContainer(tableHandlers.get(sbTableHandler.toString()).getSymbolTable(sbTable.toString()), 
+						sbTableHandler.toString()+"."+sbTable.toString(), '+');
 				actionTables.add(tmp);
 				k++;
 				sbTableHandler.setLength(0);
@@ -199,10 +162,10 @@ public class History implements GuideUserHistory, GuideHistory {
 			if (state == 2 || i == decisionSettings.length()-1) {
 				char decisionSeparator = decisionSettings.charAt(i);
 				if (i == decisionSettings.length()-1) {
-					//decisionSeparator = ' ';
 					decisionSeparator = prevDecisionSeparator;
 				}
-				tmp = new TableContainer(tableHandlers.get(sbTableHandler.toString()).getSymbolTable(sbTable.toString()), sbTableHandler.toString()+"."+sbTable.toString(), decisionSeparator);
+				tmp = new TableContainer(tableHandlers.get(sbTableHandler.toString()).getSymbolTable(sbTable.toString()), 
+						sbTableHandler.toString()+"."+sbTable.toString(), decisionSeparator);
 				actionTables.add(tmp);
 				k++;
 				if (k-start > 1) {

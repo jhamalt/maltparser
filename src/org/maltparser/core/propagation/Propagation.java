@@ -9,6 +9,7 @@ import org.maltparser.core.io.dataformat.ColumnDescription;
 import org.maltparser.core.io.dataformat.DataFormatInstance;
 import org.maltparser.core.propagation.spec.PropagationSpec;
 import org.maltparser.core.symbol.SymbolTable;
+import org.maltparser.core.symbol.SymbolTableHandler;
 import org.maltparser.core.syntaxgraph.edge.Edge;
 import org.maltparser.core.syntaxgraph.node.DependencyNode;
 
@@ -25,10 +26,10 @@ public class Propagation {
 	private SymbolTable fromTable;
 	private SymbolTable toTable;
 	private SymbolTable deprelTable;
-	private SortedSet<String> forSet;
-	private SortedSet<String> overSet;
+	private final SortedSet<String> forSet;
+	private final SortedSet<String> overSet;
 	
-	private Pattern symbolSeparator;
+	private final Pattern symbolSeparator;
 	
 	/**
 	 * Creates a propagation object based on the propagation specification
@@ -37,17 +38,17 @@ public class Propagation {
 	 * @param dataFormatInstance a data format instance
 	 * @throws MaltChainedException
 	 */
-	public Propagation(PropagationSpec spec, DataFormatInstance dataFormatInstance) throws MaltChainedException {
+	public Propagation(PropagationSpec spec, DataFormatInstance dataFormatInstance, SymbolTableHandler tableHandler) throws MaltChainedException {
 		ColumnDescription fromColumn = dataFormatInstance.getColumnDescriptionByName(spec.getFrom());
 		if (fromColumn == null) {
 			throw new PropagationException("The symbol table '"+spec.getFrom()+" does not exists.");
 		}
-		fromTable = fromColumn.getSymbolTable();
+		fromTable = tableHandler.getSymbolTable(spec.getFrom());
 
 		ColumnDescription toColumn = dataFormatInstance.getColumnDescriptionByName(spec.getTo());
 		if (toColumn == null) {
-			toColumn = dataFormatInstance.addInternalColumnDescription(spec.getTo(), fromColumn);
-			toTable = toColumn.getSymbolTable();
+			toColumn = dataFormatInstance.addInternalColumnDescription(tableHandler, spec.getTo(), fromColumn);
+			toTable = tableHandler.getSymbolTable(spec.getTo());
 		}
 
 		
@@ -69,8 +70,8 @@ public class Propagation {
 			}
 		}
 		
-		ColumnDescription deprelColumn = dataFormatInstance.getColumnDescriptionByName("DEPREL");
-		deprelTable = deprelColumn.getSymbolTable();
+//		ColumnDescription deprelColumn = dataFormatInstance.getColumnDescriptionByName("DEPREL");
+		deprelTable = tableHandler.getSymbolTable("DEPREL");
 		symbolSeparator = Pattern.compile("\\|");
 	}
 

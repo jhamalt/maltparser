@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Stack;
 import java.util.regex.Pattern;
 
-import org.maltparser.core.config.ConfigurationRegistry;
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.feature.function.AddressFunction;
 import org.maltparser.core.feature.function.FeatureFunction;
@@ -15,6 +14,7 @@ import org.maltparser.core.feature.spec.SpecificationSubModel;
 import org.maltparser.core.feature.system.FeatureEngine;
 import org.maltparser.core.helper.HashMap;
 
+
 /**
 *
 *
@@ -22,66 +22,85 @@ import org.maltparser.core.helper.HashMap;
 */
 public class FeatureModel extends HashMap<String, FeatureVector> {
 	public final static long serialVersionUID = 3256444702936019250L;
-	protected SpecificationModel specModel;
-	protected final ArrayList<AddressFunction> addressFunctionCache;
-	protected final ArrayList<FeatureFunction> featureFunctionCache;
-	protected ConfigurationRegistry registry;
-	protected FeatureEngine featureEngine;
-	protected FeatureVector mainFeatureVector = null; 
-	protected final Pattern splitPattern;
+	private final static Pattern splitPattern = Pattern.compile("\\(|\\)|\\[|\\]|,");
+	private final SpecificationModel specModel;
+	private final ArrayList<AddressFunction> addressFunctionCache;
+	private final ArrayList<FeatureFunction> featureFunctionCache;
+	private final FeatureFunction divideFeatureFunction;
+	private final FeatureRegistry registry;
+	private final FeatureEngine featureEngine;
+	private final FeatureVector mainFeatureVector; 
+//	private final HashMap<String,ArrayList<Integer>> divideFeatureIndexVectorMap;
+	private final ArrayList<Integer> divideFeatureIndexVector;
 	
-	public FeatureModel(SpecificationModel specModel, ConfigurationRegistry registry, FeatureEngine engine) throws MaltChainedException {
-		setSpecModel(specModel);
-		setRegistry(registry);
-		setFeatureEngine(engine);
-		addressFunctionCache = new ArrayList<AddressFunction>();
-		featureFunctionCache = new ArrayList<FeatureFunction>();
-		splitPattern = Pattern.compile("\\(|\\)|\\[|\\]|,");
+	public FeatureModel(SpecificationModel _specModel, FeatureRegistry _registry, FeatureEngine _engine, String dataSplitColumn, String dataSplitStructure) throws MaltChainedException {
+		this.specModel = _specModel;
+		this.registry = _registry;
+		this.featureEngine = _engine;
+		this.addressFunctionCache = new ArrayList<AddressFunction>();
+		this.featureFunctionCache = new ArrayList<FeatureFunction>();
+		FeatureVector tmpMainFeatureVector = null;
 		for (SpecificationSubModel subModel : specModel) {
 			FeatureVector fv = new FeatureVector(this, subModel);
-			if (mainFeatureVector == null) {
+			if (tmpMainFeatureVector == null) {
 				if (subModel.getSubModelName().equals("MAIN")) {
-					mainFeatureVector = fv;
+					tmpMainFeatureVector = fv;
 				} else {
-					mainFeatureVector = fv;
+					tmpMainFeatureVector = fv;
 					put(subModel.getSubModelName(), fv);
 				}
 			} else {
 				put(subModel.getSubModelName(), fv);
 			}
 		}
+		this.mainFeatureVector = tmpMainFeatureVector;
+		if (dataSplitColumn != null && dataSplitColumn.length() > 0 && dataSplitStructure != null && dataSplitStructure.length() > 0) {
+			final StringBuilder sb = new StringBuilder();
+			sb.append("InputColumn(");
+			sb.append(dataSplitColumn);
+			sb.append(", ");
+			sb.append(dataSplitStructure);
+			sb.append(')');
+			this.divideFeatureFunction = identifyFeature(sb.toString());
+//			this.divideFeatureIndexVectorMap = new HashMap<String,ArrayList<Integer>>();
+			this.divideFeatureIndexVector = new ArrayList<Integer>();
+
+			for (int i = 0; i < mainFeatureVector.size(); i++) {
+				if (mainFeatureVector.get(i).equals(divideFeatureFunction)) {
+					divideFeatureIndexVector.add(i);
+				}
+			}
+			for (SpecificationSubModel subModel : specModel) {
+				FeatureVector featureVector = get(subModel.getSubModelName());
+				if (featureVector == null) {
+					featureVector = mainFeatureVector;	
+				}
+				String divideKeyName = "/"+subModel.getSubModelName();
+//				divideFeatureIndexVectorMap.put(divideKeyName, divideFeatureIndexVector);
+				
+				FeatureVector divideFeatureVector = (FeatureVector)featureVector.clone();
+				for (Integer i : divideFeatureIndexVector) {
+					divideFeatureVector.remove(divideFeatureVector.get(i));
+				}
+				put(divideKeyName,divideFeatureVector);
+			}
+		} else {
+			this.divideFeatureFunction = null;
+//			this.divideFeatureIndexVectorMap = null;
+			this.divideFeatureIndexVector = null;
+		}
 	}
 
 	public SpecificationModel getSpecModel() {
 		return specModel;
 	}
-
-	public void setSpecModel(SpecificationModel specModel) {
-		this.specModel = specModel;
-	}
 	
-	public ArrayList<AddressFunction> getAddressFunctionCache() {
-		return addressFunctionCache;
-	}
-
-	public ArrayList<FeatureFunction> getFeatureFunctionCache() {
-		return featureFunctionCache;
-	}
-	
-	public ConfigurationRegistry getRegistry() {
+	public FeatureRegistry getRegistry() {
 		return registry;
-	}
-
-	public void setRegistry(ConfigurationRegistry registry) {
-		this.registry = registry;
 	}
 
 	public FeatureEngine getFeatureEngine() {
 		return featureEngine;
-	}
-
-	public void setFeatureEngine(FeatureEngine featureEngine) {
-		this.featureEngine = featureEngine;
 	}
 	
 	public FeatureVector getMainFeatureVector() {
@@ -90,6 +109,45 @@ public class FeatureModel extends HashMap<String, FeatureVector> {
 	
 	public FeatureVector getFeatureVector(String subModelName) {
 		return get(subModelName);
+	}
+	
+	public FeatureVector getFeatureVector(String decisionSymbol, String subModelName) {
+		final StringBuilder sb = new StringBuilder();
+		if (decisionSymbol.length() > 0) {
+			sb.append(decisionSymbol);
+			sb.append('.');
+		}
+		sb.append(subModelName);
+		if (containsKey(sb.toString())) {
+			return get(sb.toString());
+		} else if (containsKey(subModelName)) {
+			return get(subModelName);
+		}
+		return mainFeatureVector;
+	}
+	
+	public FeatureFunction getDivideFeatureFunction() {
+		return divideFeatureFunction;
+	}
+	
+	public boolean hasDivideFeatureFunction() {
+		return divideFeatureFunction != null;
+	}
+
+//	public ArrayList<Integer> getDivideFeatureIndexVectorMap(String divideSubModelName) {
+//		return divideFeatureIndexVectorMap.get(divideSubModelName);
+//	}
+//
+//	public boolean hasDivideFeatureIndexVectorMap() {
+//		return divideFeatureIndexVectorMap != null;
+//	}
+	
+	public ArrayList<Integer> getDivideFeatureIndexVector() {
+		return divideFeatureIndexVector;
+	}
+
+	public boolean hasDivideFeatureIndexVector() {
+		return divideFeatureIndexVector != null;
 	}
 	
 	public void update() throws MaltChainedException {
@@ -187,18 +245,18 @@ public class FeatureModel extends HashMap<String, FeatureVector> {
 		}
 		function.initialize(arguments);
 		if (function instanceof AddressFunction) {
-			int index = getAddressFunctionCache().indexOf(function);
+			int index = addressFunctionCache.indexOf(function);
 			if (index != -1) {
-				function = getAddressFunctionCache().get(index);
+				function = addressFunctionCache.get(index);
 			} else {
-				getAddressFunctionCache().add((AddressFunction)function);
+				addressFunctionCache.add((AddressFunction)function);
 			}
 		} else if (function instanceof FeatureFunction) {
-			int index = getFeatureFunctionCache().indexOf(function);
+			int index = featureFunctionCache.indexOf(function);
 			if (index != -1) {
-				function = getFeatureFunctionCache().get(index);
+				function = featureFunctionCache.get(index);
 			} else {
-				getFeatureFunctionCache().add((FeatureFunction)function);
+				featureFunctionCache.add((FeatureFunction)function);
 			}
 		}
 		objects.push(function);

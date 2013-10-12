@@ -11,17 +11,18 @@ import java.util.regex.Pattern;
 * @author Johan Hall
 */
 public class SpecificationSubModel  implements Iterable<String> {
-	private Set<String> featureSpecSet;
-	private String name;
 	private final Pattern blanks = Pattern.compile("\\s+");
+	private final Set<String> featureSpecSet;
+	private final String name;
+	
 	
 	public SpecificationSubModel() {
 		this("MAIN");
 	}
 	
-	public SpecificationSubModel(String name) {
-		setSubModelName(name);
-		featureSpecSet = new TreeSet<String>();
+	public SpecificationSubModel(String _name) {
+		this.name = _name;
+		this.featureSpecSet = new TreeSet<String>();
 	}
 	
 	public void add(String featureSpec) {
@@ -33,10 +34,6 @@ public class SpecificationSubModel  implements Iterable<String> {
 
 	public String getSubModelName() {
 		return name;
-	}
-
-	public void setSubModelName(String name) {
-		this.name = name;
 	}
 
 	public int size() {

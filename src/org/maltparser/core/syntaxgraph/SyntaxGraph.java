@@ -10,7 +10,7 @@ import org.maltparser.core.symbol.SymbolTableHandler;
 *
 * @author Johan Hall
 */
-public abstract class SyntaxGraph implements LabeledStructure, Structure, Observer {
+public abstract class SyntaxGraph implements LabeledStructure, Observer {
 	protected SymbolTableHandler symbolTables;
 	protected final ObjectPoolList<LabelSet> labelSetPool;
 	protected int numberOfComponents;

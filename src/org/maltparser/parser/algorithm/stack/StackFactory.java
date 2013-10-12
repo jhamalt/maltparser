@@ -1,48 +1,33 @@
 package org.maltparser.parser.algorithm.stack;
 
 import org.maltparser.core.exception.MaltChainedException;
+import org.maltparser.core.feature.FeatureRegistry;
 import org.maltparser.core.feature.function.Function;
 import org.maltparser.parser.AbstractParserFactory;
-import org.maltparser.parser.Algorithm;
+import org.maltparser.parser.AlgoritmInterface;
 import org.maltparser.parser.DependencyParserConfig;
 import org.maltparser.parser.ParserConfiguration;
+import org.maltparser.parser.ParserRegistry;
 /**
  * @author Johan Hall
  *
  */
 public abstract class StackFactory implements AbstractParserFactory {
-	protected Algorithm algorithm;
-	protected DependencyParserConfig manager;
+	protected final DependencyParserConfig manager;
 	
-	public StackFactory(Algorithm algorithm) {
-		setAlgorithm(algorithm);
-		setManager(algorithm.getManager());
+	public StackFactory(DependencyParserConfig _manager) {
+		this.manager = _manager;
 	}
 	
 	public ParserConfiguration makeParserConfiguration() throws MaltChainedException {
-		if (manager.getConfigLogger().isInfoEnabled()) {
-			manager.getConfigLogger().info("  Parser configuration : Stack\n");
+		if (manager.isLoggerInfoEnabled()) {
+			manager.logInfoMessage("  Parser configuration : Stack\n");
 		}
-		return new StackConfig(manager.getSymbolTables());
+		return new StackConfig();
 	}
 	
-	public Function makeFunction(String subFunctionName) throws MaltChainedException {
+	public Function makeFunction(String subFunctionName, FeatureRegistry registry) throws MaltChainedException {
+		AlgoritmInterface algorithm = ((ParserRegistry)registry).getAlgorithm();
 		return new StackAddressFunction(subFunctionName, algorithm);
-	}
-	
-	public Algorithm getAlgorithm() {
-		return algorithm;
-	}
-
-	public void setAlgorithm(Algorithm algorithm) {
-		this.algorithm = algorithm;
-	}
-	
-	public DependencyParserConfig getManager() {
-		return manager;
-	}
-
-	public void setManager(DependencyParserConfig manager) {
-		this.manager = manager;
 	}
 }

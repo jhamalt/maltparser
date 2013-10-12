@@ -3,11 +3,7 @@ package org.maltparser.parser.algorithm.nivre;
 import java.util.Stack;
 
 import org.maltparser.core.exception.MaltChainedException;
-import org.maltparser.core.symbol.SymbolTable;
-import org.maltparser.core.symbol.SymbolTableHandler;
-import org.maltparser.core.syntaxgraph.DependencyGraph;
 import org.maltparser.core.syntaxgraph.DependencyStructure;
-import org.maltparser.core.syntaxgraph.edge.Edge;
 import org.maltparser.core.syntaxgraph.node.DependencyNode;
 import org.maltparser.parser.ParserConfiguration;
 import org.maltparser.parser.ParsingException;
@@ -18,18 +14,16 @@ import org.maltparser.parser.ParsingException;
 public class NivreConfig extends ParserConfiguration {
 	private final Stack<DependencyNode> stack;
 	private final Stack<DependencyNode> input;
-	private final DependencyStructure dependencyGraph;
-
-	private boolean allowRoot;
-	private boolean allowReduce;
+	private DependencyStructure dependencyGraph;
+	private final boolean allowRoot;
+	private final boolean allowReduce;
 	
-	public NivreConfig(SymbolTableHandler symbolTableHandler, boolean allowRoot, boolean allowReduce) throws MaltChainedException {
+	public NivreConfig(boolean allowRoot, boolean allowReduce) throws MaltChainedException {
 		super();
-		stack = new Stack<DependencyNode>();
-		input = new Stack<DependencyNode>();
-		dependencyGraph = new DependencyGraph(symbolTableHandler);
-		setAllowRoot(allowRoot);
-		setAllowReduce(allowReduce);
+		this.stack = new Stack<DependencyNode>();
+		this.input = new Stack<DependencyNode>();
+		this.allowRoot = allowRoot;
+		this.allowReduce = allowReduce;
 	}
 	
 	public Stack<DependencyNode> getStack() {
@@ -69,26 +63,29 @@ public class NivreConfig extends ParserConfiguration {
 	}
 	
 	public void setDependencyGraph(DependencyStructure source) throws MaltChainedException {
-		dependencyGraph.clear();
-		for (int index : source.getTokenIndices()) {
-			final DependencyNode gnode = source.getTokenNode(index);
-			final DependencyNode pnode = dependencyGraph.addTokenNode(gnode.getIndex());
-			for (SymbolTable table : gnode.getLabelTypes()) {
-				pnode.addLabel(table, gnode.getLabelSymbol(table));
-			}
-			
-			if (gnode.hasHead()) {
-				final Edge s = gnode.getHeadEdge();
-				final Edge t = dependencyGraph.addDependencyEdge(s.getSource().getIndex(), s.getTarget().getIndex());
-				
-				for (SymbolTable table : s.getLabelTypes()) {
-					t.addLabel(table, s.getLabelSymbol(table));
-				}
-			}
-		}
-		for (SymbolTable table : source.getDefaultRootEdgeLabels().keySet()) {
-			dependencyGraph.setDefaultRootEdgeLabel(table, source.getDefaultRootEdgeLabelSymbol(table));
-		}
+		this.dependencyGraph = source;
+//		dependencyGraph.clear();
+//		for (int index : source.getTokenIndices()) {
+////			final DependencyNode gnode = source.getTokenNode(index);
+////			final DependencyNode pnode = dependencyGraph.addTokenNode(gnode.getIndex());
+//			final DependencyNode gnode = source.getDependencyNode(index);
+//			final DependencyNode pnode = dependencyGraph.addDependencyNode(gnode.getIndex());
+//			for (SymbolTable table : gnode.getLabelTypes()) {
+//				pnode.addLabel(table, gnode.getLabelSymbol(table));
+//			}
+//			
+//			if (gnode.hasHead()) {
+//				final Edge s = gnode.getHeadEdge();
+//				final Edge t = dependencyGraph.addDependencyEdge(s.getSource().getIndex(), s.getTarget().getIndex());
+//				
+//				for (SymbolTable table : s.getLabelTypes()) {
+//					t.addLabel(table, s.getLabelSymbol(table));
+//				}
+//			}
+//		}
+//		for (SymbolTable table : source.getDefaultRootEdgeLabels().keySet()) {
+//			dependencyGraph.setDefaultRootEdgeLabel(table, source.getDefaultRootEdgeLabelSymbol(table));
+//		}
 	}
 	
 	public DependencyStructure getDependencyGraph() {
@@ -118,24 +115,26 @@ public class NivreConfig extends ParserConfiguration {
 		}
 	}
 	
-    public boolean isAllowRoot() {
-        return allowRoot;
+	public void initialize() throws MaltChainedException {
+		stack.push(dependencyGraph.getDependencyRoot());
+		for (int i = dependencyGraph.getHighestTokenIndex(); i > 0; i--) {
+			final DependencyNode node = dependencyGraph.getDependencyNode(i);
+			if (node != null && !node.hasHead()) { // added !node.hasHead()
+				input.push(node);
+			}
+		}
 	}
 	
-	public void setAllowRoot(boolean allowRoot) {
-	        this.allowRoot = allowRoot;
+    public boolean isAllowRoot() {
+        return allowRoot;
 	}
 	
 	public boolean isAllowReduce() {
 	        return allowReduce;
 	}
 	
-	public void setAllowReduce(boolean allowReduce) {
-	        this.allowReduce = allowReduce;
-	}
-	
 	public void clear() throws MaltChainedException {
-		dependencyGraph.clear();
+//		dependencyGraph.clear();
 		stack.clear();
 		input.clear();
 		historyNode = null;

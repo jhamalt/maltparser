@@ -1,6 +1,8 @@
 package org.maltparser.core.syntaxgraph.node;
 
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedSet;
@@ -71,6 +73,13 @@ public class Root extends GraphNode implements DependencyNode, PhraseStructureNo
 				children.remove((PhraseStructureNode)out.getTarget());
 			}
 		}
+	}
+	public DependencyNode getPredecessor() {
+		return null;
+	}
+	
+	public DependencyNode getSuccessor() {
+		return null;
 	}
 	
 	public DependencyNode getAncestor() throws MaltChainedException {
@@ -655,6 +664,34 @@ public class Root extends GraphNode implements DependencyNode, PhraseStructureNo
 	
 	public ComparableNode getRightmostDescendant() throws MaltChainedException {
 		return getRightmostProperDescendant();
+	}
+	
+	public List<DependencyNode> getListOfDependents() {
+		List<DependencyNode> dependentList = new ArrayList<DependencyNode>();
+		for (DependencyNode node : leftDependents) {
+			dependentList.add(node);
+		}
+		for (DependencyNode node : rightDependents) {
+			dependentList.add(node);
+		}
+		return dependentList;		
+	}
+	
+	public List<DependencyNode> getListOfLeftDependents() {
+		List<DependencyNode> leftDependentList = new ArrayList<DependencyNode>();
+		
+		for (DependencyNode node : leftDependents) {
+			leftDependentList.add(node);
+		}
+		return leftDependentList;
+	}
+	
+	public List<DependencyNode> getListOfRightDependents() {
+		List<DependencyNode> rightDependentList = new ArrayList<DependencyNode>();
+		for (DependencyNode node : rightDependents) {
+			rightDependentList.add(node);
+		}
+		return rightDependentList;
 	}
 	
 //	public void reArrangeChildrenAccordingToLeftAndRightProperDesendant() throws MaltChainedException {

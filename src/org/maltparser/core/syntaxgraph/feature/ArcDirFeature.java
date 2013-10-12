@@ -12,16 +12,16 @@ import org.maltparser.core.symbol.nullvalue.NullValues.NullValueId;
 import org.maltparser.core.syntaxgraph.SyntaxGraphException;
 import org.maltparser.core.syntaxgraph.node.DependencyNode;
 
-public class ArcDirFeature implements FeatureFunction {
-	protected AddressFunction addressFunction;
-	protected SymbolTableHandler tableHandler;
-	protected SymbolTable table;
-	protected SingleFeatureValue featureValue;
+public final class ArcDirFeature implements FeatureFunction {
+	public final static Class<?>[] paramTypes = { org.maltparser.core.feature.function.AddressFunction.class };
+	private AddressFunction addressFunction;
+	private final SymbolTableHandler tableHandler;
+	private SymbolTable table;
+	private final SingleFeatureValue featureValue;
 	
 	public ArcDirFeature(SymbolTableHandler tableHandler) throws MaltChainedException {
-		super();
-		featureValue = new SingleFeatureValue(this);
-		setTableHandler(tableHandler);
+		this.tableHandler = tableHandler;
+		this.featureValue = new SingleFeatureValue(this);
 	}
 	
 	/**
@@ -55,7 +55,6 @@ public class ArcDirFeature implements FeatureFunction {
 	 * @return an array of class types
 	 */
 	public Class<?>[] getParameterTypes() {
-		Class<?>[] paramTypes = { org.maltparser.core.feature.function.AddressFunction.class };
 		return paramTypes; 
 	}
 	/**
@@ -78,15 +77,6 @@ public class ArcDirFeature implements FeatureFunction {
 	 */
 	public int getCode(String symbol) throws MaltChainedException {
 		return table.getSymbolStringToCode(symbol);
-	}
-	
-	/**
-	 * Cause the exists feature function to update the cardinality of the feature value.
-	 * 
-	 * @throws MaltChainedException
-	 */
-	public void updateCardinality() {
-//		featureValue.setCardinality(table.getValueCounter()); 
 	}
 	
 	/**
@@ -168,14 +158,6 @@ public class ArcDirFeature implements FeatureFunction {
 	 */
 	public SymbolTableHandler getTableHandler() {
 		return tableHandler;
-	}
-	/**
-	 * Sets the symbol table handler
-	 * 
-	 * @param tableHandler a symbol table handler
-	 */
-	public void setTableHandler(SymbolTableHandler tableHandler) {
-		this.tableHandler = tableHandler;
 	}
 
 	public  int getType() {

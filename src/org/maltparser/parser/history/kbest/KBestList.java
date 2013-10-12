@@ -13,7 +13,7 @@ public class KBestList {
 	protected int k = -1;
 	protected int topCandidateIndex;
 	protected int addCandidateIndex;
-	protected SingleDecision decision;
+	protected final SingleDecision decision;
 	
 	/**
 	 * Creates a unrestricted k-best list

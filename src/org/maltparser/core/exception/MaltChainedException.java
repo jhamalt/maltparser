@@ -7,14 +7,7 @@ package org.maltparser.core.exception;
 **/
 public class MaltChainedException extends Exception {
 	public static final long serialVersionUID = 8045568022124816379L;
-	private Throwable cause = null;
-
-	/**
-	 * Creates a MaltChainedException instance
-	 */
-	public MaltChainedException() {
-		super();
-	}
+	private final Throwable cause;
 
 	/**
 	 * Creates a MaltChainedException instance with a message
@@ -22,7 +15,7 @@ public class MaltChainedException extends Exception {
 	 * @param message a message string
 	 */
 	public MaltChainedException(String message) {
-		super(message);
+		this(message, null);
 	}
 
 	/**

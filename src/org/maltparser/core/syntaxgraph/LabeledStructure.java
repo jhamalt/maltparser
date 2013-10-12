@@ -43,4 +43,10 @@ public interface LabeledStructure {
 	 * @throws MaltChainedException
 	 */
 	public void checkInLabelSet(LabelSet labelSet) throws MaltChainedException;
+	/**
+	 * Resets the structure.
+	 * 
+	 * @throws MaltChainedException
+	 */
+	public void clear() throws MaltChainedException;
 }

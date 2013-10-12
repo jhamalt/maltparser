@@ -1,7 +1,7 @@
 package org.maltparser.parser.algorithm.stack;
 
 import org.maltparser.core.exception.MaltChainedException;
-import org.maltparser.parser.Algorithm;
+import org.maltparser.parser.DependencyParserConfig;
 import org.maltparser.parser.TransitionSystem;
 import org.maltparser.parser.guide.OracleGuide;
 import org.maltparser.parser.history.GuideUserHistory;
@@ -10,22 +10,20 @@ import org.maltparser.parser.history.GuideUserHistory;
  *
  */
 public class StackProjFactory extends StackFactory {
-	public StackProjFactory(Algorithm algorithm) {
-		super(algorithm);
+	public StackProjFactory(DependencyParserConfig _manager) {
+		super(_manager);
 	}
 	
 	public TransitionSystem makeTransitionSystem() throws MaltChainedException {
-		if (manager.getConfigLogger().isInfoEnabled()) {
-			manager.getConfigLogger().info("  Transition system    : Projective\n");
+		if (manager.isLoggerInfoEnabled()) {
+			manager.logInfoMessage("  Transition system    : Projective\n");
 		}
-		TransitionSystem ts = new Projective();
-		ts.setPropagationManager(manager.getPropagationManager());
-		return ts;
+		return new Projective(manager.getPropagationManager());
 	}
 	
 	public OracleGuide makeOracleGuide(GuideUserHistory history) throws MaltChainedException {
-		if (manager.getConfigLogger().isInfoEnabled()) {
-			manager.getConfigLogger().info("  Oracle               : Projective\n");
+		if (manager.isLoggerInfoEnabled()) {
+			manager.logInfoMessage("  Oracle               : Projective\n");
 		}
 		return new ProjectiveOracle(manager, history);
 	}

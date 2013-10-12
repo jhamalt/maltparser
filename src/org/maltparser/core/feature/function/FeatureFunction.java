@@ -10,12 +10,6 @@ import org.maltparser.core.symbol.SymbolTable;
 */
 public interface FeatureFunction extends Function {
 	/**
-	 * Cause the feature function to update the cardinality of the feature value.
-	 * 
-	 * @throws MaltChainedException
-	 */
-//	public abstract void updateCardinality() throws MaltChainedException;
-	/**
 	 * Returns the string representation of the integer <code>code</code> according to the feature function. 
 	 * 
 	 * @param code the integer representation of the symbol

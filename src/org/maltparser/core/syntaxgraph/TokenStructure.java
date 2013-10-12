@@ -10,7 +10,7 @@ import org.maltparser.core.syntaxgraph.node.TokenNode;
 *
 * @author Johan Hall
 */
-public interface TokenStructure extends Structure, LabeledStructure { 
+public interface TokenStructure extends LabeledStructure { 
 	/**
 	 * Adds a token node with index <i>n + 1</i>, where <i>n</i> is the index of the last token node. 
 	 * 

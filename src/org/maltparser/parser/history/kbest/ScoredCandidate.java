@@ -3,7 +3,6 @@ package org.maltparser.parser.history.kbest;
 /**
 *
 * @author Johan Hall
-* @since 1.1
 **/
 public class ScoredCandidate extends Candidate {
 	/**

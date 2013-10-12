@@ -269,7 +269,7 @@ public class DependencyGraph extends Sentence implements DependencyStructure {
 		return indices;
 	}
 	
-	protected DependencyNode link(DependencyNode x, DependencyNode y) {
+	protected DependencyNode link(DependencyNode x, DependencyNode y) throws MaltChainedException {
 		if (x.getRank() > y.getRank()) {
 			y.setComponent(x);
 		} else {

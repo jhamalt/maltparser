@@ -130,7 +130,7 @@ public class TigerXMLReader implements SyntaxGraphReader {
 //		if (header == null) {
 //			header = new TigerXMLHeader(syntaxGraph.getSymbolTables());
 //		}
-
+		
 		try {
 			while (true) {
 				int event = reader.next();
@@ -165,7 +165,7 @@ public class TigerXMLReader implements SyntaxGraphReader {
 							}
 
 							Edge e = phraseStructure.addPhraseStructureEdge(parent, child);
-							SortedMap<String, SymbolTable> inputTables = dataFormatInstance.getPhraseStructureEdgeLabelSymbolTables();
+							SortedMap<String, SymbolTable> inputTables = dataFormatInstance.getPhraseStructureEdgeLabelSymbolTables(phraseStructure.getSymbolTables());
 							for (String name : inputTables.keySet()) {
 								e.addLabel(inputTables.get(name), reader.getAttributeValue(null, name.toLowerCase()));
 							}
@@ -184,7 +184,7 @@ public class TigerXMLReader implements SyntaxGraphReader {
 									parent = phraseStructure.addNonTerminalNode(Integer.parseInt(id.substring(index+1))-START_ID_OF_NONTERMINALS+1);
 								}
 							}
-							SortedMap<String, SymbolTable> inputTables = dataFormatInstance.getPhraseStructureNodeLabelSymbolTables();
+							SortedMap<String, SymbolTable> inputTables = dataFormatInstance.getPhraseStructureNodeLabelSymbolTables(phraseStructure.getSymbolTables());
 							for (String name : inputTables.keySet()) {
 								parent.addLabel(inputTables.get(name), reader.getAttributeValue(null, name.toLowerCase()));
 							}
@@ -195,7 +195,7 @@ public class TigerXMLReader implements SyntaxGraphReader {
 					} else if (reader.getLocalName().charAt(0) == 't') {
 						// t -> t, terminals
 						if (reader.getLocalName().length() == 1) { // t
-							SortedMap<String, SymbolTable> inputTables = dataFormatInstance.getInputSymbolTables();
+							SortedMap<String, SymbolTable> inputTables = dataFormatInstance.getInputSymbolTables(phraseStructure.getSymbolTables());
 							child = syntaxGraph.addTokenNode();
 							for (String name : inputTables.keySet()) {
 								child.addLabel(inputTables.get(name), reader.getAttributeValue(null, name.toLowerCase()));
@@ -286,7 +286,7 @@ public class TigerXMLReader implements SyntaxGraphReader {
 						else if (reader.getLocalName().equals("nonterminals")) {
 							if (phraseStructure.nTokenNode() == 1 && phraseStructure.nNonTerminals() == 0 &&((NonTerminalNode)phraseStructure.getPhraseStructureRoot()).nChildren() == 0) {
 								Edge e = phraseStructure.addPhraseStructureEdge(phraseStructure.getPhraseStructureRoot(), phraseStructure.getTokenNode(1));
-								SortedMap<String, SymbolTable> inputTables = dataFormatInstance.getPhraseStructureEdgeLabelSymbolTables();
+								SortedMap<String, SymbolTable> inputTables = dataFormatInstance.getPhraseStructureEdgeLabelSymbolTables(phraseStructure.getSymbolTables());
 								for (String name : inputTables.keySet()) {
 									e.addLabel(inputTables.get(name), "--");
 								}

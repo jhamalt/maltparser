@@ -3,13 +3,13 @@ package org.maltparser.parser.algorithm.twoplanar;
 import java.util.Stack;
 
 import org.maltparser.core.exception.MaltChainedException;
+import org.maltparser.core.propagation.PropagationManager;
 import org.maltparser.core.syntaxgraph.DependencyStructure;
 import org.maltparser.core.syntaxgraph.edge.Edge;
 import org.maltparser.core.syntaxgraph.node.DependencyNode;
 import org.maltparser.parser.ParserConfiguration;
 import org.maltparser.parser.TransitionSystem;
 import org.maltparser.parser.history.GuideUserHistory;
-import org.maltparser.parser.history.History;
 import org.maltparser.parser.history.action.ComplexDecisionAction;
 import org.maltparser.parser.history.action.GuideUserAction;
 import org.maltparser.parser.transition.TransitionTable;
@@ -25,11 +25,8 @@ public class TwoPlanar extends TransitionSystem {
 	protected static final int REDUCE = 5;
 	protected static final int REDUCEBOTH = 6;
 	
-	
-
-	
-	public TwoPlanar() throws MaltChainedException {
-		super();
+	public TwoPlanar(PropagationManager propagationManager) throws MaltChainedException {
+		super(propagationManager);
 	}
 	
 	public void apply(GuideUserAction currentAction, ParserConfiguration config) throws MaltChainedException {
@@ -91,7 +88,7 @@ public class TwoPlanar extends TransitionSystem {
 	}
 	
 	protected void initWithDefaultTransitions(GuideUserHistory history) throws MaltChainedException {
-		GuideUserAction currentAction = new ComplexDecisionAction((History)history);
+		GuideUserAction currentAction = new ComplexDecisionAction(history);
 		
 		transActionContainer.setAction(SHIFT);
 		transActionContainer.setAction(REDUCE);

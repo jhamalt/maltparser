@@ -11,8 +11,6 @@ public interface HistoryNode {
 	public GuideUserAction getAction();
 	public void setAction(GuideUserAction action);
 	public void setPreviousNode(HistoryNode node);
-//	public double getScore();
-//	public void setScore(double score);
 	public int getPosition();
 	public void clear() throws MaltChainedException;
 }

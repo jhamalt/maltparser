@@ -45,24 +45,24 @@ public class DataFormatInstance implements Iterable<ColumnDescription> {
 	private SortedMap<String,ColumnDescription> internalColumnDescriptions;
 	private SortedSet<ColumnDescription> internalColumnDescriptionSet;
 	
-	private SymbolTableHandler symbolTables;
-	private DataFormatSpecification dataFormarSpec;
+	private final DataFormatSpecification dataFormarSpec;
 	
-	public DataFormatInstance(Map<String, DataFormatEntry> entries, SymbolTableHandler symbolTables, String nullValueStrategy, DataFormatSpecification spec) throws MaltChainedException {
+	public DataFormatInstance(Map<String, DataFormatEntry> entries, SymbolTableHandler symbolTables, String nullValueStrategy, DataFormatSpecification dataFormarSpec) throws MaltChainedException {
 		this.columnDescriptions = new TreeSet<ColumnDescription>();
-		this.symbolTables = symbolTables;
-		createColumnDescriptions(entries, nullValueStrategy);
-		setDataFormarSpec(spec);
+		this.dataFormarSpec = dataFormarSpec;
+		createColumnDescriptions(symbolTables, entries, nullValueStrategy);
+		
 	}
 
-	public ColumnDescription addInternalColumnDescription(String name, String category, String type,  String defaultOutput, String nullValueStrategy) throws MaltChainedException {
+	public ColumnDescription addInternalColumnDescription(SymbolTableHandler symbolTables, String name, String category, String type,  String defaultOutput, String nullValueStrategy) throws MaltChainedException {
 		if (internalColumnDescriptions == null) {
 			internalColumnDescriptions = new TreeMap<String,ColumnDescription>();
 			internalColumnDescriptionSet = new TreeSet<ColumnDescription>();
 		}
 		
 		if (!internalColumnDescriptions.containsKey(name)) {
-			ColumnDescription internalColumn = new ColumnDescription(name, category, type, defaultOutput, symbolTables, nullValueStrategy, true);
+			ColumnDescription internalColumn = new ColumnDescription(name, ColumnDescription.getCategory(category), ColumnDescription.getType(type), defaultOutput,  nullValueStrategy, true);
+			symbolTables.addSymbolTable(internalColumn.getName(), internalColumn.getCategory(), internalColumn.getNullValueStrategy());
 			internalColumnDescriptions.put(name, internalColumn);
 			internalColumnDescriptionSet.add(internalColumn);
 			return internalColumn;
@@ -71,14 +71,15 @@ public class DataFormatInstance implements Iterable<ColumnDescription> {
 		}
 	}
 	
-	public ColumnDescription addInternalColumnDescription(String name, int category, int type,  String defaultOutput, String nullValueStrategy) throws MaltChainedException {
+	public ColumnDescription addInternalColumnDescription(SymbolTableHandler symbolTables, String name, int category, int type,  String defaultOutput, String nullValueStrategy) throws MaltChainedException {
 		if (internalColumnDescriptions == null) {
 			internalColumnDescriptions = new TreeMap<String,ColumnDescription>();
 			internalColumnDescriptionSet = new TreeSet<ColumnDescription>();
 		}
 		
 		if (!internalColumnDescriptions.containsKey(name)) {
-			ColumnDescription internalColumn = new ColumnDescription(name, category, type, defaultOutput, symbolTables, nullValueStrategy, true);
+			ColumnDescription internalColumn = new ColumnDescription(name, category, type, defaultOutput, nullValueStrategy, true);
+			symbolTables.addSymbolTable(internalColumn.getName(), internalColumn.getCategory(), internalColumn.getNullValueStrategy());
 			internalColumnDescriptions.put(name, internalColumn);
 			internalColumnDescriptionSet.add(internalColumn);
 			return internalColumn;
@@ -87,13 +88,16 @@ public class DataFormatInstance implements Iterable<ColumnDescription> {
 		}
 	}
 	
-	public ColumnDescription addInternalColumnDescription(String name, ColumnDescription column) throws MaltChainedException {
-		return addInternalColumnDescription(name, column.getCategory(), column.getType(), column.getDefaultOutput(), column.getNullValueStrategy());
+	public ColumnDescription addInternalColumnDescription(SymbolTableHandler symbolTables, String name, ColumnDescription column) throws MaltChainedException {
+		return addInternalColumnDescription(symbolTables, name, column.getCategory(), column.getType(), column.getDefaultOutput(), column.getNullValueStrategy());
 	}
 	
-	private void createColumnDescriptions(Map<String, DataFormatEntry> entries, String nullValueStrategy) throws MaltChainedException {
+	private void createColumnDescriptions(SymbolTableHandler symbolTables, Map<String, DataFormatEntry> entries, String nullValueStrategy) throws MaltChainedException {
 		for (DataFormatEntry entry : entries.values()) {
-			columnDescriptions.add(new ColumnDescription(entry.getDataFormatEntryName(), entry.getCategory(), entry.getType(), entry.getDefaultOutput(), symbolTables, nullValueStrategy, false));
+			ColumnDescription column = new ColumnDescription(entry.getDataFormatEntryName(), ColumnDescription.getCategory(entry.getCategory()), ColumnDescription.getType(entry.getType()), entry.getDefaultOutput(),  nullValueStrategy, false);
+			symbolTables.addSymbolTable(column.getName(), column.getCategory(), column.getNullValueStrategy());
+			columnDescriptions.add(column);
+			
 		}
 	}
 	
@@ -125,10 +129,6 @@ public class DataFormatInstance implements Iterable<ColumnDescription> {
 		return dataFormarSpec;
 	}
 
-	private void setDataFormarSpec(DataFormatSpecification dataFormarSpec) {
-		this.dataFormarSpec = dataFormarSpec;
-	}
-
 	protected void createHeadColumnDescriptions() {
 		headColumnDescriptions = new TreeMap<String,ColumnDescription>();
 		for (ColumnDescription column : columnDescriptions) {
@@ -152,18 +152,18 @@ public class DataFormatInstance implements Iterable<ColumnDescription> {
 		return headColumnDescriptions;
 	}
 	
-	protected void createDependencyEdgeLabelSymbolTables() {
+	protected void createDependencyEdgeLabelSymbolTables(SymbolTableHandler symbolTables) throws MaltChainedException {
 		dependencyEdgeLabelSymbolTables = new TreeMap<String,SymbolTable>();
 		for (ColumnDescription column : columnDescriptions) {
 			if (column.getCategory() == ColumnDescription.DEPENDENCY_EDGE_LABEL) { 
-				dependencyEdgeLabelSymbolTables.put(column.getSymbolTable().getName(), column.getSymbolTable());
+				dependencyEdgeLabelSymbolTables.put(column.getName(), symbolTables.getSymbolTable(column.getName()));
 			}
 		}
 	}
 	
-	public SortedMap<String,SymbolTable> getDependencyEdgeLabelSymbolTables() {
+	public SortedMap<String,SymbolTable> getDependencyEdgeLabelSymbolTables(SymbolTableHandler symbolTables) throws MaltChainedException {
 		if (dependencyEdgeLabelSymbolTables == null) {
-			createDependencyEdgeLabelSymbolTables();
+			createDependencyEdgeLabelSymbolTables(symbolTables);
 		}
 		return dependencyEdgeLabelSymbolTables;
 	}
@@ -186,18 +186,18 @@ public class DataFormatInstance implements Iterable<ColumnDescription> {
 
 
 	
-	protected void createPhraseStructureEdgeLabelSymbolTables() {
+	protected void createPhraseStructureEdgeLabelSymbolTables(SymbolTableHandler symbolTables) throws MaltChainedException {
 		phraseStructureEdgeLabelSymbolTables = new TreeMap<String, SymbolTable>();
 		for (ColumnDescription column : columnDescriptions) {
 			if (column.getCategory() == ColumnDescription.PHRASE_STRUCTURE_EDGE_LABEL) { 
-				phraseStructureEdgeLabelSymbolTables.put(column.getSymbolTable().getName(), column.getSymbolTable());
+				phraseStructureEdgeLabelSymbolTables.put(column.getName(), symbolTables.getSymbolTable(column.getName()));
 			}
 		}
 	}
 	
-	public SortedMap<String,SymbolTable> getPhraseStructureEdgeLabelSymbolTables() {
+	public SortedMap<String,SymbolTable> getPhraseStructureEdgeLabelSymbolTables(SymbolTableHandler symbolTables) throws MaltChainedException {
 		if (phraseStructureEdgeLabelSymbolTables == null) {
-			createPhraseStructureEdgeLabelSymbolTables();
+			createPhraseStructureEdgeLabelSymbolTables(symbolTables);
 		}
 		return phraseStructureEdgeLabelSymbolTables;
 	}
@@ -218,18 +218,18 @@ public class DataFormatInstance implements Iterable<ColumnDescription> {
 		return phraseStructureEdgeLabelColumnDescriptions;
 	}
 
-	protected void createPhraseStructureNodeLabelSymbolTables() {
+	protected void createPhraseStructureNodeLabelSymbolTables(SymbolTableHandler symbolTables) throws MaltChainedException {
 		phraseStructureNodeLabelSymbolTables = new TreeMap<String,SymbolTable>();
 		for (ColumnDescription column : columnDescriptions) {
 			if (column.getCategory() == ColumnDescription.PHRASE_STRUCTURE_NODE_LABEL) { 
-				phraseStructureNodeLabelSymbolTables.put(column.getSymbolTable().getName(), column.getSymbolTable());
+				phraseStructureNodeLabelSymbolTables.put(column.getName(), symbolTables.getSymbolTable(column.getName()));
 			}
 		}
 	}
 	
-	public SortedMap<String,SymbolTable> getPhraseStructureNodeLabelSymbolTables() {
+	public SortedMap<String,SymbolTable> getPhraseStructureNodeLabelSymbolTables(SymbolTableHandler symbolTables) throws MaltChainedException {
 		if (phraseStructureNodeLabelSymbolTables == null) {
-			createPhraseStructureNodeLabelSymbolTables();
+			createPhraseStructureNodeLabelSymbolTables(symbolTables);
 		}
 		return phraseStructureNodeLabelSymbolTables;
 	}
@@ -250,18 +250,18 @@ public class DataFormatInstance implements Iterable<ColumnDescription> {
 		return phraseStructureNodeLabelColumnDescriptions;
 	}
 	
-	protected void createSecondaryEdgeLabelSymbolTables() {
+	protected void createSecondaryEdgeLabelSymbolTables(SymbolTableHandler symbolTables) throws MaltChainedException {
 		secondaryEdgeLabelSymbolTables = new TreeMap<String,SymbolTable>();
 		for (ColumnDescription column : columnDescriptions) {
 			if (column.getCategory() == ColumnDescription.PHRASE_STRUCTURE_EDGE_LABEL) { 
-				secondaryEdgeLabelSymbolTables.put(column.getSymbolTable().getName(), column.getSymbolTable());
+				secondaryEdgeLabelSymbolTables.put(column.getName(), symbolTables.getSymbolTable(column.getName()));
 			}
 		}
 	}
 	
-	public SortedMap<String,SymbolTable> getSecondaryEdgeLabelSymbolTables() {
+	public SortedMap<String,SymbolTable> getSecondaryEdgeLabelSymbolTables(SymbolTableHandler symbolTables) throws MaltChainedException {
 		if (secondaryEdgeLabelSymbolTables == null) {
-			createSecondaryEdgeLabelSymbolTables();
+			createSecondaryEdgeLabelSymbolTables(symbolTables);
 		}
 		return secondaryEdgeLabelSymbolTables;
 	}
@@ -282,18 +282,18 @@ public class DataFormatInstance implements Iterable<ColumnDescription> {
 		return secondaryEdgeLabelColumnDescriptions;
 	}
 	
-	protected void createInputSymbolTables() {
+	protected void createInputSymbolTables(SymbolTableHandler symbolTables) throws MaltChainedException {
 		inputSymbolTables = new TreeMap<String,SymbolTable>();
 		for (ColumnDescription column : columnDescriptions) {
 			if (column.getCategory() == ColumnDescription.INPUT) { 
-				inputSymbolTables.put(column.getSymbolTable().getName(), column.getSymbolTable());
+				inputSymbolTables.put(column.getName(), symbolTables.getSymbolTable(column.getName()));
 			}
 		}
 	}
 	
-	public SortedMap<String,SymbolTable> getInputSymbolTables() {
+	public SortedMap<String,SymbolTable> getInputSymbolTables(SymbolTableHandler symbolTables) throws MaltChainedException {
 		if (inputSymbolTables == null) {
-			createInputSymbolTables();
+			createInputSymbolTables(symbolTables);
 		}
 		return inputSymbolTables;
 	}
@@ -415,9 +415,9 @@ public class DataFormatInstance implements Iterable<ColumnDescription> {
 		return ignoreColumnDescriptionSet;
 	}
 	
-	public SymbolTableHandler getSymbolTables() {
-		return symbolTables;
-	}
+//	public SymbolTableHandler getSymbolTables() {
+//		return symbolTables;
+//	}
 	
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();

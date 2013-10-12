@@ -15,13 +15,12 @@ import org.maltparser.core.syntaxgraph.node.DependencyNode;
 *
 * @author Johan Hall
 */
-public class OutputTableFeature extends TableFeature {
-	protected AddressFunction addressFunction;
-	protected SymbolTableHandler tableHandler;
+public final class OutputTableFeature extends TableFeature {
+	public final static Class<?>[] paramTypes = { java.lang.String.class, org.maltparser.core.feature.function.AddressFunction.class };
+	private AddressFunction addressFunction;
 	
-	public OutputTableFeature(DataFormatInstance dataFormatInstance) throws MaltChainedException {
-		super();
-		setTableHandler(dataFormatInstance.getSymbolTables());
+	public OutputTableFeature(DataFormatInstance dataFormatInstance, SymbolTableHandler tableHandler) throws MaltChainedException {
+		super(tableHandler);
 	}
 	
 	public void initialize(Object[] arguments) throws MaltChainedException {
@@ -40,7 +39,6 @@ public class OutputTableFeature extends TableFeature {
 	}
 	
 	public Class<?>[] getParameterTypes() {
-		Class<?>[] paramTypes = { java.lang.String.class, org.maltparser.core.feature.function.AddressFunction.class };
 		return paramTypes; 
 	}
 
@@ -97,11 +95,6 @@ public class OutputTableFeature extends TableFeature {
 		return tableHandler;
 	}
 
-	public void setTableHandler(SymbolTableHandler tableHandler) {
-		this.tableHandler = tableHandler;
-	}
-
-	
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;

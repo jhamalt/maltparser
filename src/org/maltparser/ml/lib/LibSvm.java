@@ -6,15 +6,19 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintStream;
 
 import java.util.LinkedHashMap;
 
+import org.maltparser.core.config.Configuration;
 import org.maltparser.core.exception.MaltChainedException;
-import org.maltparser.core.feature.FeatureVector;
 import org.maltparser.core.helper.NoPrintStream;
+import org.maltparser.ml.lib.FeatureList;
+import org.maltparser.ml.lib.MaltLibModel;
+import org.maltparser.ml.lib.MaltLibsvmModel;
+import org.maltparser.ml.lib.MaltFeatureNode;
+import org.maltparser.ml.lib.LibException;
 import org.maltparser.parser.guide.instance.InstanceModel;
 
 
@@ -29,29 +33,22 @@ public class LibSvm extends Lib {
 	public LibSvm(InstanceModel owner, Integer learnerMode) throws MaltChainedException {
 		super(owner, learnerMode, "libsvm");
 		if (learnerMode == CLASSIFY) {
-			try {
-			    ObjectInputStream input = new ObjectInputStream(getInputStreamFromConfigFileEntry(".moo"));
-			    try {
-			    	model = (MaltLibModel)input.readObject();
-			    } finally {
-			    	input.close();
-			    }
-			} catch (ClassNotFoundException e) {
-				throw new LibException("Couldn't load the liblinear model", e);
-			} catch (Exception e) {
-				throw new LibException("Couldn't load the liblinear model", e);
-			}
+			model = (MaltLibModel)getConfigFileEntryObject(".moo");
 		}
 	}
 	
-	protected void trainInternal(FeatureVector featureVector) throws MaltChainedException {
+	protected void trainInternal(LinkedHashMap<String, String> libOptions) throws MaltChainedException {
 		try {
-			final svm_problem prob = readProblem(getInstanceInputStreamReader(".ins"));
-			final svm_parameter param = getLibSvmParameters();
+			final svm_problem prob = readProblem(getInstanceInputStreamReader(".ins"), libOptions);
+			final svm_parameter param = getLibSvmParameters(libOptions);
 			if(svm.svm_check_parameter(prob, param) != null) {
 				throw new LibException(svm.svm_check_parameter(prob, param));
 			}
-			owner.getGuide().getConfiguration().getConfigLogger().info("Creating LIBSVM model "+getFile(".moo").getName()+"\n");
+			Configuration config = getConfiguration();
+			
+			if (config.isLoggerInfoEnabled()) {
+				config.logInfoMessage("Creating LIBSVM model "+getFile(".moo").getName()+"\n");
+			}
 			final PrintStream out = System.out;
 			final PrintStream err = System.err;
 			System.setOut(NoPrintStream.NO_PRINTSTREAM);
@@ -65,6 +62,7 @@ public class LibSvm extends Lib {
 	        } finally {
 	          output.close();
 	        }
+	        boolean saveInstanceFiles = ((Boolean)getConfiguration().getOptionValue("lib", "save_instance_files")).booleanValue();
 			if (!saveInstanceFiles) {
 				getFile(".ins").delete();
 			}
@@ -79,12 +77,16 @@ public class LibSvm extends Lib {
 		}
 	}
 	
-	protected void trainExternal(FeatureVector featureVector) throws MaltChainedException {
+	protected void trainExternal(String pathExternalTrain, LinkedHashMap<String, String> libOptions) throws MaltChainedException {
 		try {		
 			binariesInstances2SVMFileFormat(getInstanceInputStreamReader(".ins"), getInstanceOutputStreamWriter(".ins.tmp"));
-			owner.getGuide().getConfiguration().getConfigLogger().info("Creating learner model (external) "+getFile(".mod").getName());
-			final svm_problem prob = readProblem(getInstanceInputStreamReader(".ins"));
-			final String[] params = getLibParamStringArray();
+			Configuration config = getConfiguration();
+			
+			if (config.isLoggerInfoEnabled()) {
+				config.logInfoMessage("Creating learner model (external) "+getFile(".mod").getName());
+			}
+			final svm_problem prob = readProblem(getInstanceInputStreamReader(".ins"), libOptions);
+			final String[] params = getLibParamStringArray(libOptions);
 			String[] arrayCommands = new String[params.length+3];
 			int i = 0;
 			arrayCommands[i++] = pathExternalTrain;
@@ -95,7 +97,7 @@ public class LibSvm extends Lib {
 			arrayCommands[i++] = getFile(".mod").getAbsolutePath();
 			
 	        if (verbosity == Verbostity.ALL) {
-	        	owner.getGuide().getConfiguration().getConfigLogger().info('\n');
+	        	config.logInfoMessage('\n');
 	        }
 			final Process child = Runtime.getRuntime().exec(arrayCommands);
 	        final InputStream in = child.getInputStream();
@@ -103,16 +105,16 @@ public class LibSvm extends Lib {
 	        int c;
 	        while ((c = in.read()) != -1){
 	        	if (verbosity == Verbostity.ALL) {
-	        		owner.getGuide().getConfiguration().getConfigLogger().info((char)c);
+	        		config.logInfoMessage((char)c);
 	        	}
 	        }
 	        while ((c = err.read()) != -1){
 	        	if (verbosity == Verbostity.ALL || verbosity == Verbostity.ERROR) {
-	        		owner.getGuide().getConfiguration().getConfigLogger().info((char)c);
+	        		config.logInfoMessage((char)c);
 	        	}
 	        }
             if (child.waitFor() != 0) {
-            	owner.getGuide().getConfiguration().getConfigLogger().info(" FAILED ("+child.exitValue()+")");
+            	config.logErrorMessage(" FAILED ("+child.exitValue()+")");
             }
 	        in.close();
 	        err.close();
@@ -124,12 +126,15 @@ public class LibSvm extends Lib {
 		    } finally {
 		    	output.close();
 		    }
+	        boolean saveInstanceFiles = ((Boolean)getConfiguration().getOptionValue("lib", "save_instance_files")).booleanValue();
 	        if (!saveInstanceFiles) {
 				getFile(".ins").delete();
 				getFile(".mod").delete();
 				getFile(".ins.tmp").delete();
 	        }
-	        owner.getGuide().getConfiguration().getConfigLogger().info('\n');
+			if (config.isLoggerInfoEnabled()) {
+				config.logInfoMessage('\n');
+			}
 		} catch (InterruptedException e) {
 			 throw new LibException("Learner is interrupted. ", e);
 		} catch (IllegalArgumentException e) {
@@ -147,8 +152,8 @@ public class LibSvm extends Lib {
 		super.terminate();
 	}
 	
-	public void initLibOptions() {
-		libOptions = new LinkedHashMap<String, String>();
+	public  LinkedHashMap<String, String> getDefaultLibOptions() {
+		LinkedHashMap<String, String> libOptions = new LinkedHashMap<String, String>();
 		libOptions.put("s", Integer.toString(svm_parameter.C_SVC));
 		libOptions.put("t", Integer.toString(svm_parameter.POLY));
 		libOptions.put("d", Integer.toString(2));
@@ -161,13 +166,14 @@ public class LibSvm extends Lib {
 		libOptions.put("p", Double.toString(0.1));
 		libOptions.put("h", Integer.toString(1));
 		libOptions.put("b", Integer.toString(0));
+		return libOptions;
 	}
 	
-	public void initAllowedLibOptionFlags() {
-		allowedLibOptionFlags = "stdgrnmcepb";
+	public String getAllowedLibOptionFlags() {
+		return "stdgrnmcepb";
 	}
 	
-	private svm_parameter getLibSvmParameters() throws MaltChainedException {
+	private svm_parameter getLibSvmParameters(LinkedHashMap<String, String> libOptions) throws MaltChainedException {
 		svm_parameter param = new svm_parameter();
 	
 		param.svm_type = Integer.parseInt(libOptions.get("s"));
@@ -188,9 +194,9 @@ public class LibSvm extends Lib {
 		return param;
 	}
 	
-	private svm_problem readProblem(InputStreamReader isr) throws MaltChainedException {
+	private svm_problem readProblem(InputStreamReader isr, LinkedHashMap<String, String> libOptions) throws MaltChainedException {
 		final svm_problem problem = new svm_problem();
-		final svm_parameter param = getLibSvmParameters();
+		final svm_parameter param = getLibSvmParameters(libOptions);
 		final FeatureList featureList = new FeatureList();
 		try {
 			final BufferedReader fp = new BufferedReader(isr);

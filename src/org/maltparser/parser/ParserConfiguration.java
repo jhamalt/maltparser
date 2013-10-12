@@ -52,11 +52,18 @@ public abstract class ParserConfiguration {
 	 * @throws MaltChainedException
 	 */
 	public abstract void clear() throws MaltChainedException;
+	
+//	/**
+//	 * Initialize the parser configuration with the same state as the parameter config
+//	 * 
+//	 * @param config a parser configuration
+//	 * @throws MaltChainedException
+//	 */
+//	public abstract void initialize(ParserConfiguration config) throws MaltChainedException;
 	/**
-	 * Initialize the parser configuration with the same state as the parameter config
+	 * Initialize the parser configuration
 	 * 
-	 * @param config a parser configuration
 	 * @throws MaltChainedException
 	 */
-	public abstract void initialize(ParserConfiguration config) throws MaltChainedException;
+	public abstract void initialize() throws MaltChainedException;
 }

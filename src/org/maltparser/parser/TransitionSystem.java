@@ -1,13 +1,16 @@
 package org.maltparser.parser;
 
 
+import java.util.regex.Pattern;
+
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.helper.HashMap;
 import org.maltparser.core.propagation.PropagationManager;
 import org.maltparser.core.symbol.SymbolTable;
 import org.maltparser.core.symbol.SymbolTableHandler;
+import org.maltparser.core.symbol.Table;
 import org.maltparser.core.symbol.TableHandler;
-import org.maltparser.core.syntaxgraph.DependencyGraph;
+import org.maltparser.core.syntaxgraph.DependencyStructure;
 import org.maltparser.core.syntaxgraph.LabelSet;
 import org.maltparser.core.syntaxgraph.edge.Edge;
 import org.maltparser.parser.history.GuideUserHistory;
@@ -20,14 +23,20 @@ import org.maltparser.parser.transition.TransitionTableHandler;
  *
  */
 public abstract class TransitionSystem {
-	private HashMap<String, TableHandler> tableHandlers;
-	protected TransitionTableHandler transitionTableHandler;
+	public final static Pattern decisionSettingsSplitPattern = Pattern.compile(",|#|;|\\+");
+	private final HashMap<String, TableHandler> tableHandlers;
+	private final PropagationManager propagationManager;
+	protected final TransitionTableHandler transitionTableHandler;
 	protected ActionContainer[] actionContainers;
 	protected ActionContainer transActionContainer;
 	protected ActionContainer[] arcLabelActionContainers;
-	protected PropagationManager propagationManager = null;
 	
-	public TransitionSystem() throws MaltChainedException {	}
+	
+	public TransitionSystem(PropagationManager _propagationManager) throws MaltChainedException {	
+		this.transitionTableHandler = new TransitionTableHandler();
+		this.tableHandlers = new HashMap<String, TableHandler>();
+		this.propagationManager = _propagationManager;
+	}
 	
 	public abstract void apply(GuideUserAction currentAction, ParserConfiguration config) throws MaltChainedException;
 	public abstract boolean permissible(GuideUserAction currentAction, ParserConfiguration config) throws MaltChainedException;
@@ -78,7 +87,7 @@ public abstract class TransitionSystem {
 				if (arcLabelActionContainers[i].getActionCode() != -1) {
 					e.addLabel((SymbolTable)arcLabelActionContainers[i].getTable(), arcLabelActionContainers[i].getActionCode());
 				} else {
-					e.addLabel((SymbolTable)arcLabelActionContainers[i].getTable(), ((DependencyGraph)e.getBelongsToGraph()).getDefaultRootEdgeLabelCode((SymbolTable)arcLabelActionContainers[i].getTable()));
+					e.addLabel((SymbolTable)arcLabelActionContainers[i].getTable(), ((DependencyStructure)e.getBelongsToGraph()).getDefaultRootEdgeLabelCode((SymbolTable)arcLabelActionContainers[i].getTable()));
 				}
 			}
 			if (propagationManager != null) {
@@ -113,11 +122,16 @@ public abstract class TransitionSystem {
 	}
 	
 	public void initTableHandlers(String decisionSettings, SymbolTableHandler symbolTableHandler) throws MaltChainedException {
-		transitionTableHandler = new TransitionTableHandler();
-		tableHandlers = new HashMap<String, TableHandler>();
-		
-		final String[] decisionElements =  decisionSettings.split(",|#|;|\\+");
-		
+		if (decisionSettings.equals("T.TRANS+A.DEPREL") || decisionSettings.equals("T.TRANS#A.DEPREL") || decisionSettings.equals("T.TRANS,A.DEPREL") || decisionSettings.equals("T.TRANS;A.DEPREL")) {
+			tableHandlers.put("T", transitionTableHandler);
+			addAvailableTransitionToTable((TransitionTable)transitionTableHandler.addSymbolTable("TRANS"));
+			tableHandlers.put("A", symbolTableHandler);
+			return;
+		}
+		initTableHandlers(decisionSettingsSplitPattern.split(decisionSettings), decisionSettings, symbolTableHandler);
+	}
+	
+	public void initTableHandlers(String[] decisionElements, String decisionSettings, SymbolTableHandler symbolTableHandler) throws MaltChainedException {
 		int nTrans = 0;
 		for (int i = 0; i < decisionElements.length; i++) {
 			int index = decisionElements[i].indexOf('.');
@@ -125,21 +139,20 @@ public abstract class TransitionSystem {
 				throw new ParsingException("Decision settings '"+decisionSettings+"' contain an item '"+decisionElements[i]+"' that does not follow the format {TableHandler}.{Table}. ");
 			}
 			if (decisionElements[i].substring(0,index).equals("T")) {
-				if (!getTableHandlers().containsKey("T")) {
-					getTableHandlers().put("T", getTransitionTableHandler());
+				if (!tableHandlers.containsKey("T")) {
+					tableHandlers.put("T", transitionTableHandler);
 				}
 				if (decisionElements[i].substring(index+1).equals("TRANS")) {
 					if (nTrans == 0) {
-						TransitionTable ttable = (TransitionTable)getTransitionTableHandler().addSymbolTable("TRANS");
-						addAvailableTransitionToTable(ttable);
+						addAvailableTransitionToTable((TransitionTable)transitionTableHandler.addSymbolTable("TRANS"));
 					} else {
 						throw new ParsingException("Illegal decision settings '"+decisionSettings+"'");
 					}
 					nTrans++;
 				}  
 			} else if (decisionElements[i].substring(0,index).equals("A")) {
-				if (!getTableHandlers().containsKey("A")) {
-					getTableHandlers().put("A", symbolTableHandler);
+				if (!tableHandlers.containsKey("A")) {
+					tableHandlers.put("A", symbolTableHandler);
 				}
 			} else {
 				throw new ParsingException("The decision settings '"+decisionSettings+"' contains an unknown table handler '"+decisionElements[i].substring(0,index)+"'. " +
@@ -157,22 +170,10 @@ public abstract class TransitionSystem {
 		return tableHandlers;
 	}
 
-	public TransitionTableHandler getTransitionTableHandler() {
-		return transitionTableHandler;
-	}
-	
-	public PropagationManager getPropagationManager() {
-		return propagationManager;
-	}
-	
-	public void setPropagationManager(PropagationManager propagationManager) {
-		this.propagationManager = propagationManager;
-	}
-
 	public String getActionString(GuideUserAction action) throws MaltChainedException {
 		final StringBuilder sb = new StringBuilder();
 		action.getAction(actionContainers);
-		TransitionTable ttable = (TransitionTable)getTransitionTableHandler().getSymbolTable("TRANS");
+		Table ttable = transitionTableHandler.getSymbolTable("TRANS");
 		sb.append(ttable.getSymbolCodeToString(transActionContainer.getActionCode()));
 		for (int i = 0; i < arcLabelActionContainers.length; i++) {
 			if (arcLabelActionContainers[i].getActionCode() != -1) {

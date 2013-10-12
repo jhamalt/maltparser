@@ -5,7 +5,6 @@ import org.maltparser.core.symbol.Table;
 /**
 *
 * @author Johan Hall
-* @since 1.1
 **/
 public interface DecisionPropertyTable {
 	public boolean continueWithNextDecision(int code) throws MaltChainedException;

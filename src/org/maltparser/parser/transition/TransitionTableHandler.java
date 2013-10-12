@@ -8,9 +8,8 @@ import org.maltparser.core.symbol.TableHandler;
 /**
 *
 * @author Johan Hall
-* @since 1.1
 **/
-public class TransitionTableHandler implements TableHandler{
+public class TransitionTableHandler implements TableHandler {
 	private final HashMap<String, TransitionTable> transitionTables;
 
 	public TransitionTableHandler() {

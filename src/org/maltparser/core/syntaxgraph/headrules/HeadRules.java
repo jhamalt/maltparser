@@ -11,6 +11,7 @@ import org.maltparser.core.helper.HashMap;
 import org.maltparser.core.helper.URLFinder;
 import org.maltparser.core.io.dataformat.DataFormatInstance;
 import org.maltparser.core.symbol.SymbolTable;
+import org.maltparser.core.symbol.SymbolTableHandler;
 import org.maltparser.core.syntaxgraph.node.NonTerminalNode;
 import org.maltparser.core.syntaxgraph.node.PhraseStructureNode;
 
@@ -23,15 +24,17 @@ public class HeadRules extends HashMap<String,HeadRule> {
 	public static final long serialVersionUID = 8045568022124826323L;
 	protected Logger logger;
 	protected String name;
-	protected DataFormatInstance dataFormatInstance;
+	private final SymbolTableHandler symbolTableHandler;
+	private final DataFormatInstance dataFormatInstance;
 	protected SymbolTable nonTerminalSymbolTable; // TODO more complex
 	protected SymbolTable edgelabelSymbolTable; // TODO more complex
 	
-	public HeadRules(Logger logger, DataFormatInstance dataFormatInstance) throws MaltChainedException {
+	public HeadRules(Logger logger, DataFormatInstance dataFormatInstance, SymbolTableHandler symbolTableHandler) throws MaltChainedException {
 		setLogger(logger);
-		setDataFormatInstance(dataFormatInstance);
-		nonTerminalSymbolTable = dataFormatInstance.getSymbolTables().addSymbolTable("CAT");
-		edgelabelSymbolTable = dataFormatInstance.getSymbolTables().addSymbolTable("LABEL");
+		this.dataFormatInstance = dataFormatInstance;
+		this.symbolTableHandler = symbolTableHandler;
+		nonTerminalSymbolTable = symbolTableHandler.addSymbolTable("CAT");
+		edgelabelSymbolTable = symbolTableHandler.addSymbolTable("LABEL");
 	}
 	
 	public void parseHeadRules(String fileName) throws MaltChainedException {
@@ -109,13 +112,13 @@ public class HeadRules extends HashMap<String,HeadRule> {
 	public void setLogger(Logger logger) {
 		this.logger = logger;
 	}
-	
-	public DataFormatInstance getDataFormatInstance() {
+
+    public DataFormatInstance getDataFormatInstance() {
 		return dataFormatInstance;
 	}
 
-	public void setDataFormatInstance(DataFormatInstance dataFormatInstance) {
-		this.dataFormatInstance = dataFormatInstance;
+	public SymbolTableHandler getSymbolTableHandler() {
+		return symbolTableHandler;
 	}
 
 	public String toString() {

@@ -3,25 +3,27 @@ package org.maltparser.parser.algorithm.covington;
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.feature.function.AddressFunction;
 import org.maltparser.core.feature.value.AddressValue;
-import org.maltparser.parser.Algorithm;
+import org.maltparser.parser.AlgoritmInterface;
 import org.maltparser.parser.ParsingException;
 /**
  * @author Johan Hall
  *
  */
-public class CovingtonAddressFunction extends AddressFunction {
+public final class CovingtonAddressFunction extends AddressFunction {
+	public final static Class<?>[] paramTypes = { java.lang.Integer.class };
 	public enum CovingtonSubFunction {
 		LEFT, RIGHT, LEFTCONTEXT, RIGHTCONTEXT
 	};
-	private String subFunctionName;
-	private CovingtonSubFunction subFunction;
-	private Algorithm parsingAlgorithm;
+	private final String subFunctionName;
+	private final CovingtonSubFunction subFunction;
+	private final AlgoritmInterface parsingAlgorithm;
 	private int index;
 	
-	public CovingtonAddressFunction(String subFunctionName, Algorithm parsingAlgorithm) {
+	public CovingtonAddressFunction(String _subFunctionName, AlgoritmInterface _parsingAlgorithm) {
 		super();
-		setSubFunctionName(subFunctionName);
-		setAlgorithm(parsingAlgorithm);
+		this.subFunctionName = _subFunctionName;
+		this.subFunction = CovingtonSubFunction.valueOf(subFunctionName.toUpperCase());
+		this.parsingAlgorithm = _parsingAlgorithm;
 	}
 	
 	public void initialize(Object[] arguments) throws MaltChainedException {
@@ -36,7 +38,6 @@ public class CovingtonAddressFunction extends AddressFunction {
 	}
 	
 	public Class<?>[] getParameterTypes() {
-		Class<?>[] paramTypes = { java.lang.Integer.class };
 		return paramTypes; 
 	}
 	
@@ -68,11 +69,6 @@ public class CovingtonAddressFunction extends AddressFunction {
 	public String getSubFunctionName() {
 		return subFunctionName;
 	}
-
-	public void setSubFunctionName(String subFunctionName) {
-		this.subFunctionName = subFunctionName;
-		subFunction = CovingtonSubFunction.valueOf(subFunctionName.toUpperCase());
-	}
 	
 	public CovingtonSubFunction getSubFunction() {
 		return subFunction;
@@ -80,14 +76,6 @@ public class CovingtonAddressFunction extends AddressFunction {
 	
 	public AddressValue getAddressValue() {
 		return address;
-	}
-	
-	public Algorithm getParsingAlgorithm() {
-		return parsingAlgorithm;
-	}
-
-	public void setAlgorithm(Algorithm parsingAlgorithm) {
-		this.parsingAlgorithm = parsingAlgorithm;
 	}
 
 	public int getIndex() {

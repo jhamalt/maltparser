@@ -1,13 +1,9 @@
 package org.maltparser.parser.guide.decision;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.feature.FeatureModel;
 import org.maltparser.core.feature.FeatureVector;
 import org.maltparser.core.syntaxgraph.DependencyStructure;
-import org.maltparser.parser.DependencyParserConfig;
 import org.maltparser.parser.guide.ClassifierGuide;
 import org.maltparser.parser.guide.GuideException;
 import org.maltparser.parser.guide.instance.AtomicModel;
@@ -23,43 +19,48 @@ import org.maltparser.parser.history.container.TableContainer.RelationToNextDeci
 * @since 1.1
 **/
 public class SeqDecisionModel implements DecisionModel {
-	private ClassifierGuide guide;
-	private String modelName;
-	private FeatureModel featureModel;
+	private final ClassifierGuide guide;
+	private final String modelName;
+//	private final FeatureModel featureModel;
 	private InstanceModel instanceModel;
-	private int decisionIndex;
-	private DecisionModel prevDecisionModel;
+	private final int decisionIndex;
+	private final DecisionModel prevDecisionModel;
 	private DecisionModel nextDecisionModel;
-	private String branchedDecisionSymbols;
+	private final String branchedDecisionSymbols;
 	
-	public SeqDecisionModel(ClassifierGuide guide, FeatureModel featureModel) throws MaltChainedException {
+	public SeqDecisionModel(ClassifierGuide _guide) throws MaltChainedException {
+		this.guide = _guide;
 		this.branchedDecisionSymbols = "";
-		setGuide(guide);
-		setFeatureModel(featureModel);
-		setDecisionIndex(0);
-		setModelName("sdm"+decisionIndex);
-		setPrevDecisionModel(null);
+//		this.featureModel = _featureModel;
+		this.decisionIndex = 0;
+		this.modelName = "sdm"+decisionIndex;
+		this.prevDecisionModel = null;
 	}
 	
-	public SeqDecisionModel(ClassifierGuide guide, DecisionModel prevDecisionModel, String branchedDecisionSymbol) throws MaltChainedException {
-		if (branchedDecisionSymbol != null && branchedDecisionSymbol.length() > 0) {
-			this.branchedDecisionSymbols = branchedDecisionSymbol;
+	public SeqDecisionModel(ClassifierGuide _guide, DecisionModel _prevDecisionModel, String _branchedDecisionSymbol) throws MaltChainedException {
+		this.guide = _guide;
+		this.decisionIndex = _prevDecisionModel.getDecisionIndex() + 1;
+		if (_branchedDecisionSymbol != null && _branchedDecisionSymbol.length() > 0) {
+			this.branchedDecisionSymbols = _branchedDecisionSymbol;
+			this.modelName = "sdm"+decisionIndex+branchedDecisionSymbols;
 		} else {
 			this.branchedDecisionSymbols = "";
+			this.modelName = "sdm"+decisionIndex;
 		}
-		setGuide(guide);
-		setFeatureModel(prevDecisionModel.getFeatureModel());
-		setDecisionIndex(prevDecisionModel.getDecisionIndex() + 1);
-		setPrevDecisionModel(prevDecisionModel);
-		if (branchedDecisionSymbols != null && branchedDecisionSymbols.length() > 0) {
-			setModelName("sdm"+decisionIndex+branchedDecisionSymbols);
-		} else {
-			setModelName("sdm"+decisionIndex);
-		}
+//		this.featureModel = _prevDecisionModel.getFeatureModel();
+		this.prevDecisionModel = _prevDecisionModel;
 	}
 	
-	public void updateFeatureModel() throws MaltChainedException {
-		featureModel.update();
+//	public void updateFeatureModel() throws MaltChainedException {
+//		featureModel.update();
+//	}
+	
+	private void initInstanceModel(FeatureModel featureModel, String subModelName) throws MaltChainedException {
+		if (featureModel.hasDivideFeatureFunction()) {
+			instanceModel = new FeatureDivideModel(this);
+		} else {
+			instanceModel = new AtomicModel(-1, this);
+		}
 	}
 	
 	public void finalizeSentence(DependencyStructure dependencyGraph) throws MaltChainedException {
@@ -71,16 +72,16 @@ public class SeqDecisionModel implements DecisionModel {
 		}
 	}
 	
-	public void noMoreInstances() throws MaltChainedException {
+	public void noMoreInstances(FeatureModel featureModel) throws MaltChainedException {
 		if (guide.getGuideMode() == ClassifierGuide.GuideMode.CLASSIFY) {
 			throw new GuideException("The decision model could not create it's model. ");
 		}
 		if (instanceModel != null) {
-			instanceModel.noMoreInstances();
+			instanceModel.noMoreInstances(featureModel);
 			instanceModel.train();
 		}
 		if (nextDecisionModel != null) {
-			nextDecisionModel.noMoreInstances();
+			nextDecisionModel.noMoreInstances(featureModel);
 		}
 	}
 
@@ -95,70 +96,70 @@ public class SeqDecisionModel implements DecisionModel {
 		}
 	}
 	
-	public void addInstance(GuideDecision decision) throws MaltChainedException {
+	public void addInstance(FeatureModel featureModel, GuideDecision decision) throws MaltChainedException {
 		if (decision instanceof SingleDecision) {
 			throw new GuideException("A sequantial decision model expect a sequence of decisions, not a single decision. ");
 		}
 		featureModel.update();
 		final SingleDecision singleDecision = ((MultipleDecision)decision).getSingleDecision(decisionIndex);
 		if (instanceModel == null) {
-			initInstanceModel(singleDecision.getTableContainer().getTableContainerName());
+			initInstanceModel(featureModel, singleDecision.getTableContainer().getTableContainerName());
 		}
-		instanceModel.addInstance(singleDecision);
+		instanceModel.addInstance(featureModel.getFeatureVector(branchedDecisionSymbols, singleDecision.getTableContainer().getTableContainerName()), singleDecision);
 		if (singleDecision.continueWithNextDecision() && decisionIndex+1 < decision.numberOfDecisions()) {
 			if (nextDecisionModel == null) {
 				initNextDecisionModel(((MultipleDecision)decision).getSingleDecision(decisionIndex+1), branchedDecisionSymbols);
 			}
-			nextDecisionModel.addInstance(decision);
+			nextDecisionModel.addInstance(featureModel, decision);
 		}
 	}
 	
-	public boolean predict(GuideDecision decision) throws MaltChainedException {
+	public boolean predict(FeatureModel featureModel, GuideDecision decision) throws MaltChainedException {
 		if (decision instanceof SingleDecision) {
 			throw new GuideException("A sequantial decision model expect a sequence of decisions, not a single decision. ");
 		}
 		featureModel.update();
 		final SingleDecision singleDecision = ((MultipleDecision)decision).getSingleDecision(decisionIndex);
 		if (instanceModel == null) {
-			initInstanceModel(singleDecision.getTableContainer().getTableContainerName());
+			initInstanceModel(featureModel, singleDecision.getTableContainer().getTableContainerName());
 		}
 
-		boolean success = instanceModel.predict(singleDecision);
+		boolean success = instanceModel.predict(featureModel.getFeatureVector(branchedDecisionSymbols, singleDecision.getTableContainer().getTableContainerName()), singleDecision);
 		if (singleDecision.continueWithNextDecision() && decisionIndex+1 < decision.numberOfDecisions()) {
 			if (nextDecisionModel == null) {
 				initNextDecisionModel(((MultipleDecision)decision).getSingleDecision(decisionIndex+1), branchedDecisionSymbols);
 			}
-			success = nextDecisionModel.predict(decision) && success;
+			success = nextDecisionModel.predict(featureModel, decision) && success;
 		}
 		return success;
 	}
 	
-	public FeatureVector predictExtract(GuideDecision decision) throws MaltChainedException {
+	public FeatureVector predictExtract(FeatureModel featureModel, GuideDecision decision) throws MaltChainedException {
 		if (decision instanceof SingleDecision) {
 			throw new GuideException("A sequantial decision model expect a sequence of decisions, not a single decision. ");
 		}
 		featureModel.update();
 		final SingleDecision singleDecision = ((MultipleDecision)decision).getSingleDecision(decisionIndex);
 		if (instanceModel == null) {
-			initInstanceModel(singleDecision.getTableContainer().getTableContainerName());
+			initInstanceModel(featureModel, singleDecision.getTableContainer().getTableContainerName());
 		}
 
-		FeatureVector fv = instanceModel.predictExtract(singleDecision);
+		FeatureVector fv = instanceModel.predictExtract(featureModel.getFeatureVector(branchedDecisionSymbols, singleDecision.getTableContainer().getTableContainerName()), singleDecision);
 		if (singleDecision.continueWithNextDecision() && decisionIndex+1 < decision.numberOfDecisions()) {
 			if (nextDecisionModel == null) {
 				initNextDecisionModel(((MultipleDecision)decision).getSingleDecision(decisionIndex+1), branchedDecisionSymbols);
 			}
-			nextDecisionModel.predictExtract(decision);
+			nextDecisionModel.predictExtract(featureModel, decision);
 		}
 		return fv;
 	}
 	
-	public FeatureVector extract() throws MaltChainedException {
+	public FeatureVector extract(FeatureModel featureModel) throws MaltChainedException {
 		featureModel.update();
-		return instanceModel.extract(); // TODO handle many feature vectors
+		return null ; //instanceModel.extract(); // TODO handle many feature vectors
 	}
 	
-	public boolean predictFromKBestList(GuideDecision decision) throws MaltChainedException {
+	public boolean predictFromKBestList(FeatureModel featureModel, GuideDecision decision) throws MaltChainedException {
 		if (decision instanceof SingleDecision) {
 			throw new GuideException("A sequantial decision model expect a sequence of decisions, not a single decision. ");
 		}
@@ -167,7 +168,7 @@ public class SeqDecisionModel implements DecisionModel {
 		final SingleDecision singleDecision = ((MultipleDecision)decision).getSingleDecision(decisionIndex);
 		// TODO develop different strategies for resolving which kBestlist that should be used
 		if (nextDecisionModel != null && singleDecision.continueWithNextDecision()) {
-			success = nextDecisionModel.predictFromKBestList(decision);
+			success = nextDecisionModel.predictFromKBestList(featureModel, decision);
 		}
 		if (!success) {
 			success = singleDecision.updateFromKBestList();
@@ -175,7 +176,7 @@ public class SeqDecisionModel implements DecisionModel {
 				if (nextDecisionModel == null) {
 					initNextDecisionModel(((MultipleDecision)decision).getSingleDecision(decisionIndex+1), branchedDecisionSymbols);
 				}
-				nextDecisionModel.predict(decision);
+				nextDecisionModel.predict(featureModel, decision);
 			}
 		}
 		return success;
@@ -190,9 +191,9 @@ public class SeqDecisionModel implements DecisionModel {
 		return modelName;
 	}
 	
-	public FeatureModel getFeatureModel() {
-		return featureModel;
-	}
+//	public FeatureModel getFeatureModel() {
+//		return featureModel;
+//	}
 
 	public int getDecisionIndex() {
 		return decisionIndex;
@@ -206,79 +207,13 @@ public class SeqDecisionModel implements DecisionModel {
 		return nextDecisionModel;
 	}
 	
-	private void setPrevDecisionModel(DecisionModel prevDecisionModel) {
-		this.prevDecisionModel = prevDecisionModel;
-	}
-	
-	private void setNextDecisionModel(DecisionModel nextDecisionModel) {
-		this.nextDecisionModel = nextDecisionModel;
-	}
-
-	private void setFeatureModel(FeatureModel featureModel) {
-		this.featureModel = featureModel;
-	}
-	
-	private void setDecisionIndex(int decisionIndex) {
-		this.decisionIndex = decisionIndex;
-	}
-
-	private void setModelName(String modelName) {
-		this.modelName = modelName;
-	}
-	
-	private void setGuide(ClassifierGuide guide) {
-		this.guide = guide;
-	}
-	
-	private void initInstanceModel(String subModelName) throws MaltChainedException {
-		FeatureVector fv = featureModel.getFeatureVector(branchedDecisionSymbols+"."+subModelName);
-		if (fv == null) {
-			fv = featureModel.getFeatureVector(subModelName);
-		}
-		if (fv == null) {
-			fv = featureModel.getMainFeatureVector();
-		}
-		
-		DependencyParserConfig c = guide.getConfiguration();
-		
-		if (c.getOptionValue("guide", "data_split_column").toString().length() == 0) {
-			instanceModel = new AtomicModel(-1, fv, this);
-		} else {
-			instanceModel = new FeatureDivideModel(fv, this);
-		}
-	}
-	
 	private void initNextDecisionModel(SingleDecision decision, String branchedDecisionSymbol) throws MaltChainedException {
-		Class<?> decisionModelClass = null;
 		if (decision.getRelationToNextDecision() == RelationToNextDecision.SEQUANTIAL) {
-			decisionModelClass = org.maltparser.parser.guide.decision.SeqDecisionModel.class;
+			this.nextDecisionModel = new SeqDecisionModel(guide, this, branchedDecisionSymbol);
 		} else if (decision.getRelationToNextDecision() == RelationToNextDecision.BRANCHED) {
-			decisionModelClass = org.maltparser.parser.guide.decision.BranchedDecisionModel.class;
+			this.nextDecisionModel = new BranchedDecisionModel(guide, this, branchedDecisionSymbol);
 		} else if (decision.getRelationToNextDecision() == RelationToNextDecision.NONE) {
-			decisionModelClass = org.maltparser.parser.guide.decision.OneDecisionModel.class;
-		}
-
-		if (decisionModelClass == null) {
-			throw new GuideException("Could not find an appropriate decision model for the relation to the next decision"); 
-		}
-		
-		try {
-			Class<?>[] argTypes = { org.maltparser.parser.guide.ClassifierGuide.class, org.maltparser.parser.guide.decision.DecisionModel.class, 
-									java.lang.String.class };
-			Object[] arguments = new Object[3];
-			arguments[0] = getGuide();
-			arguments[1] = this;
-			arguments[2] = branchedDecisionSymbol;
-			Constructor<?> constructor = decisionModelClass.getConstructor(argTypes);
-			setNextDecisionModel((DecisionModel)constructor.newInstance(arguments));
-		} catch (NoSuchMethodException e) {
-			throw new GuideException("The decision model class '"+decisionModelClass.getName()+"' cannot be initialized. ", e);
-		} catch (InstantiationException e) {
-			throw new GuideException("The decision model class '"+decisionModelClass.getName()+"' cannot be initialized. ", e);
-		} catch (IllegalAccessException e) {
-			throw new GuideException("The decision model class '"+decisionModelClass.getName()+"' cannot be initialized. ", e);
-		} catch (InvocationTargetException e) {
-			throw new GuideException("The decision model class '"+decisionModelClass.getName()+"' cannot be initialized. ", e);
+			this.nextDecisionModel = new OneDecisionModel(guide, this, branchedDecisionSymbol);
 		}
 	}
 	

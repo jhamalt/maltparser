@@ -8,18 +8,16 @@ import org.maltparser.parser.history.action.GuideDecision;
 /**
 *
 * @author Johan Hall
-* @since 1.1
 **/
 public interface DecisionModel extends Model {
-	public void updateFeatureModel() throws MaltChainedException;
-//	public void updateCardinality() throws MaltChainedException;
+//	public void updateFeatureModel() throws MaltChainedException;
 	
-	public void addInstance(GuideDecision decision) throws MaltChainedException;
-	public boolean predict(GuideDecision decision) throws MaltChainedException;
-	public FeatureVector predictExtract(GuideDecision decision) throws MaltChainedException;
-	public FeatureVector extract() throws MaltChainedException;
-	public boolean predictFromKBestList(GuideDecision decision) throws MaltChainedException;
+	public void addInstance(FeatureModel featureModel,GuideDecision decision) throws MaltChainedException;
+	public boolean predict(FeatureModel featureModel, GuideDecision decision) throws MaltChainedException;
+	public FeatureVector predictExtract(FeatureModel featureModel, GuideDecision decision) throws MaltChainedException;
+	public FeatureVector extract(FeatureModel featureModel) throws MaltChainedException;
+	public boolean predictFromKBestList(FeatureModel featureModel, GuideDecision decision) throws MaltChainedException;
 	
-	public FeatureModel getFeatureModel();
+//	public FeatureModel getFeatureModel();
 	public int getDecisionIndex();
 }

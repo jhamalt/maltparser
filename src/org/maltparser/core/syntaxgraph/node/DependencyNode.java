@@ -1,5 +1,6 @@
 package org.maltparser.core.syntaxgraph.node;
 
+import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 
@@ -27,6 +28,19 @@ public interface DependencyNode extends ComparableNode {
 	public Set<Edge> getHeadEdges() throws MaltChainedException;
 	
 
+	/**
+	 * Returns the predecessor dependency node in the linear order of the token nodes.
+	 * 
+	 * @return the predecessor dependency node in the linear order of the token nodes.
+	 */
+	public DependencyNode getPredecessor();
+	/**
+	 * Returns the successor dependency node in the linear order of the token nodes.
+	 * 
+	 * @return the successor dependency node in the linear order of the token nodes.
+	 */
+	public DependencyNode getSuccessor();
+	
 	/**
 	 * Returns the head dependency node if it exists, otherwise <i>null</i>. If there exists more
 	 * than one head the first head is returned according to the linear order of the terminals 
@@ -137,6 +151,11 @@ public interface DependencyNode extends ComparableNode {
 	public DependencyNode getClosestRightDependent();
 	public DependencyNode getRightmostDependent();
 	public boolean hasRightDependent();
+	
+	public List<DependencyNode> getListOfDependents();
+	public List<DependencyNode> getListOfLeftDependents();
+	public List<DependencyNode> getListOfRightDependents();
+	
 	/**
 	 * Returns <i>true</i> if the head edge is projective, otherwise <i>false</i>. Undefined if the node has 
 	 * more than one head.

@@ -3,47 +3,40 @@ package org.maltparser.core.feature.system;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-import org.maltparser.core.config.ConfigurationRegistry;
 import org.maltparser.core.exception.MaltChainedException;
-import org.maltparser.core.feature.AbstractFeatureFactory;
 import org.maltparser.core.feature.FeatureException;
+import org.maltparser.core.feature.FeatureRegistry;
 import org.maltparser.core.feature.function.Function;
 /**
  *  
  *
  * @author Johan Hall
- * @since 1.0
 **/
 public class FunctionDescription {
-	private String name;
-	private Class<?> functionClass;
-	private boolean hasSubfunctions;
-	private boolean hasFactory;
-	
-//	public FunctionDescription(String name, Class<?> functionClass, boolean hasSubfunctions) {
-//		setName(name);
-//		setFunctionClass(functionClass);
-//		setHasSubfunctions(hasSubfunctions);
-//	}
+	private final String name;
+	private final Class<?> functionClass;
+	private final boolean hasSubfunctions;
+	private final boolean hasFactory;
 
-	public FunctionDescription(String name, Class<?> functionClass, boolean hasSubfunctions, boolean hasFactory) {
-		setName(name);
-		setFunctionClass(functionClass);
-		setHasSubfunctions(hasSubfunctions);
-		setHasFactory(hasFactory);
+	public FunctionDescription(String _name, Class<?> _functionClass, boolean _hasSubfunctions, boolean _hasFactory) {
+		this.name = _name;
+		this.functionClass = _functionClass;
+		this.hasSubfunctions = _hasSubfunctions;
+		this.hasFactory = _hasFactory;
 	}
 	
-	public Function newFunction(ConfigurationRegistry registry) throws MaltChainedException {
+	public Function newFunction(FeatureRegistry registry) throws MaltChainedException {
 		if (hasFactory) {
-			for (Class<?> c : registry.keySet()) {
-				try {
-					c.asSubclass(functionClass);
-				} catch (ClassCastException e) {
-					continue;
-				}
-				return ((AbstractFeatureFactory)registry.get(c)).makeFunction(name);
-			}
-			return null;
+//			for (Class<?> c : registry.keySet()) {
+//				try {
+//					c.asSubclass(functionClass);
+//				} catch (ClassCastException e) {
+//					continue;
+//				}
+//				return ((AbstractFeatureFactory)registry.get(c)).makeFunction(name);
+//			}
+//			return null;
+			return registry.getFactory(functionClass).makeFunction(name, registry);
 		}
 		Constructor<?>[] constructors = functionClass.getConstructors();
 		if (constructors.length == 0) {
@@ -91,32 +84,16 @@ public class FunctionDescription {
 		return name;
 	}
 
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	public Class<?> getFunctionClass() {
 		return functionClass;
-	}
-
-	public void setFunctionClass(Class<?> functionClass) {
-		this.functionClass = functionClass;
 	}
 
 	public boolean isHasSubfunctions() {
 		return hasSubfunctions;
 	}
 
-	public void setHasSubfunctions(boolean hasSubfunctions) {
-		this.hasSubfunctions = hasSubfunctions;
-	}
-
 	public boolean isHasFactory() {
 		return hasFactory;
-	}
-
-	public void setHasFactory(boolean hasFactory) {
-		this.hasFactory = hasFactory;
 	}
 
 	public boolean equals(Object obj) {

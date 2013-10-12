@@ -3,26 +3,28 @@ package org.maltparser.parser.algorithm.nivre;
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.feature.function.AddressFunction;
 import org.maltparser.core.feature.value.AddressValue;
-import org.maltparser.parser.Algorithm;
+import org.maltparser.parser.AlgoritmInterface;
 import org.maltparser.parser.ParsingException;
 
 /**
 *
 * @author Johan Hall
 **/
-public class NivreAddressFunction extends AddressFunction {
+public final class NivreAddressFunction extends AddressFunction {
+	public final static Class<?>[] paramTypes = { java.lang.Integer.class };
 	public enum NivreSubFunction {
 		STACK, INPUT
 	};
-	private String subFunctionName;
-	private NivreSubFunction subFunction;
-	private Algorithm parsingAlgorithm;
+	private final String subFunctionName;
+	private final NivreSubFunction subFunction;
+	private final AlgoritmInterface parsingAlgorithm;
 	private int index;
 	
-	public NivreAddressFunction(String subFunctionName, Algorithm parsingAlgorithm) {
+	public NivreAddressFunction(String _subFunctionName, AlgoritmInterface _parsingAlgorithm) {
 		super();
-		setSubFunctionName(subFunctionName);
-		setAlgorithm(parsingAlgorithm);
+		this.subFunctionName = _subFunctionName;
+		this.subFunction = NivreSubFunction.valueOf(subFunctionName.toUpperCase());
+		this.parsingAlgorithm = _parsingAlgorithm;
 	}
 	
 	public void initialize(Object[] arguments) throws MaltChainedException {
@@ -37,7 +39,6 @@ public class NivreAddressFunction extends AddressFunction {
 	}
 	
 	public Class<?>[] getParameterTypes() {
-		Class<?>[] paramTypes = { java.lang.Integer.class };
 		return paramTypes; 
 	}
 	
@@ -72,11 +73,6 @@ public class NivreAddressFunction extends AddressFunction {
 	public String getSubFunctionName() {
 		return subFunctionName;
 	}
-
-	public void setSubFunctionName(String subFunctionName) {
-		this.subFunctionName = subFunctionName;
-		subFunction = NivreSubFunction.valueOf(subFunctionName.toUpperCase());
-	}
 	
 	public NivreSubFunction getSubFunction() {
 		return subFunction;
@@ -84,14 +80,6 @@ public class NivreAddressFunction extends AddressFunction {
 	
 	public AddressValue getAddressValue() {
 		return address;
-	}
-	
-	public Algorithm getParsingAlgorithm() {
-		return parsingAlgorithm;
-	}
-
-	public void setAlgorithm(Algorithm parsingAlgorithm) {
-		this.parsingAlgorithm = parsingAlgorithm;
 	}
 
 	public int getIndex() {

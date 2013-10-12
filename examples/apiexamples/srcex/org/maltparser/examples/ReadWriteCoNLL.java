@@ -4,7 +4,7 @@ import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.io.dataformat.DataFormatInstance;
 import org.maltparser.core.io.dataformat.DataFormatSpecification;
 import org.maltparser.core.symbol.SymbolTableHandler;
-import org.maltparser.core.symbol.trie.TrieSymbolTableHandler;
+import org.maltparser.core.symbol.hash.HashSymbolTableHandler;
 import org.maltparser.core.syntaxgraph.DependencyGraph;
 import org.maltparser.core.syntaxgraph.reader.SyntaxGraphReader;
 import org.maltparser.core.syntaxgraph.reader.TabReader;
@@ -24,7 +24,7 @@ public class ReadWriteCoNLL {
 	
 	public ReadWriteCoNLL(String dataFormatFileName) throws MaltChainedException {
 		// Creates a symbol table handler
-		SymbolTableHandler symbolTables = new TrieSymbolTableHandler(TrieSymbolTableHandler.ADD_NEW_TO_TRIE);
+		SymbolTableHandler symbolTables = new HashSymbolTableHandler();
 		
 		// Initialize data format instance of the CoNLL data format from conllx.xml (conllx.xml located in same directory)
 		DataFormatSpecification dataFormat = new DataFormatSpecification();

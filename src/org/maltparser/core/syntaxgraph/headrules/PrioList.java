@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import org.apache.log4j.Logger;
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.io.dataformat.DataFormatInstance;
+import org.maltparser.core.symbol.SymbolTableHandler;
 import org.maltparser.core.syntaxgraph.node.NonTerminalNode;
 import org.maltparser.core.syntaxgraph.node.PhraseStructureNode;
 /**
@@ -59,8 +60,12 @@ public class PrioList extends ArrayList<PrioSet> {
 		return headRule.getLogger();
 	}
 	
-	public DataFormatInstance getDataFormatInstance() {
+    public DataFormatInstance getDataFormatInstance() {
 		return headRule.getDataFormatInstance();
+	}
+    
+	public SymbolTableHandler getSymbolTableHandler() {
+		return headRule.getSymbolTableHandler();
 	}
 	
 	public HeadRule getHeadRule() {

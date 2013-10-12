@@ -110,14 +110,8 @@ public class MaltLiblinearModel implements Serializable, MaltLibModel {
         
     public int[] predict(MaltFeatureNode[] x) { 
 		final double[] dec_values = new double[nr_class];
-		final int[] predictionList = Util.copyOf(labels, nr_class); 
         final int n = (bias >= 0)?nr_feature + 1:nr_feature;
-//        final int nr_w = (nr_class == 2 && solverType != SolverType.MCSVM_CS)?1:nr_class;
         final int xlen = x.length;
-//        int i;
-//        for (i = 0; i < nr_w; i++) {
-//            dec_values[i] = 0;   
-//        }
         
         for (int i=0; i < xlen; i++) {
             if (x[i].index <= n) {
@@ -133,25 +127,57 @@ public class MaltLiblinearModel implements Serializable, MaltLibModel {
 		
 		double tmpDec;
 		int tmpObj;
-		int lagest;
+		int iMax;
+        final int[] predictionList = new int[nr_class];
+        System.arraycopy(labels, 0, predictionList, 0, nr_class);
 		final int nc =  nr_class-1;
 		for (int i=0; i < nc; i++) {
-			lagest = i;
-			for (int j=i; j < nr_class; j++) {
-				if (dec_values[j] > dec_values[lagest]) {
-					lagest = j;
+			iMax = i;
+			for (int j=i+1; j < nr_class; j++) {
+				if (dec_values[j] > dec_values[iMax]) {
+					iMax = j;
 				}
 			}
-			tmpDec = dec_values[lagest];
-			dec_values[lagest] = dec_values[i];
-			dec_values[i] = tmpDec;
-			tmpObj = predictionList[lagest];
-			predictionList[lagest] = predictionList[i];
-			predictionList[i] = tmpObj;
+			if (iMax != i) {
+				tmpDec = dec_values[iMax];
+				dec_values[iMax] = dec_values[i];
+				dec_values[i] = tmpDec;
+				tmpObj = predictionList[iMax];
+				predictionList[iMax] = predictionList[i];
+				predictionList[i] = tmpObj;
+			}
 		}
 		return predictionList;
 	}
 	
+    public int predict_one(MaltFeatureNode[] x) { 
+		final double[] dec_values = new double[nr_class];
+        final int n = (bias >= 0)?nr_feature + 1:nr_feature;
+        final int xlen = x.length;
+        
+        for (int i=0; i < xlen; i++) {
+            if (x[i].index <= n) {
+            	final int t = (x[i].index - 1);
+            	if (w[t] != null) {
+	                for (int j = 0; j < w[t].length; j++) {
+	                    dec_values[j] += w[t][j] * x[i].value;
+	                }
+            	}
+            }
+        }
+
+        double max = dec_values[0];
+        int max_index = 0;
+		for (int i = 1; i < dec_values.length; i++) {
+			if (dec_values[i] > max) {
+				max = dec_values[i];
+				max_index = i;
+			}
+		}
+
+		return labels[max_index];
+	}
+    
 	private void readObject(ObjectInputStream is) throws ClassNotFoundException, IOException {
 		is.defaultReadObject();
 	}

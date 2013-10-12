@@ -5,7 +5,6 @@ import org.maltparser.core.feature.function.Function;
  *  
  *
  * @author Johan Hall
- * @since 1.0
 **/
 public class SingleFeatureValue extends FeatureValue {
 	protected int indexCode;

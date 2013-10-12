@@ -16,19 +16,20 @@ import org.maltparser.core.helper.HashMap;
 * @author Johan Hall
 */
 public class SpecificationModels {
-	private HashMap<URL, FeatureSpecReader> specReaderMap;
-	private HashMap<String, SpecificationModel> specModelMap;
-	private HashMap<Integer, SpecificationModel> specModelIntMap;
-	private LinkedHashMap<URL, ArrayList<SpecificationModel>> specModelKeyMap;
-	private ArrayList<SpecificationModel> currentSpecModelURL;
+	private final HashMap<URL, FeatureSpecReader> specReaderMap;
+	private final HashMap<String, SpecificationModel> specModelMap;
+	private final HashMap<Integer, SpecificationModel> specModelIntMap;
+	private final LinkedHashMap<URL, ArrayList<SpecificationModel>> specModelKeyMap;
+	private final ArrayList<SpecificationModel> currentSpecModelURL;
 	private int counter = 0;
 
 	
 	public SpecificationModels() throws MaltChainedException {
-		specReaderMap = new HashMap<URL, FeatureSpecReader>();
-		specModelMap = new HashMap<String, SpecificationModel>();
-		specModelIntMap = new HashMap<Integer, SpecificationModel>();
-		specModelKeyMap = new LinkedHashMap<URL, ArrayList<SpecificationModel>>();
+		this.specReaderMap = new HashMap<URL, FeatureSpecReader>();
+		this.specModelMap = new HashMap<String, SpecificationModel>();
+		this.specModelIntMap = new HashMap<Integer, SpecificationModel>();
+		this.specModelKeyMap = new LinkedHashMap<URL, ArrayList<SpecificationModel>>();
+		this.currentSpecModelURL = new ArrayList<SpecificationModel>();
 	}
 	
 	public void add(int index, String featureSpec) throws MaltChainedException {
@@ -91,7 +92,7 @@ public class SpecificationModels {
 				((ParReader)specReader).setPpcoveredRoot(true);
 			}
 		}
-		currentSpecModelURL = new ArrayList<SpecificationModel>();
+		
 		specModelKeyMap.put(specModelURL, currentSpecModelURL);
 		specReader.load(specModelURL, this);
 	}
@@ -115,7 +116,6 @@ public class SpecificationModels {
 		}
 		specReaderMap.put(specModelURL, specReader);
 		
-		currentSpecModelURL = new ArrayList<SpecificationModel>();
 		specModelKeyMap.put(specModelURL, currentSpecModelURL);
 		specReader.load(specModelURL, this);
 	}

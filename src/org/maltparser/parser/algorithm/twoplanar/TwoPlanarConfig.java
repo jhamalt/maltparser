@@ -3,11 +3,7 @@ package org.maltparser.parser.algorithm.twoplanar;
 import java.util.Stack;
 
 import org.maltparser.core.exception.MaltChainedException;
-import org.maltparser.core.symbol.SymbolTable;
-import org.maltparser.core.symbol.SymbolTableHandler;
-import org.maltparser.core.syntaxgraph.DependencyGraph;
 import org.maltparser.core.syntaxgraph.DependencyStructure;
-import org.maltparser.core.syntaxgraph.edge.Edge;
 import org.maltparser.core.syntaxgraph.node.DependencyNode;
 import org.maltparser.parser.ParserConfiguration;
 import org.maltparser.parser.ParsingException;
@@ -39,8 +35,8 @@ public class TwoPlanarConfig extends ParserConfiguration {
 	public boolean reduceAfterSwitch = false;
 	
 	
-	private Stack<DependencyNode> firstStack;
-	private Stack<DependencyNode> secondStack;
+	private final Stack<DependencyNode> firstStack;
+	private final Stack<DependencyNode> secondStack;
 
 	public static final boolean FIRST_STACK = false;
 	public static final boolean SECOND_STACK = true;
@@ -58,13 +54,13 @@ public class TwoPlanarConfig extends ParserConfiguration {
 	private int lastAction;
 	
 	
-	public TwoPlanarConfig(SymbolTableHandler symbolTableHandler, String noCoveredRoots , String acyclicity , String reduceAfterSwitch , String rootHandling) throws MaltChainedException {
+	public TwoPlanarConfig(String noCoveredRoots , String acyclicity , String reduceAfterSwitch , String rootHandling) throws MaltChainedException {
 		super();
 		firstStack = new Stack<DependencyNode>();
 		secondStack = new Stack<DependencyNode>();
 		activeStack = FIRST_STACK;
 		input = new Stack<DependencyNode>();
-		dependencyGraph = new DependencyGraph(symbolTableHandler);
+//		dependencyGraph = new DependencyGraph(symbolTableHandler);
 		setRootHandling(rootHandling);
 		setNoCoveredRoots(Boolean.valueOf(noCoveredRoots));
 		setAcyclicity(Boolean.valueOf(acyclicity));
@@ -160,23 +156,24 @@ public class TwoPlanarConfig extends ParserConfiguration {
 	}
 	
 	public void setDependencyGraph(DependencyStructure source) throws MaltChainedException {
-		dependencyGraph.clear();
-		for (int index : source.getTokenIndices()) {
-			DependencyNode gnode = source.getTokenNode(index);
-			DependencyNode pnode = dependencyGraph.addTokenNode(gnode.getIndex());
-			for (SymbolTable table : gnode.getLabelTypes()) {
-				pnode.addLabel(table, gnode.getLabelSymbol(table));
-			}
-			
-			if (gnode.hasHead()) {
-				Edge s = gnode.getHeadEdge();
-				Edge t = dependencyGraph.addDependencyEdge(s.getSource().getIndex(), s.getTarget().getIndex());
-				
-				for (SymbolTable table : s.getLabelTypes()) {
-					t.addLabel(table, s.getLabelSymbol(table));
-				}
-			}
-		}
+		this.dependencyGraph = source;
+//		dependencyGraph.clear();
+//		for (int index : source.getTokenIndices()) {
+//			DependencyNode gnode = source.getDependencyNode(index);
+//			DependencyNode pnode = dependencyGraph.addDependencyNode(gnode.getIndex());
+//			for (SymbolTable table : gnode.getLabelTypes()) {
+//				pnode.addLabel(table, gnode.getLabelSymbol(table));
+//			}
+//			
+//			if (gnode.hasHead()) {
+//				Edge s = gnode.getHeadEdge();
+//				Edge t = dependencyGraph.addDependencyEdge(s.getSource().getIndex(), s.getTarget().getIndex());
+//				
+//				for (SymbolTable table : s.getLabelTypes()) {
+//					t.addLabel(table, s.getLabelSymbol(table));
+//				}
+//			}
+//		}
 	}
 	
 	public DependencyStructure getDependencyGraph() {
@@ -212,6 +209,16 @@ public class TwoPlanarConfig extends ParserConfiguration {
 		}
 	}
 	
+	public void initialize() throws MaltChainedException {
+		getActiveStack().push(dependencyGraph.getDependencyRoot());
+		getInactiveStack().push(dependencyGraph.getDependencyRoot());
+		for (int i = dependencyGraph.getHighestTokenIndex(); i > 0; i--) {
+			final DependencyNode node = dependencyGraph.getDependencyNode(i);
+			if (node != null) { 
+				input.push(node);
+			}
+		}
+	}
 	
 	public int getRootHandling() {
 		return rootHandling;
@@ -249,7 +256,7 @@ public class TwoPlanarConfig extends ParserConfiguration {
 	public void setAcyclicity ( boolean value ) {acyclicity = value;}	
 	
 	public void clear() throws MaltChainedException {
-		dependencyGraph.clear();
+//		dependencyGraph.clear();
 		getActiveStack().clear();
 		getInactiveStack().clear();
 		input.clear();

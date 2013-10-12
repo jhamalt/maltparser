@@ -5,6 +5,7 @@ import org.maltparser.core.feature.function.AddressFunction;
 import org.maltparser.core.feature.value.AddressValue;
 import org.maltparser.core.io.dataformat.ColumnDescription;
 import org.maltparser.core.io.dataformat.DataFormatInstance;
+import org.maltparser.core.symbol.SymbolTableHandler;
 import org.maltparser.core.symbol.nullvalue.NullValues.NullValueId;
 import org.maltparser.core.syntaxgraph.SyntaxGraphException;
 import org.maltparser.core.syntaxgraph.node.DependencyNode;
@@ -15,12 +16,15 @@ import org.maltparser.core.syntaxgraph.node.DependencyNode;
 * @author Johan Hall
 */
 public final class InputColumnFeature extends ColumnFeature {
+	public final static Class<?>[] paramTypes = { java.lang.String.class, org.maltparser.core.feature.function.AddressFunction.class };
 	private final DataFormatInstance dataFormatInstance;
+	private final SymbolTableHandler tableHandler;
 	private AddressFunction addressFunction;
 	
-	public InputColumnFeature(DataFormatInstance dataFormatInstance) throws MaltChainedException {
+	public InputColumnFeature(DataFormatInstance dataFormatInstance, SymbolTableHandler tableHandler) throws MaltChainedException {
 		super();
 		this.dataFormatInstance = dataFormatInstance;
+		this.tableHandler = tableHandler;
 	}
 
 	public void initialize(Object[] arguments) throws MaltChainedException {
@@ -38,11 +42,11 @@ public final class InputColumnFeature extends ColumnFeature {
 			throw new SyntaxGraphException("Could not initialize InputColumnFeature: the input column type '"+(String)arguments[0]+"' could not be found in the data format specification. ' ");
 		}
 		setColumn(column);
+		setSymbolTable(tableHandler.getSymbolTable(column.getName()));
 		setAddressFunction((AddressFunction)arguments[1]);
 	}
 	
 	public Class<?>[] getParameterTypes() {
-		Class<?>[] paramTypes = { java.lang.String.class, org.maltparser.core.feature.function.AddressFunction.class };
 		return paramTypes; 
 	}
 	
@@ -50,23 +54,22 @@ public final class InputColumnFeature extends ColumnFeature {
 		final AddressValue a = addressFunction.getAddressValue();
 		
 		if (a.getAddress() == null) { 
-			featureValue.update(column.getSymbolTable().getNullValueCode(NullValueId.NO_NODE), 
-					column.getSymbolTable().getNullValueSymbol(NullValueId.NO_NODE), true, 1);
+			featureValue.update(symbolTable.getNullValueCode(NullValueId.NO_NODE), 
+					symbolTable.getNullValueSymbol(NullValueId.NO_NODE), true, 1);
 		} else {
-				final DependencyNode node = (DependencyNode)a.getAddress();
-				
-				if (!node.isRoot()) { 
-					int indexCode = node.getLabelCode(column.getSymbolTable());
-					String symbol = column.getSymbolTable().getSymbolCodeToString(indexCode);
-					if (column.getType() == ColumnDescription.STRING) {
-						featureValue.update(indexCode, symbol, false, 1);
-					} else {
-						castFeatureValue(symbol);
-					}
-				} else { 
-					featureValue.update(column.getSymbolTable().getNullValueCode(NullValueId.ROOT_NODE), 
-							column.getSymbolTable().getNullValueSymbol(NullValueId.ROOT_NODE), true, 1);
+			final DependencyNode node = (DependencyNode)a.getAddress();
+			
+			if (!node.isRoot()) { 
+				int indexCode = node.getLabelCode(symbolTable);
+				if (column.getType() == ColumnDescription.STRING) {
+					featureValue.update(indexCode, symbolTable.getSymbolCodeToString(indexCode), false, 1);
+				} else {
+					castFeatureValue(symbolTable.getSymbolCodeToString(indexCode));
 				}
+			} else { 
+				featureValue.update(symbolTable.getNullValueCode(NullValueId.ROOT_NODE), 
+						symbolTable.getNullValueSymbol(NullValueId.ROOT_NODE), true, 1);
+			}
 		}
 		
 	}

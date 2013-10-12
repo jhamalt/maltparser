@@ -14,8 +14,8 @@ import org.maltparser.core.options.option.Option;
  * @since 1.0
 **/
 public class OptionGroup {
-	private String name;
-	private HashMap<String, Option> options;
+	private final String name;
+	private final HashMap<String, Option> options;
 	
 	public static int toStringSetting = 0;
 	public final static int WITHGROUPNAME = 0; 
@@ -27,7 +27,7 @@ public class OptionGroup {
 	 * @param name	The name of the option group
 	 */
 	public OptionGroup(String name) {
-		setName(name);
+		this.name = name;
 		options = new HashMap<String, Option>();
 	}
 
@@ -45,9 +45,9 @@ public class OptionGroup {
 	 * 
 	 * @param name	the name of the option group
 	 */
-	public void setName(String name) {
-		this.name = name.toLowerCase();
-	}
+//	public void setName(String name) {
+//		this.name = name.toLowerCase();
+//	}
 	
 	/**
 	 * Adds an option to the option group.

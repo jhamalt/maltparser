@@ -5,7 +5,6 @@ import org.maltparser.parser.history.action.SingleDecision;
 /**
 *
 * @author Johan Hall
-* @since 1.1
 **/
 public class ScoredKBestList extends KBestList{
 	

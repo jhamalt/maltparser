@@ -92,13 +92,13 @@ public interface Element {
 	 * 
 	 * @return the graph (structure) in which the graph element belongs to. 
 	 */
-	public SyntaxGraph getBelongsToGraph();
+	public LabeledStructure getBelongsToGraph();
 	/**
 	 * Sets the graph (structure) in which the graph element belongs to. 
 	 * 
 	 * @param belongsToGraph a graph (structure).
 	 */
-	public void setBelongsToGraph(SyntaxGraph belongsToGraph);
+	public void setBelongsToGraph(LabeledStructure belongsToGraph);
 	/**
 	 * Resets the graph element.
 	 * 

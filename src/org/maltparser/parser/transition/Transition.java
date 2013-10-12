@@ -8,22 +8,21 @@ package org.maltparser.parser.transition;
  * 
  * @author Joakim Nivre
  * @author Johan Hall
- * @since 1.0
 */
 public class Transition implements Comparable<Transition> {
 	/**
 	 * Transition code
 	 */
-	private int code;
+	private final int code;
 	/**
 	 * Transition symbol
 	 */
-	private String symbol;
+	private final String symbol;
 	/**
 	 * <code>true</code> if the transition is labeled, otherwise <code>false</code>
 	 */
-	private boolean labeled;
-	private int cachedHash;
+	private final boolean labeled;
+	private final int cachedHash;
 	/**
 	 * Creates a transition 
 	 * 
@@ -35,6 +34,10 @@ public class Transition implements Comparable<Transition> {
 		this.code = code;
 		this.symbol = symbol;
 		this.labeled = labeled;
+		final int prime = 31;
+		int result = prime + code;
+		result = prime * result + (labeled ? 1231 : 1237);
+		this.cachedHash = prime * result + ((symbol == null) ? 0 : symbol.hashCode());
 	}
 
 	/**
@@ -69,12 +72,17 @@ public class Transition implements Comparable<Transition> {
 		final int BEFORE = -1;
 	    final int EQUAL = 0;
 	    final int AFTER = 1;
-//	    if ( this == that ) return EQUAL;
 	    if (this.code < that.code) return BEFORE;
 	    if (this.code > that.code) return AFTER;
 	    return EQUAL;
 	}
+	
+	@Override
+	public int hashCode() {
+		return cachedHash;
+	}
 
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -82,21 +90,19 @@ public class Transition implements Comparable<Transition> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Transition t = (Transition)obj;
-		return (code == t.code && symbol.equals(t.symbol) && labeled == t.isLabeled());
+		Transition other = (Transition) obj;
+		if (code != other.code)
+			return false;
+		if (labeled != other.labeled)
+			return false;
+		if (symbol == null) {
+			if (other.symbol != null)
+				return false;
+		} else if (!symbol.equals(other.symbol))
+			return false;
+		return true;
 	}
-	
-	public int hashCode() {
-		if (cachedHash == 0) {
-			int hash = 31*7 + code;
-			hash = 31*hash + (null == symbol ? 0 : symbol.hashCode());
-			hash = 31*hash +  (labeled ? 1 : 0);
-			cachedHash = hash;
-		}
-		return cachedHash;
-	}
-	
-	
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */

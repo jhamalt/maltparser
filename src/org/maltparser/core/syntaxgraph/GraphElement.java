@@ -1,5 +1,6 @@
 package org.maltparser.core.syntaxgraph;
 
+import java.util.LinkedHashSet;
 import java.util.Observable;
 import java.util.Set;
 
@@ -12,7 +13,7 @@ import org.maltparser.core.symbol.SymbolTable;
 * @author Johan Hall
 */
 public abstract class GraphElement extends Observable implements Element {
-	private SyntaxGraph belongsToGraph;
+	private LabeledStructure belongsToGraph;
 	private LabelSet labelSet;
 
 	public GraphElement() {
@@ -40,7 +41,7 @@ public abstract class GraphElement extends Observable implements Element {
 	 * @throws MaltChainedException
 	 */
 	public void addLabel(SymbolTable table, int code) throws MaltChainedException {
-		if (table.getSymbolCodeToString(code) != null) {
+		if (table.getSymbolCodeToString(code) != null) {		
 			if (labelSet == null) {
 				if (belongsToGraph == null) {
 					throw new SyntaxGraphException("The graph element doesn't belong to any graph. ");
@@ -147,7 +148,7 @@ public abstract class GraphElement extends Observable implements Element {
 	 */
 	public Set<SymbolTable> getLabelTypes() {
 		if (labelSet == null) {
-			return null;
+			return new LinkedHashSet<SymbolTable>();
 		}
 		return labelSet.keySet();
 	}
@@ -179,7 +180,7 @@ public abstract class GraphElement extends Observable implements Element {
 	 * 
 	 * @return the graph (structure) in which the graph element belongs to. 
 	 */
-	public SyntaxGraph getBelongsToGraph() {
+	public LabeledStructure getBelongsToGraph() {
 		return belongsToGraph;
 	}
 	
@@ -188,9 +189,9 @@ public abstract class GraphElement extends Observable implements Element {
 	 * 
 	 * @param belongsToGraph a graph (structure).
 	 */
-	public void setBelongsToGraph(SyntaxGraph belongsToGraph) {
+	public void setBelongsToGraph(LabeledStructure belongsToGraph) {
 		this.belongsToGraph = belongsToGraph;
-		addObserver(belongsToGraph);
+		addObserver((SyntaxGraph)belongsToGraph);
 	}
 	
 
@@ -204,7 +205,7 @@ public abstract class GraphElement extends Observable implements Element {
 			belongsToGraph.checkInLabelSet(labelSet);
 		}
 		labelSet = null;
-		deleteObserver(belongsToGraph);
+		deleteObserver((SyntaxGraph)belongsToGraph);
 		belongsToGraph = null;
 	}
 	

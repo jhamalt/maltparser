@@ -20,21 +20,21 @@ import org.maltparser.core.syntaxgraph.node.DependencyNode;
  * @author Carlos Gomez Rodriguez
  *
  */
-public class OutputArcFeature implements FeatureFunction {
-	protected AddressFunction addressFunction1;
-	protected AddressFunction addressFunction2;
-	protected ColumnDescription column;
-	protected DataFormatInstance dataFormatInstance;
-	protected SymbolTableHandler tableHandler;
-	protected SymbolTable table;
-	protected SingleFeatureValue featureValue;
+public final class OutputArcFeature implements FeatureFunction {
+	public final static Class<?>[] paramTypes = { java.lang.String.class  , org.maltparser.core.feature.function.AddressFunction.class  , org.maltparser.core.feature.function.AddressFunction.class };
+	private AddressFunction addressFunction1;
+	private AddressFunction addressFunction2;
+	private ColumnDescription column;
+	private final DataFormatInstance dataFormatInstance;
+	private final SymbolTableHandler tableHandler;
+	private SymbolTable table;
+	private final SingleFeatureValue featureValue;
 
 	
 	public OutputArcFeature(DataFormatInstance dataFormatInstance, SymbolTableHandler tableHandler) throws MaltChainedException {
-		super();
-		setDataFormatInstance(dataFormatInstance);
-		setTableHandler(tableHandler);
-		setFeatureValue(new SingleFeatureValue(this));
+		this.dataFormatInstance = dataFormatInstance;
+		this.tableHandler = tableHandler;
+		this.featureValue = new SingleFeatureValue(this);
 	}
 	
 	public void initialize(Object[] arguments) throws MaltChainedException {
@@ -62,7 +62,6 @@ public class OutputArcFeature implements FeatureFunction {
 	}
 	
 	public Class<?>[] getParameterTypes() {
-		Class<?>[] paramTypes = { java.lang.String.class  , org.maltparser.core.feature.function.AddressFunction.class  , org.maltparser.core.feature.function.AddressFunction.class };
 		return paramTypes;
 	}
 	
@@ -78,11 +77,6 @@ public class OutputArcFeature implements FeatureFunction {
 
 	public String getSymbol(int code) throws MaltChainedException {
 		return table.getSymbolCodeToString(code);
-	}
-
-
-	public void updateCardinality() throws MaltChainedException {
-//		featureValue.setCardinality(table.getValueCounter());
 	}
 
 	public void update() throws MaltChainedException {
@@ -188,14 +182,6 @@ public class OutputArcFeature implements FeatureFunction {
 	public DataFormatInstance getDataFormatInstance() {
 		return dataFormatInstance;
 	}
-
-	public void setDataFormatInstance(DataFormatInstance dataFormatInstance) {
-		this.dataFormatInstance = dataFormatInstance;
-	}
-
-	public void setFeatureValue(SingleFeatureValue featureValue) {
-		this.featureValue = featureValue;
-	}
 	
 	public SymbolTable getSymbolTable() {
 		return table;
@@ -207,10 +193,6 @@ public class OutputArcFeature implements FeatureFunction {
 	
 	public SymbolTableHandler getTableHandler() {
 		return tableHandler;
-	}
-
-	public void setTableHandler(SymbolTableHandler tableHandler) {
-		this.tableHandler = tableHandler;
 	}
 	
 	public  int getType() {

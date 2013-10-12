@@ -17,6 +17,8 @@ import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.io.dataformat.ColumnDescription;
 import org.maltparser.core.io.dataformat.DataFormatException;
 import org.maltparser.core.io.dataformat.DataFormatInstance;
+import org.maltparser.core.symbol.SymbolTable;
+import org.maltparser.core.symbol.SymbolTableHandler;
 import org.maltparser.core.syntaxgraph.PhraseStructure;
 import org.maltparser.core.syntaxgraph.TokenStructure;
 import org.maltparser.core.syntaxgraph.edge.Edge;
@@ -147,6 +149,7 @@ public class NegraWriter implements SyntaxGraphWriter {
 	
 	private void writeTerminals(PhraseStructure phraseStructure) throws MaltChainedException {
 		try {
+			final SymbolTableHandler symbolTables = phraseStructure.getSymbolTables();
 			for (int index : phraseStructure.getTokenIndices()) {
 				final PhraseStructureNode terminal = phraseStructure.getTokenNode(index);
 				final Iterator<ColumnDescription> columns = dataFormatInstance.iterator();
@@ -155,14 +158,15 @@ public class NegraWriter implements SyntaxGraphWriter {
 				while (columns.hasNext()) {
 					column = columns.next();
 					if (column.getCategory() == ColumnDescription.INPUT) {
-						writer.write(terminal.getLabelSymbol(column.getSymbolTable()));
+						SymbolTable table = symbolTables.getSymbolTable(column.getName());
+						writer.write(terminal.getLabelSymbol(table));
 						int nTabs = 1;
 						if (ti == 1 || ti == 2) {
-							nTabs = 3 - (terminal.getLabelSymbol(column.getSymbolTable()).length() / 8);
+							nTabs = 3 - (terminal.getLabelSymbol(table).length() / 8);
 						} else if (ti == 3) {
 							nTabs = 1;
 						} else if (ti == 4) {
-							nTabs = 2 - (terminal.getLabelSymbol(column.getSymbolTable()).length() / 8);
+							nTabs = 2 - (terminal.getLabelSymbol(table).length() / 8);
 						}
 						if (nTabs < 1) {
 							nTabs = 1;
@@ -172,8 +176,9 @@ public class NegraWriter implements SyntaxGraphWriter {
 						}
 						ti++;
 					} else if (column.getCategory() == ColumnDescription.PHRASE_STRUCTURE_EDGE_LABEL) {
-						if (terminal.getParent() != null && terminal.hasParentEdgeLabel(column.getSymbolTable())) {
-							writer.write(terminal.getParentEdgeLabelSymbol(column.getSymbolTable()));
+						SymbolTable table = symbolTables.getSymbolTable(column.getName());
+						if (terminal.getParent() != null && terminal.hasParentEdgeLabel(table)) {
+							writer.write(terminal.getParentEdgeLabelSymbol(table));
 							writer.write('\t');
 						} else {
 							writer.write("--\t");
@@ -187,10 +192,11 @@ public class NegraWriter implements SyntaxGraphWriter {
 						}
 					}
 				}
+				SymbolTable table = symbolTables.getSymbolTable(column.getName());
 				for (Edge e : terminal.getIncomingSecondaryEdges()) {
-					if (e.hasLabel(column.getSymbolTable())) {
+					if (e.hasLabel(table)) {
 						writer.write('\t');
-						writer.write(e.getLabelSymbol(column.getSymbolTable()));
+						writer.write(e.getLabelSymbol(table));
 						writer.write('\t');
 						if (e.getSource() instanceof NonTerminalNode) {
 							writer.write(Integer.toString(nonTerminalIndexMap.get(e.getSource().getIndex())));
@@ -209,6 +215,8 @@ public class NegraWriter implements SyntaxGraphWriter {
 	}
 	
 	private void writeNonTerminals(PhraseStructure phraseStructure) throws MaltChainedException {
+		final SymbolTableHandler symbolTables = phraseStructure.getSymbolTables();
+		
 		for (int index : nonTerminalIndexMap.keySet()) {
 //		for (int index : phraseStructure.getNonTerminalIndices()) {
 			NonTerminalNode nonTerminal = (NonTerminalNode)phraseStructure.getNonTerminalNode(index);
@@ -221,14 +229,14 @@ public class NegraWriter implements SyntaxGraphWriter {
 //				writer.write(Integer.toString(index+START_ID_OF_NONTERMINALS-1));
 				writer.write(Integer.toString(nonTerminalIndexMap.get(index)));
 				writer.write("\t\t\t--\t\t\t");
-				if (nonTerminal.hasLabel(dataFormatInstance.getColumnDescriptionByName("CAT").getSymbolTable())) {
-					writer.write(nonTerminal.getLabelSymbol(dataFormatInstance.getColumnDescriptionByName("CAT").getSymbolTable()));
+				if (nonTerminal.hasLabel(symbolTables.getSymbolTable("CAT"))) {
+					writer.write(nonTerminal.getLabelSymbol(symbolTables.getSymbolTable("CAT")));
 				} else {
 					writer.write("--");
 				}
 				writer.write("\t--\t\t");
-				if (nonTerminal.hasParentEdgeLabel(dataFormatInstance.getColumnDescriptionByName("LABEL").getSymbolTable())) {
-					writer.write(nonTerminal.getParentEdgeLabelSymbol(dataFormatInstance.getColumnDescriptionByName("LABEL").getSymbolTable()));
+				if (nonTerminal.hasParentEdgeLabel(symbolTables.getSymbolTable("LABEL"))) {
+					writer.write(nonTerminal.getParentEdgeLabelSymbol(symbolTables.getSymbolTable("LABEL")));
 				} else {
 					writer.write("--");
 				}
@@ -240,9 +248,9 @@ public class NegraWriter implements SyntaxGraphWriter {
 					writer.write(Integer.toString(nonTerminalIndexMap.get(nonTerminal.getParent().getIndex())));
 				}
 				for (Edge e : nonTerminal.getIncomingSecondaryEdges()) {
-					if (e.hasLabel(dataFormatInstance.getColumnDescriptionByName("SECEDGELABEL").getSymbolTable())) {
+					if (e.hasLabel(symbolTables.getSymbolTable("SECEDGELABEL"))) {
 						writer.write('\t');
-						writer.write(e.getLabelSymbol(dataFormatInstance.getColumnDescriptionByName("SECEDGELABEL").getSymbolTable()));
+						writer.write(e.getLabelSymbol(symbolTables.getSymbolTable("SECEDGELABEL")));
 						writer.write('\t');
 						if (e.getSource() instanceof NonTerminalNode) {
 //							writer.write(Integer.toString(e.getSource().getIndex()+START_ID_OF_NONTERMINALS-1));

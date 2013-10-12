@@ -335,7 +335,7 @@ public class NonTerminal extends GraphNode implements PhraseStructureNode, NonTe
 				}
 				tmp = tmp.getParent();
 			}
-			terminal = terminal.getSuccessor();
+			terminal = terminal.getTokenNodeSuccessor();
 		}
 		
 		return true;
@@ -352,7 +352,7 @@ public class NonTerminal extends GraphNode implements PhraseStructureNode, NonTe
 		TokenNode terminal = ((TokenStructure)getBelongsToGraph()).getTokenNode(lcorner);
 		while (terminal.getIndex() != rcorner) {
 			if (terminal.getParent() != null && terminal.getParent().isRoot()) {
-				terminal = terminal.getSuccessor();
+				terminal = terminal.getTokenNodeSuccessor();
 				continue;
 			}
 			PhraseStructureNode tmp = terminal.getParent();
@@ -365,7 +365,7 @@ public class NonTerminal extends GraphNode implements PhraseStructureNode, NonTe
 				}
 				tmp = tmp.getParent();
 			}
-			terminal = terminal.getSuccessor();
+			terminal = terminal.getTokenNodeSuccessor();
 		}
 		return true;
 	}
@@ -560,16 +560,16 @@ public class NonTerminal extends GraphNode implements PhraseStructureNode, NonTe
 		final StringBuilder sb = new StringBuilder();
 		sb.append(getIndex());
 		sb.append('\t');
-		if (getLabelTypes() != null) {
-			for (SymbolTable table : getLabelTypes()) {
-				try {
-					sb.append(getLabelSymbol(table));
-				} catch (MaltChainedException e) {
-					System.err.println("Print error : "+e.getMessageChain());
-				}
-				sb.append('\t');
+
+		for (SymbolTable table : getLabelTypes()) {
+			try {
+				sb.append(getLabelSymbol(table));
+			} catch (MaltChainedException e) {
+				System.err.println("Print error : "+e.getMessageChain());
 			}
+			sb.append('\t');
 		}
+
 		return sb.toString();
 	}
 	

@@ -5,17 +5,18 @@ import org.maltparser.core.feature.function.AddressFunction;
 import org.maltparser.core.feature.value.AddressValue;
 import org.maltparser.core.io.dataformat.ColumnDescription;
 import org.maltparser.core.io.dataformat.DataFormatInstance;
+import org.maltparser.core.symbol.SymbolTableHandler;
 import org.maltparser.core.symbol.TableFeature;
 import org.maltparser.core.symbol.nullvalue.NullValues.NullValueId;
 import org.maltparser.core.syntaxgraph.SyntaxGraphException;
 import org.maltparser.core.syntaxgraph.node.DependencyNode;
 
-public class InputTableFeature extends TableFeature {
-	protected AddressFunction addressFunction;
+public final class InputTableFeature extends TableFeature {
+	public final static Class<?>[] paramTypes = { java.lang.String.class, org.maltparser.core.feature.function.AddressFunction.class };
+	private AddressFunction addressFunction;
 
-	public InputTableFeature(DataFormatInstance dataFormatInstance) throws MaltChainedException {
-		super();
-		setTableHandler(dataFormatInstance.getSymbolTables());
+	public InputTableFeature(DataFormatInstance dataFormatInstance, SymbolTableHandler tableHandler) throws MaltChainedException {
+		super(tableHandler);
 	}
 	
 	public void initialize(Object[] arguments) throws MaltChainedException {
@@ -35,7 +36,6 @@ public class InputTableFeature extends TableFeature {
 	}
 	
 	public Class<?>[] getParameterTypes() {
-		Class<?>[] paramTypes = { java.lang.String.class, org.maltparser.core.feature.function.AddressFunction.class };
 		return paramTypes; 
 	}
 

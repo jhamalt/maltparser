@@ -8,7 +8,6 @@ import java.util.TreeMap;
 
 import org.maltparser.core.helper.Util;
 import org.maltparser.core.symbol.SymbolTable;
-import org.maltparser.core.symbol.SymbolTableHandler;
 /**
 *
 *
@@ -32,13 +31,13 @@ public class TigerXMLHeader {
 	private String metaInDate;
 	private String metaFormat;
 	private String metaHistory;
-	private SymbolTableHandler symbolTableHandler;
+//	private SymbolTableHandler symbolTableHandler;
 	private FeatureEdgeLabel edgeLabels;
 	private FeatureEdgeLabel secEdgeLabels;
 	private LinkedHashMap<String,FeatureEdgeLabel> features;
 	
-	public TigerXMLHeader(SymbolTableHandler symbolTableHandler) { 
-		setSymbolTableHandler(symbolTableHandler);
+	public TigerXMLHeader() { 
+//		setSymbolTableHandler(symbolTableHandler);
 		features = new LinkedHashMap<String,FeatureEdgeLabel>();
 	}
 
@@ -186,13 +185,13 @@ public class TigerXMLHeader {
 		this.metaHistory = metaHistory;
 	}
 	
-	public SymbolTableHandler getSymbolTableHandler() {
-		return symbolTableHandler;
-	}
-
-	protected void setSymbolTableHandler(SymbolTableHandler symbolTableHandler) {
-		this.symbolTableHandler = symbolTableHandler;
-	}
+//	public SymbolTableHandler getSymbolTableHandler() {
+//		return symbolTableHandler;
+//	}
+//
+//	protected void setSymbolTableHandler(SymbolTableHandler symbolTableHandler) {
+//		this.symbolTableHandler = symbolTableHandler;
+//	}
 
 	public String toTigerXML() {
 		final StringBuilder sb = new StringBuilder();

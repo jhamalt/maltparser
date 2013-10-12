@@ -17,23 +17,22 @@ import org.maltparser.core.syntaxgraph.node.DependencyNode;
 /**
 *
 * @author Johan Hall
-* @since 1.1
 **/
-public class InputArcFeature implements FeatureFunction {
-	protected AddressFunction addressFunction1;
-	protected AddressFunction addressFunction2;
-	protected ColumnDescription column;
-	protected DataFormatInstance dataFormatInstance;
-	protected SymbolTableHandler tableHandler;
-	protected SymbolTable table;
-	protected SingleFeatureValue featureValue;
+public final class InputArcFeature implements FeatureFunction {
+	public final static Class<?>[] paramTypes = { java.lang.String.class, org.maltparser.core.feature.function.AddressFunction.class, org.maltparser.core.feature.function.AddressFunction.class };
+	private AddressFunction addressFunction1;
+	private AddressFunction addressFunction2;
+	private ColumnDescription column;
+	private final DataFormatInstance dataFormatInstance;
+	private final SymbolTableHandler tableHandler;
+	private SymbolTable table;
+	private final SingleFeatureValue featureValue;
 
 	
 	public InputArcFeature(DataFormatInstance dataFormatInstance, SymbolTableHandler tableHandler) throws MaltChainedException {
-		super();
-		setDataFormatInstance(dataFormatInstance);
-		setTableHandler(tableHandler);
-		setFeatureValue(new SingleFeatureValue(this));
+		this.dataFormatInstance = dataFormatInstance;
+		this.tableHandler = tableHandler;
+		this.featureValue = new SingleFeatureValue(this);
 	}
 	
 	public void initialize(Object[] arguments) throws MaltChainedException {
@@ -61,7 +60,6 @@ public class InputArcFeature implements FeatureFunction {
 	}
 	
 	public Class<?>[] getParameterTypes() {
-	    Class<?>[] paramTypes = { java.lang.String.class, org.maltparser.core.feature.function.AddressFunction.class, org.maltparser.core.feature.function.AddressFunction.class };
 		return paramTypes;
 	}
 	
@@ -93,8 +91,9 @@ public class InputArcFeature implements FeatureFunction {
 		    DependencyNode node1 = (DependencyNode)arg1.getAddress();
 		    DependencyNode node2 = (DependencyNode)arg2.getAddress();
 		    try {
-			int head1 = Integer.parseInt(node1.getLabelSymbol(column.getSymbolTable()));
-			int head2 = Integer.parseInt(node2.getLabelSymbol(column.getSymbolTable()));
+		    SymbolTable symbolTable = tableHandler.getSymbolTable(column.getName());
+			int head1 = Integer.parseInt(node1.getLabelSymbol(symbolTable));
+			int head2 = Integer.parseInt(node2.getLabelSymbol(symbolTable));
 			if (!node1.isRoot() && head1 == node2.getIndex()) {
 			    featureValue.setIndexCode(table.getSymbolStringToCode("LEFT"));
 			    featureValue.setSymbol("LEFT");
@@ -171,14 +170,6 @@ public class InputArcFeature implements FeatureFunction {
 	public DataFormatInstance getDataFormatInstance() {
 		return dataFormatInstance;
 	}
-
-	public void setDataFormatInstance(DataFormatInstance dataFormatInstance) {
-		this.dataFormatInstance = dataFormatInstance;
-	}
-
-	public void setFeatureValue(SingleFeatureValue featureValue) {
-		this.featureValue = featureValue;
-	}
 	
 	public SymbolTable getSymbolTable() {
 		return table;
@@ -190,10 +181,6 @@ public class InputArcFeature implements FeatureFunction {
 	
 	public SymbolTableHandler getTableHandler() {
 		return tableHandler;
-	}
-
-	public void setTableHandler(SymbolTableHandler tableHandler) {
-		this.tableHandler = tableHandler;
 	}
 	
 	public  int getType() {

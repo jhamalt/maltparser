@@ -1,11 +1,12 @@
 package org.maltparser.parser;
 
 import org.maltparser.core.exception.MaltChainedException;
+import org.maltparser.core.feature.FeatureModel;
+import org.maltparser.core.symbol.SymbolTableHandler;
 import org.maltparser.core.syntaxgraph.DependencyStructure;
 
 import org.maltparser.parser.guide.ClassifierGuide;
 import org.maltparser.parser.guide.SingleGuide;
-import org.maltparser.parser.history.GuideHistory;
 import org.maltparser.parser.history.action.GuideDecision;
 import org.maltparser.parser.history.action.GuideUserAction;
 /**
@@ -13,24 +14,25 @@ import org.maltparser.parser.history.action.GuideUserAction;
  *
  */
 public class DeterministicParser extends Parser {
-	private int parseCount;
-	
-	public DeterministicParser(DependencyParserConfig manager) throws MaltChainedException {
-		super(manager);
-		setManager(manager);
-		initParserState(1);
-		((SingleMalt)manager).addRegistry(org.maltparser.parser.Algorithm.class, this);
-		setGuide(new SingleGuide(manager, (GuideHistory)parserState.getHistory(), ClassifierGuide.GuideMode.CLASSIFY));
+	private final FeatureModel featureModel;
+	public DeterministicParser(DependencyParserConfig manager, SymbolTableHandler symbolTableHandler) throws MaltChainedException {
+		super(manager,symbolTableHandler);
+		registry.setAlgorithm(this);
+		setGuide(new SingleGuide(this, ClassifierGuide.GuideMode.CLASSIFY));
+		String featureModelFileName = manager.getOptionValue("guide", "features").toString().trim();
+		if (manager.isLoggerInfoEnabled()) {
+			manager.logDebugMessage("  Feature model        : " + featureModelFileName+"\n");
+			manager.logDebugMessage("  Classifier           : " + manager.getOptionValueString("guide", "learner")+"\n");	
+		}
+		String dataSplitColumn = manager.getOptionValue("guide", "data_split_column").toString().trim();
+		String dataSplitStructure = manager.getOptionValue("guide", "data_split_structure").toString().trim();
+		featureModel = manager.getFeatureModelManager().getFeatureModel(SingleGuide.findURL(featureModelFileName, manager), 0, getParserRegistry(), dataSplitColumn, dataSplitStructure);
 	}
 	
 	public DependencyStructure parse(DependencyStructure parseDependencyGraph) throws MaltChainedException {
-		if (diagnostics == true) {
-			return parseDiagnostic(parseDependencyGraph);
-		}
 		parserState.clear();
 		parserState.initialize(parseDependencyGraph);
 		currentParserConfiguration = parserState.getConfiguration();
-		parseCount++;
 		TransitionSystem ts = parserState.getTransitionSystem();
 		while (!parserState.isTerminalState()) {
 			GuideUserAction action = ts.getDeterministicAction(parserState.getHistory(), currentParserConfiguration);
@@ -39,48 +41,18 @@ public class DeterministicParser extends Parser {
 			}
 			parserState.apply(action);
 		} 
-		copyEdges(currentParserConfiguration.getDependencyGraph(), parseDependencyGraph);
-		copyDynamicInput(currentParserConfiguration.getDependencyGraph(), parseDependencyGraph);
+//		copyEdges(currentParserConfiguration.getDependencyGraph(), parseDependencyGraph);
+//		copyDynamicInput(currentParserConfiguration.getDependencyGraph(), parseDependencyGraph);
 		parseDependencyGraph.linkAllTreesToRoot();
 		return parseDependencyGraph;
 	}
-	
-	private DependencyStructure parseDiagnostic(DependencyStructure parseDependencyGraph) throws MaltChainedException {
-		parserState.clear();
-		parserState.initialize(parseDependencyGraph);
-		currentParserConfiguration = parserState.getConfiguration();
-		parseCount++;
-		if (diagnostics == true) {
-			writeToDiaFile(parseCount + "");
-		}
-		while (!parserState.isTerminalState()) {
-			GuideUserAction action = parserState.getTransitionSystem().getDeterministicAction(parserState.getHistory(), currentParserConfiguration);
-			if (action == null) {
-				action = predict();
-			} else if (diagnostics == true) {
-				writeToDiaFile(" *");
-			}
-			if (diagnostics == true) {
-				writeToDiaFile(" " + parserState.getTransitionSystem().getActionString(action));
-			}
-			parserState.apply(action);
-		} 
-		copyEdges(currentParserConfiguration.getDependencyGraph(), parseDependencyGraph);
-		copyDynamicInput(currentParserConfiguration.getDependencyGraph(), parseDependencyGraph);
-		parseDependencyGraph.linkAllTreesToRoot();
-		if (diagnostics == true) {
-			writeToDiaFile("\n");
-		}
-		return parseDependencyGraph;
-	}
-	
 	
 	private GuideUserAction predict() throws MaltChainedException {
 		GuideUserAction currentAction = parserState.getHistory().getEmptyGuideUserAction();
 		try {
-			classifierGuide.predict((GuideDecision)currentAction);
+			classifierGuide.predict(featureModel,(GuideDecision)currentAction);
 			while (!parserState.permissible(currentAction)) {
-				if (classifierGuide.predictFromKBestList((GuideDecision)currentAction) == false) {
+				if (classifierGuide.predictFromKBestList(featureModel,(GuideDecision)currentAction) == false) {
 					currentAction = getParserState().getTransitionSystem().defaultAction(parserState.getHistory(), currentParserConfiguration);
 					break;
 				}
@@ -91,9 +63,5 @@ public class DeterministicParser extends Parser {
 		return currentAction;
 	}
 	
-	public void terminate() throws MaltChainedException {
-		if (diagnostics == true) {
-			closeDiaWriter();
-		}
-	}
+	public void terminate() throws MaltChainedException { }
 }
