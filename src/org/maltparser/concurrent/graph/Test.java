@@ -7,10 +7,10 @@ import java.io.InputStreamReader;
 import java.util.Formatter;
 import java.util.SortedSet;
 
+import org.maltparser.concurrent.ConcurrentUtils;
 import org.maltparser.concurrent.graph.dataformat.ColumnDescription;
 import org.maltparser.concurrent.graph.dataformat.DataFormat;
 import org.maltparser.core.exception.MaltChainedException;
-import org.maltparser.core.lw.helper.Utils;
 import org.maltparser.core.symbol.hash.HashSymbolTableHandler;
 import org.maltparser.core.syntaxgraph.DependencyStructure;
 import org.maltparser.core.syntaxgraph.edge.Edge;
@@ -62,7 +62,7 @@ public class Test {
     		reader = new BufferedReader(new InputStreamReader(new FileInputStream(inFile), charSet));
     		int sentenceCounter = 0;
     		while (true) {
-	    		String[] goldTokens = Utils.readSentences(reader);
+	    		String[] goldTokens = ConcurrentUtils.readSentence(reader);
 	    		if (goldTokens.length == 0) {
 	    			break;
 	    		}

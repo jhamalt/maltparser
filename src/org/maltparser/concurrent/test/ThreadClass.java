@@ -10,9 +10,10 @@ import java.io.OutputStreamWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.maltparser.concurrent.ConcurrentUtils;
 import org.maltparser.concurrent.ConcurrentMaltParserModel;
 import org.maltparser.core.exception.MaltChainedException;
-import org.maltparser.core.lw.helper.Utils;
+
 /**
 * 
 * @author Johan Hall
@@ -46,15 +47,15 @@ public class ThreadClass extends Thread {
     		int diffCount = 0;
     		int sentenceCount = 0;
     		while (true) {
-	    		String[] goldTokens = Utils.readSentences(reader);
+	    		String[] goldTokens = ConcurrentUtils.readSentence(reader);
 	    		if (goldTokens.length == 0) {
 	    			break;
 	    		}
-	    		String[] inputTokens = Utils.stripGold(goldTokens);
+	    		String[] inputTokens = ConcurrentUtils.stripGold(goldTokens);
 	    		String[] outputTokens = model.parseTokens(inputTokens);
-	    		diffCount = Utils.diff(goldTokens,outputTokens)?diffCount+1:diffCount;
+	    		diffCount = ConcurrentUtils.diffSentences(goldTokens,outputTokens)?diffCount+1:diffCount;
 	    		sentenceCount++;
-	    		Utils.writeSentences(outputTokens, writer);
+	    		ConcurrentUtils.writeSentence(outputTokens, writer);
     		}
     		System.out.println("DiffCount: " + diffCount + "/" + sentenceCount + "(ThreadID:" + Thread.currentThread().getId() + ")");
     	} catch (IOException e) {
