@@ -21,6 +21,7 @@ public class ArcEager extends TransitionSystem {
 	protected static final int REDUCE = 2;
 	protected static final int RIGHTARC = 3;
 	protected static final int LEFTARC = 4;
+	protected static final int UNSHIFT = 5;
 	
 	public ArcEager(PropagationManager propagationManager) throws MaltChainedException {
 		super(propagationManager);
@@ -32,39 +33,89 @@ public class ArcEager extends TransitionSystem {
 		final Stack<DependencyNode> input = nivreConfig.getInput();
 		currentAction.getAction(actionContainers);
 		Edge e = null;
-		switch (transActionContainer.getActionCode()) {
-		case LEFTARC:
-			e = nivreConfig.getDependencyStructure().addDependencyEdge(input.peek().getIndex(), stack.peek().getIndex());
-			addEdgeLabels(e);
-			stack.pop();
-			break;
-		case RIGHTARC:
-			e = nivreConfig.getDependencyStructure().addDependencyEdge(stack.peek().getIndex(), input.peek().getIndex());
-			addEdgeLabels(e);
-			stack.push(input.pop());
-			break;
-		case REDUCE:
-			stack.pop();
-			break;
-		default:
-			stack.push(input.pop()); 
-			break;
+		if (!nivreConfig.isEnforceTree()) {
+			switch (transActionContainer.getActionCode()) {
+			case LEFTARC:
+				e = nivreConfig.getDependencyStructure().addDependencyEdge(input.peek().getIndex(), stack.peek().getIndex());
+				addEdgeLabels(e);
+				stack.pop();
+				break;
+			case RIGHTARC:
+				e = nivreConfig.getDependencyStructure().addDependencyEdge(stack.peek().getIndex(), input.peek().getIndex());
+				addEdgeLabels(e);
+				stack.push(input.pop());
+				break;
+			case REDUCE:
+				stack.pop();
+				break;
+			default:
+				stack.push(input.pop());
+				break;
+			}
+		} else {
+			switch (transActionContainer.getActionCode()) {
+			case LEFTARC:
+				e = nivreConfig.getDependencyStructure().addDependencyEdge(input.peek().getIndex(), stack.peek().getIndex());
+				addEdgeLabels(e);
+				stack.pop();
+				break;
+			case RIGHTARC:
+				e = nivreConfig.getDependencyStructure().addDependencyEdge(stack.peek().getIndex(), input.peek().getIndex());
+				addEdgeLabels(e);
+				stack.push(input.pop());
+                if(input.isEmpty() && !nivreConfig.isEnd()) {
+                	nivreConfig.setEnd(true);
+                }
+				break;
+			case REDUCE:
+				stack.pop();
+				break;
+	        case UNSHIFT:                                                                                                                               
+	            input.push(stack.pop());
+	            break;
+			default:
+				stack.push(input.pop());
+	                                                                                                                                                 
+	            if (input.isEmpty() && !nivreConfig.isEnd()) {
+	            	nivreConfig.setEnd(true);
+	            }
+	
+				break;
+			}
+			
 		}
 	}
 	
-	public GuideUserAction getDeterministicAction(GuideUserHistory history, ParserConfiguration config) throws MaltChainedException {
-        final NivreConfig nivreConfig = (NivreConfig)config;
-        if (!nivreConfig.isAllowRoot() && nivreConfig.getStack().peek().isRoot()) {
-                return updateActionContainers(history, ArcEager.SHIFT, null);
-        }
-        return null;
-	}
+    public GuideUserAction getDeterministicAction(GuideUserHistory history, ParserConfiguration config) throws MaltChainedException {
+    	final NivreConfig nivreConfig = (NivreConfig)config;
+    	if (!nivreConfig.isEnforceTree()) {
+          if (!nivreConfig.isAllowRoot() && nivreConfig.getStack().peek().isRoot()) {
+          	return updateActionContainers(history, ArcEager.SHIFT, null);
+          }
+    	} else {
+    		//Added
+	    	if (!nivreConfig.isAllowRoot() && nivreConfig.getStack().peek().isRoot() && !nivreConfig.isEnd()) {
+	    		return updateActionContainers(history, ArcEager.SHIFT, null);
+	    	}
+	                                                                                                                                                        
+	    	if (nivreConfig.getInput().isEmpty() && nivreConfig.getStack().peek().hasHead()) {
+	            return updateActionContainers(history, ArcEager.REDUCE, null);
+	    	}
+	    	
+	    	if (nivreConfig.getInput().isEmpty() && !nivreConfig.getStack().peek().hasHead()) {
+	            return updateActionContainers(history, ArcEager.UNSHIFT, null);
+	    	}
+    	}
+    	return null;
+    }
+
 	
 	protected void addAvailableTransitionToTable(TransitionTable ttable) throws MaltChainedException {
 		ttable.addTransition(SHIFT, "SH", false, null);
 		ttable.addTransition(REDUCE, "RE", false, null);
 		ttable.addTransition(RIGHTARC, "RA", true, null);
 		ttable.addTransition(LEFTARC, "LA", true, null);
+		ttable.addTransition(UNSHIFT, "USH", false, null);//Added
 	}
 	
 	protected void initWithDefaultTransitions(GuideUserHistory history) throws MaltChainedException {
@@ -85,7 +136,8 @@ public class ArcEager extends TransitionSystem {
 	public boolean permissible(GuideUserAction currentAction, ParserConfiguration config) throws MaltChainedException {
 		currentAction.getAction(actionContainers);
 		final int trans = transActionContainer.getActionCode();
-		final DependencyNode stackPeek = ((NivreConfig)config).getStack().peek();
+		final NivreConfig nivreConfig = (NivreConfig)config;
+		final DependencyNode stackPeek = nivreConfig.getStack().peek();
 		if ((trans == LEFTARC || trans == RIGHTARC) && !isActionContainersLabeled()) {
 			return false;
 		}
@@ -95,9 +147,14 @@ public class ArcEager extends TransitionSystem {
 		if (trans == LEFTARC && stackPeek.hasHead()) { 
 			return false;
 		}
-		if (trans == REDUCE && !stackPeek.hasHead() && !((NivreConfig)config).isAllowReduce()) {
+		if (trans == REDUCE && !stackPeek.hasHead() && !nivreConfig.isAllowReduce()) {
 			return false;
 		}
+        //Added                                                                                                                                                   
+        if (trans == SHIFT && nivreConfig.isEnforceTree() && nivreConfig.isEnd()){
+            return false;
+        }
+
 		return true;
 	}
 	

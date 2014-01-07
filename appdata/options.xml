@@ -277,10 +277,15 @@ many single malt configurations. ]]></desc>
 	        <shortdesc>Allow root</shortdesc>
         </option>
         <option type="bool" name="allow_reduce" flag="ne" default="false" usage="save">
-                <desc><![CDATA[ If <b>allow_reduce=true</b>, the Reduce transition is permissible even if the node on top of the stack does not have a head. As 
+            <desc><![CDATA[ If <b>allow_reduce=true</b>, the Reduce transition is permissible even if the node on top of the stack does not have a head. As 
                 a result, this node will be attached to the special root node after parsing is completed, which may give rise to non-projective trees. ]]></desc>
-                <shortdesc>Allow root</shortdesc>
-        </option> 
+            <shortdesc>Allow reduce</shortdesc>
+        </option>
+        <option type="bool" name="enforce_tree" flag="nt" default="false" usage="process">
+            <desc><![CDATA[ If <b>enforce_tree=true</b>, the parser will use an extended transition system that makes sure that the output parse is a tree by 
+            (if necessary) unshifting unattached tokens remaining on the stack after the buffer has been emptied and forcing them to be attached. ]]></desc>
+            <shortdesc>Enforce tree constraint</shortdesc>
+        </option>
    	</optiongroup>
    	<optiongroup groupname="multiplanar">
 		<desc><![CDATA[ The <b>multiplanar</b> option group contains options that are common to the multiplanar family of algorithms (planar and 2-planar algorithms).  ]]></desc>

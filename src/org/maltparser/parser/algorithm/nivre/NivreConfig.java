@@ -17,13 +17,18 @@ public class NivreConfig extends ParserConfiguration {
 	private DependencyStructure dependencyGraph;
 	private final boolean allowRoot;
 	private final boolean allowReduce;
+	private final boolean enforceTree;
 	
-	public NivreConfig(boolean allowRoot, boolean allowReduce) throws MaltChainedException {
+    private boolean end; //Added
+	
+	public NivreConfig(boolean allowRoot, boolean allowReduce, boolean enforceTree) throws MaltChainedException {
 		super();
 		this.stack = new Stack<DependencyNode>();
 		this.input = new Stack<DependencyNode>();
 		this.allowRoot = allowRoot;
 		this.allowReduce = allowReduce;
+		this.enforceTree = enforceTree;
+		this.end = false; // Added 
 	}
 	
 	public Stack<DependencyNode> getStack() {
@@ -39,6 +44,9 @@ public class NivreConfig extends ParserConfiguration {
 	}
 	
 	public boolean isTerminalState() {
+		if (isEnforceTree()) {
+			return input.isEmpty() && stack.size() == 1;
+		}
 		return input.isEmpty();
 	}
 	
@@ -64,28 +72,6 @@ public class NivreConfig extends ParserConfiguration {
 	
 	public void setDependencyGraph(DependencyStructure source) throws MaltChainedException {
 		this.dependencyGraph = source;
-//		dependencyGraph.clear();
-//		for (int index : source.getTokenIndices()) {
-////			final DependencyNode gnode = source.getTokenNode(index);
-////			final DependencyNode pnode = dependencyGraph.addTokenNode(gnode.getIndex());
-//			final DependencyNode gnode = source.getDependencyNode(index);
-//			final DependencyNode pnode = dependencyGraph.addDependencyNode(gnode.getIndex());
-//			for (SymbolTable table : gnode.getLabelTypes()) {
-//				pnode.addLabel(table, gnode.getLabelSymbol(table));
-//			}
-//			
-//			if (gnode.hasHead()) {
-//				final Edge s = gnode.getHeadEdge();
-//				final Edge t = dependencyGraph.addDependencyEdge(s.getSource().getIndex(), s.getTarget().getIndex());
-//				
-//				for (SymbolTable table : s.getLabelTypes()) {
-//					t.addLabel(table, s.getLabelSymbol(table));
-//				}
-//			}
-//		}
-//		for (SymbolTable table : source.getDefaultRootEdgeLabels().keySet()) {
-//			dependencyGraph.setDefaultRootEdgeLabel(table, source.getDefaultRootEdgeLabelSymbol(table));
-//		}
 	}
 	
 	public DependencyStructure getDependencyGraph() {
@@ -125,6 +111,14 @@ public class NivreConfig extends ParserConfiguration {
 		}
 	}
 	
+	public void setEnd(boolean end) {
+		this.end = end;
+	}
+                                                                                                                                                             
+    public boolean isEnd() {
+        return end;
+	}
+    
     public boolean isAllowRoot() {
         return allowRoot;
 	}
@@ -133,11 +127,15 @@ public class NivreConfig extends ParserConfiguration {
 	        return allowReduce;
 	}
 	
+	public boolean isEnforceTree() {
+		return enforceTree;
+	}
+
 	public void clear() throws MaltChainedException {
-//		dependencyGraph.clear();
 		stack.clear();
 		input.clear();
 		historyNode = null;
+		end = false; // Added
 	}
 	
 	public boolean equals(Object obj) {

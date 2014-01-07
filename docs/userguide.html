@@ -528,7 +528,8 @@ be run in arc-eager (<strong>-a nivreeager</strong>) or arc-standard (<strong>-a
 the <a href="optiondesc.html#nivre-allow_root">allow_root</a> option decides whether the parser will start parsing with 
 an artificial root token on the stack (true) or with an empty stack (false), and 
 the <a href="optiondesc.html#nivre-allow_reduce">allow_reduce</a> option decides whether the reduce transition is allowed even if the token on top 
-of the stack does not have a head (true) or whether only attached tokens can be reduced (false).</p>
+of the stack does not have a head (true) or whether only attached tokens can be reduced (false). The enforce_tree option can be used with the 
+arc-eager version to make sure that the output parse is a tree.</p>
 <p>Nivre's algorithm uses two data structures:</p>
 <ul>
 <li>A stack <strong>Stack</strong> of partially processed tokens, where <strong>Stack[i]</strong> is the i+1th token from the top of the stack, with the top being <strong>Stack[0]</strong>.</li>
@@ -541,6 +542,7 @@ to replicate the behavior of older versions, use the following settings:</p>
 <li><strong>root_handling = relaxed</strong> corresponds to <strong>allow_root = false</strong> and <strong>allow_reduce = true</strong></li>
 <li><strong>root_handling = strict</strong> corresponds to <strong>allow_root = false</strong> and <strong>allow_reduce = false</strong></li>
 </ul>
+
 <p>The new default behavior is <strong>allow_root = true</strong> and <strong>allow_reduce = false</strong>.</p> 
 
 <h4 id="covington">Covington</h4>

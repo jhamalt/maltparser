@@ -22,10 +22,11 @@ public abstract class NivreFactory implements AbstractParserFactory {
 	public ParserConfiguration makeParserConfiguration() throws MaltChainedException {
 		boolean allowRoot = (Boolean)manager.getOptionValue("nivre", "allow_root");
 		boolean allowReduce = (Boolean)manager.getOptionValue("nivre", "allow_reduce");
+		boolean enforceTree = (Boolean)manager.getOptionValue("nivre", "enforce_tree") && manager.getOptionValueString("config", "flowchart").equals("parse");
 		if (manager.isLoggerInfoEnabled()) {
-			manager.logInfoMessage("  Parser configuration : Nivre with with allow_root="+allowRoot+" and allow_reduce="+allowReduce+"\n");
+			manager.logInfoMessage("  Parser configuration : Nivre with allow_root="+allowRoot+", allow_reduce="+allowReduce+" and enforce_tree="+enforceTree+"\n");
 		}
-		return new NivreConfig(allowRoot, allowReduce);
+		return new NivreConfig(allowRoot, allowReduce, enforceTree);
 	}
 	
 	public Function makeFunction(String subFunctionName, FeatureRegistry registry) throws MaltChainedException {
@@ -33,3 +34,5 @@ public abstract class NivreFactory implements AbstractParserFactory {
 		return new NivreAddressFunction(subFunctionName, algorithm);
 	}
 }
+
+	

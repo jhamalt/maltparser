@@ -4,13 +4,13 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Formatter;
 import java.util.SortedSet;
 
 import org.maltparser.concurrent.graph.dataformat.ColumnDescription;
 import org.maltparser.concurrent.graph.dataformat.DataFormat;
 import org.maltparser.core.exception.MaltChainedException;
-import org.maltparser.core.lw.helper.Utils;
 import org.maltparser.core.symbol.SymbolTableHandler;
 import org.maltparser.core.symbol.hash.HashSymbolTableHandler;
 import org.maltparser.core.syntaxgraph.DependencyStructure;
@@ -20,6 +20,20 @@ import org.maltparser.core.syntaxgraph.node.DependencyNode;
 
 public class LWTest {
 	private static final String IGNORE_COLUMN_SIGN = "_";
+    public static String[] readSentences(BufferedReader reader) throws IOException {
+    	ArrayList<String> tokens = new ArrayList<String>();
+    	String line;
+		while ((line = reader.readLine()) != null) {
+			if (line.trim().length() == 0) {
+				break;
+			} else {
+				tokens.add(line.trim());
+			}
+
+		}
+    	return tokens.toArray(new String[tokens.size()]);
+    }
+    
 	public static DependencyStructure getOldDependencyGraph(DataFormat dataFormat, SymbolTableHandler symbolTableHandlers, String[] tokens) throws MaltChainedException {
 		DependencyStructure oldGraph = new org.maltparser.core.syntaxgraph.DependencyGraph(symbolTableHandlers);
 		for (int i = 0; i < tokens.length; i++) {
@@ -60,7 +74,7 @@ public class LWTest {
     		reader = new BufferedReader(new InputStreamReader(new FileInputStream(inFile), charSet));
     		int sentenceCounter = 0;
     		while (true) {
-	    		String[] goldTokens = Utils.readSentences(reader);
+	    		String[] goldTokens = readSentences(reader);
 	    		if (goldTokens.length == 0) {
 	    			break;
 	    		}

@@ -3,9 +3,9 @@
 	<classpathentry kind="src" output="classes" path="src"/>
 	<classpathentry kind="src" path="examples/apiexamples/srcex"/>
 	<classpathentry kind="var" path="JRE_LIB" sourcepath="JRE_SRC"/>
-	<classpathentry kind="con" path="/home/jha/workspace/MaltParser-1.7/${build.home}/classes"/>
-	<classpathentry kind="lib" path="/home/jha/workspace/MaltParser-1.7/lib/libsvm.jar"/>
-	<classpathentry kind="lib" path="/home/jha/workspace/MaltParser-1.7/lib/liblinear-1.8.jar"/>
-	<classpathentry kind="lib" path="/home/jha/workspace/MaltParser-1.7/lib/log4j.jar"/>
+	<classpathentry kind="con" path="/home/jha/workspace/MaltParser-1.8/${build.home}/classes"/>
+	<classpathentry kind="lib" path="/home/jha/workspace/MaltParser-1.8/lib/libsvm.jar"/>
+	<classpathentry kind="lib" path="/home/jha/workspace/MaltParser-1.8/lib/liblinear-1.8.jar"/>
+	<classpathentry kind="lib" path="/home/jha/workspace/MaltParser-1.8/lib/log4j.jar"/>
 	<classpathentry kind="output" path="dist/classes"/>
 </classpath>

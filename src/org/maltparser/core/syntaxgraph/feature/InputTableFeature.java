@@ -50,7 +50,6 @@ public final class InputTableFeature extends TableFeature {
 				featureValue.setIndexCode(0);
 				featureValue.setSymbol("#null");
 			}
-//			featureValue.setKnown(true);
 			featureValue.setNullValue(true);			
 		} else {
 			final DependencyNode node = (DependencyNode)a.getAddress();
@@ -58,14 +57,15 @@ public final class InputTableFeature extends TableFeature {
 				if (getSymbolTable() != null && node.hasLabel(getSymbolTable())) {
 					featureValue.setIndexCode(node.getLabelCode(getSymbolTable()));
 					featureValue.setSymbol(getSymbolTable().getSymbolCodeToString(node.getLabelCode(getSymbolTable())));
-//					featureValue.setKnown(getSymbolTable().getKnown(node.getLabelCode(getSymbolTable())));
 					featureValue.setNullValue(false);
 				} else {
 //						featureValue.setCode(0);
 //						featureValue.setSymbol("#null");
 					if (getSymbolTable() != null) {
-						featureValue.setIndexCode(getSymbolTable().getNullValueCode(NullValueId.NO_VALUE));
-						featureValue.setSymbol(getSymbolTable().getNullValueSymbol(NullValueId.NO_VALUE));
+						featureValue.setIndexCode(getSymbolTable().getNullValueCode(NullValueId.NO_NODE));
+						featureValue.setSymbol(getSymbolTable().getNullValueSymbol(NullValueId.NO_NODE));
+//						featureValue.setIndexCode(getSymbolTable().getNullValueCode(NullValueId.NO_VALUE));
+//						featureValue.setSymbol(getSymbolTable().getNullValueSymbol(NullValueId.NO_VALUE));
 					} 
 //						else {
 //							featureValue.setCode(0);
@@ -79,13 +79,7 @@ public final class InputTableFeature extends TableFeature {
 					featureValue.setIndexCode(getSymbolTable().getNullValueCode(NullValueId.ROOT_NODE));
 					featureValue.setSymbol(getSymbolTable().getNullValueSymbol(NullValueId.ROOT_NODE));
 				} 
-//					else {
-//						featureValue.setCode(0);
-//						featureValue.setSymbol("#null");
-//					}
-//					featureValue.setCode(0);
-//					featureValue.setSymbol("#null");
-//				featureValue.setKnown(true);
+
 				featureValue.setNullValue(true);
 			}
 		}
