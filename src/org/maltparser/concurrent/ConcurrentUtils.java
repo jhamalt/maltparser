@@ -5,6 +5,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class contains some basic methods to read sentence from file, write sentence to file, 
@@ -131,7 +132,7 @@ public class ConcurrentUtils {
      * 
      * @param goldTokens the sentence one with an array of tokens
      * @param outputTokens the sentence two with an array of tokens
-     * @return
+     * @return true, if the sentences differ otherwise false
      */
     public static boolean diffSentences(String[] goldTokens, String[] outputTokens) {
     	if (goldTokens.length != outputTokens.length) {
@@ -143,5 +144,43 @@ public class ConcurrentUtils {
     		}
     	}
     	return false;
+    }
+    
+    public static void simpleEvaluation(List<String[]> goldSentences, List<String[]> parsedSentences, int headColumn, int dependencyLabelColumn, PrintStream stream) {
+    	if (goldSentences.size() != parsedSentences.size()) {
+    		stream.println("Number of sentences in gold and output differs");
+    		return;
+    	}
+    	int nTokens = 0;
+    	int nCorrectHead = 0;
+    	int nCorrectLabel = 0;
+    	int nCorrectBoth = 0;
+    	
+    	for (int i = 0; i < goldSentences.size(); i++) {
+    		String[] goldTokens = goldSentences.get(i);
+    		String[] parsedTokens = parsedSentences.get(i);
+        	if (goldTokens.length != parsedTokens.length) {
+        		stream.println("Number of tokens in gold and output differs in sentence " + i);
+        		return;
+        	}
+        	for (int j = 0; j < goldTokens.length; j++) {
+        		nTokens++;
+        		String[] goldColumns = goldTokens[j].split("\t");
+        		String[] parsedColumns = parsedTokens[j].split("\t");
+//        		System.out.format("%s %s", goldColumns[headColumn],parsedColumns[headColumn]);
+        		if (goldColumns[headColumn].equals(parsedColumns[headColumn])) {
+        			nCorrectHead++;
+        		}
+        		if (goldColumns[dependencyLabelColumn].equals(parsedColumns[dependencyLabelColumn])) {
+        			nCorrectLabel++;
+        		}
+        		if (goldColumns[headColumn].equals(parsedColumns[headColumn]) && goldColumns[dependencyLabelColumn].equals(parsedColumns[dependencyLabelColumn])) {
+        			nCorrectBoth++;
+        		}
+        	}
+    	}
+    	stream.format("Labeled   attachment score: %d / %d * 100 = %.2f %%\n", nCorrectBoth, nTokens, (((float)nCorrectBoth/(float)nTokens)*100.0));
+    	stream.format("Unlabeled attachment score: %d / %d * 100 = %.2f %%\n", nCorrectHead, nTokens, (((float)nCorrectHead/(float)nTokens)*100.0));
+    	stream.format("Label accuracy score:       %d / %d * 100 = %.2f %%\n", nCorrectLabel, nTokens, (((float)nCorrectLabel/(float)nTokens)*100.0));
     }
 }

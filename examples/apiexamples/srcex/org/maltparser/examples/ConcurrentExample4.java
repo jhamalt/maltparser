@@ -15,27 +15,12 @@ import org.maltparser.concurrent.ConcurrentMaltParserService;
 import org.maltparser.concurrent.ConcurrentUtils;
 import org.maltparser.core.exception.MaltChainedException;
 
-
-/**
- * This example loads the the Swedish model "output/swemalt-mini.mco" and reads all sentences to 
- * a list and then n threads are created to parse the sentences. Default number of
- * threads are 5, but this value can easily be changed by passing an integer between 1 to 275 to the program. 
- * 
- * The input sentences in "../data/swemalt-mini/parsed/sv-stb-dep-mini-test-parsed.conll" contain already parsed 
- * sentences with the same model by using the MaltParser program (single-threaded).
- * 
- * Finally output sentences are compared with input sentences to see if there are any difference. If success then no differences 
- * should by found (0 differs).
- * 
- * @author Johan Hall
- *
- */
-public class ConcurrentExample2 implements Runnable {
+public class ConcurrentExample4 {
 	private final List<String[]> inputSentences;
 	private final List<String[]> outputSentences;
 	private final ConcurrentMaltParserModel model;
 	
-	public ConcurrentExample2(List<String[]> sentences, ConcurrentMaltParserModel _model) {
+	public ConcurrentExample4(List<String[]> sentences, ConcurrentMaltParserModel _model) {
 		this.inputSentences = new ArrayList<String[]>(sentences);
 		this.outputSentences = Collections.synchronizedList(new ArrayList<String[]>());
 		this.model = _model;
@@ -66,10 +51,10 @@ public class ConcurrentExample2 implements Runnable {
 	public static void main(String[] args) {
 		long startTime = System.nanoTime();
 		
-		// Loading the Swedish model swemalt-mini
+		// Loading
 		ConcurrentMaltParserModel swemaltMiniModel = null;
 		try {
-			URL swemaltMiniModelURL = new File("output/swemalt-mini.mco").toURI().toURL();
+			URL swemaltMiniModelURL = new File("engmalt.linear-1.7.mco").toURI().toURL();
 			swemaltMiniModel = ConcurrentMaltParserService.initializeParserModel(swemaltMiniModelURL);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -80,7 +65,7 @@ public class ConcurrentExample2 implements Runnable {
 		List<String[]> inWithoutGoldSentences = new ArrayList<String[]>();
     	BufferedReader reader = null;
     	try {
-    		reader = new BufferedReader(new InputStreamReader(new FileInputStream("../data/swemalt-mini/parsed/sv-stb-dep-mini-test-parsed.conll"), "UTF-8"));
+    		reader = new BufferedReader(new InputStreamReader(new FileInputStream("WSJ00.basic.conll"), "UTF-8"));
     		while (true) {
     			// Reads a sentence from the input file
 	    		String[] goldTokens = ConcurrentUtils.readSentence(reader);
@@ -171,7 +156,8 @@ public class ConcurrentExample2 implements Runnable {
 	        for (int i = 0; i < outSentences.size(); i++) {
 	        	diffCount = ConcurrentUtils.diffSentences(inSentences.get(i), outSentences.get(i))?diffCount+1:diffCount;;
 	        }
-	        System.out.println("Number of parsed sentences is "+ outSentences.size() +" and "+diffCount + " differs compared with the parsed input."); 
+	        System.out.println("Number of parsed sentences is "+ outSentences.size() +" and "+diffCount + " differs compared with the parsed input.");
+	        ConcurrentUtils.simpleEvaluation(inSentences, outSentences, 6, 7, System.out);
         } else {
         	System.out.println("Number of sentences differs - in="+inSentences.size()+", out="+outSentences.size());
         }

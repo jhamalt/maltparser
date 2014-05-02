@@ -154,7 +154,7 @@ public class MaltLibsvmModel implements Serializable, MaltLibModel {
 		
         int max = vote[0];
         int max_index = 0;
-		for (i = 1; i < dec_values.length; i++) {
+		for (i = 1; i < vote.length; i++) {
 			if (vote[i] > max) {
 				max = vote[i];
 				max_index = i;

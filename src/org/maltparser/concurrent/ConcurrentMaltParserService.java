@@ -26,6 +26,13 @@ public final class ConcurrentMaltParserService {
 		return optionContainerCounter++;
 	}
 	
+	private static synchronized void loadOptions() throws MaltChainedException {
+    	if (!OptionManager.instance().hasOptions()) {
+    		OptionManager.instance().loadOptionDescriptionFile();
+    		OptionManager.instance().generateMaps();
+    	}
+	}
+	
     /**
      * Initialize a MaltParser model from a MaltParser model file (.mco)
      * 
@@ -46,10 +53,7 @@ public final class ConcurrentMaltParserService {
      * @throws MaltChainedException
      */
     public static ConcurrentMaltParserModel initializeParserModel(URL mcoURL) throws MaltChainedException {
-    	if (!OptionManager.instance().hasOptions()) {
-    		OptionManager.instance().loadOptionDescriptionFile();
-    		OptionManager.instance().generateMaps();
-    	}
+    	loadOptions();
     	int optionContainer = getNextOptionContainerCounter();
     	String parserModelName = Utils.getInternalParserModelName(mcoURL);
 		OptionManager.instance().parseCommandLine("-m parse", optionContainer);
