@@ -82,7 +82,7 @@ Documentation: docs/index.html
 </pre>
 <p>Here you can see the basic usage and options. To get all available options:</p>
 <pre>
-prompt> java -jar maltparser-@version@.jar -h
+prompt>$ java -jar maltparser-@version@.jar -h
 </pre> 
 <p>All these options are also described in a <a href="options.html">short documentation</a> and in a <a href="optiondesc.html">full documentation</a>.</p>
 
@@ -111,19 +111,21 @@ learning method (LIBSVM).</p>
                              Sweden                                          
 -----------------------------------------------------------------------------
 
-Started: Sun Mar 11 12:31:34 CET 2012
+Started: Fri May 02 23:45:18 CEST 2014
   Transition system    : Arc-Eager
-  Parser configuration : Nivre with with allow_root=true and allow_reduce=false
-  Feature model        : NivreEager.xml
-  Learner              : libsvm
+  Parser configuration : Nivre with allow_root=true, allow_reduce=false and enforce_tree=false
   Oracle               : Arc-Eager
-  Data Format          : file:////mnt/malt/exp/test/1.7/maltparser-1.7/test/conllx.xml
-.          	      1	      0s	      3MB
-.          	     10	      0s	      4MB
-           	     32	      0s	      7MB
-Creating LIBSVM model odm0.libsvm.moo
-Learning time: 00:00:00 (728 ms)
-Finished: Sun Mar 11 12:31:35 CET 2012
+  Data Format          : conllx.xml
+.          	      1	      0s	      5MB
+.          	     10	      0s	      6MB
+           	     32	      0s	      8MB
+Creating Liblinear model odm0.liblinear.moo
+- Read all training instances.
+- Train a parser model using LibLinear.
+- Optimize the memory usage
+- Save the Liblinear model odm0.liblinear.moo
+Learning time: 00:00:01 (1290 ms)
+Finished: Fri May 02 23:45:19 CEST 2014
 </pre>
 <p>Most of the logging information is self-explaining: it tells you that the parser is started at a certain time and date and that it reads sentences 
 from a specified file containing 32 sentences. It continues with information about the learning models that are created, in this case only
@@ -135,7 +137,7 @@ named <strong>test.mco</strong>. Finally, the parser informs you about the learn
 formatted according to the format that was used during training (except that the output columns for head and dependency relation are missing).
 In this case tokens are represented by the first six columns of the CoNLL data format. To parse type the following:</p>
 <pre>
-prompt> $ java -jar maltparser-@version@.jar -c test -i examples/data/talbanken05_test.conll -o out.conll -m parse
+prompt> java -jar maltparser-@version@.jar -c test -i examples/data/talbanken05_test.conll -o out.conll -m parse
 </pre>
 <p>where <strong>-c test</strong> is the name of the configuration (the prefix file name of <strong>test.mco</strong>), <strong>-i examples/data/talbanken05_test.conll</strong> tells 
 the parser where to find the input data, <strong>-o out.conll</strong> is the output file name, and finally <strong>-m parse</strong> specifies that the parser should be 
@@ -204,14 +206,6 @@ two attributes: <strong>name</strong> that corresponds to an option name and <st
 		    &lt;option name="allow_root" value="false"/&gt;
 			&lt;option name="allow_reduce" value="false"/&gt;
 		&lt;/optiongroup&gt;
-		&lt;optiongroup groupname="lib"&gt;
-			&lt;option name="options" value="-s_0_-t_1_-d_2_-g_0.2_-c_1.0_-r_0.4_-e_0.1"/&gt;
-		&lt;/optiongroup&gt;
-		&lt;optiongroup groupname="guide"&gt;
-			&lt;option name="data_split_column" value="POSTAG"/&gt;
-			&lt;option name="data_split_structure" value="Input[0]"/&gt;
-			&lt;option name="data_split_threshold" value="100"/&gt;
-		&lt;/optiongroup&gt;
 	&lt;/optioncontainer&gt;
 &lt;/experiment&gt;
 </pre>
@@ -229,8 +223,7 @@ want to create a configuration that has the same settings as the option file wit
 <pre>
 prompt> java -jar maltparser-@version@.jar -c example1 -m learn 
                            -i examples/data/talbanken05_train.conll -a nivrestandard 
-                           -ne false -nr false -lo -s_0_-t_1_-d_2_-g_0.2_-c_1.0_-r_0.4_-e_0.1 
-                           -d POSTAG -s Input[0] -T 100
+                           -ne false -nr false 
 </pre>
 <p>To parse using one of the three configurations you simply type:</p>
 <pre>
@@ -276,26 +269,25 @@ prompt> java -jar maltparser-@version@.jar -c test -m info
                              Sweden                                          
 -----------------------------------------------------------------------------
 
-Started: Sun Mar 11 12:48:36 CET 2012
+Started: Fri May 02 23:49:37 CEST 2014
 CONFIGURATION
 Configuration name:   test
 Configuration type:   singlemalt
-Created:              Sun Mar 11 12:48:16 CET 2012
+Created:              Fri May 02 23:45:18 CEST 2014
 
 SYSTEM
 Operating system architecture: amd64
 Operating system name:         Linux
-JRE vendor name:               Sun Microsystems Inc.
-JRE version number:            1.6.0_26
+JRE vendor name:               Oracle Corporation
+JRE version number:            1.7.0_55
 
 MALTPARSER
-Version:                       @version@
-Build date:                    March 11 2012
+Version:                       1.8
+Build date:                    May 2 2014
 
 SETTINGS
 2planar
   reduceonswitch (-2pr)                 false
-  planar_root_handling (-prh)           normal
 config
   workingdir (  -w)                     user.dir
   name (  -c)                           test
@@ -315,7 +307,7 @@ guide
   decision_settings (-gds)              T.TRANS+A.DEPREL
   kbest_type ( -kt)                     rank
   data_split_structure (  -s)           
-  learner (  -l)                        libsvm
+  learner (  -l)                        liblinear
   kbest (  -k)                          -1
   features (  -F)                       
   classitem_separator (-gcs)            ~
@@ -333,8 +325,11 @@ lib
   external ( -lx)                       
   verbosity ( -lv)                      silent
   options ( -lo)                        
+multiplanar
+  planar_root_handling (-prh)           normal
 nivre
   allow_root ( -nr)                     true
+  enforce_tree ( -nt)                   false
   allow_reduce ( -ne)                   false
 output
   charset ( -oc)                        UTF-8
@@ -375,13 +370,21 @@ InputColumn(POSTAG,Input[2])
 InputColumn(POSTAG,Input[3])
 InputColumn(POSTAG,Stack[0])
 InputColumn(POSTAG,Stack[1])
+Merge(InputColumn(POSTAG,Input[0]),OutputColumn(DEPREL,ldep(Input[0])))
+Merge(InputColumn(POSTAG,Stack[0]),InputColumn(POSTAG,Input[0]))
+Merge(InputColumn(POSTAG,Stack[0]),OutputColumn(DEPREL,Stack[0]))
+Merge3(InputColumn(POSTAG,Input[0]),InputColumn(POSTAG,Input[1]),InputColumn(POSTAG,Input[2]))
+Merge3(InputColumn(POSTAG,Input[1]),InputColumn(POSTAG,Input[2]),InputColumn(POSTAG,Input[3]))
+Merge3(InputColumn(POSTAG,Stack[0]),InputColumn(POSTAG,Input[0]),InputColumn(POSTAG,Input[1]))
+Merge3(InputColumn(POSTAG,Stack[0]),OutputColumn(DEPREL,ldep(Stack[0])),OutputColumn(DEPREL,rdep(Stack[0])))
+Merge3(InputColumn(POSTAG,Stack[1]),InputColumn(POSTAG,Stack[0]),InputColumn(POSTAG,Input[0]))
 OutputColumn(DEPREL,Stack[0])
 OutputColumn(DEPREL,ldep(Input[0]))
 OutputColumn(DEPREL,ldep(Stack[0]))
 OutputColumn(DEPREL,rdep(Stack[0]))
 
-libsvm INTERFACE
--s 0 -t 1 -d 2 -g 0.2 -r 0.0 -n 0.5 -m 100 -c 1.0 -e 1.0 -p 0.1 -h 1 -b 0
+liblinear INTERFACE
+Finished: Fri May 02 23:49:37 CEST 2014
 </pre>
 <p>The information is grouped into different categories:</p>
 <table class="bodyTable">
@@ -932,16 +935,72 @@ which makes it possible to recover the phrase structure with both phrase labels 
 download <a href="download.html">MaltParser 1.2</a> and read the offline user guide of this version to parse phrase structure with MaltParser 1.2.</p>
 
 <h3 id="api">MaltParser API</h3>
-<p>Other programs can invoke Maltparser in various ways, but the easiest way is to use the <em>org.maltparser.MaltParserService</em> class.</p>
+<p>From version MaltParser-1.8 there is a new interface to MaltParser located in org.maltparser.concurrent and contains following classes:</p>
+<ul>
+<li>org.maltparser.concurrent.ConcurrentMaltParserModel</li>
+<li>org.maltparser.concurrent.ConcurrentMaltParserService</li>
+<li>org.maltparser.concurrent.ConcurrentUtils</li>
+</ul>
+<p>This interface can only be used during parsing time and can hopefully be used in a multi-threaded environment. If you need an interface to MaltParser 
+during training of parser models then you have to use the old interface (see below).</p>
 
+<p>The concurrent interface uses a more "light-weighted" parser and hopefully supports almost all features. One know exception is feature propagation is not supported
+in the new "light-weighted" parser.</p>
+
+<p>To compile the examples in srcex/org/maltparser/examples</p>
+<pre>
+cd examples/apiexamples
+javac -d classes -cp ../../maltparser-@version@.jar:. srcex/org/maltparser/examples/*.java
+</pre>
+<p>To run the examples you first need to create a Swedish parser model swemalt-mini.mco by using MaltParser:</p>
+<pre>  
+java -jar ../../maltparser-@version@.jar -w output -c swemalt-mini -i ../data/swemalt-mini/gold/sv-stb-dep-mini-train.conll -a stacklazy -m learn \
+-l liblinear -llo -s_4_-c_0.1 -d CPOSTAG -s Stack[0] -T 1000 -F ../data/swemalt-mini/swedish-swap.xml
+</pre>
+<p>Note that swemalt-mini.mco is not the same as swemalt.mco you find on http://www.maltparser.org. swemalt-mini.mco is trained on approximately 5% of 
+the training data and will not perform as well as the pre-trained model find on http://www.maltparser.org.</p>
+<pre>
+java -cp classes:../../maltparser-@version@.jar org.maltparser.examples.ParseSentence1
+java -cp classes:../../maltparser-@version@.jar org.maltparser.examples.ParseSentence2
+java -cp classes:../../maltparser-@version@.jar org.maltparser.examples.ParseSentence3
+java -cp classes:../../maltparser-@version@.jar org.maltparser.examples.ConcurrentExample1
+java -cp classes:../../maltparser-@version@.jar org.maltparser.examples.ConcurrentExample2
+java -cp classes:../../maltparser-@version@.jar org.maltparser.examples.ConcurrentExample3
+</pre>
+
+<h4>Old MaltParserService interface</h4>
+<p>Before MaltParser-1.8 there was another interface to MaltParser. Note that this interface can only be used in a single-threaded environment 
+and the interface doesn't use the light-weighted parser.</p> 
 <p>There are two ways to call the MaltParserService:</p>
 
 <ul>
 <li>By running experiments, which allows other programs to train a parser model or parse with a parser model. IO-handling is done by MaltParser.</li>
 <li>By first initializing a parser model and then calling the method parse() for each sentence that should be parsed by MaltParser. IO-handling of the sentence is then done by the third-party program.</li>
 </ul>
-<p>For more information about how to use MaltParserService, please see the examples provided in the directory <strong>examples/apiexamples/srcex</strong></p>
+<p>For more information about how to use MaltParserService, please see the examples provided in the directory <strong>examples/apiexamples/srcex/org/maltparser/examples/old</strong></p>
+<p>To compile the old examples (srcex/org/maltparser/examples/old) used by MaltParser-1.7.2 and previous versions of MaltParser</p>
+<pre>
+javac -d classes -cp ../../maltparser-@version@.jar:. srcex/org/maltparser/examples/old/*.java
+</pre>
+<p>To run the old examples</p>
+<pre>
+java -cp classes:../../maltparser-@version@.jar org.maltparser.examples.old.ReadWriteCoNLL ../data/talbanken05_test.conll out.conll ../../appdata/dataformat/conllx.xml UTF-8
+java -cp classes:../../maltparser-@version@.jar org.maltparser.examples.old.CreateDependencyGraph
+java -cp classes:../../maltparser-@version@.jar org.maltparser.examples.old.CreatePhraseStructureGraph
+java -cp classes:../../maltparser-@version@.jar org.maltparser.examples.old.TrainingExperiment
+java -cp classes:../../maltparser-@version@.jar org.maltparser.examples.old.ParsingExperiment
+java -cp classes:../../maltparser-@version@.jar org.maltparser.examples.old.ParseSentence1
+java -cp classes:../../maltparser-@version@.jar org.maltparser.examples.old.ParseSentence2
+java -cp classes:../../maltparser-@version@.jar org.maltparser.examples.old.ParseSentence3
+</pre>
 
+
+
+
+<p>Other programs can invoke Maltparser in various ways, but the easiest way is to use the <em>org.maltparser.MaltParserService</em> class.</p>
+
+
+<h3 id="maven">Maven repository</h3>
 <p>Since version 1.7, MaltParser is also available via the official <a href="http://search.maven.org/#search|ga|1|maltparser"  onclick="_gaq.push(['_trackEvent', 'Maven', 'OutLink', 'Maven repository']);">Maven repository</a>.</p>
 <pre>
 &lt;dependency&gt;
