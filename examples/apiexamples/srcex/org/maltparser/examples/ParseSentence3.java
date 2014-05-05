@@ -9,7 +9,7 @@ import org.maltparser.concurrent.ConcurrentUtils;
 
 /**
  * This example shows how to parse a sentence with MaltParser by first initialize a parser model. This example is the same as ParseSentence1 
- * except that we use the parseTokens method in MaltParserService that returns an array of tokens with information about it head index 
+ * except that we use the parseTokens method in ConcurrentMaltParserModel that returns an array of tokens with information about it head index 
  * and dependency type. 
  * 
  * To run this example requires that you have created output/swemalt-mini.mco, please read the README file.

@@ -20,7 +20,7 @@ java -jar ../../maltparser-@version@.jar -w output -c swemalt-mini -i ../data/sw
 -l liblinear -llo -s_4_-c_0.1 -d CPOSTAG -s Stack[0] -T 1000 -F ../data/swemalt-mini/swedish-swap.xml
 
 Note that swemalt-mini.mco is not the same as swemalt.mco you find on http://www.maltparser.org. swemalt-mini.mco is trained on approximately 5% of 
-the training data and will perform as well as the pre-trained model find on http://www.maltparser.org.
+the training data and will not perform as well as the pre-trained model found on http://www.maltparser.org.
 
 java -cp classes:../../maltparser-@version@.jar org.maltparser.examples.ParseSentence1
 java -cp classes:../../maltparser-@version@.jar org.maltparser.examples.ParseSentence2
@@ -30,8 +30,8 @@ java -cp classes:../../maltparser-@version@.jar org.maltparser.examples.Concurre
 java -cp classes:../../maltparser-@version@.jar org.maltparser.examples.ConcurrentExample3
 
 ====================================================================================================================================================
-Before MaltParser-1.8 there was another interface to MaltParser. This interface is deprecated, but it can still be used. Note that this interface
-cannot be only be used in a single-threaded environment and the interface doesn't use the light-weighted parser.   
+Before MaltParser-1.8 there was another interface to MaltParser.  Note that this interface
+can only be used in a single-threaded environment and the interface doesn't use the light-weighted parser.   
 
 To compile the old examples (srcex/org/maltparser/examples/old) used by MaltParser-1.7.2 and previous versions of MaltParser
 ----------------------------------------------------------------------------------------------------------------------------
