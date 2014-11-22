@@ -748,33 +748,49 @@ public final class LWNode implements DependencyNode, Node {
 	}
 	
 	public void addColumnLabels(String[] columnLabels) throws MaltChainedException {
-		SortedMap<ColumnDescription,String> edgeLabels = new TreeMap<ColumnDescription,String>();
-		int tmpHeadIndex = -1;
-		if (columnLabels != null) {
-			for (int i = 0; i < columnLabels.length; i++) {
-				ColumnDescription column = graph.getDataFormat().getColumnDescription(i);
-				if (column.getCategory() == ColumnDescription.HEAD) {
-					tmpHeadIndex = Integer.parseInt(columnLabels[i]);
-				} else if (column.getCategory() == ColumnDescription.INPUT) {
-					addLabel(graph.getSymbolTables().addSymbolTable(column.getName()), columnLabels[i]);
-				} else if (column.getCategory() == ColumnDescription.DEPENDENCY_EDGE_LABEL) {
-					edgeLabels.put(column, columnLabels[i]);
+		this.addColumnLabels(columnLabels, true);
+	}
+	
+	public void addColumnLabels(String[] columnLabels, boolean addEdges) throws MaltChainedException {
+		if (addEdges == true) {
+			SortedMap<ColumnDescription,String> edgeLabels = new TreeMap<ColumnDescription,String>();
+			int tmpHeadIndex = -1;
+			if (columnLabels != null) {
+				for (int i = 0; i < columnLabels.length; i++) {
+					ColumnDescription column = graph.getDataFormat().getColumnDescription(i);
+					if (column.getCategory() == ColumnDescription.HEAD) {
+						tmpHeadIndex = Integer.parseInt(columnLabels[i]);
+					} else if (column.getCategory() == ColumnDescription.INPUT) {
+						addLabel(graph.getSymbolTables().addSymbolTable(column.getName()), columnLabels[i]);
+					} else if (column.getCategory() == ColumnDescription.DEPENDENCY_EDGE_LABEL) {
+						edgeLabels.put(column, columnLabels[i]);
+					}
 				}
 			}
-		}
-		if (tmpHeadIndex == -1) {
-			this.headEdge = null;
+			if (tmpHeadIndex == -1) {
+				this.headEdge = null;
+			} else {
+				if (tmpHeadIndex < -1) {
+					throw new LWGraphException("Not allowed to have head index less than -1.");
+				}
+				if (this.index == 0 && tmpHeadIndex != -1) {
+					throw new LWGraphException("Not allowed to add head to a root node.");
+				}
+				if (this.index == tmpHeadIndex) {
+					throw new LWGraphException("Not allowed to add head to itself");
+				}
+				this.headEdge = new LWEdge(this.graph.getNode(tmpHeadIndex), this, edgeLabels);
+			}
 		} else {
-			if (tmpHeadIndex < -1) {
-				throw new LWGraphException("Not allowed to have head index less than -1.");
+			if (columnLabels != null) {
+				for (int i = 0; i < columnLabels.length; i++) {
+					ColumnDescription column = graph.getDataFormat().getColumnDescription(i);
+					if (column.getCategory() == ColumnDescription.INPUT) {
+						addLabel(graph.getSymbolTables().addSymbolTable(column.getName()), columnLabels[i]);
+					} 
+				}
 			}
-			if (this.index == 0 && tmpHeadIndex != -1) {
-				throw new LWGraphException("Not allowed to add head to a root node.");
-			}
-			if (this.index == tmpHeadIndex) {
-				throw new LWGraphException("Not allowed to add head to itself");
-			}
-			this.headEdge = new LWEdge(this.graph.getNode(tmpHeadIndex), this, edgeLabels);
+			this.headEdge = null;
 		}
 	}
 	

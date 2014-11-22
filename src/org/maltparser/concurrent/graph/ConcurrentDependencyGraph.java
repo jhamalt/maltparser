@@ -257,9 +257,9 @@ public final class ConcurrentDependencyGraph {
 	public SortedSet<ConcurrentDependencyEdge> getEdges() throws ConcurrentGraphException {
 		SortedSet<ConcurrentDependencyEdge> edges = Collections.synchronizedSortedSet(new TreeSet<ConcurrentDependencyEdge>());
 		for (int i = 1; i < nodes.length; i++) {
-			if (nodes[i].hasHead()) {
-				nodes[i].getHeadEdge();
-				edges.add(nodes[i].getHeadEdge());
+			ConcurrentDependencyEdge edge = nodes[i].getHeadEdge();
+			if (edge != null) {
+				edges.add(edge);
 			}
 		}
 		return edges;

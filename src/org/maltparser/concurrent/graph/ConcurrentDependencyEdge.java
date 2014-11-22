@@ -23,10 +23,10 @@ public final class ConcurrentDependencyEdge implements Comparable<ConcurrentDepe
 	}
 	
 	protected ConcurrentDependencyEdge(DataFormat dataFormat, ConcurrentDependencyNode _source, ConcurrentDependencyNode _target, SortedMap<Integer, String> _labels) throws ConcurrentGraphException {
-		if (_source != null) {
+		if (_source == null) {
 			throw new ConcurrentGraphException("Not allowed to have an edge without a source node");
 		}
-		if (_target != null) {
+		if (_target == null) {
 			throw new ConcurrentGraphException("Not allowed to have an edge without a target node");
 		}
 		this.source = _source;

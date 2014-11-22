@@ -44,6 +44,10 @@ public final class LWDependencyGraph implements DependencyStructure {
 	}
 	
 	public LWDependencyGraph(DataFormat _dataFormat, SymbolTableHandler _symbolTables, String[] inputTokens, String defaultRootLabel) throws MaltChainedException {
+		this(_dataFormat, _symbolTables, inputTokens, defaultRootLabel, true);
+	}
+	
+	public LWDependencyGraph(DataFormat _dataFormat, SymbolTableHandler _symbolTables, String[] inputTokens, String defaultRootLabel, boolean addEdges) throws MaltChainedException {
 		this.dataFormat = _dataFormat;
 		this.symbolTables = _symbolTables;
 		this.rootLabels = new RootLabels();
@@ -56,7 +60,7 @@ public final class LWDependencyGraph implements DependencyStructure {
 		}
 		
 		for (int i = 0; i < inputTokens.length; i++) {
-			nodes.get(i+1).addColumnLabels(inputTokens[i].split(TAB_SIGN));
+			nodes.get(i+1).addColumnLabels(inputTokens[i].split(TAB_SIGN), addEdges);
 		}
 		// Check graph
 		for (int i = 0; i < nodes.size(); i++) {
@@ -548,5 +552,15 @@ public final class LWDependencyGraph implements DependencyStructure {
 	@Override
 	public void setDefaultRootEdgeLabels(String rootLabelOption, SortedMap<String, SymbolTable> edgeSymbolTables) throws MaltChainedException {
 		rootLabels.setRootLabels(rootLabelOption, edgeSymbolTables);
+	}
+	
+	public String toString() {
+		final StringBuilder sb = new StringBuilder();
+		for (LWNode node : nodes) {
+			sb.append(node.toString().trim());
+			sb.append('\n');
+		}
+		sb.append('\n');
+		return sb.toString();
 	}
 }

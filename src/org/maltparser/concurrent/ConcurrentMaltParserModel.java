@@ -104,7 +104,7 @@ public final class ConcurrentMaltParserModel {
 		    throw new MaltChainedException("Nothing to parse. ");
 		}
 
-		LWDependencyGraph parseGraph = new LWDependencyGraph(concurrentDataFormat, new ParseSymbolTableHandler(parentSymbolTableHandler), tokens, defaultRootLabel);
+		LWDependencyGraph parseGraph = new LWDependencyGraph(concurrentDataFormat, new ParseSymbolTableHandler(parentSymbolTableHandler), tokens, defaultRootLabel, false);
 		
 		singleMalt.parse(parseGraph);
 		if (markingStrategy != 0 || coveredRoot) { 

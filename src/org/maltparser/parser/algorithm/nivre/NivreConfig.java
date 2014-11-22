@@ -173,6 +173,12 @@ public class NivreConfig extends ParserConfiguration {
 		sb.append(input.size());
 		sb.append(", ");
 		sb.append(dependencyGraph.nEdges());
+		sb.append(", ");
+		sb.append(allowRoot);		
+		sb.append(", ");
+		sb.append(allowReduce);		
+		sb.append(", ");
+		sb.append(enforceTree);
 		return sb.toString();
 	}
 }
