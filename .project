@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>MaltParser-1.3</name>
+	<name>MaltParser</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -29,11 +29,4 @@
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>classes</name>
-			<type>2</type>
-			<location>/home/jha/workspace/MaltParser-1.7/dist/maltparser-1.7.3/classes</location>
-		</link>
-	</linkedResources>
 </projectDescription>
