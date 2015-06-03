@@ -29,6 +29,8 @@ public abstract class FeatureValue extends FunctionValue {
 	
 	public abstract boolean isMultiple();
 	
+	public abstract int nFeatureValues();
+	
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;

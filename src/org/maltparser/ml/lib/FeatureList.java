@@ -34,26 +34,27 @@ public class FeatureList  {
 	 * @param x a MaltFeatureNode object
 	 */
 	public void add(MaltFeatureNode x) {
-		if (list.size() == 0) {
-			list.add(x);
-		} else {
-	        int low = 0;
-	        int high = list.size() - 1;
-	        int mid;
-	        MaltFeatureNode y;
-	        while (low <= high ) {
-	            mid = (low + high) / 2;
-	            y = list.get(mid); 
-	            if (y.compareTo(x) < 0 ) {
-	                low = mid + 1;
-	            } else if (y.compareTo(x) > 0 ) {
-	                high = mid - 1;
-	            } else {
-	                break;
-	            }
-	        }
-	        list.add(low,x);
-		}
+		list.add(x);
+//		if (list.size() == 0) {
+//			list.add(x);
+//		} else {
+//	        int low = 0;
+//	        int high = list.size() - 1;
+//	        int mid;
+//	        MaltFeatureNode y;
+//	        while (low <= high ) {
+//	            mid = (low + high) / 2;
+//	            y = list.get(mid); 
+//	            if (y.compareTo(x) < 0 ) {
+//	                low = mid + 1;
+//	            } else if (y.compareTo(x) > 0 ) {
+//	                high = mid - 1;
+//	            } else {
+//	                break;
+//	            }
+//	        }
+//	        list.add(low,x);
+//		}
 	}
 	
 	/**
@@ -94,9 +95,12 @@ public class FeatureList  {
 	public MaltFeatureNode[] toArray() {
 		final MaltFeatureNode[] nodes = new MaltFeatureNode[list.size()];
 		final int len = nodes.length;
+
 		for (int i = 0; i < len; i++) {
 			nodes[i] = list.get(i);
+
 		}
+
 		return nodes;
 	}
 }

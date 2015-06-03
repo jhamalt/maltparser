@@ -59,19 +59,11 @@ public final class InputTableFeature extends TableFeature {
 					featureValue.setSymbol(getSymbolTable().getSymbolCodeToString(node.getLabelCode(getSymbolTable())));
 					featureValue.setNullValue(false);
 				} else {
-//						featureValue.setCode(0);
-//						featureValue.setSymbol("#null");
 					if (getSymbolTable() != null) {
 						featureValue.setIndexCode(getSymbolTable().getNullValueCode(NullValueId.NO_NODE));
 						featureValue.setSymbol(getSymbolTable().getNullValueSymbol(NullValueId.NO_NODE));
-//						featureValue.setIndexCode(getSymbolTable().getNullValueCode(NullValueId.NO_VALUE));
-//						featureValue.setSymbol(getSymbolTable().getNullValueSymbol(NullValueId.NO_VALUE));
+
 					} 
-//						else {
-//							featureValue.setCode(0);
-//							featureValue.setSymbol("#null");
-//						}
-//					featureValue.setKnown(true);
 					featureValue.setNullValue(true);
 				}	
 			} else {

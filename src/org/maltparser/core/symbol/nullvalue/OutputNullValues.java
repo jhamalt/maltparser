@@ -64,7 +64,7 @@ public class OutputNullValues extends NullValues {
 			symbol2CodeMap.put("#novalue#", 2);
 			code2SymbolMap.put(0, "#null#");
 			code2SymbolMap.put(1, "#rootnode#");
-			code2SymbolMap.put(1, "#novalue#");
+			code2SymbolMap.put(2, "#novalue#");
 			setNextCode(3);
 		}
 	}

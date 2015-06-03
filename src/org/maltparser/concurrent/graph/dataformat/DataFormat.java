@@ -15,6 +15,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.maltparser.concurrent.graph.ConcurrentGraphException;
 import org.maltparser.core.exception.MaltChainedException;
+import org.maltparser.core.helper.HashMap;
 import org.maltparser.core.helper.URLFinder;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -27,28 +28,35 @@ import org.xml.sax.SAXException;
 public class DataFormat {
 	private final String name;
 	private final ColumnDescription[] columns;
+	private final HashMap<String, ColumnDescription> columnMap;
 	
 	public DataFormat(DataFormat dataFormat) {
 		this.name = dataFormat.name;
 		this.columns = new ColumnDescription[dataFormat.columns.length];
+		this.columnMap = new HashMap<String, ColumnDescription>();
 		for (int i = 0; i < dataFormat.columns.length; i++) {
 			this.columns[i] = new ColumnDescription(dataFormat.columns[i]);
+			this.columnMap.put(this.columns[i].getName(), this.columns[i]);
 		}
 	}
 	
 	public DataFormat(String name, ColumnDescription[] columns) {
 		this.name = name;
 		this.columns = new ColumnDescription[columns.length];
+		this.columnMap = new HashMap<String, ColumnDescription>();
 		for (int i = 0; i < columns.length; i++) {
 			this.columns[i] = new ColumnDescription(columns[i]);
+			this.columnMap.put(this.columns[i].getName(), this.columns[i]);
 		}
 	}
 	
 	public DataFormat(String name, ArrayList<ColumnDescription> columns) {
 		this.name = name;
 		this.columns = new ColumnDescription[columns.size()];
+		this.columnMap = new HashMap<String, ColumnDescription>();
 		for (int i = 0; i < columns.size(); i++) {
 			this.columns[i] = new ColumnDescription(columns.get(i));
+			this.columnMap.put(this.columns[i].getName(), this.columns[i]);
 		}
 	}
 	
@@ -61,8 +69,13 @@ public class DataFormat {
 	}
 	
 	public ColumnDescription getColumnDescription(String columnName) {
+		ColumnDescription columnDescription = columnMap.get(columnName);
+		if (columnDescription != null)
+			return columnDescription;
+		
 		for (int i = 0; i < columns.length; i++) {
 			if (columns[i].getName().equals(columnName.toUpperCase())) {
+				this.columnMap.put(columnName, columns[i]);
 				return columns[i];
 			}
 		}

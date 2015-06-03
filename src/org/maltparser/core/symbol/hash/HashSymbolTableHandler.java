@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -118,7 +119,51 @@ public class HashSymbolTableHandler implements SymbolTableHandler {
 		}
 	}
 	
+	public void loadHeader(Scanner scanner) throws MaltChainedException {
+		Pattern tabPattern = Pattern.compile("\t");
+		try {
+			while (scanner.hasNextLine()){
+				String fileLine = scanner.nextLine();
+				if (fileLine.length() == 0) {
+					break;
+				}
+				String items[];
+				try {
+					items = tabPattern.split(fileLine.trim());
+				} catch (PatternSyntaxException e) {
+					throw new SymbolException("The header line of the symbol table  '"+fileLine.substring(1)+"' could not split into atomic parts. ", e);
+				}
+				if (items.length != 3) {
+					throw new SymbolException("The header line of the symbol table  '"+fileLine.substring(1)+"' must contain four columns. ");
+				}
+				addSymbolTable(items[0], Integer.parseInt(items[1]), items[2]);
+			}
+		} catch (NumberFormatException e) {
+			throw new SymbolException("The symbol table file (.sym) contains a non-integer value in the header. ", e);
+		}
+	}
+	
+	
 	public void load(InputStreamReader isr) throws MaltChainedException  {
+//		Scanner scanner = new Scanner(isr);
+//		if (!scanner.hasNextLine()) {
+//			scanner.close();
+//			return;
+//		}
+//		SymbolTable table = null;
+//		if (scanner.findInLine(".").charAt(0) == '\t') {
+//			loadHeader(scanner);
+//		}
+//		while (scanner.hasNextLine()){
+//			String fileLine = scanner.nextLine();
+//			if (fileLine.length() > 0) {
+//				table = addSymbolTable(fileLine);
+//				table.load(scanner);
+//			}
+//		}
+//		scanner.close();
+
+		
 		try {
 			BufferedReader bin = new BufferedReader(isr);
 			String fileLine;
@@ -139,7 +184,7 @@ public class HashSymbolTableHandler implements SymbolTableHandler {
 			bin.close();
 		} catch (IOException e) {
 			throw new SymbolException("Could not load the symbol tables. ", e);
-		}			
+		}
 	}
 	
 	public void load(String fileName, String charSet) throws MaltChainedException  {
@@ -172,11 +217,11 @@ public class HashSymbolTableHandler implements SymbolTableHandler {
 		}
 	}
 	
-	public String printSymbolTables() throws MaltChainedException  {
-		StringBuilder sb = new StringBuilder();
-		for (HashSymbolTable table : symbolTables.values()) {
-			sb.append(table.printSymbolTable());
-		}
-		return sb.toString();
-	}
+//	public String printSymbolTables() throws MaltChainedException  {
+//		StringBuilder sb = new StringBuilder();
+//		for (HashSymbolTable table : symbolTables.values()) {
+//			sb.append(table.printSymbolTable());
+//		}
+//		return sb.toString();
+//	}
 }

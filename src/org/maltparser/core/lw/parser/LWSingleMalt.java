@@ -1,21 +1,27 @@
 package org.maltparser.core.lw.parser;
 
 import java.io.File;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
+import org.maltparser.concurrent.graph.dataformat.DataFormat;
 import org.maltparser.core.config.ConfigurationException;
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.feature.FeatureModelManager;
 import org.maltparser.core.io.dataformat.DataFormatInstance;
+import org.maltparser.core.lw.graph.LWDependencyGraph;
+import org.maltparser.core.lw.graph.LWDeprojectivizer;
 import org.maltparser.core.options.OptionManager;
 import org.maltparser.core.propagation.PropagationManager;
 import org.maltparser.core.symbol.SymbolTableHandler;
+import org.maltparser.core.symbol.parse.ParseSymbolTableHandler;
 import org.maltparser.core.syntaxgraph.DependencyStructure;
 import org.maltparser.parser.AbstractParserFactory;
 import org.maltparser.parser.DependencyParserConfig;
@@ -90,6 +96,29 @@ public final class LWSingleMalt implements DependencyParserConfig {
 			parser.parse(graph);
 		}
 	}
+	
+    public List<String[]> parseSentences(List<String[]> inputSentences, String defaultRootLabel, int markingStrategy, boolean coveredRoot, SymbolTableHandler parentSymbolTableHandler, DataFormat concurrentDataFormat) throws MaltChainedException {
+    	List<String[]> outputSentences = Collections.synchronizedList(new ArrayList<String[]>());
+    	SymbolTableHandler parseSymbolTableHandler = new ParseSymbolTableHandler(parentSymbolTableHandler);
+    	LWDependencyGraph parseGraph = new LWDependencyGraph(concurrentDataFormat, parseSymbolTableHandler);
+    	LWDeterministicParser parser = new LWDeterministicParser(this, parseSymbolTableHandler);
+    	
+		for (int i = 0; i < inputSentences.size(); i++) {
+			String[] tokens = inputSentences.get(i);
+			// TODO nothing to parse
+			parseGraph.resetTokens(tokens, defaultRootLabel, false);
+			parser.parse(parseGraph);
+			if (markingStrategy != 0 || coveredRoot) { 
+				new LWDeprojectivizer().deprojectivize(parseGraph, markingStrategy);
+			}
+			String[] outputTokens = new String[tokens.length];
+			for (int j = 0; j < outputTokens.length; j++) {
+				outputTokens[j] = parseGraph.getDependencyNode(j+1).toString();
+			}
+			outputSentences.add(outputTokens);
+		}
+		return outputSentences;
+    }
 	
 	public void oracleParse(DependencyStructure goldGraph, DependencyStructure oracleGraph) throws MaltChainedException {}
 	

@@ -7,12 +7,12 @@ import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.helper.HashMap;
 import org.maltparser.core.symbol.SymbolException;
 import org.maltparser.core.symbol.SymbolTable;
+
 /**
-
-
-@author Johan Hall
-@since 1.0
- */
+* 
+* 
+* @author Johan Hall
+*/
 public abstract class NullValues {
 	protected enum NullValueDegree {
 		NONE, ONE, ROOTNODE, NOVALUE
@@ -66,15 +66,26 @@ public abstract class NullValues {
 	}
 	
 	public boolean isNullValue(int code) {
-		return code2SymbolMap.containsKey(code);
+		if (code < 0 || code >= nextCode)
+			return false;
+		return true;
 	}
 	
 	public boolean isNullValue(String symbol) {
-		return symbol2CodeMap.containsKey(symbol);
-	}
-	
-	public boolean isNullValue(StringBuilder symbol) {
-		return symbol2CodeMap.containsKey(symbol);
+		if (symbol == null || symbol.length() == 0 || symbol.charAt(0) != '#')
+			return false;
+		if (symbol.equals("#null#")) {
+			return true;
+		}
+		
+		if ((nullValueEncoding == NullValueDegree.ROOTNODE || nullValueEncoding == NullValueDegree.NOVALUE) && symbol.equals("#rootnode#")) {
+			return true;
+		}
+		
+		if (nullValueEncoding == NullValueDegree.NOVALUE && symbol.equals("#novalue#")) {
+			return true;
+		}
+		return false;
 	}
 	
 	public int nullvalueToCode(NullValueId nullValueIdentifier) throws MaltChainedException {
@@ -92,13 +103,6 @@ public abstract class NullValues {
 	}
 	
 	public int symbolToCode(String symbol) {
-		if (!symbol2CodeMap.containsKey(symbol)) {
-			return -1;
-		}
-		return symbol2CodeMap.get(symbol);
-	}
-	
-	public int symbolToCode(StringBuilder symbol) {
 		if (!symbol2CodeMap.containsKey(symbol)) {
 			return -1;
 		}

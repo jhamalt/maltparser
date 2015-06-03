@@ -17,7 +17,6 @@ public class FeatureVector extends ArrayList<FeatureFunction> implements Seriali
 	public final static long serialVersionUID = 3256444702936019250L;
 	private final SpecificationSubModel specSubModel;
 	private final FeatureModel featureModel;
-
 	
 	/**
 	 * Constructs a feature vector
@@ -52,33 +51,8 @@ public class FeatureVector extends ArrayList<FeatureFunction> implements Seriali
 		return featureModel;
 	}
 	
-	/**
-	 * Updates all feature value in the feature vector according to the current state.
-	 * 
-	 * @throws MaltChainedException
-	 */
-	public void update() throws MaltChainedException {
-		final int size =  size();
-		for (int i = 0; i < size; i++) {
-			get(i).update();
-		}
-	}
-	
-	
 	public FeatureValue getFeatureValue(int index) {
-		if (index < 0 || index >= size()) {
-			return null;
-		}
 		return get(index).getFeatureValue();
-	}
-	
-	public FeatureValue[] getFeatureValues() {
-		final int size = size();
-		FeatureValue[] featureValues = new FeatureValue[size];
-		for (int i = 0; i < size; i++) {
-			featureValues[i] = get(i).getFeatureValue();
-		}
-		return featureValues;
 	}
 	
 	/* (non-Javadoc)

@@ -52,6 +52,10 @@ public class MultipleFeatureValue extends FeatureValue {
 		return true;
 	}
 	
+	public int nFeatureValues() {
+		return featureValues.size();
+	}
+	
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;

@@ -66,7 +66,6 @@ public class ParseSymbolTableHandler implements SymbolTableHandler {
 	}
 	
 	public void cleanUp() {
-//		System.out.println("cleanUp");
 		for (ParseSymbolTable table : symbolTables.values()) {
 			table.clearTmpStorage();
 		}
@@ -159,7 +158,7 @@ public class ParseSymbolTableHandler implements SymbolTableHandler {
 		}
 	}
 	
-	public String printSymbolTables() throws MaltChainedException  {
-		return parentSymbolTableHandler.printSymbolTables();
-	}
+//	public String printSymbolTables() throws MaltChainedException  {
+//		return parentSymbolTableHandler.printSymbolTables();
+//	}
 }

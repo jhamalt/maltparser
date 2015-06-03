@@ -3,13 +3,13 @@ package org.maltparser.core.symbol.parse;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.util.Map;
+import java.util.Scanner;
 
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.helper.HashMap;
 import org.maltparser.core.symbol.SymbolException;
 import org.maltparser.core.symbol.SymbolTable;
 import org.maltparser.core.symbol.SymbolTableHandler;
-
 import org.maltparser.core.symbol.nullvalue.NullValues.NullValueId;
 
 
@@ -79,46 +79,32 @@ public class ParseSymbolTable implements SymbolTable {
 //	}
 	
 	public String getSymbolCodeToString(int code) throws MaltChainedException {
-		if (code >= 0) {
-			if (!parentSymbolTable.isNullValue(code)) {
-				String symbol = parentSymbolTable.getSymbolCodeToString(code); 
-				if (symbol != null) {
-					return symbol;
-				} else {
-					if (!codeSymbolMap.containsKey(code)) {
-						throw new SymbolException("The symbol code '"+code+"' cannot be found in the symbol table. ");
-					}
-					return codeSymbolMap.get(code);
-				}
-			} else {
-				return parentSymbolTable.getSymbolCodeToString(code);
-			}
-		} else {
+		if (code < 0) {
 			throw new SymbolException("The symbol code '"+code+"' cannot be found in the symbol table. ");
+		}
+		String symbol = parentSymbolTable.getSymbolCodeToString(code); 
+		if (symbol != null) {
+			return symbol;
+		} else {
+			return codeSymbolMap.get(code);
 		}
 	}
 	
 	public int getSymbolStringToCode(String symbol) throws MaltChainedException {
-		if (symbol != null) {
-			if (!parentSymbolTable.isNullValue(symbol)) {
-				int code = parentSymbolTable.getSymbolStringToCode(symbol); 
-				if (code > -1) {
-					return code;
-				}
-				if (!symbolCodeMap.containsKey(symbol)) {
-					throw new SymbolException("Could not find the symbol '"+symbol+"' in the symbol table. "); 
-				}
-				Integer item = symbolCodeMap.get(symbol);
-				if (item == null) {
-					throw new SymbolException("Could not find the symbol '"+symbol+"' in the symbol table. "); 
-				} 
-				return item.intValue();
-			} else {
-				return parentSymbolTable.getSymbolStringToCode(symbol);
-			}
-		} else {
+		if (symbol == null) {
 			throw new SymbolException("The symbol code '"+symbol+"' cannot be found in the symbol table. ");
 		}
+
+		int code = parentSymbolTable.getSymbolStringToCode(symbol); 
+		if (code > -1) {
+			return code;
+		}
+
+		Integer item = symbolCodeMap.get(symbol);
+		if (item == null) {
+			throw new SymbolException("Could not find the symbol '"+symbol+"' in the symbol table. "); 
+		} 
+		return item.intValue();
 	}
 
 	public void clearTmpStorage() {
@@ -136,9 +122,9 @@ public class ParseSymbolTable implements SymbolTable {
 //		return parentSymbolTable.getColumnCategory();
 //	}
 	
-	public String printSymbolTable() throws MaltChainedException {
-		return parentSymbolTable.printSymbolTable();
-	}
+//	public String printSymbolTable() throws MaltChainedException {
+//		return parentSymbolTable.printSymbolTable();
+//	}
 	
 //	public void saveHeader(BufferedWriter out) throws MaltChainedException  {
 //		parentSymbolTable.saveHeader(out);
@@ -151,6 +137,10 @@ public class ParseSymbolTable implements SymbolTable {
 	
 	public void save(BufferedWriter out) throws MaltChainedException  {
 		parentSymbolTable.save(out);
+	}
+	
+	public void load(Scanner scanner) throws MaltChainedException {
+		parentSymbolTable.load(scanner);
 	}
 	
 	public void load(BufferedReader in) throws MaltChainedException {

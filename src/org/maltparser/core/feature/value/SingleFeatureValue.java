@@ -60,6 +60,10 @@ public class SingleFeatureValue extends FeatureValue {
 		return false;
 	}
 	
+	public int nFeatureValues() {
+		return 1;
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

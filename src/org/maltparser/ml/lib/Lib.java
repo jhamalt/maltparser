@@ -208,7 +208,7 @@ public abstract class Lib implements LearningMethod {
 	public void noMoreInstances() throws MaltChainedException { 
 		closeInstanceWriter();
 	}
-
+	
 	public boolean predict(FeatureVector featureVector, SingleDecision decision) throws MaltChainedException {
 		final FeatureList featureList = new FeatureList();
 		final int size = featureVector.size();
@@ -222,7 +222,7 @@ public abstract class Lib implements LearningMethod {
 						featureList.add(index,singleFeatureValue.getValue());
 					}
 				} 
-				else { //if (featureValue instanceof MultipleFeatureValue) {
+				else {
 					for (Integer value : ((MultipleFeatureValue)featureValue).getCodes()) {
 						final int v = featureMap.getIndex(i, value);
 						if (v != -1) {

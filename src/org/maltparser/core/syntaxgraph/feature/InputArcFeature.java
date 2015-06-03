@@ -115,7 +115,6 @@ public final class InputArcFeature implements FeatureFunction {
 		    featureValue.setSymbol(table.getNullValueSymbol(NullValueId.NO_NODE));
 		    featureValue.setNullValue(true);
 		}
-//		featureValue.setKnown(true);
 		featureValue.setValue(1);
 	}
 

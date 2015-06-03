@@ -111,7 +111,6 @@ public final class ArcDirFeature implements FeatureFunction {
 			featureValue.setSymbol(table.getNullValueSymbol(NullValueId.NO_NODE));
 			featureValue.setNullValue(true);
 		}
-//		featureValue.setKnown(true);
 	}
 	
 	/**

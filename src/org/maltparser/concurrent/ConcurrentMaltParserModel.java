@@ -2,6 +2,9 @@ package org.maltparser.concurrent;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import org.maltparser.concurrent.graph.ConcurrentDependencyGraph;
 import org.maltparser.concurrent.graph.dataformat.DataFormat;
@@ -114,6 +117,27 @@ public final class ConcurrentMaltParserModel {
 		return parseGraph;
     }
 	
+    public List<String[]> parseSentences(List<String[]> inputSentences) throws MaltChainedException {
+    	return singleMalt.parseSentences(inputSentences, defaultRootLabel, markingStrategy, coveredRoot, parentSymbolTableHandler, concurrentDataFormat);
+//    	List<String[]> outputSentences = Collections.synchronizedList(new ArrayList<String[]>());;
+//		for (int i = 0; i < inputSentences.size(); i++) {
+//			String[] tokens = inputSentences.get(i);
+//			// TODO nothing to parse
+//			LWDependencyGraph parseGraph = new LWDependencyGraph(concurrentDataFormat, new ParseSymbolTableHandler(parentSymbolTableHandler), tokens, defaultRootLabel, false);
+//			singleMalt.parse(parseGraph);
+//			if (markingStrategy != 0 || coveredRoot) { 
+//				new LWDeprojectivizer().deprojectivize(parseGraph, markingStrategy);
+//			}
+//			String[] outputTokens = new String[tokens.length];
+//			for (int j = 0; j < outputTokens.length; j++) {
+//				outputTokens[i] = parseGraph.getDependencyNode(j+1).toString();
+//			}
+//			outputSentences.add(outputTokens);
+//		}
+//		return outputSentences;
+    }
+    
+    
 //	private PropagationManager loadPropagationManager(int optionContainer, McoModel mcoModel) throws MaltChainedException {
 //		String propagationSpecFileName = OptionManager.instance().getOptionValue(optionContainer, "singlemalt", "propagation").toString();
 //		PropagationManager propagationManager = null;

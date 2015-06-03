@@ -164,7 +164,6 @@ public final class NumOfFeature implements FeatureFunction {
 			featureValue.setNullValue(false);
 		}
 		featureValue.setValue(1);
-//		featureValue.setKnown(true);
 	}
 	
 	public void setNumOfRelation(String numOfRelationName) {

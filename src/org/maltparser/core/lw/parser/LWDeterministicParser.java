@@ -3,6 +3,7 @@ import java.util.ArrayList;
 
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.feature.FeatureModel;
+import org.maltparser.core.feature.FeatureModelManager;
 import org.maltparser.core.helper.HashMap;
 import org.maltparser.core.symbol.SymbolTableHandler;
 import org.maltparser.core.symbol.TableHandler;
@@ -15,7 +16,6 @@ import org.maltparser.parser.TransitionSystem;
 import org.maltparser.parser.history.GuideUserHistory;
 import org.maltparser.parser.history.action.ComplexDecisionAction;
 import org.maltparser.parser.history.action.GuideUserAction;
-
 import org.maltparser.parser.history.container.ActionContainer;
 import org.maltparser.parser.history.container.CombinedTableContainer;
 import org.maltparser.parser.history.container.TableContainer;
@@ -41,6 +41,27 @@ public final class LWDeterministicParser implements AlgoritmInterface,  GuideUse
 	private final ArrayList<TableContainer> decisionTables;
 	private final ArrayList<TableContainer> actionTables; 
 	private final HashMap<String, TableHandler> tableHandlers;
+	
+	public LWDeterministicParser(LWSingleMalt lwSingleMalt, SymbolTableHandler symbolTableHandler, FeatureModel _featureModel) throws MaltChainedException {
+		this.manager = lwSingleMalt;
+		this.registry = new ParserRegistry();
+		this.registry.setSymbolTableHandler(symbolTableHandler);
+		this.registry.setDataFormatInstance(manager.getDataFormatInstance());
+		this.registry.setAbstractParserFeatureFactory(manager.getParserFactory());
+		this.registry.setAlgorithm(this);
+		this.transitionSystem = manager.getParserFactory().makeTransitionSystem();
+		this.transitionSystem.initTableHandlers(lwSingleMalt.getDecisionSettings(), symbolTableHandler);
+		
+		this.tableHandlers = transitionSystem.getTableHandlers();
+		this.kBestSize = lwSingleMalt.getkBestSize();
+		this.decisionTables = new ArrayList<TableContainer>();
+		this.actionTables = new ArrayList<TableContainer>();
+		initDecisionSettings(lwSingleMalt.getDecisionSettings(), lwSingleMalt.getClassitem_separator());
+		this.transitionSystem.initTransitionSystem(this);
+		this.config = manager.getParserFactory().makeParserConfiguration();
+		this.featureModel = _featureModel;
+		this.currentAction = new ComplexDecisionAction(this);
+	}
 	
 	public LWDeterministicParser(LWSingleMalt lwSingleMalt, SymbolTableHandler symbolTableHandler) throws MaltChainedException {
 		this.manager = lwSingleMalt;

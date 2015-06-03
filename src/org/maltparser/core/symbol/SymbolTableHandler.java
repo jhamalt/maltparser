@@ -17,6 +17,6 @@ public interface SymbolTableHandler extends TableHandler {
 	public void save(String fileName, String charSet) throws MaltChainedException;
 	public void load(InputStreamReader isr) throws MaltChainedException;
 	public void load(String fileName, String charSet) throws MaltChainedException;
-	public String printSymbolTables() throws MaltChainedException;
+//	public String printSymbolTables() throws MaltChainedException;
 	public SymbolTable loadTagset(String fileName, String tableName, String charSet, int columnCategory, String nullValueStrategy) throws MaltChainedException;
 }

@@ -3,9 +3,11 @@ package org.maltparser.core.symbol.trie;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
 
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.io.dataformat.ColumnDescription;
@@ -139,13 +141,13 @@ public class TrieSymbolTable implements SymbolTable {
 		return columnCategory;
 	}
 	
-	public String printSymbolTable() throws MaltChainedException {
-		StringBuilder sb = new StringBuilder();
-		for (Integer code : codeTable.keySet()) {
-			sb.append(code+"\t"+trie.getValue(codeTable.get(code), this)+"\n");
-		}
-		return sb.toString();
-	}
+//	public String printSymbolTable() throws MaltChainedException {
+//		StringBuilder sb = new StringBuilder();
+//		for (Integer code : codeTable.keySet()) {
+//			sb.append(code+"\t"+trie.getValue(codeTable.get(code), this)+"\n");
+//		}
+//		return sb.toString();
+//	}
 	
 	public void saveHeader(BufferedWriter out) throws MaltChainedException  {
 		try {
@@ -180,6 +182,30 @@ public class TrieSymbolTable implements SymbolTable {
 		} catch (IOException e) {
 			throw new SymbolException("Could not save the symbol table. ", e);
 		}
+	}
+	
+	public void load(Scanner scanner) throws MaltChainedException {
+		int max = 0; 
+		int index = 0;
+		while (scanner.hasNextLine()){
+			String fileLine = scanner.nextLine();
+			if (fileLine.length() == 0 || (index = fileLine.indexOf('\t')) == -1) {
+				setValueCounter(max+1);
+				break;
+			}
+			int code;
+		    try {
+		    	code = Integer.parseInt(fileLine.substring(0,index));
+			} catch (NumberFormatException e) {
+				throw new SymbolException("The symbol table file (.sym) contains a non-integer value in the first column. ", e);
+			}
+			final String str = fileLine.substring(index+1);
+			final TrieNode node = trie.addValue(str, this, code);
+			codeTable.put(node.getEntry(this), node); 
+			if (max < code) {
+				max = code;
+			}			
+	    }
 	}
 	
 	public void load(BufferedReader in) throws MaltChainedException {

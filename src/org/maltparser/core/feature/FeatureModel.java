@@ -30,7 +30,6 @@ public class FeatureModel extends HashMap<String, FeatureVector> {
 	private final FeatureRegistry registry;
 	private final FeatureEngine featureEngine;
 	private final FeatureVector mainFeatureVector; 
-//	private final HashMap<String,ArrayList<Integer>> divideFeatureIndexVectorMap;
 	private final ArrayList<Integer> divideFeatureIndexVector;
 	
 	public FeatureModel(SpecificationModel _specModel, FeatureRegistry _registry, FeatureEngine _engine, String dataSplitColumn, String dataSplitStructure) throws MaltChainedException {

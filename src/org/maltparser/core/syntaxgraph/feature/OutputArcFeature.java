@@ -127,7 +127,6 @@ public final class OutputArcFeature implements FeatureFunction {
 		} catch (NumberFormatException e) {
 			throw new FeatureException("The index of the feature must be an integer value. ", e);
 		}
-//		featureValue.setKnown(true);
 		featureValue.setValue(1);
 	}
 

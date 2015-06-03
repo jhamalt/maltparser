@@ -63,130 +63,129 @@ public final class Merge3Feature implements FeatureMapFunction {
 		FeatureValue firstValue = firstFeature.getFeatureValue();
 		FeatureValue secondValue = secondFeature.getFeatureValue();
 		FeatureValue thirdValue = thirdFeature.getFeatureValue();
+		if (firstValue.isMultiple() || secondValue.isMultiple() || thirdValue.isMultiple()) {
+			throw new FeatureException("It is not possible to merge Split-features. ");
+		}
 
-		if (firstValue instanceof SingleFeatureValue && secondValue instanceof SingleFeatureValue && thirdValue instanceof SingleFeatureValue) {
-			String firstSymbol = ((SingleFeatureValue)firstValue).getSymbol();
-			if (firstValue.isNullValue() && secondValue.isNullValue() && thirdValue.isNullValue()) {
-				singleFeatureValue.setIndexCode(firstFeature.getSymbolTable().getSymbolStringToCode(firstSymbol));
-				singleFeatureValue.setSymbol(firstSymbol);
-				singleFeatureValue.setNullValue(true);
+		String firstSymbol = ((SingleFeatureValue)firstValue).getSymbol();
+		if (firstValue.isNullValue() && secondValue.isNullValue() && thirdValue.isNullValue()) {
+			singleFeatureValue.setIndexCode(firstFeature.getSymbolTable().getSymbolStringToCode(firstSymbol));
+			singleFeatureValue.setSymbol(firstSymbol);
+			singleFeatureValue.setNullValue(true);
+		} else {
+			if (getType() == ColumnDescription.STRING) { 
+				StringBuilder mergedValue = new StringBuilder();
+				mergedValue.append(((SingleFeatureValue)firstValue).getSymbol());
+				mergedValue.append('~');
+				mergedValue.append(((SingleFeatureValue)secondValue).getSymbol());
+				mergedValue.append('~');
+				mergedValue.append(((SingleFeatureValue)thirdValue).getSymbol());
+				singleFeatureValue.setIndexCode(table.addSymbol(mergedValue.toString()));	
+				singleFeatureValue.setSymbol(mergedValue.toString());
+				singleFeatureValue.setNullValue(false);
+				singleFeatureValue.setValue(1);
 			} else {
-				if (getType() == ColumnDescription.STRING) { 
-					StringBuilder mergedValue = new StringBuilder();
-					mergedValue.append(((SingleFeatureValue)firstValue).getSymbol());
-					mergedValue.append('~');
-					mergedValue.append(((SingleFeatureValue)secondValue).getSymbol());
-					mergedValue.append('~');
-					mergedValue.append(((SingleFeatureValue)thirdValue).getSymbol());
-					singleFeatureValue.setIndexCode(table.addSymbol(mergedValue.toString()));	
-					singleFeatureValue.setSymbol(mergedValue.toString());
-					singleFeatureValue.setNullValue(false);
-					singleFeatureValue.setValue(1);
+				if (firstValue.isNullValue() || secondValue.isNullValue() || thirdValue.isNullValue()) {
+					singleFeatureValue.setValue(0);
+					table.addSymbol("#null#");
+					singleFeatureValue.setSymbol("#null#");
+					singleFeatureValue.setNullValue(true);
+					singleFeatureValue.setIndexCode(1);
 				} else {
-					if (firstValue.isNullValue() || secondValue.isNullValue() || thirdValue.isNullValue()) {
-						singleFeatureValue.setValue(0);
-						table.addSymbol("#null#");
-						singleFeatureValue.setSymbol("#null#");
-						singleFeatureValue.setNullValue(true);
-						singleFeatureValue.setIndexCode(1);
-					} else {
-						if (getType() == ColumnDescription.BOOLEAN) {
-							boolean result = false;
-							int dotIndex = firstSymbol.indexOf('.');
-							result = firstSymbol.equals("1") || firstSymbol.equals("true") ||  firstSymbol.equals("#true#") || (dotIndex != -1 && firstSymbol.substring(0,dotIndex).equals("1"));
-							if (result == true) {
-								String secondSymbol = ((SingleFeatureValue)secondValue).getSymbol();
-								dotIndex = secondSymbol.indexOf('.');
-								result = secondSymbol.equals("1") || secondSymbol.equals("true") ||  secondSymbol.equals("#true#") || (dotIndex != -1 && secondSymbol.substring(0,dotIndex).equals("1"));
-							}
-							if (result == true) {
-								String thirdSymbol = ((SingleFeatureValue)thirdValue).getSymbol();
-								dotIndex = thirdSymbol.indexOf('.');
-								result = thirdSymbol.equals("1") || thirdSymbol.equals("true") ||  thirdSymbol.equals("#true#") || (dotIndex != -1 && thirdSymbol.substring(0,dotIndex).equals("1"));
-							}
-							if (result) {
-								singleFeatureValue.setValue(1);
-								table.addSymbol("true");
-								singleFeatureValue.setSymbol("true");
-							} else {
-								singleFeatureValue.setValue(0);
-								table.addSymbol("false");
-								singleFeatureValue.setSymbol("false");
-							}
-						} else if (getType() == ColumnDescription.INTEGER) {
-							Integer firstInt = 0;
-							Integer secondInt = 0;
-							Integer thirdInt = 0;
-							
-							try {
-								int dotIndex = firstSymbol.indexOf('.');
-								if (dotIndex == -1) {
-									firstInt = Integer.parseInt(firstSymbol);
-								} else {
-									firstInt = Integer.parseInt(firstSymbol.substring(0,dotIndex));
-								}
-							} catch (NumberFormatException e) {
-								throw new FeatureException("Could not cast the feature value '"+firstSymbol+"' to integer value.", e);
-							}
+					if (getType() == ColumnDescription.BOOLEAN) {
+						boolean result = false;
+						int dotIndex = firstSymbol.indexOf('.');
+						result = firstSymbol.equals("1") || firstSymbol.equals("true") ||  firstSymbol.equals("#true#") || (dotIndex != -1 && firstSymbol.substring(0,dotIndex).equals("1"));
+						if (result == true) {
 							String secondSymbol = ((SingleFeatureValue)secondValue).getSymbol();
-							try {
-								int dotIndex = secondSymbol.indexOf('.');
-								if (dotIndex == -1) {
-									secondInt = Integer.parseInt(secondSymbol);
-								} else {
-									secondInt = Integer.parseInt(secondSymbol.substring(0,dotIndex));
-								}
-							} catch (NumberFormatException e) {
-								throw new FeatureException("Could not cast the feature value '"+secondSymbol+"' to integer value.", e);
-							}
-							String thirdSymbol = ((SingleFeatureValue)thirdValue).getSymbol();
-							try {
-								int dotIndex = thirdSymbol.indexOf('.');
-								if (dotIndex == -1) {
-									secondInt = Integer.parseInt(thirdSymbol);
-								} else {
-									secondInt = Integer.parseInt(thirdSymbol.substring(0,dotIndex));
-								}
-							} catch (NumberFormatException e) {
-								throw new FeatureException("Could not cast the feature value '"+thirdSymbol+"' to integer value.", e);
-							}
-							Integer result = firstInt*secondInt*thirdInt;
-							singleFeatureValue.setValue(result);
-							table.addSymbol(result.toString());
-							singleFeatureValue.setSymbol(result.toString());
-						} else if (getType() == ColumnDescription.REAL) {
-							Double firstReal = 0.0;
-							Double secondReal = 0.0;
-							Double thirdReal = 0.0;
-							try {
-								firstReal = Double.parseDouble(firstSymbol);
-							} catch (NumberFormatException e) {
-								throw new FeatureException("Could not cast the feature value '"+firstSymbol+"' to real value.", e);
-							}
-							String secondSymbol = ((SingleFeatureValue)secondValue).getSymbol();
-							try {
-								secondReal = Double.parseDouble(secondSymbol);
-							} catch (NumberFormatException e) {
-								throw new FeatureException("Could not cast the feature value '"+secondSymbol+"' to real value.", e);
-							}
-							String thirdSymbol = ((SingleFeatureValue)thirdValue).getSymbol();
-							try {
-								thirdReal = Double.parseDouble(thirdSymbol);
-							} catch (NumberFormatException e) {
-								throw new FeatureException("Could not cast the feature value '"+thirdSymbol+"' to real value.", e);
-							}
-							Double result = firstReal*secondReal*thirdReal;
-							singleFeatureValue.setValue(result);
-							table.addSymbol(result.toString());
-							singleFeatureValue.setSymbol(result.toString());
+							dotIndex = secondSymbol.indexOf('.');
+							result = secondSymbol.equals("1") || secondSymbol.equals("true") ||  secondSymbol.equals("#true#") || (dotIndex != -1 && secondSymbol.substring(0,dotIndex).equals("1"));
 						}
-						singleFeatureValue.setNullValue(false);
-						singleFeatureValue.setIndexCode(1);
+						if (result == true) {
+							String thirdSymbol = ((SingleFeatureValue)thirdValue).getSymbol();
+							dotIndex = thirdSymbol.indexOf('.');
+							result = thirdSymbol.equals("1") || thirdSymbol.equals("true") ||  thirdSymbol.equals("#true#") || (dotIndex != -1 && thirdSymbol.substring(0,dotIndex).equals("1"));
+						}
+						if (result) {
+							singleFeatureValue.setValue(1);
+							table.addSymbol("true");
+							singleFeatureValue.setSymbol("true");
+						} else {
+							singleFeatureValue.setValue(0);
+							table.addSymbol("false");
+							singleFeatureValue.setSymbol("false");
+						}
+					} else if (getType() == ColumnDescription.INTEGER) {
+						Integer firstInt = 0;
+						Integer secondInt = 0;
+						Integer thirdInt = 0;
+						
+						try {
+							int dotIndex = firstSymbol.indexOf('.');
+							if (dotIndex == -1) {
+								firstInt = Integer.parseInt(firstSymbol);
+							} else {
+								firstInt = Integer.parseInt(firstSymbol.substring(0,dotIndex));
+							}
+						} catch (NumberFormatException e) {
+							throw new FeatureException("Could not cast the feature value '"+firstSymbol+"' to integer value.", e);
+						}
+						String secondSymbol = ((SingleFeatureValue)secondValue).getSymbol();
+						try {
+							int dotIndex = secondSymbol.indexOf('.');
+							if (dotIndex == -1) {
+								secondInt = Integer.parseInt(secondSymbol);
+							} else {
+								secondInt = Integer.parseInt(secondSymbol.substring(0,dotIndex));
+							}
+						} catch (NumberFormatException e) {
+							throw new FeatureException("Could not cast the feature value '"+secondSymbol+"' to integer value.", e);
+						}
+						String thirdSymbol = ((SingleFeatureValue)thirdValue).getSymbol();
+						try {
+							int dotIndex = thirdSymbol.indexOf('.');
+							if (dotIndex == -1) {
+								secondInt = Integer.parseInt(thirdSymbol);
+							} else {
+								secondInt = Integer.parseInt(thirdSymbol.substring(0,dotIndex));
+							}
+						} catch (NumberFormatException e) {
+							throw new FeatureException("Could not cast the feature value '"+thirdSymbol+"' to integer value.", e);
+						}
+						Integer result = firstInt*secondInt*thirdInt;
+						singleFeatureValue.setValue(result);
+						table.addSymbol(result.toString());
+						singleFeatureValue.setSymbol(result.toString());
+					} else if (getType() == ColumnDescription.REAL) {
+						Double firstReal = 0.0;
+						Double secondReal = 0.0;
+						Double thirdReal = 0.0;
+						try {
+							firstReal = Double.parseDouble(firstSymbol);
+						} catch (NumberFormatException e) {
+							throw new FeatureException("Could not cast the feature value '"+firstSymbol+"' to real value.", e);
+						}
+						String secondSymbol = ((SingleFeatureValue)secondValue).getSymbol();
+						try {
+							secondReal = Double.parseDouble(secondSymbol);
+						} catch (NumberFormatException e) {
+							throw new FeatureException("Could not cast the feature value '"+secondSymbol+"' to real value.", e);
+						}
+						String thirdSymbol = ((SingleFeatureValue)thirdValue).getSymbol();
+						try {
+							thirdReal = Double.parseDouble(thirdSymbol);
+						} catch (NumberFormatException e) {
+							throw new FeatureException("Could not cast the feature value '"+thirdSymbol+"' to real value.", e);
+						}
+						Double result = firstReal*secondReal*thirdReal;
+						singleFeatureValue.setValue(result);
+						table.addSymbol(result.toString());
+						singleFeatureValue.setSymbol(result.toString());
 					}
+					singleFeatureValue.setNullValue(false);
+					singleFeatureValue.setIndexCode(1);
 				}
 			}
-		} else {
-			throw new FeatureException("It is not possible to merge Split-features. ");
 		}
 	}
 	

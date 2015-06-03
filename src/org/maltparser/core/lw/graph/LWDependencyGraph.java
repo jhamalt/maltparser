@@ -53,6 +53,12 @@ public final class LWDependencyGraph implements DependencyStructure {
 		this.rootLabels = new RootLabels();
 		this.nodes = new ArrayList<LWNode>(inputTokens.length+1);
 		
+		resetTokens(inputTokens, defaultRootLabel, addEdges);
+	}
+	
+	public void resetTokens(String[] inputTokens, String defaultRootLabel, boolean addEdges) throws MaltChainedException {
+		nodes.clear();
+		symbolTables.cleanUp();
 		// Add nodes
 		nodes.add(new LWNode(this, 0)); // ROOT
 		for (int i = 0; i < inputTokens.length; i++) {

@@ -508,9 +508,9 @@ public class Liblinear implements LearningMethod {
 		if (featureMap == null) {
 			featureMap = loadFeatureMap(getInputStreamFromConfigFileEntry(".map"));
 		}
-		int i = 1;
-		for (FeatureFunction feature : featureVector) {
-			final FeatureValue featureValue = feature.getFeatureValue();
+
+		for (int i = 0; i < featureVector.size(); i++) {
+			final FeatureValue featureValue = featureVector.getFeatureValue(i-1);
 			if (!(excludeNullValues == true && featureValue.isNullValue())) {
 				if (featureValue instanceof SingleFeatureValue) {
 					int v = getFeatureMapValue(i, ((SingleFeatureValue)featureValue).getIndexCode());
@@ -526,7 +526,6 @@ public class Liblinear implements LearningMethod {
 					}
 				}
 			}
-			i++;
 		}
 		FeatureNode[] xarray = new FeatureNode[featureSet.size()];
 		int k = 0;

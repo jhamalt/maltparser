@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
@@ -13,6 +14,7 @@ import java.util.TreeSet;
 
 import org.maltparser.concurrent.graph.dataformat.ColumnDescription;
 import org.maltparser.core.exception.MaltChainedException;
+import org.maltparser.core.helper.HashMap;
 import org.maltparser.core.symbol.SymbolTable;
 import org.maltparser.core.symbol.SymbolTableHandler;
 import org.maltparser.core.syntaxgraph.DependencyStructure;
@@ -31,7 +33,8 @@ import org.maltparser.core.syntaxgraph.node.Node;
 public final class LWNode implements DependencyNode, Node {
 	private final LWDependencyGraph graph;
 	private int index;
-	private final SortedMap<Integer, String> labels;
+//	private final SortedMap<Integer, String> labels;
+	private final Map<Integer, String> labels;
 	private Edge headEdge;
 	
 	protected LWNode(LWNode node) throws LWGraphException {
@@ -44,7 +47,8 @@ public final class LWNode implements DependencyNode, Node {
 		}
 		this.graph = _graph;
 		this.index = node.index;
-		this.labels = new TreeMap<Integer, String>(node.labels);
+//		this.labels = new TreeMap<Integer, String>(node.labels);
+		this.labels = new HashMap<Integer, String>(node.labels);
 		this.headEdge = node.headEdge;
 	}
 	
@@ -57,7 +61,8 @@ public final class LWNode implements DependencyNode, Node {
 		}
 		this.graph = _graph;
 		this.index = _index;
-		this.labels = new TreeMap<Integer, String>();
+//		this.labels = new TreeMap<Integer, String>();
+		this.labels = new HashMap<Integer, String>();
 		this.headEdge = null;
 	}
 	

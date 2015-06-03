@@ -181,11 +181,11 @@ public class TrieSymbolTableHandler implements SymbolTableHandler {
 		}
 	}
 	
-	public String printSymbolTables() throws MaltChainedException  {
-		StringBuilder sb = new StringBuilder();
-		for (TrieSymbolTable table : symbolTables.values()) {
-			sb.append(table.printSymbolTable());
-		}
-		return sb.toString();
-	}
+//	public String printSymbolTables() throws MaltChainedException  {
+//		StringBuilder sb = new StringBuilder();
+//		for (TrieSymbolTable table : symbolTables.values()) {
+//			sb.append(table.printSymbolTable());
+//		}
+//		return sb.toString();
+//	}
 }

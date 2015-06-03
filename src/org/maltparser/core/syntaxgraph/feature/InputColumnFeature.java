@@ -71,7 +71,6 @@ public final class InputColumnFeature extends ColumnFeature {
 						symbolTable.getNullValueSymbol(NullValueId.ROOT_NODE), true, 1);
 			}
 		}
-		
 	}
 	
 	public AddressFunction getAddressFunction() {

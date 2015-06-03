@@ -98,7 +98,6 @@ public final class InputArcDirFeature implements FeatureFunction {
 			featureValue.setNullValue(true);
 		}
 		featureValue.setValue(1);
-//		featureValue.setKnown(true);
 	}
 
 	public AddressFunction getAddressFunction() {
