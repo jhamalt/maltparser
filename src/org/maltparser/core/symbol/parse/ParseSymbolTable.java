@@ -3,7 +3,6 @@ package org.maltparser.core.symbol.parse;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.util.Map;
-import java.util.Scanner;
 
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.helper.HashMap;
@@ -16,33 +15,40 @@ import org.maltparser.core.symbol.nullvalue.NullValues.NullValueId;
 public class ParseSymbolTable implements SymbolTable {
 	private final String name;
 	private final SymbolTable parentSymbolTable;
-    
+	private final int type;    
 	/** Special treatment during parsing */
 	private final Map<String, Integer> symbolCodeMap;
 	private final Map<Integer, String> codeSymbolMap;
+	private final Map<String, Double> symbolValueMap;
 	private int valueCounter;
     
-	public ParseSymbolTable(String name, int columnCategory, String nullValueStrategy, SymbolTableHandler parentSymbolTableHandler) throws MaltChainedException {
-		this.name = name;
-		this.parentSymbolTable = parentSymbolTableHandler.addSymbolTable(name, columnCategory, nullValueStrategy);
+	public ParseSymbolTable(String _name, int _category, int _type, String nullValueStrategy, SymbolTableHandler parentSymbolTableHandler) throws MaltChainedException {
+		this.name = _name;
+		this.type = _type;
+		this.parentSymbolTable = parentSymbolTableHandler.addSymbolTable(name, _category, _type, nullValueStrategy);
 		this.symbolCodeMap = new HashMap<String, Integer>();
 		this.codeSymbolMap = new HashMap<Integer, String>();
+		this.symbolValueMap = new HashMap<String, Double>();
 		this.valueCounter = -1;
 	}
 	
-	public ParseSymbolTable(String name, SymbolTable parentTable, SymbolTableHandler parentSymbolTableHandler) throws MaltChainedException {
-		this.name = name;
+	public ParseSymbolTable(String _name, SymbolTable parentTable, SymbolTableHandler parentSymbolTableHandler) throws MaltChainedException {
+		this.name = _name;
+		this.type = SymbolTable.STRING;
 		this.parentSymbolTable = parentSymbolTableHandler.addSymbolTable(name, parentTable);
 		this.symbolCodeMap = new HashMap<String, Integer>();
 		this.codeSymbolMap = new HashMap<Integer, String>();
+		this.symbolValueMap = new HashMap<String, Double>();
 		this.valueCounter = -1;
 	}
 	
 	public ParseSymbolTable(String name, SymbolTableHandler parentSymbolTableHandler) throws MaltChainedException {
 		this.name = name;
+		this.type = SymbolTable.STRING;
 		this.parentSymbolTable = parentSymbolTableHandler.addSymbolTable(name);
 		this.symbolCodeMap = new HashMap<String, Integer>();
 		this.codeSymbolMap = new HashMap<Integer, String>();
+		this.symbolValueMap = new HashMap<String, Double>();
 		this.valueCounter = -1;
 	}
 	
@@ -55,6 +61,9 @@ public class ParseSymbolTable implements SymbolTable {
 			int code = parentSymbolTable.getSymbolStringToCode(symbol); 
 			if (code > -1) {
 				return code;
+			}
+			if (this.type == SymbolTable.REAL) {
+				addSymbolValue(symbol);
 			}
 			if (!symbolCodeMap.containsKey(symbol)) {
 //				System.out.println("!symbolCodeMap.containsKey(symbol) : " + this.getName() + ": " + symbol.toString());
@@ -74,9 +83,15 @@ public class ParseSymbolTable implements SymbolTable {
 		}
 	}
 	
-//	public int addSymbol(StringBuilder symbol) throws MaltChainedException {
-//		return addSymbol(symbol.toString());
-//	}
+	public double addSymbolValue(String symbol) throws MaltChainedException {
+		if (!symbolValueMap.containsKey(symbol)) {
+			Double value = Double.valueOf(symbol);
+			symbolValueMap.put(symbol, value);
+			return value;
+		} else {
+			return symbolValueMap.get(symbol);
+		}
+	}
 	
 	public String getSymbolCodeToString(int code) throws MaltChainedException {
 		if (code < 0) {
@@ -107,41 +122,37 @@ public class ParseSymbolTable implements SymbolTable {
 		return item.intValue();
 	}
 
+	public double getSymbolStringToValue(String symbol) throws MaltChainedException {
+		if (symbol == null) {
+			throw new SymbolException("The symbol code '"+symbol+"' cannot be found in the symbol table. ");
+		}
+		double value = parentSymbolTable.getSymbolStringToValue(symbol); 
+		if (value != Double.NaN) {
+			return value;
+		}
+		
+		Double item = symbolValueMap.get(symbol);
+		if (item == null) {
+			throw new SymbolException("Could not find the symbol '"+symbol+"' in the symbol table. "); 
+		} 
+		return item.doubleValue();	
+	}
+	
 	public void clearTmpStorage() {
 		symbolCodeMap.clear();
 		codeSymbolMap.clear();
+		symbolValueMap.clear();
 		valueCounter = -1;
 	}
-	
-//	public String getNullValueStrategy() {
-//		return parentSymbolTable.getNullValueStrategy();
-//	}
-//	
-//	
-//	public int getColumnCategory() {
-//		return parentSymbolTable.getColumnCategory();
-//	}
-	
-//	public String printSymbolTable() throws MaltChainedException {
-//		return parentSymbolTable.printSymbolTable();
-//	}
-	
-//	public void saveHeader(BufferedWriter out) throws MaltChainedException  {
-//		parentSymbolTable.saveHeader(out);
-//	}
-	
+
 	public int size() {
 		return parentSymbolTable.size();
 	}
 	
-	
 	public void save(BufferedWriter out) throws MaltChainedException  {
 		parentSymbolTable.save(out);
 	}
-	
-	public void load(Scanner scanner) throws MaltChainedException {
-		parentSymbolTable.load(scanner);
-	}
+
 	
 	public void load(BufferedReader in) throws MaltChainedException {
 		parentSymbolTable.load(in);

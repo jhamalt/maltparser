@@ -92,6 +92,8 @@ public abstract class ColumnFeature implements FeatureFunction, Modifiable {
 					featureValue.setValue(Integer.parseInt(symbol.substring(0,dotIndex)));
 					featureValue.setSymbol(symbol.substring(0,dotIndex));
 				}
+				featureValue.setNullValue(false);
+				featureValue.setIndexCode(1);
 			} catch (NumberFormatException e) {
 				throw new FeatureException("Could not cast the feature value '"+symbol+"' to integer value.", e);
 			}
@@ -106,15 +108,16 @@ public abstract class ColumnFeature implements FeatureFunction, Modifiable {
 			} else {
 				throw new FeatureException("Could not cast the feature value '"+symbol+"' to boolean value.");
 			}
+			featureValue.setNullValue(false);
+			featureValue.setIndexCode(1);
 		} else if (column.getType() == ColumnDescription.REAL) {
 			try {
 				featureValue.setValue(Double.parseDouble(symbol));
+//				featureValue.setValue(symbolTable.getSymbolStringToValue(symbol));
 				featureValue.setSymbol(symbol);
 			} catch (NumberFormatException e) {
 				throw new FeatureException("Could not cast the feature value '"+symbol+"' to real value.", e);
 			}
-		}
-		if (column.getType() == ColumnDescription.INTEGER || column.getType() == ColumnDescription.BOOLEAN || column.getType() == ColumnDescription.REAL) {
 			featureValue.setNullValue(false);
 			featureValue.setIndexCode(1);
 		}

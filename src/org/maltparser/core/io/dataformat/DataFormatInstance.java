@@ -62,7 +62,7 @@ public class DataFormatInstance implements Iterable<ColumnDescription> {
 		
 		if (!internalColumnDescriptions.containsKey(name)) {
 			ColumnDescription internalColumn = new ColumnDescription(name, ColumnDescription.getCategory(category), ColumnDescription.getType(type), defaultOutput,  nullValueStrategy, true);
-			symbolTables.addSymbolTable(internalColumn.getName(), internalColumn.getCategory(), internalColumn.getNullValueStrategy());
+			symbolTables.addSymbolTable(internalColumn.getName(), internalColumn.getCategory(), internalColumn.getType(), internalColumn.getNullValueStrategy());
 			internalColumnDescriptions.put(name, internalColumn);
 			internalColumnDescriptionSet.add(internalColumn);
 			return internalColumn;
@@ -79,7 +79,7 @@ public class DataFormatInstance implements Iterable<ColumnDescription> {
 		
 		if (!internalColumnDescriptions.containsKey(name)) {
 			ColumnDescription internalColumn = new ColumnDescription(name, category, type, defaultOutput, nullValueStrategy, true);
-			symbolTables.addSymbolTable(internalColumn.getName(), internalColumn.getCategory(), internalColumn.getNullValueStrategy());
+			symbolTables.addSymbolTable(internalColumn.getName(), internalColumn.getCategory(), internalColumn.getType(), internalColumn.getNullValueStrategy());
 			internalColumnDescriptions.put(name, internalColumn);
 			internalColumnDescriptionSet.add(internalColumn);
 			return internalColumn;
@@ -95,7 +95,7 @@ public class DataFormatInstance implements Iterable<ColumnDescription> {
 	private void createColumnDescriptions(SymbolTableHandler symbolTables, Map<String, DataFormatEntry> entries, String nullValueStrategy) throws MaltChainedException {
 		for (DataFormatEntry entry : entries.values()) {
 			ColumnDescription column = new ColumnDescription(entry.getDataFormatEntryName(), ColumnDescription.getCategory(entry.getCategory()), ColumnDescription.getType(entry.getType()), entry.getDefaultOutput(),  nullValueStrategy, false);
-			symbolTables.addSymbolTable(column.getName(), column.getCategory(), column.getNullValueStrategy());
+			symbolTables.addSymbolTable(column.getName(), column.getCategory(), column.getType(), column.getNullValueStrategy());
 			columnDescriptions.add(column);
 			
 		}

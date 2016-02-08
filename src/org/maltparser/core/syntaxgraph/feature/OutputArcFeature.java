@@ -56,7 +56,7 @@ public final class OutputArcFeature implements FeatureFunction {
 		setAddressFunction2((AddressFunction)arguments[2]);
 		
 		setColumn(dataFormatInstance.getColumnDescriptionByName((String)arguments[0]));
-		setSymbolTable(tableHandler.addSymbolTable("ARC_"+column.getName(),ColumnDescription.INPUT, "one"));
+		setSymbolTable(tableHandler.addSymbolTable("ARC_"+column.getName(),ColumnDescription.INPUT, ColumnDescription.STRING, "one"));
 		table.addSymbol("LEFT");
 		table.addSymbol("RIGHT");
 	}

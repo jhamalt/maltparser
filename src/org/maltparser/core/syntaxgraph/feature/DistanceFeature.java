@@ -65,7 +65,7 @@ public final class DistanceFeature implements FeatureFunction {
 		
 		normalizationString = (String)arguments[2];
 		// Creates a symbol table called "DISTANCE" using one null value
-		setSymbolTable(tableHandler.addSymbolTable("DISTANCE_"+normalizationString, ColumnDescription.INPUT, "one"));
+		setSymbolTable(tableHandler.addSymbolTable("DISTANCE_"+normalizationString, ColumnDescription.INPUT, ColumnDescription.STRING, "one"));
 		
 		String[] items  = splitPattern.split(normalizationString);
 		

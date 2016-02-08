@@ -13,7 +13,6 @@ import java.util.regex.PatternSyntaxException;
 
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.helper.HashMap;
-
 import org.maltparser.core.symbol.SymbolException;
 import org.maltparser.core.symbol.SymbolTable;
 import org.maltparser.core.symbol.SymbolTableHandler;
@@ -48,10 +47,10 @@ public class ParseSymbolTableHandler implements SymbolTableHandler {
 		return symbolTable;
 	}
 	
-	public SymbolTable addSymbolTable(String tableName, int columnCategory, String nullValueStrategy) throws MaltChainedException {
+	public SymbolTable addSymbolTable(String tableName, int columnCategory, int columnType, String nullValueStrategy) throws MaltChainedException {
 		ParseSymbolTable symbolTable = symbolTables.get(tableName);
 		if (symbolTable == null) {
-			symbolTable = new ParseSymbolTable(tableName, columnCategory, nullValueStrategy, parentSymbolTableHandler);
+			symbolTable = new ParseSymbolTable(tableName, columnCategory, columnType, nullValueStrategy, parentSymbolTableHandler);
 			symbolTables.put(tableName, symbolTable);
 		}
 		return symbolTable;
@@ -93,10 +92,13 @@ public class ParseSymbolTableHandler implements SymbolTableHandler {
 				} catch (PatternSyntaxException e) {
 					throw new SymbolException("The header line of the symbol table  '"+fileLine.substring(1)+"' could not split into atomic parts. ", e);
 				}
-				if (items.length != 3) {
-					throw new SymbolException("The header line of the symbol table  '"+fileLine.substring(1)+"' must contain four columns. ");
-				}
-				addSymbolTable(items[0], Integer.parseInt(items[1]), items[2]);
+				if (items.length == 4)
+					addSymbolTable(items[0], Integer.parseInt(items[1]), Integer.parseInt(items[2]), items[3]);
+				else if (items.length == 3) 
+					addSymbolTable(items[0], Integer.parseInt(items[1]), SymbolTable.STRING, items[2]);
+				else
+					throw new SymbolException("The header line of the symbol table  '"+fileLine.substring(1)+"' must contain three or four columns. ");
+
 			}
 		} catch (NumberFormatException e) {
 			throw new SymbolException("The symbol table file (.sym) contains a non-integer value in the header. ", e);
@@ -139,11 +141,11 @@ public class ParseSymbolTableHandler implements SymbolTableHandler {
 		}
 	}
 	
-	public SymbolTable loadTagset(String fileName, String tableName, String charSet, int columnCategory, String nullValueStrategy) throws MaltChainedException {
+	public SymbolTable loadTagset(String fileName, String tableName, String charSet, int columnCategory, int columnType, String nullValueStrategy) throws MaltChainedException {
 		try {
 			BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), charSet));
 			String fileLine;
-			SymbolTable table = addSymbolTable(tableName, columnCategory, nullValueStrategy);
+			SymbolTable table = addSymbolTable(tableName, columnCategory, columnType, nullValueStrategy);
 
 			while ((fileLine = br.readLine()) != null) {
 				table.addSymbol(fileLine.trim());

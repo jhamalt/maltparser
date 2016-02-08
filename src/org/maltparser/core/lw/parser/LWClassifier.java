@@ -1,6 +1,8 @@
 package org.maltparser.core.lw.parser;
 
 
+import java.util.ArrayList;
+
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.feature.FeatureVector;
 import org.maltparser.core.feature.value.FeatureValue;
@@ -8,6 +10,7 @@ import org.maltparser.core.feature.value.MultipleFeatureValue;
 import org.maltparser.core.feature.value.SingleFeatureValue;
 import org.maltparser.ml.lib.FeatureList;
 import org.maltparser.ml.lib.FeatureMap;
+import org.maltparser.ml.lib.MaltFeatureNode;
 import org.maltparser.ml.lib.MaltLibModel;
 import org.maltparser.ml.lib.LibException;
 import org.maltparser.parser.history.action.SingleDecision;
@@ -29,7 +32,7 @@ public class LWClassifier {
 	}
 	
 	public boolean predict(FeatureVector featureVector, SingleDecision decision, boolean one_prediction) throws MaltChainedException {
-		final FeatureList featureList = new FeatureList();
+		final ArrayList<MaltFeatureNode> featureList = new ArrayList<MaltFeatureNode>();
 		final int size = featureVector.size();
 		for (int i = 1; i <= size; i++) {
 			final FeatureValue featureValue = featureVector.getFeatureValue(i-1);	
@@ -38,14 +41,14 @@ public class LWClassifier {
 					SingleFeatureValue singleFeatureValue = (SingleFeatureValue)featureValue;
 					final int index = featureMap.getIndex(i, singleFeatureValue.getIndexCode());
 					if (index != -1 && singleFeatureValue.getValue() != 0) {
-						featureList.add(index,singleFeatureValue.getValue());
+						featureList.add(new MaltFeatureNode(index,singleFeatureValue.getValue()));					
 					}
 				} 
 				else { 
 					for (Integer value : ((MultipleFeatureValue)featureValue).getCodes()) {
 						final int v = featureMap.getIndex(i, value);
 						if (v != -1) {
-							featureList.add(v,1);
+							featureList.add(new MaltFeatureNode(v,1));	
 						}
 					}
 				} 
@@ -53,9 +56,9 @@ public class LWClassifier {
 		}
 		try {
 			if (one_prediction) {
-				decision.getKBestList().add(model.predict_one(featureList.toArray()));
+				decision.getKBestList().add(model.predict_one(featureList.toArray(new MaltFeatureNode[featureList.size()])));
 			} else {
-				decision.getKBestList().addList(model.predict(featureList.toArray()));
+				decision.getKBestList().addList(model.predict(featureList.toArray(new MaltFeatureNode[featureList.size()])));
 			}
 		} catch (OutOfMemoryError e) {
 			throw new LibException("Out of memory. Please increase the Java heap size (-Xmx<size>). ", e);

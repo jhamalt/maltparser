@@ -18,9 +18,6 @@ import org.maltparser.concurrent.MaltParserRunnable;
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.options.OptionManager;
 
-
-
-
 public class ConcurrentEngine {
 	private final int optionContainer;
 	private ConcurrentMaltParserModel model;

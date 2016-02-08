@@ -28,7 +28,7 @@ public class Malt04 {
 			if (logger.isInfoEnabled()) {
 				logger.info("Loading part-of-speech tagset '"+fileName+"'...\n");
 			}
-			symbolTableHandler.loadTagset(fileName, "POSTAG", charSet, ColumnDescription.INPUT, nullValueStrategy);
+			symbolTableHandler.loadTagset(fileName, "POSTAG", charSet, ColumnDescription.INPUT, ColumnDescription.STRING, nullValueStrategy);
 		}
 	}
 	
@@ -37,7 +37,7 @@ public class Malt04 {
 			if (logger.isInfoEnabled()) {
 				logger.info("Loading coarse-grained part-of-speech tagset '"+fileName+"'...\n");
 			}
-			symbolTableHandler.loadTagset(fileName, "CPOSTAG", charSet, ColumnDescription.INPUT, nullValueStrategy);
+			symbolTableHandler.loadTagset(fileName, "CPOSTAG", charSet, ColumnDescription.INPUT, ColumnDescription.STRING, nullValueStrategy);
 		}
 	}
 	
@@ -46,7 +46,7 @@ public class Malt04 {
 			if (logger.isInfoEnabled()) {
 				logger.info("Loading dependency type tagset '"+fileName+"'...\n");
 			}
-			symbolTableHandler.loadTagset(fileName, "DEPREL", charSet, ColumnDescription.DEPENDENCY_EDGE_LABEL, nullValueStrategy);
+			symbolTableHandler.loadTagset(fileName, "DEPREL", charSet, ColumnDescription.DEPENDENCY_EDGE_LABEL, ColumnDescription.STRING, nullValueStrategy);
 		}
 	}
 }

@@ -42,7 +42,7 @@ public final class ArcDirFeature implements FeatureFunction {
 		setAddressFunction((AddressFunction)arguments[0]);
 		
 		// Creates a symbol table called "ARCDIR" using one null value
-		setSymbolTable(tableHandler.addSymbolTable("ARCDIR", ColumnDescription.INPUT, "one"));
+		setSymbolTable(tableHandler.addSymbolTable("ARCDIR", ColumnDescription.INPUT, ColumnDescription.STRING, "one"));
 		
 		table.addSymbol("LEFT"); // The address exists
 		table.addSymbol("RIGHT"); // The address don't exists

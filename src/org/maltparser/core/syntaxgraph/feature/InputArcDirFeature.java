@@ -43,7 +43,7 @@ public final class InputArcDirFeature implements FeatureFunction {
 			throw new FeatureException("Could not initialize InputArcDirFeature: the second argument is not an address function. ");
 		}
 		setColumn(dataFormatInstance.getColumnDescriptionByName((String)arguments[0]));
-		setSymbolTable(tableHandler.addSymbolTable("ARCDIR_"+column.getName(),ColumnDescription.INPUT, "one"));
+		setSymbolTable(tableHandler.addSymbolTable("ARCDIR_"+column.getName(),ColumnDescription.INPUT, ColumnDescription.STRING, "one"));
 		table.addSymbol("LEFT");
 		table.addSymbol("RIGHT");
 		table.addSymbol("ROOT");

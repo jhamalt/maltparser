@@ -64,7 +64,7 @@ public final class NumOfFeature implements FeatureFunction {
 		setNumOfRelation((String)arguments[1]);
 		normalizationString = (String)arguments[2];
 		// Creates a symbol table called "NUMOF" using one null value
-		setSymbolTable(tableHandler.addSymbolTable("NUMOF"+normalizationString, ColumnDescription.INPUT, "one"));
+		setSymbolTable(tableHandler.addSymbolTable("NUMOF"+normalizationString, ColumnDescription.INPUT, ColumnDescription.STRING, "one"));
 		
 		String[] items  = splitPattern.split(normalizationString);
 		

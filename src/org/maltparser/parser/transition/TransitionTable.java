@@ -89,6 +89,10 @@ public class TransitionTable implements Table, DecisionPropertyTable {
 		return symbol2transitionMap.get(symbol).getCode();
 	}
 	
+	public double getSymbolStringToValue(String symbol) throws MaltChainedException {
+		return 1.0;
+	}
+	
 	public int size() {
 		return code2transitionMap.size();
 	}

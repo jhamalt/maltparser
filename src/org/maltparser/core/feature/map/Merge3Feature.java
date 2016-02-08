@@ -52,7 +52,7 @@ public final class Merge3Feature implements FeatureMapFunction {
 		}
 		this.type = firstFeature.getType();
 		String name = "MERGE3_"+firstFeature.getMapIdentifier()+"_"+secondFeature.getMapIdentifier()+"_"+thirdFeature.getMapIdentifier();
-		setSymbolTable(tableHandler.addSymbolTable(name,ColumnDescription.INPUT,"One"));
+		setSymbolTable(tableHandler.addSymbolTable(name,ColumnDescription.INPUT, ColumnDescription.STRING, "One"));
 	}
 	
 	public void update() throws MaltChainedException {

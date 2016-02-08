@@ -47,7 +47,7 @@ public final class MergeFeature implements FeatureMapFunction {
 			throw new FeatureException("Could not initialize MergeFeature: the first and the second arguments are not of the same type.");
 		}
 		this.type = firstFeature.getType();
-		setSymbolTable(tableHandler.addSymbolTable("MERGE2_"+firstFeature.getMapIdentifier()+"_"+secondFeature.getMapIdentifier(),ColumnDescription.INPUT,"One"));
+		setSymbolTable(tableHandler.addSymbolTable("MERGE2_"+firstFeature.getMapIdentifier()+"_"+secondFeature.getMapIdentifier(), ColumnDescription.INPUT, ColumnDescription.STRING, "One"));
 	}
 	
 	public void update() throws MaltChainedException {

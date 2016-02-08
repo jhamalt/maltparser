@@ -73,6 +73,10 @@ public class CombinedTableContainer extends TableContainer implements Table {
 		return table.getSymbolStringToCode(symbol);
 	}
 	
+	public double getSymbolStringToValue(String symbol) throws MaltChainedException {
+		return table.getSymbolStringToCode(symbol);
+	}
+	
 	public int getNumberContainers() {
 		return containers.length;
 	}

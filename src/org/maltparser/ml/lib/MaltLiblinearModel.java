@@ -165,7 +165,7 @@ public class MaltLiblinearModel implements Serializable, MaltLibModel {
             	}
             }
         }
-
+        
         double max = dec_values[0];
         int max_index = 0;
 		for (int i = 1; i < dec_values.length; i++) {
