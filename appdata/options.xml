@@ -186,10 +186,12 @@ many single malt configurations. ]]></desc>
 			There are two data format specification files in the MaltParser distribution (included in maltparser-@version@.jar):
 			<ul> 
 			<li><b>conllx</b> defines the <a href="http://nextens.uvt.nl/depparse-wiki/DataFormat" target="_blank">CoNLL-X shared task format</a></li>
+			<li><b>conllu</b> defines the <a href="http://universaldependencies.org/format.html" target="_blank">CoNLL-U Format</a></li>
 			<li><b>malttab</b> defines the <a href="http://w3.msi.vxu.se/~nivre/research/MaltXML.html" target="_blank">Malt-TAB</a> format.</li>
 			</ul> ]]></desc>
 			<shortdesc>Path to format specification file</shortdesc>
 			<legalvalue name="conllx" mapto="/appdata/dataformat/conllx.xml">CoNLL-X data format</legalvalue>
+			<legalvalue name="conllu" mapto="/appdata/dataformat/conllu.xml">CoNLL-X data format</legalvalue>
 			<legalvalue name="malttab" mapto="/appdata/dataformat/malttab.xml">MaltTAB data format</legalvalue>
 		</option>
 		<option type="class" name="reader" flag="ir" default="tab" usage="both">
@@ -227,17 +229,18 @@ many single malt configurations. ]]></desc>
 			There are two data format specification files in the MaltParser distribution (included in maltparser-@version@.jar):
 			<ul> 
 			<li><b>conllx</b> defines the <a href="http://nextens.uvt.nl/depparse-wiki/DataFormat" target="_blank">CoNLL-X shared task format</a></li>
+			<li><b>conllu</b> defines the <a href="http://universaldependencies.org/format.html" target="_blank">CoNLL-U Format</a></li>
 			<li><b>malttab</b> defines the <a href="http://w3.msi.vxu.se/~nivre/research/MaltXML.html" target="_blank">Malt-TAB</a> format.</li>
 			</ul>  ]]></desc>
 			<shortdesc>Path to format specification file</shortdesc>
 			<legalvalue name="conllx" mapto="/appdata/dataformat/conllx.xml">CoNLL-X data format</legalvalue>
+			<legalvalue name="conllu" mapto="/appdata/dataformat/conllu.xml">CoNLL-U data format</legalvalue>
 			<legalvalue name="malttab" mapto="/appdata/dataformat/malttab.xml">MaltTAB data format</legalvalue>
 		</option>
 		<option type="class" name="writer" flag="ow" default="tab" usage="both">
 			<desc><![CDATA[ In MaltParser @version@ there is two output writer:
 			<ul> 
-			<li><b>tab</b> reads tab-separated files with columns defined by the input format.</a></li>
-			<li><b>negra</b> reads line-oriented files similar to the Negra export format.</a></li>
+			<li><b>tab</b> writes tab-separated files with columns defined by the input format.</a></li>
 			</ul> ]]></desc>
 			<shortdesc>Data writer</shortdesc>
 			<legalvalue name="tab" class="org.maltparser.core.syntaxgraph.writer.TabWriter">Tab-separated writer</legalvalue>
