@@ -33,7 +33,7 @@ public final class HashSymbolTable implements SymbolTable {
 		this.symbolCodeMap = new HashMap<String, Integer>();
 		this.codeSymbolMap = new HashMap<Integer, String>();
 		this.symbolValueMap = new HashMap<String, Double>();
-		if (this.category != SymbolTable.OUTPUT) {
+		if (this.category == SymbolTable.OUTPUT) {
 			this.nullValues = new OutputNullValues(nullValueStrategy, this);
 		} else {
 			this.nullValues = new InputNullValues(nullValueStrategy, this);

@@ -96,17 +96,17 @@ public class MaltConsoleEngine {
 			SystemLogger.logger().info(SystemInfo.header() +"\n");
 			SystemLogger.logger().info("Started: " + new Date(System.currentTimeMillis()) +"\n");
 		}
-		if (ConcurrentEngine.canUseConcurrentEngine(OPTION_CONTAINER)) {
-			ConcurrentEngine concurrentEngine = new ConcurrentEngine(OPTION_CONTAINER);
-			concurrentEngine.loadModel();
-			concurrentEngine.parse();
-			concurrentEngine.terminate();
-		} else {
+//		if (ConcurrentEngine.canUseConcurrentEngine(OPTION_CONTAINER)) {
+//			ConcurrentEngine concurrentEngine = new ConcurrentEngine(OPTION_CONTAINER);
+//			concurrentEngine.loadModel();
+//			concurrentEngine.parse();
+//			concurrentEngine.terminate();
+//		} else {
 			Engine engine = new Engine();
 			engine.initialize(OPTION_CONTAINER);
 			engine.process(OPTION_CONTAINER);
 			engine.terminate(OPTION_CONTAINER);
-		}
+//		}
 		if (SystemLogger.logger().isInfoEnabled()) {
 			SystemLogger.logger().info("Finished: " + new Date(System.currentTimeMillis())+"\n");
 		}

@@ -15,6 +15,7 @@ import org.maltparser.concurrent.ConcurrentMaltParserModel;
 import org.maltparser.concurrent.ConcurrentMaltParserService;
 import org.maltparser.concurrent.ConcurrentUtils;
 import org.maltparser.concurrent.MaltParserRunnable;
+import org.maltparser.core.config.ConfigurationException;
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.options.OptionManager;
 
@@ -38,7 +39,7 @@ public class ConcurrentEngine {
 	public static String getMessageWithElapsed(String message, long startTime) {
 		final StringBuilder sb = new StringBuilder();
 		long elapsed = (System.nanoTime() - startTime)/1000000;
-		sb.append(message);sb.append(" : ");
+		sb.append(message);sb.append(": ");
 		sb.append(elapsed);sb.append(" ms");
 		return sb.toString();
 	}
@@ -47,8 +48,9 @@ public class ConcurrentEngine {
 	public void loadModel() throws MaltChainedException {
 		System.out.println("Start loadModel");
 		long startTime = System.nanoTime();
-		
-		String pathToModel = OptionManager.instance().getOptionValueString(optionContainer,"config", "name");
+		File workingDirectory = getWorkingDirectory(OptionManager.instance().getOptionValue(optionContainer, "config", "workingdir").toString());
+		String configName = OptionManager.instance().getOptionValueString(optionContainer,"config", "name");
+		String pathToModel = workingDirectory.getPath()+File.separator+configName+".mco";
 		try {
 			model = ConcurrentMaltParserService.initializeParserModel(new File(pathToModel).toURI().toURL());
 		} catch (Exception e) {
@@ -56,6 +58,22 @@ public class ConcurrentEngine {
 		}
 		System.out.println(getMessageWithElapsed("Loading time", startTime));
 	}
+	
+
+	public File getWorkingDirectory(String path) throws MaltChainedException {
+		File workingDirectory;
+		if (path == null || path.equalsIgnoreCase("user.dir") || path.equalsIgnoreCase(".")) {
+			workingDirectory = new File(System.getProperty("user.dir"));
+		} else {
+			workingDirectory = new File(path);
+		}
+
+		if (workingDirectory == null || !workingDirectory.isDirectory()) {
+			new ConfigurationException("The specified working directory '"+path+"' is not a directory. ");
+		}
+		return workingDirectory;
+	}
+	
 	
 	public void parse() throws MaltChainedException {
 		System.out.println("Start parse");
