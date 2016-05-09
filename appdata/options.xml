@@ -191,7 +191,7 @@ many single malt configurations. ]]></desc>
 			</ul> ]]></desc>
 			<shortdesc>Path to format specification file</shortdesc>
 			<legalvalue name="conllx" mapto="/appdata/dataformat/conllx.xml">CoNLL-X data format</legalvalue>
-			<legalvalue name="conllu" mapto="/appdata/dataformat/conllu.xml">CoNLL-X data format</legalvalue>
+			<legalvalue name="conllu" mapto="/appdata/dataformat/conllu.xml">CoNLL-U data format</legalvalue>
 			<legalvalue name="malttab" mapto="/appdata/dataformat/malttab.xml">MaltTAB data format</legalvalue>
 		</option>
 		<option type="class" name="reader" flag="ir" default="tab" usage="both">
