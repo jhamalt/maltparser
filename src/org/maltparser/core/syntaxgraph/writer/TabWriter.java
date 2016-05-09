@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.maltparser.core.exception.MaltChainedException;
@@ -66,6 +67,21 @@ public class TabWriter implements SyntaxGraphWriter {
 		
 	}
 	
+	public void writeComments(TokenStructure syntaxGraph, int at_index) throws MaltChainedException {
+		ArrayList<String> commentList = syntaxGraph.getComment(at_index);
+		if (commentList != null) {
+			try {
+				for (int i = 0; i < commentList.size(); i++) {
+					writer.write(commentList.get(i));
+					writer.write(NEWLINE);
+				}
+			} catch (IOException e) {
+				close();
+				throw new DataFormatException("Could not write to the output file. ", e);
+			}
+		}
+	}
+	
 	public void writeSentence(TokenStructure syntaxGraph) throws MaltChainedException {
 		if (syntaxGraph == null || dataFormatInstance == null || !syntaxGraph.hasTokens()) {
 			return;
@@ -74,6 +90,7 @@ public class TabWriter implements SyntaxGraphWriter {
 		final SymbolTableHandler symbolTables = syntaxGraph.getSymbolTables();
 		
 		for (int i : syntaxGraph.getTokenIndices()) {
+			writeComments(syntaxGraph, i);
 			try {
 				ColumnDescription column = null;
 				while (columns.hasNext()) {
@@ -127,7 +144,7 @@ public class TabWriter implements SyntaxGraphWriter {
 				throw new DataFormatException("Could not write to the output file. ", e);
 			}
 		}
-		
+		writeComments(syntaxGraph, syntaxGraph.nTokenNode() + 1);
 		try {
 			writer.write('\n');
 			writer.flush();

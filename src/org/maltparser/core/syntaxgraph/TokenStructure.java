@@ -1,5 +1,6 @@
 package org.maltparser.core.syntaxgraph;
 
+import java.util.ArrayList;
 import java.util.SortedSet;
 
 import org.maltparser.core.exception.MaltChainedException;
@@ -25,6 +26,10 @@ public interface TokenStructure extends LabeledStructure {
 	 * @return the added token node.
 	 */
 	public TokenNode addTokenNode(int index) throws MaltChainedException;
+	
+	public void addComment(String comment, int at_index);
+	public ArrayList<String> getComment(int at_index);
+	public boolean hasComments();
 	/**
 	 * Returns the token node with index <i>index</i>.
 	 * 

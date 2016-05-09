@@ -97,8 +97,8 @@ public class ConfigDirChartItem extends ChartItem {
 			} 
 			else if (!configDir.getCreatedByMaltParserVersion().substring(0,3).equals(SystemInfo.getVersion().substring(0,3))) { 
 				if ( !((configDir.getCreatedByMaltParserVersion().substring(0,3).equals("1.7") 
-						|| configDir.getCreatedByMaltParserVersion().substring(0,3).equals("1.8")) 
-						&& SystemInfo.getVersion().substring(0,3).equals("1.8")) ) {
+						|| configDir.getCreatedByMaltParserVersion().substring(0,3).equals("1.8") || configDir.getCreatedByMaltParserVersion().substring(0,3).equals("1.9")) 
+						&& SystemInfo.getVersion().substring(0,3).equals("1.9")) ) {
 					SystemLogger.logger().error("The parser model '"+ configDirName+ ".mco' is created by MaltParser "+configDir.getCreatedByMaltParserVersion()+".\n");
 					SystemLogger.logger().error("You have to re-train the parser model to be able to parse with current version of MaltParser.\n");
 					System.exit(1);

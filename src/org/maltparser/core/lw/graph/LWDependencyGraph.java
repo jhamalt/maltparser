@@ -7,10 +7,10 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-
 import org.maltparser.concurrent.graph.dataformat.ColumnDescription;
 import org.maltparser.concurrent.graph.dataformat.DataFormat;
 import org.maltparser.core.exception.MaltChainedException;
+import org.maltparser.core.helper.HashMap;
 import org.maltparser.core.symbol.SymbolTable;
 import org.maltparser.core.symbol.SymbolTableHandler;
 import org.maltparser.core.syntaxgraph.DependencyStructure;
@@ -23,48 +23,51 @@ import org.maltparser.core.syntaxgraph.node.DependencyNode;
 import org.maltparser.core.syntaxgraph.node.TokenNode;
 
 /**
-* A lightweight version of org.maltparser.core.syntaxgraph.DependencyGraph. 
-* 
+* A lightweight version of org.maltparser.core.syntaxgraph.DependencyGraph.
+*
 * @author Johan Hall
 */
 public final class LWDependencyGraph implements DependencyStructure {
 	private static final String TAB_SIGN = "\t";
-	
+
 	private final DataFormat dataFormat;
 	private final SymbolTableHandler symbolTables;
 	private final RootLabels rootLabels;
 	private final List<LWNode> nodes;
-	
+	private final HashMap<Integer, ArrayList<String>> comments;
+
 	public LWDependencyGraph(DataFormat _dataFormat, SymbolTableHandler _symbolTables) throws MaltChainedException {
 		this.dataFormat = _dataFormat;
 		this.symbolTables = _symbolTables;
 		this.rootLabels = new RootLabels();
 		this.nodes = new ArrayList<LWNode>();
 		this.nodes.add(new LWNode(this, 0)); // ROOT
+		this.comments = new HashMap<Integer, ArrayList<String>>();
 	}
-	
+
 	public LWDependencyGraph(DataFormat _dataFormat, SymbolTableHandler _symbolTables, String[] inputTokens, String defaultRootLabel) throws MaltChainedException {
 		this(_dataFormat, _symbolTables, inputTokens, defaultRootLabel, true);
 	}
-	
+
 	public LWDependencyGraph(DataFormat _dataFormat, SymbolTableHandler _symbolTables, String[] inputTokens, String defaultRootLabel, boolean addEdges) throws MaltChainedException {
 		this.dataFormat = _dataFormat;
 		this.symbolTables = _symbolTables;
 		this.rootLabels = new RootLabels();
 		this.nodes = new ArrayList<LWNode>(inputTokens.length+1);
-		
+		this.comments = new HashMap<Integer, ArrayList<String>>();
 		resetTokens(inputTokens, defaultRootLabel, addEdges);
 	}
-	
+
 	public void resetTokens(String[] inputTokens, String defaultRootLabel, boolean addEdges) throws MaltChainedException {
 		nodes.clear();
+		comments.clear();
 		symbolTables.cleanUp();
 		// Add nodes
 		nodes.add(new LWNode(this, 0)); // ROOT
 		for (int i = 0; i < inputTokens.length; i++) {
 			nodes.add(new LWNode(this, i+1));
 		}
-		
+
 		for (int i = 0; i < inputTokens.length; i++) {
 			nodes.get(i+1).addColumnLabels(inputTokens[i].split(TAB_SIGN), addEdges);
 		}
@@ -74,7 +77,7 @@ public final class LWDependencyGraph implements DependencyStructure {
 				throw new LWGraphException("Not allowed to add a head node that doesn't exists");
 			}
 		}
-		
+
 		for (int i = 0; i < dataFormat.numberOfColumns(); i++) {
 			ColumnDescription column = dataFormat.getColumnDescription(i);
 			if (!column.isInternal() && column.getCategory() == ColumnDescription.DEPENDENCY_EDGE_LABEL) {
@@ -82,22 +85,22 @@ public final class LWDependencyGraph implements DependencyStructure {
 			}
 		}
 	}
-	
+
 	public DataFormat getDataFormat() {
 		return dataFormat;
 	}
-	
+
 	public LWNode getNode(int nodeIndex) {
 		if (nodeIndex < 0 || nodeIndex >= nodes.size()) {
 			return null;
 		}
 		return nodes.get(nodeIndex);
 	}
-	
+
 	public int nNodes() {
 		return nodes.size();
 	}
-	
+
 	protected boolean hasDependent(int nodeIndex) {
 		for (int i = 1; i < nodes.size(); i++) {
 			if (nodeIndex == nodes.get(i).getHeadIndex()) {
@@ -106,7 +109,7 @@ public final class LWDependencyGraph implements DependencyStructure {
 		}
 		return false;
 	}
-	
+
 	protected boolean hasLeftDependent(int nodeIndex) {
 		for (int i = 1; i < nodeIndex; i++) {
 			if (nodeIndex == nodes.get(i).getHeadIndex()) {
@@ -115,7 +118,7 @@ public final class LWDependencyGraph implements DependencyStructure {
 		}
 		return false;
 	}
-	
+
 	protected boolean hasRightDependent(int nodeIndex) {
 		for (int i = nodeIndex + 1; i < nodes.size(); i++) {
 			if (nodeIndex == nodes.get(i).getHeadIndex()) {
@@ -124,7 +127,7 @@ public final class LWDependencyGraph implements DependencyStructure {
 		}
 		return false;
 	}
-	
+
 	protected List<DependencyNode> getListOfLeftDependents(int nodeIndex) {
 		List<DependencyNode> leftDependents = Collections.synchronizedList(new ArrayList<DependencyNode>());
 		for (int i = 1; i < nodeIndex; i++) {
@@ -134,7 +137,7 @@ public final class LWDependencyGraph implements DependencyStructure {
 		}
 		return leftDependents;
 	}
-	
+
 	protected SortedSet<DependencyNode> getSortedSetOfLeftDependents(int nodeIndex) {
 		SortedSet<DependencyNode> leftDependents = Collections.synchronizedSortedSet(new TreeSet<DependencyNode>());
 		for (int i = 1; i < nodeIndex; i++) {
@@ -144,7 +147,7 @@ public final class LWDependencyGraph implements DependencyStructure {
 		}
 		return leftDependents;
 	}
-	
+
 	protected List<DependencyNode> getListOfRightDependents(int nodeIndex) {
 		List<DependencyNode> rightDependents = Collections.synchronizedList(new ArrayList<DependencyNode>());
 		for (int i = nodeIndex + 1; i < nodes.size(); i++) {
@@ -154,7 +157,7 @@ public final class LWDependencyGraph implements DependencyStructure {
 		}
 		return rightDependents;
 	}
-	
+
 	protected SortedSet<DependencyNode> getSortedSetOfRightDependents(int nodeIndex) {
 		SortedSet<DependencyNode> rightDependents = Collections.synchronizedSortedSet(new TreeSet<DependencyNode>());
 		for (int i = nodeIndex + 1; i < nodes.size(); i++) {
@@ -164,7 +167,7 @@ public final class LWDependencyGraph implements DependencyStructure {
 		}
 		return rightDependents;
 	}
-	
+
 	protected List<DependencyNode> getListOfDependents(int nodeIndex) {
 		List<DependencyNode> dependents = Collections.synchronizedList(new ArrayList<DependencyNode>());
 		for (int i = 1; i < nodes.size(); i++) {
@@ -174,7 +177,7 @@ public final class LWDependencyGraph implements DependencyStructure {
 		}
 		return dependents;
 	}
-	
+
 	protected SortedSet<DependencyNode> getSortedSetOfDependents(int nodeIndex) {
 		SortedSet<DependencyNode> dependents = Collections.synchronizedSortedSet(new TreeSet<DependencyNode>());
 		for (int i = 1; i < nodes.size(); i++) {
@@ -184,7 +187,7 @@ public final class LWDependencyGraph implements DependencyStructure {
 		}
 		return dependents;
 	}
-	
+
 	protected int getRank(int nodeIndex) {
 		int[] components = new int[nodes.size()];
 		int[] ranks = new int[nodes.size()];
@@ -197,13 +200,13 @@ public final class LWDependencyGraph implements DependencyStructure {
 				int hcIndex = findComponent(nodes.get(i).getHead().getIndex(), components);
 				int dcIndex = findComponent(nodes.get(i).getIndex(), components);
 				if (hcIndex != dcIndex) {
-					link(hcIndex, dcIndex, components, ranks);		
+					link(hcIndex, dcIndex, components, ranks);
 				}
 			}
 		}
 		return ranks[nodeIndex];
 	}
-	
+
 	protected DependencyNode findComponent(int nodeIndex) {
 		int[] components = new int[nodes.size()];
 		int[] ranks = new int[nodes.size()];
@@ -216,13 +219,13 @@ public final class LWDependencyGraph implements DependencyStructure {
 				int hcIndex = findComponent(nodes.get(i).getHead().getIndex(), components);
 				int dcIndex = findComponent(nodes.get(i).getIndex(), components);
 				if (hcIndex != dcIndex) {
-					link(hcIndex, dcIndex, components, ranks);		
+					link(hcIndex, dcIndex, components, ranks);
 				}
 			}
 		}
 		return nodes.get(findComponent(nodeIndex, components));
 	}
-	
+
 	private int[] findComponents() {
 		int[] components = new int[nodes.size()];
 		int[] ranks = new int[nodes.size()];
@@ -235,22 +238,22 @@ public final class LWDependencyGraph implements DependencyStructure {
 				int hcIndex = findComponent(nodes.get(i).getHead().getIndex(), components);
 				int dcIndex = findComponent(nodes.get(i).getIndex(), components);
 				if (hcIndex != dcIndex) {
-					link(hcIndex, dcIndex, components, ranks);		
+					link(hcIndex, dcIndex, components, ranks);
 				}
 			}
 		}
 		return components;
 	}
-	
+
 	private int findComponent(int xIndex, int[] components) {
 		if (xIndex != components[xIndex]) {
 			components[xIndex] = findComponent(components[xIndex], components);
 		}
 		return components[xIndex];
 	}
-	
+
 	private int link(int xIndex, int yIndex, int[] components, int[] ranks) {
-		if (ranks[xIndex] > ranks[yIndex]) {  
+		if (ranks[xIndex] > ranks[yIndex]) {
 			components[yIndex] = xIndex;
 		} else {
 			components[xIndex] = yIndex;
@@ -262,7 +265,7 @@ public final class LWDependencyGraph implements DependencyStructure {
 		}
 		return xIndex;
 	}
-	
+
 	@Override
 	public TokenNode addTokenNode() throws MaltChainedException {
 		throw new LWGraphException("Not implemented in the light-weight dependency graph package");
@@ -277,6 +280,26 @@ public final class LWDependencyGraph implements DependencyStructure {
 	public TokenNode getTokenNode(int index) {
 //		throw new LWGraphException("Not implemented in the light-weight dependency graph package");
 		return null;
+	}
+
+
+	@Override
+	public void addComment(String comment, int at_index) {
+		ArrayList<String> commentList = comments.get(at_index);
+		if (commentList == null) {
+			commentList = comments.put(at_index, new ArrayList<String>());
+		}
+		commentList.add(comment);
+	}
+
+	@Override
+	public ArrayList<String> getComment(int at_index) {
+		return comments.get(at_index);
+	}
+
+	@Override
+	public boolean hasComments() {
+		return comments.size() > 0;
 	}
 
 	@Override
@@ -328,7 +351,7 @@ public final class LWDependencyGraph implements DependencyStructure {
 	public void addLabel(Element element, String labelFunction, String label) throws MaltChainedException {
 		element.addLabel(symbolTables.addSymbolTable(labelFunction), label);
 	}
-	
+
 	@Override
 	public LabelSet checkOutNewLabelSet() throws MaltChainedException {
 		throw new LWGraphException("Not implemented in light-weight dependency graph");
@@ -444,7 +467,7 @@ public final class LWDependencyGraph implements DependencyStructure {
 			}
 		}
 	}
-	
+
 	@Override
 	public int nEdges() {
 		int n = 0;
@@ -539,27 +562,27 @@ public final class LWDependencyGraph implements DependencyStructure {
 	public LabelSet getDefaultRootEdgeLabels() throws MaltChainedException {
 		return rootLabels.getDefaultRootLabels();
 	}
-	
+
 	@Override
 	public String getDefaultRootEdgeLabelSymbol(SymbolTable table) throws MaltChainedException {
 		return rootLabels.getDefaultRootLabelSymbol(table);
 	}
-	
+
 	@Override
 	public int getDefaultRootEdgeLabelCode(SymbolTable table) throws MaltChainedException {
 		return rootLabels.getDefaultRootLabelCode(table);
 	}
-	
+
 	@Override
 	public void setDefaultRootEdgeLabel(SymbolTable table, String defaultRootSymbol) throws MaltChainedException {
 		rootLabels.setDefaultRootLabel(table, defaultRootSymbol);
 	}
-	
+
 	@Override
 	public void setDefaultRootEdgeLabels(String rootLabelOption, SortedMap<String, SymbolTable> edgeSymbolTables) throws MaltChainedException {
 		rootLabels.setRootLabels(rootLabelOption, edgeSymbolTables);
 	}
-	
+
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
 		for (LWNode node : nodes) {

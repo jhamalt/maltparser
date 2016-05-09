@@ -1,5 +1,6 @@
 package org.maltparser.core.syntaxgraph;
 
+import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.Observable;
 import java.util.SortedMap;
@@ -8,9 +9,9 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.maltparser.core.exception.MaltChainedException;
+import org.maltparser.core.helper.HashMap;
 import org.maltparser.core.pool.ObjectPoolList;
 import org.maltparser.core.symbol.SymbolTableHandler;
-
 import org.maltparser.core.syntaxgraph.node.Token;
 import org.maltparser.core.syntaxgraph.node.TokenNode;
 /**
@@ -21,6 +22,7 @@ import org.maltparser.core.syntaxgraph.node.TokenNode;
 public class Sentence extends SyntaxGraph implements TokenStructure {
 	protected final ObjectPoolList<Token> terminalPool;
 	protected final SortedMap<Integer,Token> terminalNodes;
+	protected final HashMap<Integer, ArrayList<String>> comments;
 	protected int sentenceID;
 	
 	public Sentence(SymbolTableHandler symbolTables) throws MaltChainedException {
@@ -30,6 +32,7 @@ public class Sentence extends SyntaxGraph implements TokenStructure {
 			protected Token create() throws MaltChainedException { return new Token(); }
 			public void resetObject(Token o) throws MaltChainedException { o.clear(); }
 		};
+		comments = new HashMap<Integer, ArrayList<String>>();
 	}
 
 	public TokenNode addTokenNode(int index) throws MaltChainedException {
@@ -45,6 +48,23 @@ public class Sentence extends SyntaxGraph implements TokenStructure {
 			return getOrAddTerminalNode(index+1);
 		}
 		return getOrAddTerminalNode(1);
+	}
+	
+	public void addComment(String comment, int at_index) {
+		ArrayList<String> commentList = comments.get(at_index);
+		if (commentList == null) {
+			commentList = new ArrayList<String>();
+			comments.put(at_index, commentList);
+		}
+		commentList.add(comment);
+	}
+	
+	public ArrayList<String> getComment(int at_index) {
+		return comments.get(at_index);
+	}
+	
+	public boolean hasComments() {
+		return comments.size() > 0;
 	}
 	
 	public int nTokenNode() {
@@ -135,6 +155,7 @@ public class Sentence extends SyntaxGraph implements TokenStructure {
 	public void clear() throws MaltChainedException {
 		terminalPool.checkInAll();
 		terminalNodes.clear();
+		comments.clear();
 		sentenceID = 0;
 		super.clear();
 	}

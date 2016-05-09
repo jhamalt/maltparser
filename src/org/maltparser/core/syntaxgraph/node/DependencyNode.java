@@ -106,9 +106,9 @@ public interface DependencyNode extends ComparableNode {
 	 */
 	public DependencyNode getLeftSibling() throws MaltChainedException;
 	/**
-	 * Returns the left sibling at the same side of head as the node it self. If not found <code>null</code is returned
+	 * Returns the left sibling at the same side of head as the node it self. If not found <code>null</code> is returned
 	 * 
-	 * @return the left sibling at the same side of head as the node it self. If not found <code>null</code is returned
+	 * @return the left sibling at the same side of head as the node it self. If not found <code>null</code> is returned
 	 */
 	public DependencyNode getSameSideLeftSibling() throws MaltChainedException;
 	/**
@@ -138,9 +138,9 @@ public interface DependencyNode extends ComparableNode {
 	 */
 	public DependencyNode getRightSibling() throws MaltChainedException;
 	/**
-	 * Returns the right sibling at the same side of head as the node it self. If not found <code>null</code is returned
+	 * Returns the right sibling at the same side of head as the node it self. If not found <code>null</code> is returned
 	 * 
-	 * @return the right sibling at the same side of head as the node it self. If not found <code>null</code is returned
+	 * @return the right sibling at the same side of head as the node it self. If not found <code>null</code> is returned
 	 */
 	public DependencyNode getSameSideRightSibling() throws MaltChainedException;
 	/**

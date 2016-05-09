@@ -1,5 +1,7 @@
 package org.maltparser.core.syntaxgraph;
 
+import java.util.ArrayList;
+
 import org.maltparser.core.exception.MaltChainedException;
 import org.maltparser.core.flow.FlowChartInstance;
 import org.maltparser.core.flow.item.ChartItem;
@@ -88,6 +90,16 @@ public class CopyChartItem extends ChartItem {
 			DependencyNode pnode = targetGraph.addTokenNode(gnode.getIndex());
 			for (SymbolTable table : gnode.getLabelTypes()) {
 				pnode.addLabel(table, gnode.getLabelSymbol(table));
+			}
+		}
+		if (sourceGraph.hasComments()) {
+			for (int i = 1; i <= sourceGraph.nTokenNode() + 1; i++) {
+				ArrayList<String> commentList = sourceGraph.getComment(i);
+				if (commentList != null) {
+					for (int j = 0; j < commentList.size();j++) {
+						targetGraph.addComment(commentList.get(j), i);
+					}
+				}
 			}
 		}
 	}

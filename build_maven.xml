@@ -5,9 +5,9 @@
 	<!-- define Maven coordinates -->
 	<property name="groupId" value="org.maltparser" />
 	<property name="artifactId" value="maltparser" />
-	<property name="version" value="1.8.1" />
+	<property name="version" value="1.9" />
 
-	<property name="version-maltparser" value="1.8.1" /> 
+	<property name="version-maltparser" value="1.9" /> 
 	<property name="dist.dir" location="${dist}/${artifactId}-${version-maltparser}/" />
 	<property name="maltparser-jar" value="${dist.dir}/${artifactId}-${version-maltparser}.jar"/>
 	<property name="javadoc" value="${dist.dir}/docs/api"/>
