@@ -379,15 +379,15 @@ otherwise all tokens in Left must be inspected before the next token is shifted.
 			no feature specification file is specified,  the parser will use a default feature model specification for the given parsing algorithm that is included in the
 			MaltParser distribution (included in the maltparser-@version@.jar file).  ]]></desc>
 			<shortdesc>Feature model specification</shortdesc>
-			<legalvalue name="nivreeager" mapto="/appdata/features/{learner}/NivreEager.xml">Nivre arc-eager default model</legalvalue>
-			<legalvalue name="nivrestandard" mapto="/appdata/features/{learner}/NivreStandard.xml">Nivre arc-standard default model</legalvalue>
-			<legalvalue name="covnonproj" mapto="/appdata/features/{learner}/CovingtonNonProjective.xml">Covington non-projective default model</legalvalue>
-			<legalvalue name="covproj" mapto="/appdata/features/{learner}/CovingtonProjective.xml">Covington projective default model</legalvalue>
-			<legalvalue name="stackproj" mapto="/appdata/features/{learner}/StackProjective.xml">Stack projective default model</legalvalue>
-			<legalvalue name="stackeager" mapto="/appdata/features/{learner}/StackSwap.xml">Stack projective default model</legalvalue>
-			<legalvalue name="stacklazy" mapto="/appdata/features/{learner}/StackSwap.xml">Stack projective default model</legalvalue>
-			<legalvalue name="planar" mapto="/appdata/features/{learner}/PlanarEager.xml">Planar arc-eager default model</legalvalue>
-			<legalvalue name="2planar" mapto="/appdata/features/{learner}/2PlanarEager.xml">2-Planar arc-eager default model</legalvalue>
+			<legalvalue name="nivreeager" mapto="/appdata/features/{learner}/{dataformat}/NivreEager.xml">Nivre arc-eager default model</legalvalue>
+			<legalvalue name="nivrestandard" mapto="/appdata/features/{learner}/{dataformat}/NivreStandard.xml">Nivre arc-standard default model</legalvalue>
+			<legalvalue name="covnonproj" mapto="/appdata/features/{learner}/{dataformat}/CovingtonNonProjective.xml">Covington non-projective default model</legalvalue>
+			<legalvalue name="covproj" mapto="/appdata/features/{learner}/{dataformat}/CovingtonProjective.xml">Covington projective default model</legalvalue>
+			<legalvalue name="stackproj" mapto="/appdata/features/{learner}/{dataformat}/StackProjective.xml">Stack projective default model</legalvalue>
+			<legalvalue name="stackeager" mapto="/appdata/features/{learner}/{dataformat}/StackSwap.xml">Stack projective default model</legalvalue>
+			<legalvalue name="stacklazy" mapto="/appdata/features/{learner}/{dataformat}/StackSwap.xml">Stack projective default model</legalvalue>
+			<legalvalue name="planar" mapto="/appdata/features/{learner}/{dataformat}/PlanarEager.xml">Planar arc-eager default model</legalvalue>
+			<legalvalue name="2planar" mapto="/appdata/features/{learner}/{dataformat}/2PlanarEager.xml">2-Planar arc-eager default model</legalvalue>
 		</option>
 		<option type="string" name="data_split_column" flag="d" default="" usage="save">
 			<desc><![CDATA[ For some learning methods (like LIBSVM) it is impractical to induce a single model based on all training instances. With

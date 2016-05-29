@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<featuremodels>
+	<featuremodel name="nivreeager">
+		<feature>InputColumn(XPOSTAG, Stack[0])</feature>
+		<feature>InputColumn(XPOSTAG, Input[0])</feature>
+		<feature>InputColumn(XPOSTAG, Input[1])</feature>
+		<feature>InputColumn(XPOSTAG, Input[2])</feature>
+		<feature>InputColumn(XPOSTAG, Input[3])</feature>
+		<feature>InputColumn(XPOSTAG, Stack[1])</feature>
+		<feature>Merge(InputColumn(XPOSTAG, Stack[0]), InputColumn(XPOSTAG, Input[0]))</feature>
+		<feature>Merge3(InputColumn(XPOSTAG, Stack[1]), InputColumn(XPOSTAG, Stack[0]), InputColumn(XPOSTAG, Input[0]))</feature>
+		<feature>Merge3(InputColumn(XPOSTAG, Stack[0]), InputColumn(XPOSTAG, Input[0]), InputColumn(XPOSTAG, Input[1]))</feature>
+		<feature>Merge3(InputColumn(XPOSTAG, Input[0]), InputColumn(XPOSTAG, Input[1]), InputColumn(XPOSTAG, Input[2]))</feature>
+		<feature>Merge3(InputColumn(XPOSTAG, Input[1]), InputColumn(XPOSTAG, Input[2]), InputColumn(XPOSTAG, Input[3]))</feature>
+		<feature>OutputColumn(DEPREL, Stack[0])</feature>
+		<feature>OutputColumn(DEPREL, ldep(Stack[0]))</feature>
+		<feature>OutputColumn(DEPREL, rdep(Stack[0]))</feature>
+		<feature>OutputColumn(DEPREL, ldep(Input[0]))</feature>
+		<feature>Merge3(InputColumn(XPOSTAG, Stack[0]), OutputColumn(DEPREL, ldep(Stack[0])), OutputColumn(DEPREL, rdep(Stack[0])))</feature>
+		<feature>Merge(InputColumn(XPOSTAG, Stack[0]), OutputColumn(DEPREL, Stack[0]))</feature>
+		<feature>Merge(InputColumn(XPOSTAG, Input[0]), OutputColumn(DEPREL, ldep(Input[0])))</feature>
+		<feature>InputColumn(FORM, Stack[0])</feature>
+		<feature>InputColumn(FORM, Input[0])</feature>
+		<feature>InputColumn(FORM, Input[1])</feature>
+		<feature>InputColumn(FORM, head(Stack[0]))</feature>
+	</featuremodel>
+</featuremodels>

@@ -442,9 +442,11 @@ public class SingleMalt implements DependencyParserConfig {
 			// Copy the feature model file into the configuration directory
 			String featureModelFileName = getOptionValue("guide", "features").toString().trim();
 			if (featureModelFileName.equals("")) {
+				
 				// use default feature model depending on the selected parser algorithm
 				OptionManager.instance().overloadOptionValue(optionContainerIndex, "guide", "features", getOptionValueString("singlemalt", "parsing_algorithm"));
 				featureModelFileName = getOptionValue("guide", "features").toString().trim();
+				
 				/* START: Temp fix during development of new liblinear and libsvm interface */
 				String learner = getOptionValueString("guide", "learner");
 				if (!learner.startsWith("lib")) {
@@ -452,6 +454,8 @@ public class SingleMalt implements DependencyParserConfig {
 				}
 				/* END: Temp fix during development of new liblinear and libsvm interface */
 				featureModelFileName = featureModelFileName.replace("{learner}", learner);
+				featureModelFileName = featureModelFileName.replace("{dataformat}", getOptionValue("input", "format").toString().trim().replace(".xml", ""));
+				
 				final URLFinder f = new URLFinder();
 				featureModelFileName = configDir.copyToConfig(f.findURLinJars(featureModelFileName));
 			} else {
