@@ -185,9 +185,9 @@ many single malt configurations. ]]></desc>
 			more information see the user guide: <a href="userguide.html#inout">Input and output format</a>. 
 			There are two data format specification files in the MaltParser distribution (included in maltparser-@version@.jar):
 			<ul> 
-			<li><b>conllx</b> defines the <a href="http://nextens.uvt.nl/depparse-wiki/DataFormat" target="_blank">CoNLL-X shared task format</a></li>
-			<li><b>conllu</b> defines the <a href="http://universaldependencies.org/format.html" target="_blank">CoNLL-U Format</a></li>
-			<li><b>malttab</b> defines the <a href="http://w3.msi.vxu.se/~nivre/research/MaltXML.html" target="_blank">Malt-TAB</a> format.</li>
+			<li><b>conllx</b> defines the <a href="http://ilk.uvt.nl/conll/#dataformat" target="_blank">CoNLL-X shared task format</a></li>
+			<li><b>conllu</b> defines the <a href="http://universaldependencies.org/format.html" target="_blank">CoNLL-U format</a></li>
+			<li><b>malttab</b> defines the <a href="http://stp.lingfil.uu.se/~nivre/research/MaltXML.html" target="_blank">Malt-TAB</a> format.</li>
 			</ul> ]]></desc>
 			<shortdesc>Path to format specification file</shortdesc>
 			<legalvalue name="conllx" mapto="/appdata/dataformat/conllx.xml">CoNLL-X data format</legalvalue>
@@ -228,9 +228,9 @@ many single malt configurations. ]]></desc>
 			For more information see the user guide: <a href="userguide.html#define_inout">Define your own input/output format</a>. 
 			There are two data format specification files in the MaltParser distribution (included in maltparser-@version@.jar):
 			<ul> 
-			<li><b>conllx</b> defines the <a href="http://nextens.uvt.nl/depparse-wiki/DataFormat" target="_blank">CoNLL-X shared task format</a></li>
-			<li><b>conllu</b> defines the <a href="http://universaldependencies.org/format.html" target="_blank">CoNLL-U Format</a></li>
-			<li><b>malttab</b> defines the <a href="http://w3.msi.vxu.se/~nivre/research/MaltXML.html" target="_blank">Malt-TAB</a> format.</li>
+			<li><b>conllx</b> defines the <a href="http://ilk.uvt.nl/conll/#dataformat" target="_blank">CoNLL-X shared task format</a></li>
+			<li><b>conllu</b> defines the <a href="http://universaldependencies.org/format.html" target="_blank">CoNLL-U format</a></li>
+			<li><b>malttab</b> defines the <a href="http://stp.lingfil.uu.se/~nivre/research/MaltXML.html" target="_blank">Malt-TAB</a> format.</li>
 			</ul>  ]]></desc>
 			<shortdesc>Path to format specification file</shortdesc>
 			<legalvalue name="conllx" mapto="/appdata/dataformat/conllx.xml">CoNLL-X data format</legalvalue>
@@ -375,7 +375,7 @@ otherwise all tokens in Left must be inspected before the next token is shifted.
 		<option type="stringenum" name="features" flag="F" default="" usage="save">
 			<desc><![CDATA[ The <b>features</b> option is used for specifying the feature model specification file, which is an XML file 
 			(see user guide: <a href="userguide.html#featurespec">Feature model</a>) or a text file with the file suffix <b>.par</b> (see 
-			user guide of MaltParser 0.x (C-impl) <a href="http://w3.msi.vxu.se/~nivre/research/MaltParser.html#features">Feature Models</a>). If 
+			user guide of MaltParser 0.x (C-impl) <a href="http://stp.lingfil.uu.se/~nivre/research/MaltParser.html#features">Feature Models</a>). If 
 			no feature specification file is specified,  the parser will use a default feature model specification for the given parsing algorithm that is included in the
 			MaltParser distribution (included in the maltparser-@version@.jar file).  ]]></desc>
 			<shortdesc>Feature model specification</shortdesc>

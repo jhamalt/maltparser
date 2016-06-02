@@ -88,8 +88,8 @@ prompt>$ java -jar maltparser-@version@.jar -h
 
 <h4 id="startusing_train">Train a parsing model</h4>
 <p>Now we are ready to train our first parsing model. In the directory <strong>examples/data</strong> there are two data files <strong>talbanken05_train.conll</strong> 
-and <strong>talbanken05_test.conll</strong>, which contain very small portions of the Swedish treebank <a href="http://w3.msi.vxu.se/~nivre/research/Talbanken05.html" target="_blank">Talbanken05</a>. 
-The example data sets are formatted according to the <a href="http://nextens.uvt.nl/depparse-wiki/DataFormat" target="_blank">CoNLL data format</a>. Note that
+and <strong>talbanken05_test.conll</strong>, which contain very small portions of the Swedish treebank <a href="http://stp.lingfil.uu.se/~nivre/research/Talbanken05.html" target="_blank">Talbanken05</a>. 
+The example data sets are formatted according to the <a href="http://ilk.uvt.nl/conll/#dataformat" target="_blank">CoNLL-X data format</a>. Note that
 these data sets are very small and that you need more training data to create a useful parsing model.</p>
 <p>To train a default parsing model with MaltParser type the following at the command line prompt:</p>
 <pre>
@@ -135,7 +135,7 @@ named <strong>test.mco</strong>. Finally, the parser informs you about the learn
 <h4 id="startusing_parse">Parse data with your parsing model</h4>
 <p>We have now created a parsing model that we can use for parsing new sentences from the same language. It is important that unparsed sentences are 
 formatted according to the format that was used during training (except that the output columns for head and dependency relation are missing).
-In this case tokens are represented by the first six columns of the CoNLL data format. To parse type the following:</p>
+In this case tokens are represented by the first six columns of the CoNLL-X data format. To parse type the following:</p>
 <pre>
 prompt> java -jar maltparser-@version@.jar -c test -i examples/data/talbanken05_test.conll -o out.conll -m parse
 </pre>
@@ -414,7 +414,7 @@ prompt> java -jar maltparser-@version@.jar -c test -m unpack
 <tr class="b"><td align="left">odm0.libsvm.moo, odm0.libsvm.map</td><td align="left">The LIBSVM model that is used for predicting the next parsing action.</td></tr>
 <tr class="b"><td align="left">savedoptions.sop</td><td align="left">All option settings that cannot be changed during parsing.</td></tr>
 <tr class="b"><td align="left">symboltables.sym</td><td align="left">All distinct symbols in the training data, divided into different columns. 
-For example, the column POSTAG in the CoNLL format has its own symbol table with all distinct values occurring in the training data. </td></tr>
+For example, the column POSTAG in the CoNLL-X format has its own symbol table with all distinct values occurring in the training data. </td></tr>
 <tr class="b"><td align="left">test_singlemalt.info</td><td align="left">Information about the configuration (same as described above).</td></tr>
 </table>
 
@@ -454,10 +454,9 @@ prompt> java -jar maltparser-@version@.jar -c pproj -m deproj
 
 <h3 id="inout">Input and output format</h3>
 <p>The format and encoding of the input and output data is controlled by the <strong>format</strong>, <strong>reader</strong>, <strong>writer</strong> and <strong>charset</strong> options
-in the <strong>input</strong> and <strong>output</strong> option group. The <a href="http://nextens.uvt.nl/depparse-wiki/DataFormat" target="_blank">CoNLL</a>,
-<a href="http://w3.msi.vxu.se/~nivre/research/MaltXML.html" target="_blank">Malt-TAB</a> and simplified version of 
-<a href="http://www.coli.uni-sb.de/~thorsten/publications/Brants-CLAUS98.ps.gz" target="_blank">Negra</a> data format specification files are already included in 
-the MaltParser jar-file (maltparser-@version@.jar) in the <strong>appdata/dataformat</strong> directory. The CoNLL data format specification file looks like this:</p>
+in the <strong>input</strong> and <strong>output</strong> option group. The <a href="http://ilk.uvt.nl/conll/#dataformat" target="_blank">CoNLL-X</a>, <a href="http://universaldependencies.org/format.html" target="_blank">CoNLL-U</a> and
+<a href="http://stp.lingfil.uu.se/~nivre/research/MaltXML.html" target="_blank">Malt-TAB</a> data format specification files are already included in 
+the MaltParser jar-file (maltparser-@version@.jar) in the <strong>appdata/dataformat</strong> directory. The CoNLL-X data format specification file looks like this:</p>
 <pre>
 &lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;dataformat name="conllx"&gt;
@@ -504,7 +503,7 @@ The <strong>column</strong> elements have three attributes:</p>
 <tr class="b"><td align="left">default</td><td>The default output for columns that have the column type IGNORE.</td></tr>
 </table>
 <p>It is possible to define your own input/output format and then supply the data format specification file with the <strong>format</strong> option.</p>
-<p>Currently, MaltParser only supports tab-separated data files, which means that a sentence in a data file in the CoNLL 
+<p>Currently, MaltParser only supports tab-separated data files, which means that a sentence in a data file in the CoNLL-X 
 data format could look like this:</p>
 <pre>
 1	Den	_	PO	PO	DP	2	SS	_	_
@@ -624,7 +623,7 @@ The <a href="optiondesc.html#2planar-reduceonswitch">reduce on switch</a> option
 <p>MaltParser uses history-based feature models for predicting the next action in the deterministic derivation of a dependency 
 structure, which means that it uses features of the partially built dependency structure together with features of 
 the (tagged) input string. Features that make use of the partially built dependency structure corresponds to the <strong>OUTPUT</strong> category of
-the data format, for example <code>DEPREL</code> in the CoNLL data format, and features of the input string corresponds to the <strong>INPUT</strong> 
+the data format, for example <code>DEPREL</code> in the CoNLL-X data format, and features of the input string corresponds to the <strong>INPUT</strong> 
 category of the data format, for example <code>CPOSTAG</code> and <code>FORM</code>. </p>
 
 
@@ -746,7 +745,7 @@ and one or more arguments that control the mapping. There is one feature map fun
 <table>
 <tr><td>Split</td><td>Splits the feature value into a set of feature values. In addition to a feature specification it takes a 
 delimiter (regular expression) as an argument. 
-The example below shows how the value of the FEATS column in the CoNLL data format is split into a set of values using the delimiter |:
+The example below shows how the value of the FEATS column in the CoNLL-X data format is split into a set of values using the delimiter |:
 <pre>
 Split(InputColumn(FEATS, Input[0]),\|)
 </pre>

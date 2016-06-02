@@ -10,7 +10,7 @@
 	 })();
  </script></head><body><h1>MaltParser</h1><div id="navtop">Modified: @today@</div>
  @leftmenu@
- <div id="bodycol"><div class="section"><h2>MaltParser 1.9-rc2 - Available options</h2><p>All options are categorized into one of the following option groups:
+ <div id="bodycol"><div class="section"><h2>MaltParser 1.9 - Available options</h2><p>All options are categorized into one of the following option groups:
   <b>system</b>, 
    <b>config</b>, 
    <b>singlemalt</b>, 
@@ -93,9 +93,9 @@ many single malt configurations. </p><table cellpadding="1" cellspacing="0" widt
 			more information see the user guide: <a href="userguide.html#inout">Input and output format</a>. 
 			There are two data format specification files in the MaltParser distribution (included in maltparser-@version@.jar):
 			<ul> 
-			<li><b>conllx</b> defines the <a href="http://nextens.uvt.nl/depparse-wiki/DataFormat" target="_blank">CoNLL-X shared task format</a></li>
-			<li><b>conllu</b> defines the <a href="http://universaldependencies.org/format.html" target="_blank">CoNLL-U Format</a></li>
-			<li><b>malttab</b> defines the <a href="http://w3.msi.vxu.se/~nivre/research/MaltXML.html" target="_blank">Malt-TAB</a> format.</li>
+			<li><b>conllx</b> defines the <a href="http://ilk.uvt.nl/conll/#dataformat" target="_blank">CoNLL-X shared task format</a></li>
+			<li><b>conllu</b> defines the <a href="http://universaldependencies.org/format.html" target="_blank">CoNLL-U format</a></li>
+			<li><b>malttab</b> defines the <a href="http://stp.lingfil.uu.se/~nivre/research/MaltXML.html" target="_blank">Malt-TAB</a> format.</li>
 			</ul> </p><table cellpadding="1" cellspacing="0" width="50%"><tr><td align="left" style="width:15%;font-weight:bold">&nbsp;conllx</td><td align="left" style="width:85%">CoNLL-X data format</td></tr><tr><td align="left" style="width:15%;font-weight:bold">&nbsp;conllu</td><td align="left" style="width:85%">CoNLL-U data format</td></tr><tr><td align="left" style="width:15%;font-weight:bold">&nbsp;malttab</td><td align="left" style="width:85%">MaltTAB data format</td></tr></table><a name="input-reader"></a><h4><table><tr><td style="width:30%;font-weight:bold">reader</td><td style="width:5%">&nbsp;-ir</td><td style="width:15%">&nbsp;class</td><td style="width:25%">&nbsp;tab</td><td style="width:25%">&nbsp;both</td></tr></table></h4><p> In MaltParser @version@ there are ine input reader:
 			<ul> 
 			<li><b>tab</b> reads tab-separated files and with columns defined by the input format.</a></li>
@@ -106,9 +106,9 @@ many single malt configurations. </p><table cellpadding="1" cellspacing="0" widt
 			For more information see the user guide: <a href="userguide.html#define_inout">Define your own input/output format</a>. 
 			There are two data format specification files in the MaltParser distribution (included in maltparser-@version@.jar):
 			<ul> 
-			<li><b>conllx</b> defines the <a href="http://nextens.uvt.nl/depparse-wiki/DataFormat" target="_blank">CoNLL-X shared task format</a></li>
-			<li><b>conllu</b> defines the <a href="http://universaldependencies.org/format.html" target="_blank">CoNLL-U Format</a></li>
-			<li><b>malttab</b> defines the <a href="http://w3.msi.vxu.se/~nivre/research/MaltXML.html" target="_blank">Malt-TAB</a> format.</li>
+			<li><b>conllx</b> defines the <a href="http://ilk.uvt.nl/conll/#dataformat" target="_blank">CoNLL-X shared task format</a></li>
+			<li><b>conllu</b> defines the <a href="http://universaldependencies.org/format.html" target="_blank">CoNLL-U format</a></li>
+			<li><b>malttab</b> defines the <a href="http://stp.lingfil.uu.se/~nivre/research/MaltXML.html" target="_blank">Malt-TAB</a> format.</li>
 			</ul>  </p><table cellpadding="1" cellspacing="0" width="50%"><tr><td align="left" style="width:15%;font-weight:bold">&nbsp;conllx</td><td align="left" style="width:85%">CoNLL-X data format</td></tr><tr><td align="left" style="width:15%;font-weight:bold">&nbsp;conllu</td><td align="left" style="width:85%">CoNLL-U data format</td></tr><tr><td align="left" style="width:15%;font-weight:bold">&nbsp;malttab</td><td align="left" style="width:85%">MaltTAB data format</td></tr></table><a name="output-writer"></a><h4><table><tr><td style="width:30%;font-weight:bold">writer</td><td style="width:5%">&nbsp;-ow</td><td style="width:15%">&nbsp;class</td><td style="width:25%">&nbsp;tab</td><td style="width:25%">&nbsp;both</td></tr></table></h4><p> In MaltParser @version@ there is two output writer:
 			<ul> 
 			<li><b>tab</b> writes tab-separated files with columns defined by the input format.</a></li>
@@ -142,7 +142,7 @@ otherwise all tokens in Left must be inspected before the next token is shifted.
 		that are sent to the learner. During parsing, the parsing algorithm requests the prediction of parser actions from the guide, which means that 
 		the guide prepares the feature vectors that are sent to the classifier (which makes use of the model induced in the learning phase).    </p><a name="guide-features"></a><h4><table><tr><td style="width:30%;font-weight:bold">features</td><td style="width:5%">&nbsp;-F</td><td style="width:15%">&nbsp;stringenum</td><td style="width:25%">&nbsp;</td><td style="width:25%">&nbsp;save</td></tr></table></h4><p> The <b>features</b> option is used for specifying the feature model specification file, which is an XML file 
 			(see user guide: <a href="userguide.html#featurespec">Feature model</a>) or a text file with the file suffix <b>.par</b> (see 
-			user guide of MaltParser 0.x (C-impl) <a href="http://w3.msi.vxu.se/~nivre/research/MaltParser.html#features">Feature Models</a>). If 
+			user guide of MaltParser 0.x (C-impl) <a href="http://stp.lingfil.uu.se/~nivre/research/MaltParser.html#features">Feature Models</a>). If 
 			no feature specification file is specified,  the parser will use a default feature model specification for the given parsing algorithm that is included in the
 			MaltParser distribution (included in the maltparser-@version@.jar file).  </p><table cellpadding="1" cellspacing="0" width="50%"><tr><td align="left" style="width:15%;font-weight:bold">&nbsp;nivreeager</td><td align="left" style="width:85%">Nivre arc-eager default model</td></tr><tr><td align="left" style="width:15%;font-weight:bold">&nbsp;nivrestandard</td><td align="left" style="width:85%">Nivre arc-standard default model</td></tr><tr><td align="left" style="width:15%;font-weight:bold">&nbsp;covnonproj</td><td align="left" style="width:85%">Covington non-projective default model</td></tr><tr><td align="left" style="width:15%;font-weight:bold">&nbsp;covproj</td><td align="left" style="width:85%">Covington projective default model</td></tr><tr><td align="left" style="width:15%;font-weight:bold">&nbsp;stackproj</td><td align="left" style="width:85%">Stack projective default model</td></tr><tr><td align="left" style="width:15%;font-weight:bold">&nbsp;stackeager</td><td align="left" style="width:85%">Stack projective default model</td></tr><tr><td align="left" style="width:15%;font-weight:bold">&nbsp;stacklazy</td><td align="left" style="width:85%">Stack projective default model</td></tr><tr><td align="left" style="width:15%;font-weight:bold">&nbsp;planar</td><td align="left" style="width:85%">Planar arc-eager default model</td></tr><tr><td align="left" style="width:15%;font-weight:bold">&nbsp;2planar</td><td align="left" style="width:85%">2-Planar arc-eager default model</td></tr></table><a name="guide-data_split_column"></a><h4><table><tr><td style="width:30%;font-weight:bold">data_split_column</td><td style="width:5%">&nbsp;-d</td><td style="width:15%">&nbsp;string</td><td style="width:25%">&nbsp;</td><td style="width:25%">&nbsp;save</td></tr></table></h4><p> For some learning methods (like LIBSVM) it is impractical to induce a single model based on all training instances. With
 			the <b>data_split_column</b>, <b>data_split_structure</b> and <b>data_split_threshold</b> options it is possible to define how the guide 
