@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <featuremodels>
 	<featuremodel name="covnonproj">
-		<feature>InputColumn(XPOSTAG, Left[0])</feature>
-		<feature>InputColumn(XPOSTAG, Right[0])</feature>
-		<feature>InputColumn(XPOSTAG, Right[1])</feature>
-		<feature>InputColumn(XPOSTAG, Right[2])</feature>
-		<feature>InputColumn(XPOSTAG, Right[3])</feature>
-		<feature>InputColumn(XPOSTAG, Left[1])</feature>
+		<feature>InputColumn(UPOSTAG, Left[0])</feature>
+		<feature>InputColumn(UPOSTAG, Right[0])</feature>
+		<feature>InputColumn(UPOSTAG, Right[1])</feature>
+		<feature>InputColumn(UPOSTAG, Right[2])</feature>
+		<feature>InputColumn(UPOSTAG, Right[3])</feature>
+		<feature>InputColumn(UPOSTAG, Left[1])</feature>
 		<feature>OutputColumn(DEPREL, Left[0])</feature>
 		<feature>OutputColumn(DEPREL, ldep(Left[0]))</feature>
 		<feature>OutputColumn(DEPREL, rdep(Left[0]))</feature>
