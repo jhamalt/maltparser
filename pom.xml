@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.maltparser</groupId>
   <artifactId>maltparser</artifactId>
-  <version>1.9</version>
+  <version>1.9.0</version>
   <packaging>jar</packaging>
   <name>MaltParser</name>
   <description>MaltParser is a system for data-driven dependency parsing, which can be used to induce a parsing model from treebank data and to parse new data using an induced model.</description>
@@ -14,8 +14,8 @@
     </license>
   </licenses>
   <scm>
-    <url>http://maltparser.org/dist/maltparser-1.9.tar.gz</url>
-    <connection>http://maltparser.org/dist/maltparser-1.9.tar.gz</connection>
+    <url>http://maltparser.org/dist/maltparser-1.9.0.tar.gz</url>
+    <connection>http://maltparser.org/dist/maltparser-1.9.0.tar.gz</connection>
   </scm>
   <developers>
     <developer>
