@@ -134,7 +134,7 @@ public class TabReader implements SyntaxGraphReader {
 				continue;
 			}
 			String[] columns = token.split("\t");
-			if (columns[0].contains("-")) {
+			if (columns[0].contains("-") || columns[0].contains(".")) {
 				syntaxGraph.addComment(token, terminalCounter+1);
 				continue;
 			}
