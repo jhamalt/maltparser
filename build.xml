@@ -209,7 +209,7 @@
              doctitle="MaltParser version ${version}&lt;br&gt;API Specification"
              windowtitle="MaltParser ${version}"
              header="&lt;b&gt;MaltParser ${version}&lt;/b&gt;"
-             bottom="Copyright 2007-2014 Johan Hall, Jens Nilsson and Joakim Nivre.">
+             bottom="Copyright 2007-2017 Johan Hall, Jens Nilsson and Joakim Nivre.">
 			<link href="http://java.sun.com/javase/6/docs/api/"/>
 			<classpath refid="compile.classpath"/>
 		</javadoc>
