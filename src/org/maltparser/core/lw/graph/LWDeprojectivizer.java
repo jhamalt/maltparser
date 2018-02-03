@@ -20,11 +20,12 @@ import org.maltparser.core.syntaxgraph.node.DependencyNode;
 public final class LWDeprojectivizer {
 	public static final int NONE = 0;
 	public static final int BASELINE = 1;
-	public static final int HEAD = 1;
-	public static final int PATH = 1;
-	public static final int HEADPATH = 1;
-	public static final int TRACE = 1;
+	public static final int HEAD = 2;
+	public static final int PATH = 3;
+	public static final int HEADPATH = 4;
+	public static final int TRACE = 5;
 
+	public int counter = 0;
 	public LWDeprojectivizer() { }
 	
 	public static int getMarkingStrategyInt(String markingStrategyString) {
@@ -48,7 +49,6 @@ public final class LWDeprojectivizer {
 		SymbolTable deprelSymbolTable = pdg.getSymbolTables().getSymbolTable("DEPREL");
 		SymbolTable ppliftedSymbolTable =  pdg.getSymbolTables().getSymbolTable("PPLIFTED"); 
 		SymbolTable pppathSymbolTable =  pdg.getSymbolTables().getSymbolTable("PPPATH");
-		 
 		boolean[] nodeLifted = new boolean[pdg.nDependencyNode()]; Arrays.fill(nodeLifted, false);
 		boolean[] nodePath = new boolean[pdg.nDependencyNode()]; Arrays.fill(nodePath, false);
 		String[] synacticHeadDeprel = new String[pdg.nDependencyNode()]; Arrays.fill(synacticHeadDeprel, null);
@@ -107,7 +107,8 @@ public final class LWDeprojectivizer {
 
 	private boolean deprojectivizeWithHead(DependencyStructure pdg, DependencyNode node, boolean[] nodeLifted, boolean[] nodePath, String[] synacticHeadDeprel, SymbolTable deprelSymbolTable) throws MaltChainedException {
 		boolean success = true, childSuccess = false;
-		int i, childAttempts = 2;
+		int i, childAttempts = (counter < 10000 ? 2 : 1);
+		counter++;
 		DependencyNode possibleSyntacticHead;
 		String syntacticHeadDeprel;
 		if (nodeLifted[node.getIndex()]) {
@@ -122,7 +123,7 @@ public final class LWDeprojectivizer {
 		}
 		while (!childSuccess && childAttempts > 0) {
 			childSuccess = true;
-			
+
 			List<DependencyNode> children = node.getListOfDependents();
 			for (i = 0; i < children.size(); i++) {
 				if (!deprojectivizeWithHead(pdg, children.get(i), nodeLifted, nodePath, synacticHeadDeprel, deprelSymbolTable)) {
@@ -201,7 +202,8 @@ public final class LWDeprojectivizer {
 	
 	private boolean deprojectivizeWithPath(DependencyStructure pdg, DependencyNode node, boolean[] nodeLifted, boolean[] nodePath) throws MaltChainedException {
 		boolean success = true, childSuccess = false;
-		int i, childAttempts = 2;
+		int i, childAttempts = (counter < 10000 ? 2 : 1);
+		counter++;
 		DependencyNode possibleSyntacticHead;
 		if (node.hasHead() && node.getHeadEdge().isLabeled() && nodeLifted[node.getIndex()] && nodePath[node.getIndex()]) {
 			possibleSyntacticHead = breadthFirstSearchSortedByDistanceForPath(pdg, node.getHead(), node, nodePath);
@@ -250,7 +252,8 @@ public final class LWDeprojectivizer {
 
 	private boolean deprojectivizeWithHeadAndPath(DependencyStructure pdg, DependencyNode node, boolean[] nodeLifted, boolean[] nodePath, String[] synacticHeadDeprel, SymbolTable deprelSymbolTable) throws MaltChainedException {
 		boolean success = true, childSuccess = false;
-		int i, childAttempts = 2;
+		int i, childAttempts = (counter < 10000 ? 2 : 1);
+		counter++;
 		DependencyNode possibleSyntacticHead;
 		if (node.hasHead() && node.getHeadEdge().isLabeled() && nodeLifted[node.getIndex()] && nodePath[node.getIndex()]) {
 			possibleSyntacticHead = breadthFirstSearchSortedByDistanceForHeadAndPath(pdg, node.getHead(), node, synacticHeadDeprel[node.getIndex()], nodePath, deprelSymbolTable);
