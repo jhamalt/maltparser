@@ -145,9 +145,9 @@ public final class Merge3Feature implements FeatureMapFunction {
 						try {
 							int dotIndex = thirdSymbol.indexOf('.');
 							if (dotIndex == -1) {
-								secondInt = Integer.parseInt(thirdSymbol);
+								thirdInt = Integer.parseInt(thirdSymbol);
 							} else {
-								secondInt = Integer.parseInt(thirdSymbol.substring(0,dotIndex));
+								thirdInt = Integer.parseInt(thirdSymbol.substring(0,dotIndex));
 							}
 						} catch (NumberFormatException e) {
 							throw new FeatureException("Could not cast the feature value '"+thirdSymbol+"' to integer value.", e);
