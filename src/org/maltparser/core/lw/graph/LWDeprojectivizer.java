@@ -108,9 +108,10 @@ public final class LWDeprojectivizer {
 	private boolean deprojectivizeWithHead(DependencyStructure pdg, DependencyNode node, boolean[] nodeLifted, boolean[] nodePath, String[] synacticHeadDeprel, SymbolTable deprelSymbolTable) throws MaltChainedException {
 		boolean success = true, childSuccess = false;
 		int i, childAttempts = (counter < 10000 ? 2 : 1);
-		counter++;
 		DependencyNode possibleSyntacticHead;
 		String syntacticHeadDeprel;
+		
+		counter++;
 		if (nodeLifted[node.getIndex()]) {
 			syntacticHeadDeprel = synacticHeadDeprel[node.getIndex()];
 			possibleSyntacticHead = breadthFirstSearchSortedByDistanceForHead(pdg, node.getHead(), node, syntacticHeadDeprel, nodePath, deprelSymbolTable);
@@ -203,8 +204,9 @@ public final class LWDeprojectivizer {
 	private boolean deprojectivizeWithPath(DependencyStructure pdg, DependencyNode node, boolean[] nodeLifted, boolean[] nodePath) throws MaltChainedException {
 		boolean success = true, childSuccess = false;
 		int i, childAttempts = (counter < 10000 ? 2 : 1);
-		counter++;
 		DependencyNode possibleSyntacticHead;
+		
+		counter++;
 		if (node.hasHead() && node.getHeadEdge().isLabeled() && nodeLifted[node.getIndex()] && nodePath[node.getIndex()]) {
 			possibleSyntacticHead = breadthFirstSearchSortedByDistanceForPath(pdg, node.getHead(), node, nodePath);
 			if (possibleSyntacticHead != null) {
@@ -253,8 +255,9 @@ public final class LWDeprojectivizer {
 	private boolean deprojectivizeWithHeadAndPath(DependencyStructure pdg, DependencyNode node, boolean[] nodeLifted, boolean[] nodePath, String[] synacticHeadDeprel, SymbolTable deprelSymbolTable) throws MaltChainedException {
 		boolean success = true, childSuccess = false;
 		int i, childAttempts = (counter < 10000 ? 2 : 1);
-		counter++;
 		DependencyNode possibleSyntacticHead;
+		
+		counter++;
 		if (node.hasHead() && node.getHeadEdge().isLabeled() && nodeLifted[node.getIndex()] && nodePath[node.getIndex()]) {
 			possibleSyntacticHead = breadthFirstSearchSortedByDistanceForHeadAndPath(pdg, node.getHead(), node, synacticHeadDeprel[node.getIndex()], nodePath, deprelSymbolTable);
 			if (possibleSyntacticHead != null) {
