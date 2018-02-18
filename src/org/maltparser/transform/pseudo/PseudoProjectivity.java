@@ -55,7 +55,7 @@ public class PseudoProjectivity {
 	private Vector<Boolean> isCoveredRoot;
 	private Vector<Integer> nodeRelationLength;
 	private Vector<String> synacticHeadDeprel;
-
+	private int counter;
 
 	public PseudoProjectivity() { }
 
@@ -68,7 +68,8 @@ public class PseudoProjectivity {
 		isCoveredRoot = new Vector<Boolean>();
 		nodeRelationLength = new Vector<Integer>();
 		synacticHeadDeprel = new Vector<String>();
-
+		counter = 0;
+				
 		this.configLogger = configLogger;
 		if (markingStrategyString.equalsIgnoreCase("none")) {
 			markingStrategy = PseudoProjectiveEncoding.NONE;
@@ -472,6 +473,7 @@ public class PseudoProjectivity {
 		nodeLifted.clear();
 		nodePath.clear();
 		synacticHeadDeprel.clear();
+		counter = 0;
 		for (int index : pdg.getDependencyIndices()) {
 			nodeLifted.add(false);
 			nodePath.add(false);
@@ -508,9 +510,10 @@ public class PseudoProjectivity {
 
 	private boolean deprojectivizeWithHead(DependencyStructure pdg, DependencyNode node) throws MaltChainedException {
 		boolean success = true, childSuccess = false;
-		int i, childAttempts = 2;
+		int i, childAttempts = (counter < 10000 ? 2 : 1);
 		DependencyNode child, possibleSyntacticHead;
 		String syntacticHeadDeprel;
+		counter++;
 		if (nodeLifted.get(node.getIndex())) {
 			syntacticHeadDeprel = synacticHeadDeprel.get(node.getIndex());
 			possibleSyntacticHead = breadthFirstSearchSortedByDistanceForHead(pdg, node.getHead(), node, syntacticHeadDeprel);
@@ -656,8 +659,9 @@ public class PseudoProjectivity {
 
 	private boolean deprojectivizeWithPath(DependencyStructure pdg, DependencyNode node) throws MaltChainedException {
 		boolean success = true, childSuccess = false;
-		int i, childAttempts = 2;
+		int i, childAttempts = (counter < 10000 ? 2 : 1);
 		DependencyNode child, possibleSyntacticHead;
+		counter++;
 		if (node.hasHead() && node.getHeadEdge().isLabeled() && nodeLifted.get(node.getIndex()) && nodePath.get(node.getIndex())) {
 			possibleSyntacticHead = breadthFirstSearchSortedByDistanceForPath(pdg, node.getHead(), node);
 			if (possibleSyntacticHead != null) {
@@ -716,8 +720,9 @@ public class PseudoProjectivity {
 
 	private boolean deprojectivizeWithHeadAndPath(DependencyStructure pdg, DependencyNode node) throws MaltChainedException {
 		boolean success = true, childSuccess = false;
-		int i, childAttempts = 2;
+		int i, childAttempts = (counter < 10000 ? 2 : 1);
 		DependencyNode child, possibleSyntacticHead;
+		counter++;
 		if (node.hasHead() && node.getHeadEdge().isLabeled() && nodeLifted.get(node.getIndex()) && nodePath.get(node.getIndex())) {
 			possibleSyntacticHead = breadthFirstSearchSortedByDistanceForHeadAndPath(pdg, node.getHead(), node, synacticHeadDeprel.get(node
 					.getIndex()));
