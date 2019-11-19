@@ -303,12 +303,13 @@ public class SingleMalt implements DependencyParserConfig {
 	}
 	
 	public void writeInfoToConfigFile(String message) throws MaltChainedException {
-		try {
-			configDir.getInfoFileWriter().write(message);
-			configDir.getInfoFileWriter().flush();
-		} catch (IOException e) {
-			throw new ConfigurationException("Could not write to the configuration information file. ", e);
-	
+		if (configDir.getInfoFileWriter() != null) {
+			try {
+				configDir.getInfoFileWriter().write(message);
+				configDir.getInfoFileWriter().flush();
+			} catch (IOException e) {
+				throw new ConfigurationException("Could not write to the configuration information file. ", e);
+			}
 		}
 	}
 	
@@ -438,7 +439,7 @@ public class SingleMalt implements DependencyParserConfig {
 			if (configDir.getInfoFileWriter() != null) {
 				configDir.getInfoFileWriter().write("\nDEPENDENCIES\n");
 			}
-			
+			boolean testdata_flow = OptionManager.instance().getOptionValue(optionContainerIndex, "config", "flowchart").toString().trim().equals("testdata");
 			// Copy the feature model file into the configuration directory
 			String featureModelFileName = getOptionValue("guide", "features").toString().trim();
 			if (featureModelFileName.equals("")) {
@@ -458,7 +459,7 @@ public class SingleMalt implements DependencyParserConfig {
 				
 				final URLFinder f = new URLFinder();
 				featureModelFileName = configDir.copyToConfig(f.findURLinJars(featureModelFileName));
-			} else {
+			} else if (!testdata_flow) {
 				featureModelFileName = configDir.copyToConfig(featureModelFileName);
 			}
 			OptionManager.instance().overloadOptionValue(optionContainerIndex, "guide", "features", featureModelFileName);

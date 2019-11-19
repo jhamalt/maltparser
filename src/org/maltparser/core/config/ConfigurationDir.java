@@ -137,15 +137,17 @@ public class ConfigurationDir  {
 		String inputFormatName = OptionManager.instance().getOptionValue(containerIndex, "input", "format").toString().trim();
 		String outputFormatName = OptionManager.instance().getOptionValue(containerIndex, "output", "format").toString().trim();
 		final URLFinder f = new URLFinder();
-
-		if (configDirectory != null && configDirectory.exists()) {
+		boolean testdata_flow = OptionManager.instance().getOptionValue(containerIndex, "config", "flowchart").toString().trim().equals("testdata");
+		System.out.println(OptionManager.instance().getOptionValue(containerIndex, "config", "flowchart").toString());
+		if (configDirectory != null && configDirectory.exists() && !testdata_flow) {
 			if (outputFormatName.length() == 0 || inputFormatName.equals(outputFormatName)) {
 				URL inputFormatURL = f.findURLinJars(inputFormatName);
 				if (inputFormatURL != null) {
-					outputFormatName = inputFormatName = this.copyToConfig(inputFormatURL);
+					inputFormatName = this.copyToConfig(inputFormatURL);
 				} else {
-					outputFormatName = inputFormatName = this.copyToConfig(inputFormatName);
+					inputFormatName = this.copyToConfig(inputFormatName);
 				}
+				outputFormatName = inputFormatName;
 			} else {
 				URL inputFormatURL = f.findURLinJars(inputFormatName);
 				if (inputFormatURL != null) {
